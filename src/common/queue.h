@@ -18,16 +18,10 @@
 #define SLIST_HEAD_INITIALIZER(head) \
   { NULL }
 
-#define SLIST_HEAD_INITIALIZER_NONEMPTY(first) \
-  { first }
-
 #define SLIST_ENTRY(type) \
   struct {                \
     struct type *sl_next; \
   }
-
-#define SLIST_ENTRY_INITIALIZER(next) \
-  { next }
 
 #define SLIST_EMPTY(head) ((head)->sl_first == NULL)
 
