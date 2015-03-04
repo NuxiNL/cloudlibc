@@ -1,0 +1,349 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2015 Nuxi, https://nuxi.nl/
+#
+# This file is distrbuted under a 2-clause BSD license.
+# See the LICENSE file for details.
+
+import collections
+import datetime
+
+DATAFILES = set(['africa', 'antarctica', 'asia', 'australasia',
+                 'backward', 'etcetera', 'europe', 'northamerica',
+                 'pacificnew', 'southamerica'])
+
+RULES = collections.defaultdict(list)
+ERAS = collections.defaultdict(list)
+LINKS = {}
+
+# A standard ruleset for countries that are always in daylight saving time.
+RULES['rules_100'] = [{
+    'year_from': 0,
+    'year_to': 255,
+    'month': 0,
+    'monthday': 1,
+    'weekday': 7,
+    'hour': 0,
+    'minute': 0,
+    'timebase': 'TIMEBASE_CUR',
+    'save': 60,
+    'abbreviation': '',
+}]
+
+def get_eras_name(tz):
+  return 'eras_' + tz.replace('/', '_').replace('+', '').replace('-', '_')
+
+def get_rules_name(tz):
+  return 'rules_' + tz.replace(':', '').replace('-', '_')
+
+def handle_zoneline(ename, fields, end, timebase):
+  entry = {}
+  # Timezone offset.
+  if fields[0][0] == '-':
+    entry['gmtoff'] = -1
+    fields[0] = fields[0][1:]
+  else:
+    entry['gmtoff'] = 1
+  gmtoff = fields[0].split(':') + ['0', '0']
+  entry['gmtoff'] *= (int(gmtoff[0]) * 3600 + int(gmtoff[1]) * 60 +
+                      int(gmtoff[2]))
+
+  # Daylight saving time rules.
+  entry['rules'] = get_rules_name(fields[1])
+
+  # Abbreviation.
+  abbr = fields[2].split('/') + ['']
+  entry['abbreviation_std'] = abbr[0]
+  entry['abbreviation_dst'] = abbr[1]
+
+  # End date.
+  entry['end'] = end
+  entry['timebase'] = timebase
+  ERAS[ename].append(entry)
+
+def is_leap(year):
+  year %= 400
+  return (year % 4 == 0 and year % 100 != 0) or year == 100
+
+def get_ruleline_day(daystr, year_from, year_to, month):
+  try:
+    # Exact day number.
+    return int(daystr), 7
+  except ValueError:
+    daymap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    greater_than = daystr.split('>=')
+    if len(greater_than) == 2:
+      # Weekday greater than n, e.g. "Sun>=16".
+      return int(greater_than[1]), daymap.index(greater_than[0])
+
+    # Last weekday of the month, e.g. "lastSun".
+    assert daystr[:4] == 'last'
+    weekday = daymap.index(daystr[4:])
+    if month != 1:
+      # For all months except February we can translate it to "Day>=n".
+      month_lengths = [31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      return month_lengths[month] - 6, weekday
+
+    # Ensure that all years in this rule are leap years or not.
+    # TODO(edje): Automatically decompose rules in case this doesn't
+    # hold.
+    leap = is_leap(year_from)
+    for year in range(year_from + 1, year_to + 1):
+      assert is_leap(year) == leap
+    return (29 if leap else 28) - 6, weekday
+
+def handle_ruleline(rname, fields):
+  entry = {}
+
+  # Year fields.
+  entry['year_from'] = int(fields[0]) - 1900
+  if fields[1] == 'max':
+    entry['year_to'] = 255
+  elif fields[1] == 'only':
+    entry['year_to'] = entry['year_from']
+  else:
+    entry['year_to'] = int(fields[1]) - 1900
+
+  # Unused type field.
+  assert fields[2] == '-'
+
+  # Month.
+  entry['month'] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+                    'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].index(fields[3])
+
+  # Day of the month.
+  entry['monthday'], entry['weekday'] = get_ruleline_day(
+      fields[4], entry['year_from'], entry['year_to'], entry['month'])
+
+  # Time.
+  time = fields[5]
+  if time == '0':
+    # Shorthand for 0:00.
+    time = '0:00'
+  if time[-1] == 's':
+    entry['timebase'] = 'TIMEBASE_STD'
+    time = time[:-1]
+  elif time[-1] == 'u':
+    entry['timebase'] = 'TIMEBASE_UTC'
+    time = time[:-1]
+  else:
+    entry['timebase'] = 'TIMEBASE_CUR'
+  time = time.split(':')
+  entry['hour'] = int(time[0])
+  assert entry['hour'] >= 0 and entry['hour'] <= 24
+  entry['minute'] = int(time[1])
+  assert entry['hour'] >= 0 and entry['hour'] < 60
+
+  # Amount of daylight saving.
+  save = fields[6].split(':') + ['0']
+  entry['save'] = int(save[0]) * 60 + int(save[1])
+
+  entry['abbreviation'] = fields[7] if fields[7] != '-' else ''
+  RULES[rname].append(entry)
+
+def translate_day(fields):
+  return fields[2]
+
+def handle_endtime(fields):
+  # Last record without an end time.
+  if len(fields) == 0:
+    return 0, 'u'
+
+  # Workaround: In a couple of places, directives like 'lastSun' and
+  # 'Sun>=1' are being used, even in Zone directives. Translate these to
+  # exact dates.
+  quirkmap = {
+      ('1946', 'Apr', 'lastSun'): 27,
+      ('1960', 'Apr', 'lastSun'): 24,
+      ('1972', 'Apr', 'lastSun'): 30,
+      ('1979', 'Apr', 'lastSun'): 29,
+      ('1989', 'Mar', 'lastSun'): 26,
+      ('1989', 'Sep', 'lastSun'): 24,
+      ('1992', 'Sep', 'lastSat'): 26,
+      ('1994', 'Sep', 'lastSun'): 25,
+      ('1995', 'Mar', 'lastSun'): 26,
+      ('1995', 'Apr', 'Sun>=1'): 2,
+      ('1996', 'Oct', 'lastSun'): 27,
+      ('1997', 'Mar', 'lastSun'): 30,
+      ('1998', 'Apr', 'Sun>=1'): 5,
+      ('2005', 'Mar', 'lastSun'): 27,
+      ('2015', 'Nov', 'Sun>=1'): 1,
+  }
+  q = tuple(fields[:3])
+  if q in quirkmap:
+    fields = fields[:2] + [str(quirkmap[q])] + fields[3:]
+
+  timebase = 'c'
+  if len(fields) == 1:
+    dt = datetime.datetime.strptime(' '.join(fields), '%Y')
+  elif len(fields) == 2:
+    dt = datetime.datetime.strptime(' '.join(fields), '%Y %b')
+  elif len(fields) == 3:
+    fields[2] = translate_day(fields)
+    dt = datetime.datetime.strptime(' '.join(fields), '%Y %b %d')
+  elif len(fields) == 4:
+    fields[2] = translate_day(fields[:3])
+
+    # Timebase flag at the end of time.
+    if fields[3][-1] == 's' or fields[3][-1] == 'u':
+      timebase = fields[3][-1]
+      fields[3] = fields[3][:-1]
+
+    while True:
+      try:
+        dt = datetime.datetime.strptime(' '.join(fields), '%Y %b %d %H:%M:%S')
+      except ValueError:
+        if fields[3] == '24:00':
+          # Workaround: Time value of 24:00. Translate it to 0:00:00.
+          fields[2] = str(int(fields[2]) + 1)
+          fields[3] = '0:00:00'
+        else:
+          # Add missing minutes/seconds.
+          fields[3] = fields[3] + ':00'
+      else:
+        break
+  return int((dt - datetime.datetime(1970, 1, 1)).total_seconds()), timebase
+
+# Parse the data files.
+for datafile in DATAFILES:
+  with open(datafile, 'r') as tzfile:
+    last_zone = None
+    for line in tzfile:
+      # Ignore trailing comments and empty lines.
+      line = line.split('#')[0].strip()
+      if not line:
+        continue
+      fields = line.split()
+
+      if fields[0] == 'Rule':
+        handle_ruleline(get_rules_name(fields[1]), fields[2:])
+      elif fields[0] == 'Link':
+        # Workaround: Eliminate transitive links. Africa/Asmera points
+        # to Africa/Asmara, whereas Africa/Asmara is aready a link to
+        # Africa/Nairobi.
+        if fields[1] == 'Africa/Asmara':
+          fields[1] = 'Africa/Nairobi'
+        LINKS[fields[2]] = get_eras_name(fields[1])
+      elif fields[0] == 'Zone':
+        ename = get_eras_name(fields[1])
+        LINKS[fields[1]] = ename
+        last_zone = ename
+        endtime, endtime_timebase = handle_endtime(fields[5:])
+        handle_zoneline(ename, fields[2:], endtime, endtime_timebase)
+      else:
+        assert endtime != None
+        endtime, endtime_timebase = handle_endtime(fields[3:])
+        handle_zoneline(last_zone, fields, endtime, endtime_timebase)
+
+def sort_ruleset(ruleset):
+  return sorted(ruleset, key=lambda rule: (rule['month'], rule['monthday']))
+
+# Postprocessing: fix up eras->end to be either relative to UTC, the
+# local time or the standard time.
+def fixup_era(era):
+  # Time should be relative to local time. This is annoying, as it
+  # requires us to do an actual simulation of the ruleset. Below is a
+  # rough implementation of localtime_l().
+  rules = RULES[era['rules']]
+  save = 0
+  save_dst = 0
+
+  if len(rules) > 0:
+    # Step 1: Determine ruleset of the previous year.
+    lastsec = era['end'] - 1
+    std = (datetime.datetime(1970, 1, 1) +
+           datetime.timedelta(seconds=lastsec - era['gmtoff']))
+    last_year = rules[0]['year_from']
+    ruleset = []
+    while len(rules) != 0 and rules[0]['year_from'] < std.year - 1900:
+      if last_year != rules[0]['year_from']:
+        ruleset = [rule for rule in ruleset
+                        if rule['year_to'] >= rules[0]['year_from']]
+      ruleset = sort_ruleset(ruleset + [rules[0]])
+      save = 0 if len(ruleset) == 0 else ruleset[-1]['save'] * 60
+      if save != 0:
+        save_dst = save
+      rules = rules[1:]
+
+    # Step 2: Determine ruleset of the current year.
+    ruleset = [rule for rule in ruleset
+                    if rule['year_to'] >= std.year - 1900]
+    while len(rules) != 0 and rules[0]['year_from'] == std.year - 1900:
+      ruleset.append(rules[0])
+      rules = rules[1:]
+    ruleset = sort_ruleset(ruleset)
+
+    # Step 3: determine whether there is a rule for the current year
+    # that matches the time.
+    for rule in ruleset:
+      if rule['timebase'] == 'TIMEBASE_CUR':
+        time = (datetime.datetime(1970, 1, 1) +
+                datetime.timedelta(seconds=lastsec - era['gmtoff'] - save))
+      elif rule['timebase'] == 'TIMEBASE_STD':
+        time = (datetime.datetime(1970, 1, 1) +
+                datetime.timedelta(seconds=lastsec - era['gmtoff']))
+      else:
+        assert rule['timebase'] == 'TIMEBASE_UTC'
+        time = (datetime.datetime(1970, 1, 1) +
+                datetime.timedelta(seconds=lastsec))
+      monthdaydelta = 0
+      if rule['weekday'] != 7:
+        monthdaydelta = (rule['weekday'] - (time.isoweekday() - 1) +
+                         time.day - rule['monthday']) % 7
+      assert monthdaydelta >= 0 and monthdaydelta < 7
+      if (rule['month'], rule['monthday'] + monthdaydelta,
+          rule['hour'], rule['minute']) > (time.month - 1, time.day,
+          time.hour, time.minute):
+        break
+      save = rule['save'] * 60
+      if save != 0:
+        save_dst = save
+
+  era['end_save_actual'] = save
+  era['end_save_dst'] = save_dst
+  if era['timebase'] == 's':
+    # Time should be relative to standard time.
+    era['end'] -= era['gmtoff']
+  elif era['timebase'] == 'c':
+    era['end'] -= era['gmtoff'] + save
+
+  return era
+
+for name in ERAS:
+  ERAS[name] = [fixup_era(era) for era in ERAS[name]]
+
+# Print the timezone rules.
+for name, rules in sorted(RULES.iteritems()):
+  if len(rules) > 0:
+    print 'static const struct lc_timezone_rule %s[] = {' % name
+    for rule in rules:
+      assert rule['save'] in [0, 20, 30, 60, 90, 120]
+      print '    {%d, %d, %d, %d, %d, %d, %s, %d, \"%s\"},' % (
+          rule['year_from'], rule['year_to'], rule['month'], rule['weekday'],
+          rule['monthday'], rule['hour'] * 60 + rule['minute'],
+          rule['timebase'], rule['save'] / 10, rule['abbreviation'])
+    print '};'
+
+# Print the timezone eras.
+for name, eras in sorted(ERAS.iteritems()):
+  print 'static const struct lc_timezone_era %s[] = {' % name
+  for era in eras:
+    assert era['end_save_actual'] in [0, era['end_save_dst']]
+    print '    {%s, %d, %d, %d, %d, %d, \"%s\", \"%s\"},' % (
+         'NULL' if len(RULES[era['rules']]) == 0 else era['rules'],
+         len(RULES[era['rules']]), era['gmtoff'], era['end'],
+         era['end_save_actual'] / 600, era['end_save_dst'] / 600,
+         era['abbreviation_std'], era['abbreviation_dst'])
+  print '};'
+
+# Print the links to the timezones.
+print 'static const char timezone_names[] =';
+for link in sorted(LINKS):
+  print '    \"%s\\0\"' % link
+print ';'
+
+print 'static const struct lc_timezone timezones[] = {'
+for name, ename in sorted(LINKS.iteritems()):
+  assert len(ERAS[ename]) > 0
+  print '    {%s, %d},' % (ename, len(ERAS[ename]))
+print '};'

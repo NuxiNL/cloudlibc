@@ -1,0 +1,37 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// This file is distrbuted under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#ifndef COMMON_REFCOUNT_H
+#define COMMON_REFCOUNT_H
+
+#include <assert.h>
+#include <stdatomic.h>
+#include <stdbool.h>
+
+typedef struct { atomic_uint count; } refcount_t;
+
+#define REFCOUNT_INIT(count) \
+  { ATOMIC_VAR_INIT(count) }
+
+static inline void refcount_init(refcount_t *refcount, unsigned int count) {
+  atomic_init(&refcount->count, count);
+}
+
+static inline void refcount_acquire(refcount_t *refcount) {
+#ifdef NDEBUG
+  atomic_fetch_add_explicit(&refcount->count, 1, memory_order_acquire);
+#else
+  unsigned int old =
+      atomic_fetch_add_explicit(&refcount->count, 1, memory_order_acquire);
+  assert(old > 0 && "Attempted to acquire unreferenced object");
+#endif
+}
+
+static inline bool refcount_release(refcount_t *refcount) {
+  return atomic_fetch_sub_explicit(&refcount->count, 1, memory_order_release) ==
+         1;
+}
+
+#endif

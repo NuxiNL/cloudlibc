@@ -1,0 +1,48 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// This file is distrbuted under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#include <sys/mman.h>
+#include <sys/stat.h>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <string.h>
+#include <testing.h>
+#include <unistd.h>
+
+TEST(shm_open, bad) {
+  ASSERT_EQ(-1, shm_open("/somepath", O_RDWR));
+  ASSERT_EQ(EINVAL, errno);
+
+  ASSERT_EQ(-1, shm_open(SHM_ANON, O_RDONLY));
+  ASSERT_EQ(EINVAL, errno);
+}
+
+TEST(shm_open, example) {
+  int fd = shm_open(SHM_ANON, O_RDWR);
+  ASSERT_LE(0, fd);
+
+  // Shared memory should be empty.
+  struct stat sb;
+  ASSERT_EQ(0, fstat(fd, &sb));
+  ASSERT_TRUE(S_TYPEISSHM(sb.st_mode));
+  ASSERT_EQ(0, sb.st_size);
+
+  // Grow.
+  ASSERT_EQ(0, ftruncate(fd, 1000));
+
+  // Validate length.
+  ASSERT_EQ(0, fstat(fd, &sb));
+  ASSERT_TRUE(S_TYPEISSHM(sb.st_mode));
+  ASSERT_EQ(1000, sb.st_size);
+
+  // Map shared memory and write data into it.
+  void *mapping = mmap(NULL, 1000, PROT_WRITE, MAP_SHARED, fd, 0);
+  ASSERT_NE(MAP_FAILED, mapping);
+  memset(mapping, 'A', 1000);
+  ASSERT_EQ(0, munmap(mapping, 1000));
+
+  ASSERT_EQ(0, close(fd));
+}

@@ -1,0 +1,78 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// This file is distrbuted under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#include <common/crt.h>
+#include <common/pthread.h>
+#include <common/syscalls.h>
+
+#include <assert.h>
+#include <pthread.h>
+#include <stdatomic.h>
+
+int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
+  // Implement once objects by abusing the infrastructure for read-write
+  // locks.
+  //
+  // The thread executing the initialization routine will hold an
+  // exclusive lock. If other threads need to block, they will pick up a
+  // read lock. Once finished, the once object will either be unlocked
+  // or will have some stale read locks. To distinguish between the
+  // initial state and the final state, the initial state uses
+  // CLOUDABI_LOCK_BOGUS.
+  //
+  // By reusing read-write locks, the kernel may apply priority
+  // inheritance.
+
+  // Quickly terminate in case we're already finished.
+  if (atomic_load_explicit(&once_control->__state, memory_order_relaxed) ==
+      CLOUDABI_LOCK_UNLOCKED)
+    return (0);
+
+  cloudabi_lock_t expected = CLOUDABI_LOCK_BOGUS;
+  cloudabi_lock_t locked = __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED;
+  if (atomic_compare_exchange_strong_explicit(&once_control->__state, &expected,
+                                              locked, memory_order_acquire,
+                                              memory_order_acquire)) {
+    // First invocation. Execute initialization routine.
+    init_routine();
+
+    // Attempt to mark the once object as finished.
+    if (!atomic_compare_exchange_strong_explicit(
+            &once_control->__state, &locked, CLOUDABI_LOCK_UNLOCKED,
+            memory_order_release, memory_order_relaxed)) {
+      assert(locked == (__pthread_thread_id | CLOUDABI_LOCK_WRLOCKED |
+                        CLOUDABI_LOCK_KERNEL_MANAGED) &&
+             "Corrupt once object");
+
+      // Once object has other threads waiting on its completion. Call into the
+      // kernel to unblock the waiting threads.
+      cloudabi_errno_t error = cloudabi_sys_lock_unlock(&once_control->__state);
+      if (error != 0)
+        __pthread_terminate(error,
+                            "Failed to wake up threads blocked on once object");
+    }
+  } else if ((expected & CLOUDABI_LOCK_WRLOCKED) != 0) {
+    // Initialization routine is being executed. Suspend execution of
+    // this thread until the other thread has finished executing the
+    // initialization routine.
+    cloudabi_event_t event = {
+        .type = CLOUDABI_EVENT_TYPE_LOCK_RDLOCK,
+        .lock.lock = &once_control->__state,
+    };
+    size_t triggered;
+    cloudabi_errno_t error =
+        cloudabi_sys_poll_once(&event, 1, &event, 1, &triggered);
+    if (error != 0)
+      __pthread_terminate(error, "Failed to wait on once object");
+    if (event.error != 0)
+      __pthread_terminate(event.error, "Failed to wait on once object");
+  }
+
+  // After unblocking, there may still be a number of 'read-lockers'.
+  // Explictly set the lock to the initial state to make the fast path work.
+  atomic_store_explicit(&once_control->__state, CLOUDABI_LOCK_UNLOCKED,
+                        memory_order_relaxed);
+  return 0;
+}

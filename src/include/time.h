@@ -1,0 +1,122 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE.
+
+// <time.h> - time types
+//
+// Extensions:
+// - localtime_l(), mktime_l():
+//   localtime() and mktime() always use UTC. localtime_l() and
+//   mktime_l() also provide sub-second granularity.
+// - strptime_l():
+//   strptime() always uses the POSIX locale.
+// - struct tm::tm_gmtoff and struct tm::tm_zone:
+//   Timezone information used by strftime(). Also present on FreeBSD.
+// - struct tm::tm_nsec:
+//   Adds sub-second precision to strftime()/strptime().
+// - nanosleep() and clock_nanosleep():
+//   Last argument is optional, as calls can never be interrupted.
+//
+// Features missing:
+// - clock_getcpuclockid():
+//   Requires global process namespace.
+// - clock_settime():
+//   Requires administrative privileges.
+// - gmtime() and localtime():
+//   Not thread-safe.
+// - struct itimerspec, timer_create(), timer_delete(), timer_getoverrun(),
+//   timer_gettime(), timer_settime():
+//   Requires signal handling support.
+// - tzset(), daylight, timezone, tzname:
+//   No process-wide timezone exists.
+
+#ifndef _TIME_H_
+#define _TIME_H_
+
+#include <_/limits.h>
+#include <_/struct/timespec.h>
+#include <_/types.h>
+
+typedef __clock_t clock_t;
+typedef __clockid_t clockid_t;
+typedef __locale_t locale_t;
+typedef __size_t size_t;
+typedef __time_t time_t;
+
+struct tm {
+  // Standard fields.
+  int tm_sec;    // Seconds [0,60].
+  int tm_min;    // Minutes [0,59].
+  int tm_hour;   // Hour [0,23].
+  int tm_mday;   // Day of month [1,31].
+  int tm_mon;    // Month of year [0,11].
+  int tm_year;   // Years since 1900.
+  int tm_wday;   // Day of week [0,6] (Sunday = 0).
+  int tm_yday;   // Day of year [0,365].
+  int tm_isdst;  // Daylight Savings flag.
+
+  // Extensions.
+  int tm_gmtoff;                  // Offset from UTC in seconds.
+  char tm_zone[_TZNAME_MAX + 1];  // Timezone abbreviation.
+  long tm_nsec;                   // Nanoseconds [0,999999999].
+};
+
+#define NULL _NULL
+
+#define CLOCKS_PER_SEC 1000000
+
+#define CLOCK_MONOTONIC 1
+#define CLOCK_PROCESS_CPUTIME_ID 2
+#define CLOCK_REALTIME 3
+#define CLOCK_THREAD_CPUTIME_ID 4
+
+#define TIMER_ABSTIME 1
+
+#define TIME_UTC CLOCK_REALTIME
+
+__BEGIN_DECLS
+clock_t clock(void);
+int clock_getres(clockid_t, struct timespec *);
+int clock_gettime(clockid_t, struct timespec *);
+int clock_nanosleep(clockid_t, int, const struct timespec *, ...);
+double difftime(time_t, time_t);
+struct tm *gmtime_r(const time_t *__restrict, struct tm *__restrict);
+int localtime_l(const struct timespec *__restrict, struct tm *__restrict,
+                locale_t);
+struct tm *localtime_r(const time_t *__restrict, struct tm *__restrict);
+time_t mktime(struct tm *);
+int mktime_l(const struct tm *__restrict, struct timespec *__restrict,
+             locale_t);
+int nanosleep(const struct timespec *, ...);
+size_t strftime(char *__restrict, size_t, const char *__restrict,
+                const struct tm *__restrict);
+size_t strftime_l(char *__restrict, size_t, const char *__restrict,
+                  const struct tm *__restrict, locale_t);
+char *strptime(const char *__restrict, const char *__restrict,
+               struct tm *__restrict);
+char *strptime_l(const char *__restrict, const char *__restrict,
+                 struct tm *__restrict, locale_t);
+time_t time(time_t *);
+int timespec_get(struct timespec *, int);
+__END_DECLS
+
+#endif

@@ -1,0 +1,91 @@
+#!/bin/sh
+
+set -e
+
+TARGET="x86_64-nuxi-cloudabi"
+CC="${TARGET}-cc"
+CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/jemalloc-3.6.0/include -Werror"
+COPTFLAGS="-O3"
+WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare"
+
+SRCS=$(find src contrib/jemalloc-3.6.0 -name "*.[cS]" | sort)
+
+echo "=> Testing headers"
+(cd src/include; find * -type f) | while read header; do
+  echo "#include <$header>"
+done | (sort -R 2> /dev/null || sort) | ${CC} ${CFLAGS} -x c -c -o /dev/null -
+(cd src/include; find * -type f) | while read header; do
+  echo "#include <$header>"
+done | (sort -R 2> /dev/null || sort) | ${CC} ${CFLAGS} -x c++ -c -o /dev/null -
+
+echo "=> Computing dependencies"
+rm -Rf _obj/dep
+mkdir -p _obj/dep
+for srcfile in ${SRCS}; do
+  safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
+  echo "-MT _obj/${safename}.o -MF _obj/dep/${safename}.d ${srcfile}"
+done | xargs -P 8 -n 5 ${CC} ${CFLAGS} -MM
+for srcfile in ${SRCS}; do
+  safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
+  case "${srcfile}" in
+  contrib/*) extraflags="${COPTFLAGS} -fstack-protector-strong" ;;
+  src/crt/*) extraflags="" ;;
+  *_test.c) extraflags="${WARNFLAGS} -fno-builtin -fstack-protector-strong" ;;
+  *) extraflags="${COPTFLAGS} ${WARNFLAGS} -fstack-protector-strong" ;;
+  esac
+  cat >> "_obj/dep/${safename}.d" << EOF
+	${CC} ${CFLAGS} ${extraflags} -c -o _obj/${safename}.o ${srcfile}
+all: _obj/${safename}.o
+EOF
+done
+cat _obj/dep/*.d > _obj/Makefile
+
+echo "=> Compiling sources"
+make -k -j8 -f _obj/Makefile all
+
+echo "=> Reformatting sources"
+# Pass all source files through clang-format.
+find src -name "*.c" -o -name "*.h" | sort | while read srcfile; do
+  /usr/local/cloudabi/bin/clang-format -style='{
+BasedOnStyle: Google,
+AllowShortIfStatementsOnASingleLine: false,
+AllowShortLoopsOnASingleLine: false,
+AllowShortFunctionsOnASingleLine: None,
+DerivePointerBinding: false,
+PointerAlignment: Right,
+}' "${srcfile}" > _obj/clang-format
+  if ! cmp -s _obj/clang-format "${srcfile}"; then
+    echo "=> Style fixing ${srcfile}"
+    mv _obj/clang-format "${srcfile}"
+  fi
+done
+# Invoke make again if we had to fix up one or more sources files.
+make -k -j8 -f _obj/Makefile all
+
+echo "=> Linking libraries"
+rm -f _obj/libc.a
+find src/libc contrib/jemalloc-3.6.0 -name "*.[cS]" \! -name "*_test.c" | sort |
+    sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
+    xargs ${TARGET}-ar -rcs _obj/libc.a
+
+PREFIX=/usr/local/cloudabi/${TARGET}
+
+echo "=> Installing headers"
+(cd src/include; find . -type d \! -empty) | while read dir; do
+  mkdir -p "${PREFIX}/include/${dir}"
+done
+(cd src/include; find . -type f) | while read file; do
+  install -m 444 "src/include/${file}" "${PREFIX}/include/${file}"
+done
+
+echo "=> Installing libraries"
+mkdir -p "${PREFIX}/lib"
+install -m 444 _obj/libc.a "${PREFIX}/lib/libc.a"
+find src/crt -name "*.[cS]" |
+    sed -e 's/.*\///' -e 's/\.[a-zA-Z]*$//' | while read crt; do
+  install -m 444 _obj/src_crt_${crt}.o "${PREFIX}/lib/${crt}.o"
+done
+
+echo "=> Building unit tests"
+${CC} -o _obj/unittest $(find src -name "*_test.c" | sort |
+    sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')

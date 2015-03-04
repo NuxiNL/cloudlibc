@@ -1,0 +1,19 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// This file is distrbuted under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#include <string.h>
+#include <testing.h>
+
+TEST(strsep, example) {
+  char line[] = "LINE\nTO BE\tSEPARATED\n";
+  const char *split = " \t\n";
+  char *lasts = line;
+  ASSERT_STREQ("LINE", strsep(&lasts, split));
+  ASSERT_STREQ("TO", strsep(&lasts, split));
+  ASSERT_STREQ("BE", strsep(&lasts, split));
+  ASSERT_STREQ("SEPARATED", strsep(&lasts, split));
+  ASSERT_STREQ("", strsep(&lasts, split));
+  ASSERT_EQ(NULL, strsep(&lasts, split));
+}

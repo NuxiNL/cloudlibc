@@ -1,0 +1,113 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// This file is distrbuted under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#ifndef COMMON_PTHREAD_H
+#define COMMON_PTHREAD_H
+
+#include <common/pthread.h>
+#include <common/queue.h>
+#include <common/refcount.h>
+#include <common/syscalldefs.h>
+
+#include <pthread.h>
+#include <stdatomic.h>
+#include <stdint.h>
+#include <stdnoreturn.h>
+#include <threads.h>
+
+// Default stack size.
+#define PTHREAD_STACK_DEFAULT 65536
+
+// Number of threads currently active. This counter is used by
+// pthread_exit() to determine whether the process should be terminated
+// gracefully if the number of threads would reach zero.
+extern refcount_t __pthread_num_threads;
+
+// A fork handler installed through pthread_atfork().
+struct pthread_atfork {
+  void (*prepare)(void);  // Function to be called before forking.
+  void (*parent)(void);   // Function to be called by the parent.
+  void (*child)(void);    // Function to be called by the child.
+
+  struct pthread_atfork *previous;  // Previous list element.
+  struct pthread_atfork *next;      // Next list element.
+};
+
+// Pointer to the last object in the list of fork handlers.
+extern _Atomic(struct pthread_atfork *) __pthread_atfork_last;
+
+// Keys.
+//
+// This implementation of pthread keys is written in such a way that no
+// locking is required to get and set key values, but also during thread
+// shutdown.
+//
+// Key objects are never deallocated, but are reused. They each have an
+// individual generation counter. Threads also store a copy of the
+// generation counter when referring to the key object, meaning they can
+// determine whether the destructor function still corresponds with the
+// value of the key for that thread.
+
+struct __pthread_key {
+  SLIST_ENTRY(__pthread_key) freelist;
+  uint_least64_t generation;
+  void (*destructor)(void *);
+};
+
+struct pthread_specific {
+  SLIST_ENTRY(pthread_specific) next;
+  struct __pthread_key *key;
+  void *value;
+  uint_least64_t generation;
+};
+
+// Key freelist.
+extern pthread_mutex_t __pthread_key_freelist_lock;
+extern SLIST_HEAD(pthread_key_freelist, __pthread_key) __pthread_key_freelist
+    __guarded_by(__pthread_key_freelist_lock);
+
+// Per-thread specific value list.
+//
+// TODO(edje): Use a splay tree instead?
+extern thread_local SLIST_HEAD(pthread_specifics,
+                               pthread_specific) __pthread_specifics;
+
+// Locking.
+//
+// As this implementation of POSIX threading implements rwlocks in such
+// a way that they would not impose any overhead in comparison to a
+// plain mutex, mutexes are simply implemented on top of rwlocks. There
+// is only one kind of lock: rwlocks.
+//
+// The rwlocks provided by this implementation prevent writer starvation
+// by preferring write locks over read locks. This would become
+// problematic if a thread would try to recursively read-lock a lock
+// with waiting writers, as this would cause a deadlock.
+//
+// To mitigate this, threads already that hold a read lock are allowed
+// to ignore this behaviour. Ideally we should keep track of an exact
+// list of read locks held by a thread and only allow this to happen on
+// those locks, but that would require too much storage space. Use a
+// simple counter instead.
+
+// Number of times locking in userspace should be attempted before
+// calling into the kernel.
+// TODO(edje): Determine the right number!
+#define LOCK_RETRY_COUNT 1
+
+// A list of unique write locks acquired. This list is used by pdfork()
+// to transfer ownership of mutexes to the new thread in the new process.
+extern thread_local LIST_HEAD(pthread_wrlocks,
+                              __pthread_lock) __pthread_wrlocks;
+
+// The number of read locks acquired. This is used by
+// pthread_rwlock_rdlock() to determine whether to ignore waiting
+// writers.
+extern thread_local unsigned int __pthread_rdlocks;
+
+// Terminate the process due to a locking error.
+noreturn void __pthread_terminate(cloudabi_errno_t, const char *);
+
+#endif

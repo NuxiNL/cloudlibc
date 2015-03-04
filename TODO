@@ -1,0 +1,40 @@
+Work in progress:
+-----------------
+monetary.h		 0%	Not started
+mqueue.h		 0%	Not started
+poll.h			 0%	Not started
+sys/capability.h	 0%	Not started
+sys/event.h		 0%	Not started
+aio.h			 5%	Almost all functionality missing
+regex.h			 5%	Not started
+netdb.h			40%	nameinfo still missing
+fnmatch.h		50%	Depends on regex.h. Still needs tests
+stdio.h			50%	printf() 'works'. scanf() doesn't. stdio still broken.
+wchar.h			50%	stdio bits still missing. Many tests missing.
+sys/procdesc.h		70%	pdexec() still missing
+stdlib.h		80%	strtof(), strtod() and strtold() still missing
+string.h		80%	strcoll() and strxfrm() still missing
+sys/socket.h		80%	Needs more polishing
+unistd.h		80%	exec(), fpathconf() and sysconf() still missing
+pthread.h		90%	thread detaching and tests for rwlock incomplete
+
+Done:
+-----
+arpa/inet.h assert.h cpio.h ctype.h dirent.h elf.h errno.h fcntl.h
+fenv.h float.h iconv.h inttypes.h iso646.h langinfo.h libgen.h limits.h
+link.h locale.h netinet/in.h nl_types.h sched.h semaphore.h setjmp.h
+signal.h stdalign.h stdarg.h stdatomic.h stdbool.h stddef.h stdint.h
+stdnoreturn.h strings.h sys/mman.h sys/stat.h sys/types.h sys/uio.h
+sys/un.h tar.h testing.h tgmath.h threads.h time.h uchar.h wctype.h
+
+Provided externally:
+--------------------
+complex.h math.h
+
+Will not be implemented:
+------------------------
+dlfcn.h fmtmsg.h ftw.h glob.h grp.h ndbm.h net/if.h netinet/tcp.h pwd.h
+search.h spawn.h stropts.h sys/ipc.h sys/msg.h sys/resource.h
+sys/select.h sys/sem.h sys/shm.h sys/statvfs.h sys/time.h sys/times.h
+sys/utsname.h sys/wait.h syslog.h termios.h trace.h ulimit.h utime.h
+utmpx.h wordexp.h
