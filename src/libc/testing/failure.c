@@ -135,9 +135,9 @@ _MACRO_FOREACH_TYPE(GENERATE_TEST_FAILED)
         __testing_printf(                                                  \
             "Test failed\n"                                                \
             "--\n"                                                         \
-            "Statement: ASSERT_ARREQ(%s, %s)\n"                            \
+            "Statement: ASSERT_ARREQ(%s, %s, %zu)\n"                       \
             "Expected:  ",                                                 \
-            expected_str, actual_str);                                     \
+            expected_str, actual_str, length);                             \
         print_value_##stype(expected[offset]);                             \
         __testing_printf(                                                  \
             " == (%s)[%zu]\n"                                              \
