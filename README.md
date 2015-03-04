@@ -105,6 +105,7 @@ TODO(edje): Set up a mailing list, etc.
 ### Commercial support
 
 CloudABI has been developed by [Nuxi](https://nuxi.nl/), an IT company
-based in the Netherlands. Are you interested in receiving commercial
-support on CloudABI or any of its components? Be sure to get in touch
-with us at info@nuxi.nl.
+based in the lovely city of
+['s-Hertogenbosch, the Netherlands](http://en.wikipedia.org/wiki/%27s-Hertogenbosch).
+Are you interested in receiving commercial support on CloudABI or any of
+its components? Be sure to get in touch with us at info@nuxi.nl.
