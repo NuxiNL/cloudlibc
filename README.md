@@ -70,7 +70,7 @@ the following reasons:
 
 * **Lack of valid use cases in a cluster/cloud computing environment.** <br/>
   Though it is perfectly fine to run CloudABI processes from a
-  command-line interface,the primary use case remains running services.
+  command-line interface, the primary use case remains running services.
   This means that certain programming interfaces have been omitted
   entirely (`<termios.h>`, `stdin`, `stdout`).
 
