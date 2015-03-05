@@ -61,7 +61,7 @@ implements almost all features of the C11 standard, but also a large
 part of POSIX.1-2008. Certain interfaces have been omitted for one of
 the following reasons:
 
-* **Incompatbility with capability-based security.** <br/>
+* **Incompatibility with capability-based security.** <br/>
   As access to global namespaces is prohibited, functions such as
   `open()`, `fopen()`, `stat()`, `mkdir()` and `wait()` have been
   omitted. For filesystem access it is possible to use the POSIX.1-2008
