@@ -11,6 +11,8 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
+#undef pthread_once
+
 int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
   // Implement once objects by abusing the infrastructure for read-write
   // locks.

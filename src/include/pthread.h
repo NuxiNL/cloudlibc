@@ -268,4 +268,16 @@ int pthread_spin_trylock(pthread_spinlock_t *__lock)
 int pthread_spin_unlock(pthread_spinlock_t *__lock) __unlocks(*__lock);
 __END_DECLS
 
+// Optimize pthread_once() by letting the caller check the state.
+
+static inline int __pthread_once(pthread_once_t *__once_control,
+                                 void (*__init_routine)(void)) {
+  return __once_control->__state != 0
+             ? pthread_once(__once_control, __init_routine)
+             : 0;
+}
+
+#define pthread_once(once_control, init_routine) \
+  __pthread_once(once_control, init_routine)
+
 #endif
