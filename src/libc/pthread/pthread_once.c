@@ -26,12 +26,6 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
   //
   // By reusing read-write locks, the kernel may apply priority
   // inheritance.
-
-  // Quickly terminate in case we're already finished.
-  if (atomic_load_explicit(&once_control->__state, memory_order_relaxed) ==
-      CLOUDABI_LOCK_UNLOCKED)
-    return (0);
-
   cloudabi_lock_t expected = CLOUDABI_LOCK_BOGUS;
   cloudabi_lock_t locked = __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED;
   if (atomic_compare_exchange_strong_explicit(&once_control->__state, &expected,
