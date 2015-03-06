@@ -307,22 +307,23 @@ typedef struct {
 #define ELFDATA2LSB 1
 #define ELFDATA2MSB 2
 
-#define ELFOSABI_NONE 0      // No extensions or unspecified.
-#define ELFOSABI_HPUX 1      // Hewlett-Packard HP-UX.
-#define ELFOSABI_NETBSD 2    // NetBSD.
-#define ELFOSABI_GNU 3       // GNU.
-#define ELFOSABI_LINUX 3     // Linux.
-#define ELFOSABI_SOLARIS 6   // Sun Solaris.
-#define ELFOSABI_AIX 7       // AIX.
-#define ELFOSABI_IRIX 8      // IRIX.
-#define ELFOSABI_FREEBSD 9   // FreeBSD.
-#define ELFOSABI_TRU64 10    // Compaq TRU64 UNIX.
-#define ELFOSABI_MODESTO 11  // Novell Modesto.
-#define ELFOSABI_OPENBSD 12  // Open BSD.
-#define ELFOSABI_OPENVMS 13  // Open VMS.
-#define ELFOSABI_NSK 14      // Hewlett-Packard Non-Stop Kernel.
-#define ELFOSABI_AROS 15     // Amiga Research OS.
-#define ELFOSABI_FENIXOS 16  // The FenixOS highly scalable multi-core OS.
+#define ELFOSABI_NONE 0       // No extensions or unspecified.
+#define ELFOSABI_HPUX 1       // Hewlett-Packard HP-UX.
+#define ELFOSABI_NETBSD 2     // NetBSD.
+#define ELFOSABI_GNU 3        // GNU.
+#define ELFOSABI_LINUX 3      // Linux.
+#define ELFOSABI_SOLARIS 6    // Sun Solaris.
+#define ELFOSABI_AIX 7        // AIX.
+#define ELFOSABI_IRIX 8       // IRIX.
+#define ELFOSABI_FREEBSD 9    // FreeBSD.
+#define ELFOSABI_TRU64 10     // Compaq TRU64 UNIX.
+#define ELFOSABI_MODESTO 11   // Novell Modesto.
+#define ELFOSABI_OPENBSD 12   // Open BSD.
+#define ELFOSABI_OPENVMS 13   // Open VMS.
+#define ELFOSABI_NSK 14       // Hewlett-Packard Non-Stop Kernel.
+#define ELFOSABI_AROS 15      // Amiga Research OS.
+#define ELFOSABI_FENIXOS 16   // The FenixOS highly scalable multi-core OS.
+#define ELFOSABI_CLOUDABI 17  // Nuxi CloudABI.
 
 // Chapter 4 - Introduction: Sections.
 
