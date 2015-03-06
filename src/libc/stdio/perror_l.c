@@ -3,14 +3,25 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/locale.h>
+
 #include <errno.h>
-#include <locale.h>
+#include <limits.h>
 #include <stdio.h>
-#include <string.h>
 
 void perror_l(const char *s, locale_t locale) {
-  // TODO(edje): Don't call strerror() here.
-  const char *errstr = strerror_l(errno, locale);
+  const struct lc_messages *messages = locale->messages;
+  size_t idx = errno;
+  char errstr[NL_TEXTMAX];
+  if (idx < __arraycount(messages->strerror) &&
+      messages->strerror[idx] != NULL) {
+    __locale_translate_string(locale, errstr, locale->messages->strerror[idx],
+                              sizeof(errstr));
+  } else {
+    __locale_translate_string(locale, errstr, locale->messages->unknown_error,
+                              sizeof(errstr));
+  }
+
   if (s == NULL || *s == '\0') {
     fprintf_l(stderr, locale, "%s\n", errstr);
   } else {
