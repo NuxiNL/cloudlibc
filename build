@@ -2,7 +2,7 @@
 
 set -e
 
-TARGET="x86_64-nuxi-cloudabi"
+TARGET="x86_64-unknown-cloudabi"
 CC="${TARGET}-cc"
 CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/jemalloc-3.6.0/include -Werror"
 COPTFLAGS="-O3"
