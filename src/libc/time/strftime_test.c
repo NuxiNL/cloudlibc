@@ -44,3 +44,32 @@ TEST(strftime, d_t_fmt) {
   ASSERT_EQ(24, strftime(buf, sizeof(buf), "%c", &tm));
   ASSERT_STREQ("Thu May  6 19:25:00 1937", buf);
 }
+
+TEST(strftime, Ffmt) {
+  struct tm tm = {
+      .tm_year = 115, .tm_mon = 2, .tm_mday = 6,
+  };
+  char buf[13];
+  ASSERT_EQ(10, strftime(buf, sizeof(buf), "%F", &tm));
+  ASSERT_STREQ("2015-03-06", buf);
+  ASSERT_EQ(10, strftime(buf, sizeof(buf), "%3F", &tm));
+  ASSERT_STREQ("2015-03-06", buf);
+  ASSERT_EQ(10, strftime(buf, sizeof(buf), "%9F", &tm));
+  ASSERT_STREQ("2015-03-06", buf);
+  ASSERT_EQ(10, strftime(buf, sizeof(buf), "%10F", &tm));
+  ASSERT_STREQ("2015-03-06", buf);
+
+  ASSERT_EQ(11, strftime(buf, sizeof(buf), "%11F", &tm));
+  ASSERT_STREQ(" 2015-03-06", buf);
+  ASSERT_EQ(11, strftime(buf, sizeof(buf), "%011F", &tm));
+  ASSERT_STREQ("02015-03-06", buf);
+  ASSERT_EQ(11, strftime(buf, sizeof(buf), "%+011F", &tm));
+  ASSERT_STREQ("+2015-03-06", buf);
+
+  ASSERT_EQ(12, strftime(buf, sizeof(buf), "%12F", &tm));
+  ASSERT_STREQ("  2015-03-06", buf);
+  ASSERT_EQ(12, strftime(buf, sizeof(buf), "%012F", &tm));
+  ASSERT_STREQ("002015-03-06", buf);
+  ASSERT_EQ(12, strftime(buf, sizeof(buf), "%+012F", &tm));
+  ASSERT_STREQ("+02015-03-06", buf);
+}

@@ -185,10 +185,20 @@ size_t NAME(char_t *restrict s, size_t maxsize, const char_t *restrict format,
           continue;
         }
         case L'F': {
-          // Equivalent to "%+4Y-%m-%d".
-          // TODO(edje): Should preseve field width and flags.
-          subformat = L"%+4Y-%m-%d";
-          continue;
+          if (left_padding == ' ' && !plus && field_width == 0) {
+            // Equivalent to "%+4Y-%m-%d" if no flag and no minimum field
+            // width are specified.
+            plus = true;
+            field_width = 4;
+          } else {
+            // If a minimum field width of x is specified, the year shall
+            // be output as if by the Y specifier with whatever flag was
+            // given and a minimum field width of x-6. If x is less than
+            // 6, the behavior shall be as if x equalled 6.
+            field_width = field_width >= 6 ? field_width - 6 : 0;
+          }
+          subformat = L"-%m-%d";
+          goto year_number;
         }
         case L'g': {
           // Last two digits of the week-based year number.
@@ -336,6 +346,7 @@ size_t NAME(char_t *restrict s, size_t maxsize, const char_t *restrict format,
           number_precision = 2;
           break;
         }
+        year_number:
         case L'Y': {
           // Year number.
           number = (intmax_t)timeptr->tm_year + 1900;
