@@ -3,14 +3,22 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <locale.h>
+#include <common/locale.h>
+
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
-#include <string.h>
 
 void psignal_l(int signum, const char *message, locale_t locale) {
-  // TODO(edje): Don't call strsignal() here.
-  const char *sigstr = strsignal_l(signum, locale);
+  const struct lc_messages *messages = locale->messages;
+  size_t idx = signum;
+  if (idx >= __arraycount(messages->strsignal) ||
+      messages->strsignal[idx] == NULL)
+    idx = 0;
+  char sigstr[NL_TEXTMAX];
+  __locale_translate_string(locale, sigstr, locale->messages->strsignal[idx],
+                            sizeof(sigstr));
+
   if (message == NULL || *message == '\0') {
     fprintf_l(stderr, locale, "%s\n", sigstr);
   } else {
