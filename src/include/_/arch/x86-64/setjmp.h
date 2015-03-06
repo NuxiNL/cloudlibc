@@ -37,7 +37,7 @@ struct __jmp_buf {
   __uint64_t __r13;     // %r13.
   __uint64_t __r14;     // %r14.
   __uint64_t __r15;     // %r15.
-  __uint32_t __mxcsr;   // mbxcsr.
+  __uint32_t __mxcsr;   // mxcsr.
   __uint16_t __x87_cw;  // x87 control word.
 };
 _Static_assert(sizeof(struct __jmp_buf) == 72, "ABI breakage");
