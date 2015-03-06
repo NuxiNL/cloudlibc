@@ -153,10 +153,11 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           break;
         }
         case L'F': {
-          // Equivalent to "%+4Y-%m-%d".
-          // TODO(edje): Should preseve field width and flags.
-          subformat = L"%+4Y-%m-%d";
-          break;
+          // Equivalent to "%Y-%m-%d" with the field width applying to
+          // the entire date string.
+          field_width = field_width >= 6 ? field_width - 6 : 0;
+          subformat = L"-%m-%d";
+          goto year_number;
         }
         case L'g': {
           // Last two digits of the week-based year number.
@@ -303,6 +304,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
             return NULL;
           break;
         }
+        year_number:
         case L'Y': {
           // Year number.
           bool negative;
