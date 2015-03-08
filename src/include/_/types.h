@@ -27,7 +27,11 @@
 #include <_/cdefs.h>
 
 #ifdef __cplusplus
+#if __cplusplus >= 201103L
 #define _NULL nullptr
+#else
+#define _NULL 0
+#endif
 #else
 #define _NULL ((void *)0)
 #endif
