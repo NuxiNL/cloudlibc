@@ -11,7 +11,7 @@ WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-defi
 SRCS=$(find src contrib/jemalloc-3.6.0 -name "*.[cS]" | sort)
 
 echo "=> Testing headers"
-for std in c89 gnu89 c99 gnu99 c11 gnu11; do
+for std in c89 gnu89 c90 gnu90 c99 gnu99 c11 gnu11; do
   (cd src/include; find * -type f) | while read header; do
     echo "#include <$header>"
   done | (sort -R 2> /dev/null || sort) | ${CC} ${CFLAGS} \
