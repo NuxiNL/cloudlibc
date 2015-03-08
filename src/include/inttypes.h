@@ -32,8 +32,9 @@
 
 #include <stdint.h>
 
-#ifndef __cplusplus
+#ifndef _WCHAR_T_DECLARED
 typedef __wchar_t wchar_t;
+#define _WCHAR_T_DECLARED
 #endif
 
 typedef struct {
@@ -425,11 +426,11 @@ typedef struct {
 #define SCNuPTR __UINTPTR_FMTu__
 #define SCNxPTR __UINTPTR_FMTx__
 
-static inline intmax_t __imaxabs(intmax_t __i) {
+static __inline intmax_t __imaxabs(intmax_t __i) {
   return __i < 0 ? -__i : __i;
 }
 
-static inline imaxdiv_t __imaxdiv(intmax_t __numer, intmax_t __denom) {
+static __inline imaxdiv_t __imaxdiv(intmax_t __numer, intmax_t __denom) {
   imaxdiv_t __res = {__numer / __denom, __numer % __denom};
   return __res;
 }

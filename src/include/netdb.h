@@ -46,8 +46,14 @@
 
 #include <_/types.h>
 
+#ifndef _SOCKLEN_T_DECLARED
 typedef __size_t socklen_t;
+#define _SOCKLEN_T_DECLARED
+#endif
+#ifndef _UINT32_T_DECLARED
 typedef __uint32_t uint32_t;
+#define _UINT32_T_DECLARED
+#endif
 
 struct protoent {
   char *p_name;      // Official name of the protocol.

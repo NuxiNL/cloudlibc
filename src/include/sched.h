@@ -35,7 +35,10 @@
 #include <_/struct/timespec.h>
 #include <_/types.h>
 
+#ifndef _TIME_T_DECLARED
 typedef __time_t time_t;
+#define _TIME_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 int sched_yield(void);

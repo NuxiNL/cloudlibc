@@ -35,11 +35,26 @@
 #include <_/struct/in_addr.h>
 #include <_/types.h>
 
+#ifndef _IN_ADDR_T_DECLARED
 typedef __in_addr_t in_addr_t;
+#define _IN_ADDR_T_DECLARED
+#endif
+#ifndef _IN_PORT_T_DECLARED
 typedef __in_port_t in_port_t;
+#define _IN_PORT_T_DECLARED
+#endif
+#ifndef _SA_FAMILY_T_DECLARED
 typedef __sa_family_t sa_family_t;
-typedef __uint32_t uint32_t;
+#define _SA_FAMILY_T_DECLARED
+#endif
+#ifndef _UINT8_T_DECLARED
 typedef __uint8_t uint8_t;
+#define _UINT8_T_DECLARED
+#endif
+#ifndef _UINT32_T_DECLARED
+typedef __uint32_t uint32_t;
+#define _UINT32_T_DECLARED
+#endif
 
 struct sockaddr_in {
   _Alignas(__max_align_t) sa_family_t sin_family;  // AF_INET.

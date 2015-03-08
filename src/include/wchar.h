@@ -59,15 +59,34 @@
 #include <_/limits.h>
 #include <_/types.h>
 
+#ifndef _FILE_DECLARED
 typedef struct _FILE FILE;
-typedef __locale_t locale_t;
-typedef __mbstate_t mbstate_t;
-typedef __size_t size_t;
-typedef __va_list va_list;
-#ifndef __cplusplus
-typedef __wchar_t wchar_t;
+#define _FILE_DECLARED
 #endif
+#ifndef _LOCALE_T_DECLARED
+typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
+#ifndef _MBSTATE_T_DECLARED
+typedef __mbstate_t mbstate_t;
+#define _MBSTATE_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
+typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _VA_LIST_DECLARED
+typedef __va_list va_list;
+#define _VA_LIST_DECLARED
+#endif
+#ifndef _WCHAR_T_DECLARED
+typedef __wchar_t wchar_t;
+#define _WCHAR_T_DECLARED
+#endif
+#ifndef _WINT_T_DECLARED
 typedef __wint_t wint_t;
+#define _WINT_T_DECLARED
+#endif
 
 struct tm;
 

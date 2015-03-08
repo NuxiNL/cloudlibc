@@ -42,8 +42,14 @@
 
 #define NULL _NULL
 
+#ifndef _LOCALE_T_DECLARED
 typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 void *memccpy(void *__restrict, const void *__restrict, int, size_t);

@@ -32,7 +32,10 @@
 
 #include <_/types.h>
 
+#ifndef _SA_FAMILY_T_DECLARED
 typedef __sa_family_t sa_family_t;
+#define _SA_FAMILY_T_DECLARED
+#endif
 
 struct sockaddr_un {
   _Alignas(__max_align_t) sa_family_t sun_family;  // AF_UNIX.

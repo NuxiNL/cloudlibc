@@ -116,7 +116,7 @@ __END_DECLS
 #undef _GENERATE_TEST_FAILED
 
 #define _GENERATE_COMPARE(type, stype, suffix, op)                   \
-  static inline void __test_compare_##suffix##_##stype(              \
+  static __inline void __test_compare_##suffix##_##stype(            \
       type expected, const char *expected_str, type actual,          \
       const char *actual_str, const char *file, int line) {          \
     if (!(expected op actual))                                       \
@@ -226,11 +226,11 @@ struct __test_note {
 
 extern _Thread_local const struct __test_note *__test_note_stack;
 
-#define _GENERATE_NOTE_SET(type, stype)                           \
-  static inline void __note_set_##stype(struct __test_note *note, \
-                                        type value) {             \
-    note->kind = __test_note_kind_##stype;                        \
-    note->value_##stype = value;                                  \
+#define _GENERATE_NOTE_SET(type, stype)                             \
+  static __inline void __note_set_##stype(struct __test_note *note, \
+                                          type value) {             \
+    note->kind = __test_note_kind_##stype;                          \
+    note->value_##stype = value;                                    \
   }
 _MACRO_FOREACH_TYPE(_GENERATE_NOTE_SET)
 #undef _GENERATE_NOTE_SET

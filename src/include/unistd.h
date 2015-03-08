@@ -292,10 +292,22 @@
 
 #define _SC_PAGE_SIZE _SC_PAGESIZE
 
+#ifndef _INTPTR_T_DECLARED
 typedef __intptr_t intptr_t;
+#define _INTPTR_T_DECLARED
+#endif
+#ifndef _OFF_T_DECLARED
 typedef __off_t off_t;
+#define _OFF_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _SSIZE_T_DECLARED
 typedef __ssize_t ssize_t;
+#define _SSIZE_T_DECLARED
+#endif
 
 struct iovec;
 

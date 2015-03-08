@@ -56,11 +56,26 @@
 #include <_/limits.h>
 #include <_/types.h>
 
+#ifndef _FILE_DECLARED
 typedef struct _FILE FILE;
+#define _FILE_DECLARED
+#endif
+#ifndef _OFF_T_DECLARED
 typedef __off_t off_t;
+#define _OFF_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _SSIZE_T_DECLARED
 typedef __ssize_t ssize_t;
+#define _SSIZE_T_DECLARED
+#endif
+#ifndef _VA_LIST_DECLARED
 typedef __va_list va_list;
+#define _VA_LIST_DECLARED
+#endif
 
 typedef struct {
   __off_t __offset;       // Offset within file.

@@ -28,7 +28,10 @@
 
 #include <_/types.h>
 
+#ifndef _VA_LIST_DECLARED
 typedef __va_list va_list;
+#define _VA_LIST_DECLARED
+#endif
 
 #define va_start(ap, argN) __builtin_va_start(ap, argN)
 #define va_copy(dest, src) __builtin_va_copy(dest, src)

@@ -32,8 +32,14 @@
 
 #include <_/types.h>
 
+#ifndef _LOCALE_T_DECLARED
 typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 int ffs(int) __pure2;

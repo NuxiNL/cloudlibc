@@ -32,6 +32,9 @@
 
 #include <_/types.h>
 
+#ifndef _NL_ITEM_DECLARED
 typedef __nl_item nl_item;
+#define _NL_ITEM_DECLARED
+#endif
 
 #endif

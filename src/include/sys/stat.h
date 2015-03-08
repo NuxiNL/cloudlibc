@@ -42,12 +42,30 @@
 #include <_/struct/timespec.h>
 #include <_/types.h>
 
+#ifndef _DEV_T_DECLARED
 typedef __dev_t dev_t;
+#define _DEV_T_DECLARED
+#endif
+#ifndef _INO_T_DECLARED
 typedef __ino_t ino_t;
+#define _INO_T_DECLARED
+#endif
+#ifndef _MODE_T_DECLARED
 typedef __mode_t mode_t;
+#define _MODE_T_DECLARED
+#endif
+#ifndef _NLINK_T_DECLARED
 typedef __nlink_t nlink_t;
+#define _NLINK_T_DECLARED
+#endif
+#ifndef _OFF_T_DECLARED
 typedef __off_t off_t;
+#define _OFF_T_DECLARED
+#endif
+#ifndef _TIME_T_DECLARED
 typedef __time_t time_t;
+#define _TIME_T_DECLARED
+#endif
 
 struct stat {
   dev_t st_dev;             // Device ID of device containing file.

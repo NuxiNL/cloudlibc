@@ -32,7 +32,10 @@
 
 #include <_/types.h>
 
+#ifndef _LOCALE_T_DECLARED
 typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 int isalnum(int) __pure2;

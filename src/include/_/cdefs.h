@@ -65,7 +65,7 @@
 #define _Atomic(t) struct {t __value; }
 #endif
 
-#ifdef __cplusplus
+#if defined(__cplusplus) && __cplusplus >= 201103L
 // clang-format off
 #define _Noreturn [[noreturn]]
 // clang-format on

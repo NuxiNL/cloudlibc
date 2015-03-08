@@ -33,8 +33,14 @@
 #include <_/struct/iovec.h>
 #include <_/types.h>
 
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _SSIZE_T_DECLARED
 typedef __ssize_t ssize_t;
+#define _SSIZE_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 ssize_t preadv(int, const struct iovec *, int, __off_t);

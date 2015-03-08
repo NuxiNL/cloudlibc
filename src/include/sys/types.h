@@ -38,28 +38,97 @@
 
 #include <_/types.h>
 
+#ifndef _CLOCK_T_DECLARED
 typedef __clock_t clock_t;
+#define _CLOCK_T_DECLARED
+#endif
+#ifndef _CLOCKID_T_DECLARED
 typedef __clockid_t clockid_t;
+#define _CLOCKID_T_DECLARED
+#endif
+#ifndef _DEV_T_DECLARED
 typedef __dev_t dev_t;
+#define _DEV_T_DECLARED
+#endif
+#ifndef _INO_T_DECLARED
 typedef __ino_t ino_t;
+#define _INO_T_DECLARED
+#endif
+#ifndef _MODE_T_DECLARED
 typedef __mode_t mode_t;
+#define _MODE_T_DECLARED
+#endif
+#ifndef _NLINK_T_DECLARED
 typedef __nlink_t nlink_t;
+#define _NLINK_T_DECLARED
+#endif
+#ifndef _OFF_T_DECLARED
 typedef __off_t off_t;
+#define _OFF_T_DECLARED
+#endif
+#ifndef _PTHREAD_ATTR_T_DECLARED
 typedef __pthread_attr_t pthread_attr_t;
+#define _PTHREAD_ATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_BARRIER_T_DECLARED
 typedef __pthread_barrier_t pthread_barrier_t;
+#define _PTHREAD_BARRIER_T_DECLARED
+#endif
+#ifndef _PTHREAD_BARRIERATTR_T_DECLARED
 typedef __pthread_barrierattr_t pthread_barrierattr_t;
+#define _PTHREAD_BARRIERATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_COND_T_DECLARED
 typedef __pthread_cond_t pthread_cond_t;
+#define _PTHREAD_COND_T_DECLARED
+#endif
+#ifndef _PTHREAD_CONDATTR_T_DECLARED
 typedef __pthread_condattr_t pthread_condattr_t;
+#define _PTHREAD_CONDATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_KEY_T_DECLARED
 typedef __pthread_key_t pthread_key_t;
+#define _PTHREAD_KEY_T_DECLARED
+#endif
+#ifndef _PTHREAD_MUTEX_T_DECLARED
 typedef __pthread_lock_t pthread_mutex_t;
+#define _PTHREAD_MUTEX_T_DECLARED
+#endif
+#ifndef _PTHREAD_MUTEXATTR_T_DECLARED
 typedef __pthread_lockattr_t pthread_mutexattr_t;
+#define _PTHREAD_MUTEXATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_ONCE_T_DECLARED
 typedef __pthread_once_t pthread_once_t;
+#define _PTHREAD_ONCE_T_DECLARED
+#endif
+#ifndef _PTHREAD_RWLOCK_T_DECLARED
 typedef __pthread_lock_t pthread_rwlock_t;
+#define _PTHREAD_RWLOCK_T_DECLARED
+#endif
+#ifndef _PTHREAD_RWLOCKATTR_T_DECLARED
 typedef __pthread_lockattr_t pthread_rwlockattr_t;
+#define _PTHREAD_RWLOCKATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_SPINLOCK_T_DECLARED
 typedef __pthread_lock_t pthread_spinlock_t;
+#define _PTHREAD_SPINLOCK_T_DECLARED
+#endif
+#ifndef _PTHREAD_T_DECLARED
 typedef __pthread_t pthread_t;
+#define _PTHREAD_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _SSIZE_T_DECLARED
 typedef __ssize_t ssize_t;
+#define _SSIZE_T_DECLARED
+#endif
+#ifndef _TIME_T_DECLARED
 typedef __time_t time_t;
+#define _TIME_T_DECLARED
+#endif
 
 #endif

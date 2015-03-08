@@ -111,19 +111,58 @@
     }                                    \
   }
 
+#ifndef _PTHREAD_ATTR_T_DECLARED
 typedef __pthread_attr_t pthread_attr_t;
+#define _PTHREAD_ATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_BARRIER_T_DECLARED
 typedef __pthread_barrier_t pthread_barrier_t;
+#define _PTHREAD_BARRIER_T_DECLARED
+#endif
+#ifndef _PTHREAD_BARRIERATTR_T_DECLARED
 typedef __pthread_barrierattr_t pthread_barrierattr_t;
+#define _PTHREAD_BARRIERATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_COND_T_DECLARED
 typedef __pthread_cond_t pthread_cond_t;
+#define _PTHREAD_COND_T_DECLARED
+#endif
+#ifndef _PTHREAD_CONDATTR_T_DECLARED
 typedef __pthread_condattr_t pthread_condattr_t;
+#define _PTHREAD_CONDATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_KEY_T_DECLARED
 typedef __pthread_key_t pthread_key_t;
+#define _PTHREAD_KEY_T_DECLARED
+#endif
+#ifndef _PTHREAD_MUTEX_T_DECLARED
 typedef __pthread_lock_t pthread_mutex_t;
+#define _PTHREAD_MUTEX_T_DECLARED
+#endif
+#ifndef _PTHREAD_MUTEXATTR_T_DECLARED
 typedef __pthread_lockattr_t pthread_mutexattr_t;
+#define _PTHREAD_MUTEXATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_ONCE_T_DECLARED
 typedef __pthread_once_t pthread_once_t;
+#define _PTHREAD_ONCE_T_DECLARED
+#endif
+#ifndef _PTHREAD_RWLOCK_T_DECLARED
 typedef __pthread_lock_t pthread_rwlock_t;
+#define _PTHREAD_RWLOCK_T_DECLARED
+#endif
+#ifndef _PTHREAD_RWLOCKATTR_T_DECLARED
 typedef __pthread_lockattr_t pthread_rwlockattr_t;
+#define _PTHREAD_RWLOCKATTR_T_DECLARED
+#endif
+#ifndef _PTHREAD_SPINLOCK_T_DECLARED
 typedef __pthread_lock_t pthread_spinlock_t;
+#define _PTHREAD_SPINLOCK_T_DECLARED
+#endif
+#ifndef _PTHREAD_T_DECLARED
 typedef __pthread_t pthread_t;
+#define _PTHREAD_T_DECLARED
+#endif
 
 // pthread_cleanup_push() and pthread_cleanup_pop().
 //
@@ -270,8 +309,8 @@ __END_DECLS
 
 // Optimize pthread_once() by letting the caller check the state.
 
-static inline int __pthread_once(pthread_once_t *__once_control,
-                                 void (*__init_routine)(void)) {
+static __inline int __pthread_once(pthread_once_t *__once_control,
+                                   void (*__init_routine)(void)) {
   return __once_control->__state != 0
              ? pthread_once(__once_control, __init_routine)
              : 0;

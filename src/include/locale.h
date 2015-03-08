@@ -44,7 +44,10 @@
 
 #define NULL _NULL
 
+#ifndef _LOCALE_T_DECLARED
 typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
 
 // Structure returned by localeconv().
 struct lconv {

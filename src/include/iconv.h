@@ -29,7 +29,10 @@
 #include <_/types.h>
 
 typedef struct __iconv *iconv_t;
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 size_t iconv(iconv_t, char **__restrict, size_t *__restrict, char **__restrict,

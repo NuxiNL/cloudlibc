@@ -56,11 +56,26 @@
 #include <_/struct/timespec.h>
 #include <_/types.h>
 
+#ifndef _CLOCK_T_DECLARED
 typedef __clock_t clock_t;
+#define _CLOCK_T_DECLARED
+#endif
+#ifndef _CLOCKID_T_DECLARED
 typedef __clockid_t clockid_t;
+#define _CLOCKID_T_DECLARED
+#endif
+#ifndef _LOCALE_T_DECLARED
 typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _TIME_T_DECLARED
 typedef __time_t time_t;
+#define _TIME_T_DECLARED
+#endif
 
 struct tm {
   // Standard fields.

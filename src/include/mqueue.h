@@ -28,9 +28,18 @@
 #include <_/types.h>
 
 typedef struct __mqd *mqd_t;
+#ifndef _PTHREAD_ATTR_T_DECLARED
 typedef __pthread_attr_t pthread_attr_t;
+#define _PTHREAD_ATTR_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _SSIZE_T_DECLARED
 typedef __ssize_t ssize_t;
+#define _SSIZE_T_DECLARED
+#endif
 
 struct mq_attr {
   long mq_flags;    // Message queue flags.

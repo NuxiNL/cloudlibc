@@ -71,9 +71,18 @@
 
 #define SHM_ANON ((char *)-1)
 
+#ifndef _MODE_T_DECLARED
 typedef __mode_t mode_t;
+#define _MODE_T_DECLARED
+#endif
+#ifndef _OFF_T_DECLARED
 typedef __off_t off_t;
+#define _OFF_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 int mlock(const void *, size_t);

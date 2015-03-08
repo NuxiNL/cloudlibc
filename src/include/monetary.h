@@ -32,9 +32,18 @@
 
 #include <_/types.h>
 
+#ifndef _LOCALE_T_DECLARED
 typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _SSIZE_T_DECLARED
 typedef __ssize_t ssize_t;
+#define _SSIZE_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 ssize_t strfmon(char *__restrict, size_t, const char *__restrict, ...);

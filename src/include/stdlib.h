@@ -90,9 +90,13 @@ typedef struct {
   long long rem;
 } lldiv_t;
 
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
-#ifndef __cplusplus
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _WCHAR_T_DECLARED
 typedef __wchar_t wchar_t;
+#define _WCHAR_T_DECLARED
 #endif
 
 // Keep existing code happy that assumes that MB_CUR_MAX_L is a macro.
@@ -100,29 +104,29 @@ typedef __wchar_t wchar_t;
 
 // Inline versions of trivial routines.
 
-static inline int __abs(int __i) {
+static __inline int __abs(int __i) {
   return __i < 0 ? -__i : __i;
 }
 
-static inline long __labs(long __i) {
+static __inline long __labs(long __i) {
   return __i < 0 ? -__i : __i;
 }
 
-static inline long long __llabs(long long __i) {
+static __inline long long __llabs(long long __i) {
   return __i < 0 ? -__i : __i;
 }
 
-static inline div_t __div(int __numer, int __denom) {
+static __inline div_t __div(int __numer, int __denom) {
   div_t __res = {__numer / __denom, __numer % __denom};
   return __res;
 }
 
-static inline ldiv_t __ldiv(long __numer, long __denom) {
+static __inline ldiv_t __ldiv(long __numer, long __denom) {
   ldiv_t __res = {__numer / __denom, __numer % __denom};
   return __res;
 }
 
-static inline lldiv_t __lldiv(long long __numer, long long __denom) {
+static __inline lldiv_t __lldiv(long long __numer, long long __denom) {
   lldiv_t __res = {__numer / __denom, __numer % __denom};
   return __res;
 }

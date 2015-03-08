@@ -43,7 +43,10 @@
 #include <_/types.h>
 
 typedef struct _DIR DIR;
+#ifndef _INO_T_DECLARED
 typedef __ino_t ino_t;
+#define _INO_T_DECLARED
+#endif
 
 struct dirent {
   ino_t d_ino;                 // File serial number.

@@ -46,10 +46,22 @@
 #include <_/limits.h>
 #include <_/types.h>
 
+#ifndef _SA_FAMILY_T_DECLARED
 typedef __sa_family_t sa_family_t;
+#define _SA_FAMILY_T_DECLARED
+#endif
+#ifndef _SOCKLEN_T_DECLARED
 typedef __size_t socklen_t;
+#define _SOCKLEN_T_DECLARED
+#endif
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _SSIZE_T_DECLARED
 typedef __ssize_t ssize_t;
+#define _SSIZE_T_DECLARED
+#endif
 
 struct sockaddr {
   _Alignas(__max_align_t) sa_family_t sa_family;

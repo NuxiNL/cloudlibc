@@ -28,8 +28,14 @@
 
 #include <_/types.h>
 
+#ifndef _LOCALE_T_DECLARED
 typedef __locale_t locale_t;
+#define _LOCALE_T_DECLARED
+#endif
+#ifndef _WINT_T_DECLARED
 typedef __wint_t wint_t;
+#define _WINT_T_DECLARED
+#endif
 typedef wint_t (*wctrans_t)(wint_t);
 typedef int (*wctype_t)(wint_t);
 

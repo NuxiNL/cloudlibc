@@ -43,8 +43,14 @@
 
 #include <_/types.h>
 
+#ifndef _MODE_T_DECLARED
 typedef __mode_t mode_t;
+#define _MODE_T_DECLARED
+#endif
+#ifndef _OFF_T_DECLARED
 typedef __off_t off_t;
+#define _OFF_T_DECLARED
+#endif
 
 // fcntl() options.
 #define F_GETFD 1

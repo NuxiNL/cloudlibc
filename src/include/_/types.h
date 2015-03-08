@@ -242,4 +242,14 @@ typedef struct {
   int __type;
 } __pthread_lockattr_t;
 
+// wchar_t, char16_t and char32_t are separate language keywords in C++.
+
+#ifdef __cplusplus
+#define _WCHAR_T_DECLARED
+#if __cplusplus >= 201103L
+#define _CHAR16_T_DECLARED
+#define _CHAR32_T_DECLARED
+#endif
+#endif
+
 #endif

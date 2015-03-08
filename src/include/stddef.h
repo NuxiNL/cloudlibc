@@ -33,9 +33,13 @@
 
 typedef __max_align_t max_align_t;
 typedef __ptrdiff_t ptrdiff_t;
+#ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
-#ifndef __cplusplus
+#define _SIZE_T_DECLARED
+#endif
+#ifndef _WCHAR_T_DECLARED
 typedef __wchar_t wchar_t;
+#define _WCHAR_T_DECLARED
 #endif
 
 #endif
