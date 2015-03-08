@@ -18,7 +18,6 @@ for std in c89 gnu89 c99 gnu99 c11 gnu11; do
       -std="${std}" -x c -c -o /dev/null -
 done
 for std in c++98 gnu++98 c++03 c++11 gnu++11 c++14 gnu++14; do
-  echo $std
   (cd src/include; find * -type f) | while read header; do
     echo "#include <$header>"
   done | (sort -R 2> /dev/null || sort) | ${CC} ${CFLAGS} \

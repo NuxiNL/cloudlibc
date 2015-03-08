@@ -42,11 +42,9 @@
 #define CMPLXL(x, y) __builtin_complex((long double)(x), (long double)(y))
 #endif
 
-// TODO(edje): Determine how to define _Complex_I in C++14 mode.
-#if !defined(__cplusplus) || __cplusplus < 201402L
-#define _Complex_I 1.0fi
+#ifdef CMPLXF
+#define _Complex_I CMPLXF(0.0f, 1.0f)
 #define I _Complex_I
-
 _Static_assert(_Generic(_Complex_I, float complex : 1),
                "_Complex_I must be of type float complex");
 #endif
