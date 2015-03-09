@@ -54,9 +54,9 @@ static struct {
 
 locale_t newlocale(int category_mask, const char *locale, locale_t base) {
   struct __locale new_locale = {};
-  if (strcmp(locale, "POSIX") == 0 || strcmp(locale, "C") == 0) {
-    // Inherit from the POSIX locale.
-    new_locale = *LC_POSIX_LOCALE;
+  if (strcmp(locale, "C") == 0 || strcmp(locale, "POSIX") == 0) {
+    // Inherit from the C locale.
+    new_locale = *LC_C_LOCALE;
   } else {
     // In this implementation, a locale name has the form
     // "[language][.ctype][@timezone]". Examples of valid locale names
@@ -104,10 +104,10 @@ locale_t newlocale(int category_mask, const char *locale, locale_t base) {
     }
   }
 
-  // Inherit from the POSIX locale in case no valid base locale is
+  // Inherit from the C locale in case no valid base locale is
   // specified.
   if (base == NULL)
-    base = LC_POSIX_LOCALE;
+    base = LC_C_LOCALE;
 
   // Roll back any categories that are not in the category mask.
   bool different = false;

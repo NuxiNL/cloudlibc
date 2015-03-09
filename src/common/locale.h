@@ -392,10 +392,10 @@ struct __locale {
 };
 
 // Constructs a temporary locale object that only inherits certain
-// classes from the POSIX locale. This macro is typically used by
-// non-_l() suffixed functions. By not using LC_GLOBAL_LOCALE, we can
-// prevent large structures (like __messages_posix and __collate_posix)
-// from being linked in by default.
+// classes from the C locale. This macro is typically used by non-_l()
+// suffixed functions. By not using LC_GLOBAL_LOCALE, we can prevent
+// large structures (like __messages_posix and __collate_posix) from
+// being linked in by default.
 #if 1
 #define DEFAULT_LOCALE(name, mask)                                           \
   static const struct __locale __obj_##name = {                              \

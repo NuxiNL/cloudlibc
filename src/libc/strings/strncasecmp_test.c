@@ -24,8 +24,6 @@ TEST(strncasecmp, example) {
 }
 
 TEST(strncasecmp, unicode) {
-  ASSERT_EQ(0,
-            strncasecmp_l("München?", "MÜNCHEN!", 8, LC_POSIX_UNICODE_LOCALE));
-  ASSERT_LT(0,
-            strncasecmp_l("München?", "MÜNCHEN!", 9, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ(0, strncasecmp_l("München?", "MÜNCHEN!", 8, LC_C_UNICODE_LOCALE));
+  ASSERT_LT(0, strncasecmp_l("München?", "MÜNCHEN!", 9, LC_C_UNICODE_LOCALE));
 }

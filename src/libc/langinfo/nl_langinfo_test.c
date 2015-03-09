@@ -8,7 +8,7 @@
 #include <testing.h>
 
 TEST(nl_langinfo, posix) {
-  // Values that nl_langinfo() should return for the POSIX locale.
+  // Values that nl_langinfo() should return for the C locale.
   ASSERT_STREQ("US-ASCII", nl_langinfo(CODESET));
   ASSERT_STREQ("%a %b %e %H:%M:%S %Y", nl_langinfo(D_T_FMT));
   ASSERT_STREQ("%m/%d/%y", nl_langinfo(D_FMT));

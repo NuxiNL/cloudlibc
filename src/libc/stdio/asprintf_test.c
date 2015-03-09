@@ -23,7 +23,7 @@ TEST(asprintf, eilseq) {
 
 TEST(asprintf, unicode) {
   char *copy;
-  ASSERT_EQ(7, asprintf_l(&copy, LC_POSIX_UNICODE_LOCALE, "%ls\n", L"Hawaï"));
+  ASSERT_EQ(7, asprintf_l(&copy, LC_C_UNICODE_LOCALE, "%ls\n", L"Hawaï"));
   ASSERT_STREQ("Hawaï\n", copy);
   free(copy);
 }

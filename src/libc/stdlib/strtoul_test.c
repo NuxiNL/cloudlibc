@@ -64,7 +64,7 @@ TEST(strtoul, examples) {
 }
 
 TEST(strtoul, unicode) {
-  // U+3000: Ideographic space. Should not be matched with the POSIX locale.
+  // U+3000: Ideographic space. Should not be matched with the C locale.
   const char *str =
       "\xe3\x80\x80"
       "123";
@@ -74,7 +74,7 @@ TEST(strtoul, unicode) {
   ASSERT_EQ(EINVAL, errno);
 
   errno = 0;
-  ASSERT_EQ(123, strtoul_l(str, &endptr, 10, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ(123, strtoul_l(str, &endptr, 10, LC_C_UNICODE_LOCALE));
   ASSERT_EQ(str + 6, endptr);
   ASSERT_EQ(0, errno);
 }

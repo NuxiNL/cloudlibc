@@ -18,6 +18,6 @@ TEST(strcasecmp, example) {
 }
 
 TEST(strcasecmp, unicode) {
-  ASSERT_LT(0, strcasecmp_l("München?", "MÜNCHEN!", LC_POSIX_UNICODE_LOCALE));
-  ASSERT_EQ(0, strcasecmp_l("München", "MÜNCHEN", LC_POSIX_UNICODE_LOCALE));
+  ASSERT_LT(0, strcasecmp_l("München?", "MÜNCHEN!", LC_C_UNICODE_LOCALE));
+  ASSERT_EQ(0, strcasecmp_l("München", "MÜNCHEN", LC_C_UNICODE_LOCALE));
 }

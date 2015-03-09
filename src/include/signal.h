@@ -27,7 +27,7 @@
 // - NSIG:
 //   Present on most operating systems.
 // - psignal_l():
-//   psignal() always uses the POSIX locale.
+//   psignal() always uses the C locale.
 //
 // Features missing:
 // - pid_t, siginfo_t::si_pid, kill() and killpg():

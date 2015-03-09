@@ -25,7 +25,7 @@
 //
 // Extensions:
 // - fnmatch_l():
-//   fnmatch() always uses the POSIX locale.
+//   fnmatch() always uses the C locale.
 
 #ifndef _FNMATCH_H_
 #define _FNMATCH_H_

@@ -8,7 +8,7 @@
 
 #include <locale.h>
 
-struct __locale __locale_posix = {
+struct __locale __locale_c = {
     .refcount = REFCOUNT_INIT(1),
 
     .collate = &__collate_posix,

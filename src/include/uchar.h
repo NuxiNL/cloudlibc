@@ -25,7 +25,7 @@
 //
 // Extensions:
 // - *_l():
-//   Regular functions always use the POSIX locale.
+//   Regular functions always use the C locale.
 
 #ifndef _UCHAR_H_
 #define _UCHAR_H_

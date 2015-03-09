@@ -31,14 +31,14 @@ TEST(c32rtomb, unicode) {
   char buf[MB_LEN_MAX];
 
   // Valid characters.
-  ASSERT_EQ(1, c32rtomb_l(buf, U'A', NULL, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ(1, c32rtomb_l(buf, U'A', NULL, LC_C_UNICODE_LOCALE));
   ASSERT_EQ('A', buf[0]);
-  ASSERT_EQ(1, c32rtomb_l(buf, U'\0', NULL, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ(1, c32rtomb_l(buf, U'\0', NULL, LC_C_UNICODE_LOCALE));
   ASSERT_EQ('\0', buf[0]);
-  ASSERT_EQ(3, c32rtomb_l(buf, U'€', NULL, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ(3, c32rtomb_l(buf, U'€', NULL, LC_C_UNICODE_LOCALE));
   ASSERT_ARREQ("€", buf, 3);
 
   // Surrogate pair. Should not be allowed.
-  ASSERT_EQ((size_t)-1, c32rtomb_l(buf, 0xd801, NULL, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ((size_t)-1, c32rtomb_l(buf, 0xd801, NULL, LC_C_UNICODE_LOCALE));
   ASSERT_EQ(EILSEQ, errno);
 }

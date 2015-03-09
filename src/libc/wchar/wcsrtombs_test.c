@@ -60,7 +60,7 @@ TEST(wcsrtombs, unicode_ok) {
   char dst[47];
   mbstate_t mbs = {};
   ASSERT_EQ(sizeof(dst) - 1,
-            wcsrtombs_l(dst, &src, sizeof(dst), &mbs, LC_POSIX_UNICODE_LOCALE));
+            wcsrtombs_l(dst, &src, sizeof(dst), &mbs, LC_C_UNICODE_LOCALE));
   ASSERT_EQ(NULL, src);
   ASSERT_STREQ("ℕ ⊆ ℕ₀ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ", dst);
 }

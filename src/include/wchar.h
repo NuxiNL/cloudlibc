@@ -39,7 +39,7 @@
 // - wmemmem():
 //   Analogous to memmem().
 // - *_l():
-//   Regular functions always use the POSIX locale.
+//   Regular functions always use the C locale.
 //
 // Features missing:
 // - getwchar(), putwchar(), vprintf(), vscanf(), wprintf() and wscanf():

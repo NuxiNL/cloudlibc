@@ -26,10 +26,10 @@
 // Extensions:
 // - LC_TIMEZONE_MASK:
 //   Handle to timezone. Used by localtime_l(), mktime_l() and strftime_l().
-// - LC_POSIX_LOCALE:
-//   Explicit handle to the standard POSIX locale.
-// - LC_POSIX_UNICODE_LOCALE:
-//   Identical to LC_POSIX_LOCALE, except that it uses UTF-8 for LC_CTYPE.
+// - LC_C_LOCALE:
+//   Explicit handle to the standard C locale. Also present on NetBSD.
+// - LC_C_UNICODE_LOCALE:
+//   Identical to LC_C_LOCALE, except that it uses UTF-8 for LC_CTYPE.
 // - localeconv_l():
 //   localeconv() always uses the global locale.
 //
@@ -91,14 +91,14 @@ struct lconv {
    LC_NUMERIC_MASK | LC_TIME_MASK | LC_TIMEZONE_MASK)
 
 // Short-hand identifiers for commonly used locales.
-extern struct __locale __locale_posix;
-extern struct __locale __locale_posix_unicode;
-#define LC_POSIX_LOCALE (&__locale_posix)
-#define LC_POSIX_UNICODE_LOCALE (&__locale_posix_unicode)
+extern struct __locale __locale_c;
+extern struct __locale __locale_c_unicode;
+#define LC_C_LOCALE (&__locale_c)
+#define LC_C_UNICODE_LOCALE (&__locale_c_unicode)
 
 // The global locale cannot be modified in this implementation, so let
-// it point directly to the POSIX locale.
-#define LC_GLOBAL_LOCALE LC_POSIX_LOCALE
+// it point directly to the C locale.
+#define LC_GLOBAL_LOCALE LC_C_LOCALE
 
 __BEGIN_DECLS
 locale_t duplocale(locale_t);

@@ -27,7 +27,7 @@
 // - memmem(), memrchr(), strlcat() and strlcpy(), strsep():
 //   Available on many commonly used operating systems.
 // - strsignal_l():
-//   strsignal() always uses the POSIX locale.
+//   strsignal() always uses the C locale.
 //
 // Features missing:
 // - stpcpy(), strcat(), strcpy() and strncat():

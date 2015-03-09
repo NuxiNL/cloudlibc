@@ -25,7 +25,7 @@
 //
 // Extensions:
 // - strto*max_l():
-//   strto*max() always uses the POSIX locale.
+//   strto*max() always uses the C locale.
 
 #ifndef _INTTYPES_H_
 #define _INTTYPES_H_

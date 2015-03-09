@@ -25,7 +25,7 @@
 //
 // Extensions:
 // - gai_strerror_l():
-//   gai_strerror() always uses the POSIX locale.
+//   gai_strerror() always uses the C locale.
 //
 // Features missing:
 // - struct hostent, struct netent, endhostent(), endnetent(),

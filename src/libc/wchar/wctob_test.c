@@ -11,20 +11,20 @@
 TEST(wctob, ascii) {
   // WEOF should map to EOF.
   ASSERT_EQ(EOF, wctob(WEOF));
-  ASSERT_EQ(EOF, wctob_l(WEOF, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ(EOF, wctob_l(WEOF, LC_C_UNICODE_LOCALE));
 
   // All lower codepoints should be mapped.
   for (wint_t i = 0; i < 128; ++i) {
     SCOPED_NOTE(i, {
       ASSERT_EQ(i, wctob(i));
-      ASSERT_EQ(i, wctob_l(i, LC_POSIX_UNICODE_LOCALE));
+      ASSERT_EQ(i, wctob_l(i, LC_C_UNICODE_LOCALE));
     });
   }
   // Everything above should throw EOF.
   for (wint_t i = 128; i < 1000; ++i) {
     SCOPED_NOTE(i, {
       ASSERT_EQ(EOF, wctob(i));
-      ASSERT_EQ(EOF, wctob_l(i, LC_POSIX_UNICODE_LOCALE));
+      ASSERT_EQ(EOF, wctob_l(i, LC_C_UNICODE_LOCALE));
     });
   }
 }

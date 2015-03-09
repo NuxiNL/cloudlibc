@@ -11,20 +11,20 @@
 TEST(btowc, ascii) {
   // EOF should map to WEOF.
   ASSERT_EQ(WEOF, btowc(EOF));
-  ASSERT_EQ(WEOF, btowc_l(EOF, LC_POSIX_UNICODE_LOCALE));
+  ASSERT_EQ(WEOF, btowc_l(EOF, LC_C_UNICODE_LOCALE));
 
   // All lower codepoints should be mapped.
   for (int i = 0; i < 128; ++i) {
     SCOPED_NOTE(i, {
       ASSERT_EQ(i, btowc(i));
-      ASSERT_EQ(i, btowc_l(i, LC_POSIX_UNICODE_LOCALE));
+      ASSERT_EQ(i, btowc_l(i, LC_C_UNICODE_LOCALE));
     });
   }
   // Everything above should throw WEOF.
   for (int i = 128; i < 256; ++i) {
     SCOPED_NOTE(i, {
       ASSERT_EQ(WEOF, btowc(i));
-      ASSERT_EQ(WEOF, btowc_l(i, LC_POSIX_UNICODE_LOCALE));
+      ASSERT_EQ(WEOF, btowc_l(i, LC_C_UNICODE_LOCALE));
     });
   }
 }

@@ -31,7 +31,7 @@
 // - fopenat() and fopenat_l():
 //   Replacement for fopen().
 // - perror_l(), *printf_l() and *scanf_l():
-//   perror(), *print() and *scanf() always use the POSIX locale.
+//   perror(), *print() and *scanf() always use the C locale.
 //
 // Features missing:
 // - gets(), sprintf() and vsprintf():

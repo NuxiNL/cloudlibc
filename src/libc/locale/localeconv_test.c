@@ -7,8 +7,8 @@
 #include <locale.h>
 #include <testing.h>
 
-TEST(localeconv, posix) {
-  // Values that localeconv() should return for the POSIX locale.
+TEST(localeconv, c) {
+  // Values that localeconv() should return for the C locale.
   struct lconv *lconv = localeconv();
   ASSERT_STREQ(".", lconv->decimal_point);
   ASSERT_STREQ("", lconv->thousands_sep);
@@ -39,5 +39,5 @@ TEST(localeconv, posix) {
 
   // Object should remain cached.
   ASSERT_EQ(lconv, localeconv());
-  ASSERT_EQ(lconv, localeconv_l(LC_POSIX_LOCALE));
+  ASSERT_EQ(lconv, localeconv_l(LC_C_LOCALE));
 }

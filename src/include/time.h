@@ -28,7 +28,7 @@
 //   localtime() and mktime() always use UTC. localtime_l() and
 //   mktime_l() also provide sub-second granularity.
 // - strptime_l():
-//   strptime() always uses the POSIX locale.
+//   strptime() always uses the C locale.
 // - struct tm::tm_gmtoff and struct tm::tm_zone:
 //   Timezone information used by strftime(). Also present on FreeBSD.
 // - struct tm::tm_nsec:

@@ -31,8 +31,8 @@ TEST(newlocale, valid_timezone) {
 }
 
 TEST(newlocale, deduplication) {
-  // en_US uses the same date/time formatting as the POSIX locale.
-  // There's no need to allocate a new locale object.
+  // en_US uses the same date/time formatting as the C locale. There's
+  // no need to allocate a new locale object.
   locale_t locale = newlocale(LC_TIME_MASK, "en_US", 0);
   ASSERT_EQ(LC_GLOBAL_LOCALE, locale);
   freelocale(locale);

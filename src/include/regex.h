@@ -27,7 +27,7 @@
 // - REG_FNMATCH*:
 //   Can be used to match strings like fnmatch().
 // - reg*_l():
-//   regcomp() and regexec() always uses the POSIX locale.
+//   regcomp() and regexec() always uses the C locale.
 // - regn*():
 //   Allows for regex compilation of or matching on strings without null
 //   termination. Also present on Mac OS X.
