@@ -25,8 +25,11 @@ TEST(dprintf, bad) {
   ASSERT_EQ(-1, dprintf(fds[1], "%1000000000s", ""));
   ASSERT_EQ(EAGAIN, errno);
   ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
 
   // Other side of the pipe has been closed.
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(-1, dprintf(fds[1], "Hello"));
   ASSERT_EQ(EPIPE, errno);
   ASSERT_EQ(0, close(fds[1]));
