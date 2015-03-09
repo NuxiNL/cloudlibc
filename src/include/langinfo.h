@@ -32,10 +32,7 @@
 typedef __locale_t locale_t;
 #define _LOCALE_T_DECLARED
 #endif
-#ifndef _NL_ITEM_DECLARED
 typedef __nl_item nl_item;
-#define _NL_ITEM_DECLARED
-#endif
 
 #define CODESET 1
 #define D_T_FMT 2
