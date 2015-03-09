@@ -194,7 +194,6 @@ typedef struct __locale *__locale_t;
 typedef struct { _Alignas(__max_align_t) char __data[16]; } __mbstate_t;
 typedef __uint32_t __mode_t;
 typedef __int32_t __nlink_t;
-typedef int __nl_item;
 typedef __intmax_t __off_t;
 typedef struct { struct __pthread_key *__key; } __pthread_key_t;
 typedef struct __pthread *__pthread_t;
