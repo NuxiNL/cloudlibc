@@ -48,9 +48,6 @@ noreturn void __exit(uint8_t);
 // Executable entry point.
 noreturn void _start(void **, void (*)(void));
 
-// User code entry point.
-int main(int, char **, char **);
-
 // Multi-threading: pthread_t handle and thread ID.
 struct __pthread {
   _Atomic(cloudabi_lock_t) join;  // Join queue used by pthread_join().

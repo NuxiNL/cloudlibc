@@ -6,6 +6,8 @@
 #include <common/crt.h>
 #include <common/syscalls.h>
 
+#include <program.h>
+
 // Stack smashing protection.
 unsigned long __stack_chk_guard = 0xdeadc0de;
 
@@ -160,10 +162,9 @@ noreturn void _start(void **ap, void (*cleanup)(void)) {
   // Invoke global constructors.
   call_ctors();
 
-  // Invoke main().
-  char *argv = NULL;
-  char *env = NULL;
-  __exit(main(0, &argv, &env));
+  // Invoke program_main().
+  // TODO(edje): Pass in proper arguments.
+  __exit(program_main(NULL, 0));
 }
 
 noreturn void __exit(uint8_t ret) {
