@@ -92,6 +92,16 @@ find src/crt -name "*.[cS]" |
   install -m 444 _obj/src_crt_${crt}.o "${PREFIX}/lib/${crt}.o"
 done
 
+# Install stub libraries needed to make simple binaries link. These
+# libraries are added by Clang implicitly. Without these stubs we would
+# not be able to actually build libc++, libc++abi and compiler-rt.
+for lib in compiler_rt c++ c++abi unwind; do
+  file="${PREFIX}/lib/lib${lib}.a"
+  if [ ! -f "${file}" ]; then
+    "${TARGET}-ar" -rc "${file}"
+  fi
+done
+
 echo "=> Building unit tests"
 ${CC} -o _obj/unittest $(find src -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')
