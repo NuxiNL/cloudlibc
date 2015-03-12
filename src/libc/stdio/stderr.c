@@ -35,7 +35,7 @@ static struct fileops stderrops = {
     .setvbuf = stderr_setvbuf,
 };
 
-static struct _FILE stderrobj = {
+struct _FILE __stderr = {
     .fd = -1,
     .oflags = O_WRONLY,
     .ops = &stderrops,
@@ -45,6 +45,3 @@ static struct _FILE stderrobj = {
     .buftype = _IOFBF,
     .offset = -1,
 };
-
-// Initialize stderr with a FILE object that discards output.
-FILE *stderr = &stderrobj;

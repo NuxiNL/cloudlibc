@@ -30,6 +30,9 @@
 //   Sets the character set of the file.
 // - fopenat() and fopenat_l():
 //   Replacement for fopen().
+// - fswap():
+//   Toggles the contents of two FILE objects. Can be used as a
+//   replacement for freopen().
 // - perror_l(), *printf_l() and *scanf_l():
 //   perror(), *print() and *scanf() always use the C locale.
 //
@@ -99,10 +102,9 @@ typedef struct {
 
 #define NULL _NULL
 
-// Keep existing code happy that assumes that stderr is a macro.
-#define stderr stderr
-
-extern FILE *stderr;  // Standard error output stream.
+// Standard error output stream.
+extern FILE __stderr;
+#define stderr (&__stderr)
 
 __BEGIN_DECLS
 int asprintf(char **, const char *, ...) __printflike(2, 3);
@@ -138,6 +140,7 @@ int fscanf(FILE *__restrict, const char *__restrict, ...);
 int fscanf_l(FILE *__restrict, __locale_t, const char *__restrict, ...);
 int fseeko(FILE *, off_t, int);
 int fsetpos(FILE *, const fpos_t *);
+void fswap(FILE *, FILE *);
 off_t ftello(FILE *);
 int ftrylockfile(FILE *__stream) __trylocks_exclusive(0, *__stream);
 void funlockfile(FILE *__stream) __unlocks(*__stream);

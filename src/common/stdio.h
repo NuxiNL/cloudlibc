@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -31,7 +32,6 @@ struct __lockable _FILE {
   const struct lc_ctype *ctype;  // Character set or wide character conversion.
 
   // Variable data.
-  pthread_mutex_t lock;  // Per-stream lock.
   enum {
     F_EOF = 0x1,    // Stream is at end-of-file.
     F_ERROR = 0x2,  // An I/O error has occurred.
@@ -63,6 +63,11 @@ struct __lockable _FILE {
       size_t bufsize;
     } pipe;
   };
+
+  // Per-stream lock. This must remain the last member of the object,
+  // as fswap() will copy all structure members up to the lock.
+  pthread_mutex_t lock;
+#define FILE_COPYSIZE offsetof(FILE, lock)
 };
 
 // Locking functions.

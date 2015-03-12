@@ -20,8 +20,9 @@ TEST(perror, example) {
   int ret = pdfork(&child);
   if (ret == 0) {
     // Write perror() error messages into one side of the pipe.
-    stderr = fdopen(fds[1], "w");
-    ASSERT_NE(NULL, stderr);
+    FILE *fp = fdopen(fds[1], "w");
+    ASSERT_NE(NULL, fp);
+    fswap(stderr, fp);
 
     errno = -1;
     perror(NULL);

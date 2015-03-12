@@ -19,8 +19,9 @@ TEST(psignal, example) {
   int ret = pdfork(&child);
   if (ret == 0) {
     // Write psignal() error messages into one side of the pipe.
-    stderr = fdopen(fds[1], "w");
-    ASSERT_NE(NULL, stderr);
+    FILE *fp = fdopen(fds[1], "w");
+    ASSERT_NE(NULL, fp);
+    fswap(stderr, fp);
 
     psignal(-1, NULL);
     psignal(SIGSEGV, NULL);
