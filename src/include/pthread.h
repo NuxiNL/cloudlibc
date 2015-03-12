@@ -34,6 +34,8 @@
 //   can be used in combination with any type of lock.
 // - pthread_mutexattr_t and pthread_rwlockattr_t:
 //   All implemented using the same underlying type.
+// - pthread_mutex_lock_pair_np():
+//   Acquires two locks using a deadlock avoidance algorithm.
 //
 // Features missing:
 // - PTHREAD_CANCEL_ASYNCHRONOUS, PTHREAD_CANCEL_ENABLE,
@@ -250,6 +252,9 @@ int pthread_mutex_init(pthread_mutex_t *__restrict __mutex,
                        const pthread_mutexattr_t *__restrict)
     __requires_unlocked(*__mutex);
 int pthread_mutex_lock(pthread_mutex_t *__mutex) __locks_exclusive(*__mutex);
+int pthread_mutex_lock_pair_np(pthread_mutex_t *__mutex1,
+                               pthread_mutex_t *__mutex2)
+    __locks_exclusive(*__mutex1, *__mutex2);
 int pthread_mutex_timedlock(pthread_mutex_t *__restrict __mutex,
                             const struct timespec *__restrict)
     __trylocks_exclusive(0, *__mutex);
