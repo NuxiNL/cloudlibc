@@ -32,8 +32,7 @@ void __mktime_utc(const struct tm *tm, struct timespec *result) {
   // We need to ensure that the year is at least 70 for the rounding in
   // the day computation to work properly. Temporarily normalize the
   // year number by using an additional era counter.
-  time_t era = 0;
-  era += year / 400 - 2;
+  time_t era = year / 400 - 2;
   year = year % 400 + 800;
 
   // Compute days since epoch.
