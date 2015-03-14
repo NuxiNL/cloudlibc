@@ -20,7 +20,11 @@
 
 #include "testing_impl.h"
 
+// Markers for the beginning and end of the tests section of the
+// executable. The empty_test array forces the creation of the section
+// even if no tests have been registered.
 extern struct __test __start___tests[0];
+static struct __test empty_test[0] __section("__tests") __used;
 extern struct __test __stop___tests[0];
 
 // Shuffle all the tests.
