@@ -8,4 +8,3 @@
 // End of section markers.
 void (*__ctors_stop[0])(void) __section(".ctors");
 void (*__dtors_stop[0])(void) __section(".dtors");
-struct __test __tests_stop[0] __section("__tests");

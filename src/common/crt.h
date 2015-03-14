@@ -14,7 +14,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdnoreturn.h>
-#include <testing.h>
 #include <threads.h>
 
 // Markers for sections.
@@ -22,8 +21,6 @@ extern void (*__ctors_start[])(void);
 extern void (*__ctors_stop[])(void);
 extern void (*__dtors_start[])(void);
 extern void (*__dtors_stop[])(void);
-extern struct __test __tests_start[];
-extern struct __test __tests_stop[];
 
 // C++ destructors.
 extern void *__dso_handle;

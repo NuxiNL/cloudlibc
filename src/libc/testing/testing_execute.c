@@ -3,8 +3,6 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/crt.h>
-
 #include <sys/stat.h>
 
 #include <errno.h>
@@ -22,13 +20,16 @@
 
 #include "testing_impl.h"
 
+extern struct __test __start___tests[0];
+extern struct __test __stop___tests[0];
+
 // Shuffle all the tests.
 static void shuffle_tests(void) {
-  for (ssize_t i = __tests_stop - __tests_start - 1; i > 0; --i) {
+  for (ssize_t i = __stop___tests - __start___tests - 1; i > 0; --i) {
     size_t j = arc4random_uniform(i);
-    struct __test tmp = __tests_start[i];
-    __tests_start[i] = __tests_start[j];
-    __tests_start[j] = tmp;
+    struct __test tmp = __start___tests[i];
+    __start___tests[i] = __start___tests[j];
+    __start___tests[j] = tmp;
   }
 }
 
@@ -53,7 +54,7 @@ static void *run_tests(void *arg) {
   for (;;) {
     struct __test *test =
         atomic_fetch_add_explicit(&state->test_start, 1, memory_order_relaxed);
-    if (test >= __tests_stop)
+    if (test >= __stop___tests)
       return NULL;
 
     __testing_printf("-> %s\n", test->__name);
@@ -86,7 +87,7 @@ void testing_execute(int tmpdir, int logfile) {
   testing_logfile = logfile;
 
   struct testing_state state = {
-      .tmpdir = tmpdir, .test_start = __tests_start,
+      .tmpdir = tmpdir, .test_start = __start___tests,
   };
 
   // Spawn a number of threads to execute the tests in parallel.
@@ -98,6 +99,6 @@ void testing_execute(int tmpdir, int logfile) {
     ASSERT_EQ(0, pthread_join(threads[i], NULL));
 
   __testing_printf("=> Successfully executed %zu tests\n",
-                   __tests_stop - __tests_start);
+                   __stop___tests - __start___tests);
   pthread_mutex_unlock(&testing_lock);
 }
