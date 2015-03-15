@@ -25,16 +25,38 @@ size_t __tls_alignment = 1;
 thread_local pthread_t __pthread_self_object;
 thread_local cloudabi_tid_t __pthread_thread_id;
 
-static void handle_program_header(const ElfW(Phdr) * phdr, ElfW(Half) phnum) {
-  // Store reference to program header for later use.
+// Simple string functions so we don't depend on libc.
+static void crt_memcpy(void *s1, const void *s2, size_t n) {
+  char *sb1 = s1;
+  const char *sb2 = s2;
+  while (n-- > 0)
+    *sb1++ = *sb2++;
+}
+
+static void crt_memset(void *s, int c, size_t n) {
+  char *sb = s;
+  while (n-- > 0)
+    *sb++ = c;
+}
+
+static noreturn void mi_startup(const void *arg, size_t arglen,
+                                const ElfW(Phdr) * phdr, ElfW(Half) phnum,
+                                cloudabi_tid_t pthread_thread_id,
+                                unsigned long stack_chk_guard) {
+  // Set stack smashing guard.
+  __stack_chk_guard = stack_chk_guard;
+
+  // Iterate through the program header to obtain values of interest.
+  // Also store the location of the program header, so it can be
+  // returned in the future by dl_iterate_phdr().
   __elf_phdr = phdr;
   __elf_phnum = phnum;
-
-  // Extract locations of commonly used fields (e.g., the location of
-  // the initial TLS data).
   for (long i = 0; i < phnum; ++i) {
     switch (phdr->p_type) {
       case PT_TLS:
+        // TLS header. This process uses variables stored in
+        // thread-local storage. Extract the location and the size of
+        // the initial TLS data.
         __tls_init_data = (const void *)phdr->p_vaddr;
         __tls_init_size = phdr->p_filesz;
         __tls_total_size = __roundup(phdr->p_memsz, phdr->p_align);
@@ -43,6 +65,52 @@ static void handle_program_header(const ElfW(Phdr) * phdr, ElfW(Half) phnum) {
     }
     ++phdr;
   }
+
+  // Set up TLS space for the main thread. Instead of calling malloc()
+  // or mmap(), simply allocate a buffer on the stack of this thread.
+  char tls_space[__tls_total_size + __tls_alignment - 1];
+  char *tls_start = (char *)__roundup((uintptr_t)tls_space, __tls_alignment);
+  char *tls_end = tls_start + __tls_total_size;
+  crt_memcpy(tls_start, __tls_init_data, __tls_init_size);
+  crt_memset(tls_start + __tls_init_size, 0,
+             __tls_total_size - __tls_init_size);
+  cloudabi_sys_thread_tcb_set(&tls_end);
+
+  // Patch up the pthread state for the initial thread. Make sure that
+  // the pthread_t for the initial thread is valid. Also adjust
+  // __pthread_thread_id to ensure that functions like
+  // pthread_mutex_lock() write the proper thread ID into the lock.
+  struct __pthread self_object = {
+      .join = ATOMIC_VAR_INIT(pthread_thread_id | CLOUDABI_LOCK_WRLOCKED),
+  };
+  __pthread_self_object = &self_object;
+  __pthread_thread_id = pthread_thread_id;
+
+  // Invoke global constructors.
+  void (**ctor)(void) = __ctors_stop;
+  while (ctor > __ctors_start)
+    (*--ctor)();
+
+  // Invoke program_main(). If program_main() is not part of the
+  // application, the C library provides a copy that calls main().
+  __exit(program_main(arg, arglen));
+}
+
+noreturn void __exit(uint8_t ret) {
+  // Invoke global destructors.
+  void (**dtor)(void) = __dtors_start;
+  while (dtor < __dtors_stop)
+    (*dtor++)();
+
+  // Terminate process.
+  cloudabi_sys_proc_exit(ret);
+}
+
+void *__dso_handle = NULL;
+
+int __cxa_atexit(void (*func)(void *), void *arg, void *dso_handle) {
+  // TODO(edje): Implement.
+  return 0;
 }
 
 #ifdef __x86_64__
@@ -65,18 +133,25 @@ typedef struct {
 #define AT_PHENT 4
 #define AT_PHNUM 5
 
-static void handle_auxiliary_vector(const auxv_t *auxv) {
+noreturn void _start(void **ap, void (*cleanup)(void)) {
+  // TODO(edje): Patch up the kernel to provide these values in a saner
+  // way. We also want to support binary blob arguments.
+
+  // Obtain auxiliary vector by scanning past the command line arguments
+  // and environment variables.
+  int argc = *(long *)ap;
+  void **auxvptr = ap + argc + 2;
+  while (*auxvptr++ != NULL) {
+  }
+  auxv_t *auxv = (auxv_t *)auxvptr;
+
   // Process fields stored in the auxiliary vector that we support.
   const ElfW(Phdr) *phdr = NULL;
-  long phent = 0;
   ElfW(Half) phnum = 0;
   while (auxv->a_type != AT_NULL) {
     switch (auxv->a_type) {
       case AT_PHDR:
         phdr = auxv->a_un.a_ptr;
-        break;
-      case AT_PHENT:
-        phent = auxv->a_un.a_val;
         break;
       case AT_PHNUM:
         phnum = auxv->a_un.a_val;
@@ -85,62 +160,8 @@ static void handle_auxiliary_vector(const auxv_t *auxv) {
     ++auxv;
   }
 
-  // Found the program header. Process it as well.
-  if (phdr != NULL && phent == sizeof(*phdr))
-    handle_program_header(phdr, phnum);
-}
-
-#endif
-
-static void call_ctors(void) {
-  // Invoke constructor functions.
-  void (**ctor)(void) = __ctors_stop;
-  while (ctor > __ctors_start)
-    (*--ctor)();
-}
-
-static void call_dtors(void) {
-  // Invoke destructor functions.
-  void (**dtor)(void) = __dtors_start;
-  while (dtor < __dtors_stop)
-    (*dtor++)();
-}
-
-noreturn void _start(void **ap, void (*cleanup)(void)) {
-  // TODO(edje): Have this in the auxiliary vector.
-  unsigned long stack_chk_guard;
-  cloudabi_sys_random_get(&stack_chk_guard, sizeof(stack_chk_guard));
-  __stack_chk_guard = stack_chk_guard;
-
-  // Obtain auxiliary vector by scanning past the command line arguments
-  // and environment variables.
-  // TODO(edje): Remove support for command line arguments and
-  // environment variables and replace it by a binary blob.
-  int argc = *(long *)ap;
-  void **auxv = ap + argc + 2;
-  while (*auxv++ != NULL) {
-  }
-  handle_auxiliary_vector((auxv_t *)auxv);
-
-  // Set up TLS space for the main thread.
-  char tls_space[__tls_total_size + __tls_alignment - 1];
-  char *tls_start = (char *)__roundup((uintptr_t)tls_space, __tls_alignment);
-  char *tls_end = tls_start + __tls_total_size;
-  size_t fill = 0;
-  while (fill < __tls_init_size) {
-    tls_start[fill] = ((const char *)__tls_init_data)[fill];
-    ++fill;
-  }
-  while (fill < __tls_total_size) {
-    tls_start[fill] = '\0';
-    ++fill;
-  }
-  cloudabi_sys_thread_tcb_set(&tls_end);
-
   // Extract the initial thread ID.
-  // TODO(edje): Don't do this through poll. Have this data in the
-  // auxiliary vector.
-  cloudabi_lock_t initial_thread_id;
+  cloudabi_lock_t pthread_thread_id;
   {
     _Atomic(cloudabi_lock_t) atomic_tid;
     cloudabi_event_t event = {
@@ -148,36 +169,18 @@ noreturn void _start(void **ap, void (*cleanup)(void)) {
     };
     size_t triggered;
     cloudabi_sys_poll_once(&event, 1, &event, 1, &triggered);
-    initial_thread_id = atomic_load(&atomic_tid);
+    pthread_thread_id = atomic_load(&atomic_tid);
   }
-  initial_thread_id &= ~CLOUDABI_LOCK_WRLOCKED;
+  pthread_thread_id &= ~CLOUDABI_LOCK_WRLOCKED;
 
-  // Fix up some of the variables stored in TLS.
-  struct __pthread self_object = {
-      .join = ATOMIC_VAR_INIT(initial_thread_id | CLOUDABI_LOCK_WRLOCKED),
-  };
-  __pthread_self_object = &self_object;
-  __pthread_thread_id = initial_thread_id;
+  // Generate stack smashing guard.
+  unsigned long stack_chk_guard;
+  cloudabi_sys_random_get(&stack_chk_guard, sizeof(stack_chk_guard));
 
-  // Invoke global constructors.
-  call_ctors();
-
-  // Invoke program_main().
-  // TODO(edje): Pass in proper arguments.
-  __exit(program_main(NULL, 0));
+  // Call into the machine-independent startup sequence.
+  mi_startup(NULL, 0, phdr, phnum, pthread_thread_id, stack_chk_guard);
 }
 
-noreturn void __exit(uint8_t ret) {
-  // Invoke global destructors.
-  call_dtors();
-
-  // Terminate process.
-  cloudabi_sys_proc_exit(ret);
-}
-
-void *__dso_handle = NULL;
-
-int __cxa_atexit(void (*func)(void *), void *arg, void *dso_handle) {
-  // TODO(edje): Implement.
-  return 0;
-}
+#else
+#error "Unsupported architecture"
+#endif
