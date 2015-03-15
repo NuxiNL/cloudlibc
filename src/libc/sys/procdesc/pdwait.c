@@ -19,11 +19,11 @@ int pdwait(int fd, siginfo_t *infop, int options) {
   // to return immediately.
   cloudabi_event_t events[2] = {
       {
-       .type = CLOUDABI_EVENT_TYPE_PROC_TERMINATE, .proc_terminate.fd = fd,
+          .type = CLOUDABI_EVENT_TYPE_PROC_TERMINATE, .proc_terminate.fd = fd,
       },
       {
-       .type = CLOUDABI_EVENT_TYPE_CLOCK,
-       .clock.clock_id = CLOUDABI_CLOCK_MONOTONIC,
+          .type = CLOUDABI_EVENT_TYPE_CLOCK,
+          .clock.clock_id = CLOUDABI_CLOCK_MONOTONIC,
       },
   };
   size_t nevents = (options & WNOHANG) != 0 ? 2 : 1;

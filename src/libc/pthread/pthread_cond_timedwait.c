@@ -25,12 +25,12 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
   // Call into the kernel to wait on the condition variable.
   cloudabi_event_t events[2] = {
       {
-       .type = CLOUDABI_EVENT_TYPE_CONDVAR,
-       .condvar.condvar = &cond->__waiters,
-       .condvar.lock = &lock->__state,
+          .type = CLOUDABI_EVENT_TYPE_CONDVAR,
+          .condvar.condvar = &cond->__waiters,
+          .condvar.lock = &lock->__state,
       },
       {
-       .type = CLOUDABI_EVENT_TYPE_CLOCK, .clock.clock_id = cond->__clock,
+          .type = CLOUDABI_EVENT_TYPE_CLOCK, .clock.clock_id = cond->__clock,
       },
   };
   if (!timespec_to_timestamp_clamp(abstime, &events[1].clock.timeout))

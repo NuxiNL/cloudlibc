@@ -22,16 +22,16 @@ struct testvector {
   {                                                                         \
     t,                                                                      \
         {                                                                   \
-         .tm_year = year - 1900,                                            \
-         .tm_mon = mon - 1,                                                 \
-         .tm_wday = wday,                                                   \
-         .tm_mday = mday,                                                   \
-         .tm_hour = hour,                                                   \
-         .tm_min = min,                                                     \
-         .tm_sec = sec,                                                     \
-         .tm_isdst = isdst,                                                 \
-         .tm_gmtoff = gmtoff,                                               \
-         .tm_zone = zone,                                                   \
+            .tm_year = year - 1900,                                         \
+            .tm_mon = mon - 1,                                              \
+            .tm_wday = wday,                                                \
+            .tm_mday = mday,                                                \
+            .tm_hour = hour,                                                \
+            .tm_min = min,                                                  \
+            .tm_sec = sec,                                                  \
+            .tm_isdst = isdst,                                              \
+            .tm_gmtoff = gmtoff,                                            \
+            .tm_zone = zone,                                                \
         },                                                                  \
         consistency,                                                        \
   }

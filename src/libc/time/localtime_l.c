@@ -90,7 +90,7 @@ static void compute_zone_abbreviation(const struct lc_timezone_era *era,
             // %s directive.
             for (size_t j = 0;
                  j < sizeof(rule->abbreviation) &&
-                     rule->abbreviation[j] != '\0' && out + 1 < resultsize;
+                 rule->abbreviation[j] != '\0' && out + 1 < resultsize;
                  ++j)
               result[out++] = rule->abbreviation[j];
             in += 2;

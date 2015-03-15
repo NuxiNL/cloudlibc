@@ -23,10 +23,11 @@ int pthread_rwlock_timedrdlock(pthread_rwlock_t *restrict rwlock,
   // Call into the kernel to acquire a read lock.
   cloudabi_event_t events[2] = {
       {
-       .type = CLOUDABI_EVENT_TYPE_LOCK_RDLOCK, .lock.lock = &rwlock->__state,
+          .type = CLOUDABI_EVENT_TYPE_LOCK_RDLOCK,
+          .lock.lock = &rwlock->__state,
       },
       {
-       .type = CLOUDABI_EVENT_TYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,
+          .type = CLOUDABI_EVENT_TYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,
       },
   };
   if (!timespec_to_timestamp_clamp(abstime, &events[1].clock.timeout))
