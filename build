@@ -35,7 +35,7 @@ for srcfile in ${SRCS}; do
   safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
   case "${srcfile}" in
   contrib/*) extraflags="${COPTFLAGS} -fstack-protector-strong" ;;
-  src/crt/*) extraflags="" ;;
+  src/crt/*) extraflags="${COPTFLAGS} ${WARNFLAGS}" ;;
   *_test.c) extraflags="${WARNFLAGS} -fno-builtin -fstack-protector-strong" ;;
   *) extraflags="${COPTFLAGS} ${WARNFLAGS} -fstack-protector-strong" ;;
   esac
