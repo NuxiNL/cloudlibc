@@ -44,6 +44,8 @@ static struct {
      &numeric_nl_nl, &time_nl_nl},
     {"ru_RU", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &time_ru_ru},
+    {"cs_CZ", &__collate_posix, &__messages_en_us, &__monetary_posix,
+     &__numeric_posix, &__time_en_us},
     {"zh_CN", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &time_zh_cn},
 };
