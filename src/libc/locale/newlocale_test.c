@@ -14,8 +14,15 @@ TEST(newlocale, zero) {
   freelocale(locale);
 }
 
+TEST(newlocale, empty_name) {
+  // In this environment "" will simply return the global locale.
+  locale_t locale = newlocale(LC_ALL_MASK, "", 0);
+  ASSERT_EQ(LC_GLOBAL_LOCALE, locale);
+  freelocale(locale);
+}
+
 TEST(newlocale, unknown) {
-  // Empty mask should yield the standard locale.
+  // Unknown locale name.
   locale_t locale = newlocale(LC_ALL_MASK, "Unknown", 0);
   ASSERT_EQ(0, locale);
   ASSERT_EQ(ENOENT, errno);

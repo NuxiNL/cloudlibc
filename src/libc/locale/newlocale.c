@@ -54,7 +54,8 @@ static struct {
 
 locale_t newlocale(int category_mask, const char *locale, locale_t base) {
   struct __locale new_locale = {};
-  if (strcmp(locale, "C") == 0 || strcmp(locale, "POSIX") == 0) {
+  if (*locale == '\0' || strcmp(locale, "C") == 0 ||
+      strcmp(locale, "POSIX") == 0) {
     // Inherit from the C locale.
     new_locale = *LC_C_LOCALE;
   } else {
