@@ -8,6 +8,9 @@
 
 #include <program.h>
 
+// DSO handle.
+void *__dso_handle = NULL;
+
 // Stack smashing protection.
 unsigned long __stack_chk_guard = 0xdeadc0de;
 
@@ -93,24 +96,7 @@ static noreturn void mi_startup(const void *arg, size_t arglen,
 
   // Invoke program_main(). If program_main() is not part of the
   // application, the C library provides a copy that calls main().
-  __exit(program_main(arg, arglen));
-}
-
-noreturn void __exit(uint8_t ret) {
-  // Invoke global destructors.
-  void (**dtor)(void) = __dtors_start;
-  while (dtor < __dtors_stop)
-    (*dtor++)();
-
-  // Terminate process.
-  cloudabi_sys_proc_exit(ret);
-}
-
-void *__dso_handle = NULL;
-
-int __cxa_atexit(void (*func)(void *), void *arg, void *dso_handle) {
-  // TODO(edje): Implement.
-  return 0;
+  program_main(arg, arglen);
 }
 
 #ifdef __x86_64__

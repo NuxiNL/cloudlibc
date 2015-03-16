@@ -49,8 +49,6 @@
 //   Requires a command shell.
 // - a64l() and l64a():
 //   Not thread-safe.
-// - atexit() and exit():
-//   Program should terminate through main() instead.
 // - putenv(), setenv() and unsetenv():
 //   Environment variables are not available.
 // - grantpt(), posix_openpt(), ptsname() and unlockpt():
@@ -136,6 +134,7 @@ _Noreturn void _Exit(int);
 size_t MB_CUR_MAX_L(__locale_t);
 _Noreturn void abort(void);
 int abs(int) __pure2;
+int atexit(void (*)(void));
 void *aligned_alloc(size_t, size_t);
 __uint32_t arc4random(void);
 void arc4random_buf(void *, size_t);
@@ -149,6 +148,7 @@ void *bsearch(const void *, const void *, size_t, size_t,
 void *calloc(size_t, size_t);
 div_t div(int, int) __pure2;
 double drand48(void);
+void exit(int);
 void free(void *);
 char *getenv(const char *);
 int getsubopt(char **, char *const *, char **);

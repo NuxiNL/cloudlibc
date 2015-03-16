@@ -22,9 +22,9 @@ extern void (*__ctors_stop[])(void);
 extern void (*__dtors_start[])(void);
 extern void (*__dtors_stop[])(void);
 
-// C++ destructors.
+// DSO handle.
+// TODO(edje): Why is this needed?
 extern void *__dso_handle;
-int __cxa_atexit(void (*)(void *), void *, void *);
 
 // Stack smashing protection.
 extern unsigned long __stack_chk_guard;
@@ -38,9 +38,6 @@ extern const void *__tls_init_data;
 extern size_t __tls_init_size;
 extern size_t __tls_total_size;
 extern size_t __tls_alignment;
-
-// Invokes destructors and terminates the process.
-noreturn void __exit(uint8_t);
 
 // Executable entry point.
 noreturn void _start(void **, void (*)(void));

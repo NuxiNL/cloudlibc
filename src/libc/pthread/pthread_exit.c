@@ -58,7 +58,7 @@ noreturn void pthread_exit(void *value_ptr) {
   // Instead of terminating the thread, terminate the process regularly
   // if we're the last remaining thread.
   if (refcount_release(&__pthread_num_threads) == 1)
-    __exit(0);
+    exit(0);
 
   // Deinitialize malloc().
   _malloc_thread_cleanup();

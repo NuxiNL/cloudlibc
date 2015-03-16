@@ -32,13 +32,9 @@
 typedef __size_t size_t;
 #define _SIZE_T_DECLARED
 #endif
-#ifndef _UINT8_T_DECLARED
-typedef __uint8_t uint8_t;
-#define _UINT8_T_DECLARED
-#endif
 
 __BEGIN_DECLS
-uint8_t program_main(const void *, size_t);
+_Noreturn void program_main(const void *, size_t);
 __END_DECLS
 
 #endif
