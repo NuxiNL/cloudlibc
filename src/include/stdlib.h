@@ -36,19 +36,14 @@
 //   mbstowcs() and wcstombs() always use the C locale.
 //
 // Features missing:
-// - MB_CUR_MAX:
-//   Global locale always uses ASCII, meaning MB_CUR_MAX would always be
-//   defined as 1. Could potentially lead to buffer overflows if used
-//   in combination with wrong locale. Use MB_LEN_MAX or MB_CUR_MAX_L()
-//   instead.
 // - erand48(), jrand48() and nrand48():
 //   Quality of random numbers is too weak. Use arc4random*() instead.
 // - initstate(), lcong48(), setstate(), srand(), srand48() and srandom():
 //   Randomizer is seeded securely by default. There is no need to seed
 //   manually.
 // - WEXITSTATUS(), WIFEXITED(), WIFSIGNALED(), WIFSTOPPED(),
-//   WSTOPSIG(), WTERMSIG(), WNOHANG, WUNTRACED and system():
-//   Requires a command shell.
+//   WSTOPSIG(), WTERMSIG(), WNOHANG, WUNTRACED:
+//   Only useful if system() would actually work.
 // - a64l() and l64a():
 //   Not thread-safe.
 // - putenv(), setenv() and unsetenv():
@@ -98,6 +93,9 @@ typedef __size_t size_t;
 typedef __wchar_t wchar_t;
 #define _WCHAR_T_DECLARED
 #endif
+
+// Process wide locale always uses ASCII.
+#define MB_CUR_MAX 1
 
 // Keep existing code happy that assumes that MB_CUR_MAX_L is a macro.
 #define MB_CUR_MAX_L MB_CUR_MAX_L
@@ -185,6 +183,7 @@ unsigned long strtoul_l(const char *__restrict, char **__restrict, int,
 unsigned long long strtoull(const char *__restrict, char **__restrict, int);
 unsigned long long strtoull_l(const char *__restrict, char **__restrict, int,
                               __locale_t);
+int system(const char *);
 size_t wcstombs(char *__restrict, const wchar_t *__restrict, size_t);
 size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
                   __locale_t);
