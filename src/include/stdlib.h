@@ -24,14 +24,16 @@
 // <stdlib.h> - standard library definitions
 //
 // Extensions:
+// - MB_CUR_MAX_L():
+//   Replacement for MB_CUR_MAX. Available on many other operating
+//   systems.
 // - alloca():
 //   Present on most other operating systems.
 // - arc4random(), arc4random_buf() and arc4random_uniform():
 //   Secure random number generator. Available on many other operating
 //   systems.
-// - MB_CUR_MAX_L():
-//   Replacement for MB_CUR_MAX. Available on many other operating
-//   systems.
+// - mbstowcs_l() and wcstombs_l():
+//   mbstowcs() and wcstombs() always use the C locale.
 //
 // Features missing:
 // - MB_CUR_MAX:
@@ -53,7 +55,7 @@
 //   Environment variables are not available.
 // - grantpt(), posix_openpt(), ptsname() and unlockpt():
 //   Pseudo-terminals are not available.
-// - mblen(), mbstowcs(), mbtowc(), wcstombs(), wctomb():
+// - mblen(), mbtowc(), wctomb():
 //   Not thread-safe. Use <wchar.h> instead.
 // - mkdtemp(), mkstemp() and realpath():
 //   Requires global filesystem namespace.
@@ -158,6 +160,9 @@ long long llabs(long long) __pure2;
 lldiv_t lldiv(long long, long long) __pure2;
 long lrand48(void);
 void *malloc(size_t);
+size_t mbstowcs(wchar_t *__restrict, const char *__restrict, size_t);
+size_t mbstowcs_l(wchar_t *__restrict, const char *__restrict, size_t,
+                  __locale_t);
 long mrand48(void);
 int posix_memalign(void **, size_t, size_t);
 void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
@@ -180,6 +185,9 @@ unsigned long strtoul_l(const char *__restrict, char **__restrict, int,
 unsigned long long strtoull(const char *__restrict, char **__restrict, int);
 unsigned long long strtoull_l(const char *__restrict, char **__restrict, int,
                               __locale_t);
+size_t wcstombs(char *__restrict, const wchar_t *__restrict, size_t);
+size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
+                  __locale_t);
 __END_DECLS
 
 #define alloca(size) __builtin_alloca(size)
