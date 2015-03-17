@@ -24,42 +24,27 @@ struct float2 {
 #define F2_NAN 0x4
 };
 
-// A base-10 floating point number. The value associated with a number
-// in this structure is equal to:
-//
-//     (significand[0] << 64 | significand[1]) * 10^exponent
-struct float10 {
-  uint64_t significand[2];
-  int exponent;
-};
-
-// Normalize.
+__BEGIN_DECLS
 void __float2_normalize(struct float2 *);
-
-// Conversion between float2 and float.
 bool __float2_to_float(const struct float2 *, float *);
-#if 0  // Not needed.
-void __float_to_float2(float, struct float2 *);
-#endif
-
-// Conversion between float2 and double.
 bool __float2_to_double(const struct float2 *, double *);
-#if 0  // Not needed.
-void __double_to_float2(double, struct float2 *);
-#endif
-
-// Conversion between float2 and long double.
 bool __float2_to_long_double(const struct float2 *, long double *);
 void __long_double_to_float2(long double, struct float2 *);
+__END_DECLS
 
-// Conversion between float2 and float10.
-int __float2_to_float10(const struct float2 *, struct float10 *);
-int __float10_to_float2(const struct float10 *, struct float2 *);
+// Handling of base-10 floating point numbers. These functions are
+// wrappers around the double-conversion library.
 
-// Parsing of strings with floating point literals.
-bool __strtofloat2(const char *restrict, char **restrict, locale_t,
+__BEGIN_DECLS
+float __float10_to_float(const char *, size_t, int);
+double __float10_to_double(const char *, size_t, int);
+__END_DECLS
+
+__BEGIN_DECLS
+bool __strtofloat2(const char *__restrict, char **__restrict, locale_t,
                    struct float2 *);
-bool __wcstofloat2(const wchar_t *restrict, wchar_t **restrict, locale_t,
+bool __wcstofloat2(const wchar_t *__restrict, wchar_t **__restrict, locale_t,
                    struct float2 *);
+__END_DECLS
 
 #endif

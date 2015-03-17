@@ -4,7 +4,7 @@ set -e
 
 TARGET="x86_64-unknown-cloudabi"
 CC="${TARGET}-cc"
-CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/jemalloc-3.6.0/include -Werror"
+CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include -Werror"
 COPTFLAGS="-O3"
 WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare"
 
@@ -52,7 +52,7 @@ make -k -j8 -f _obj/Makefile all
 
 echo "=> Reformatting sources"
 # Pass all source files through clang-format.
-find src tools -name "*.c" -o -name "*.h" | sort | while read srcfile; do
+find src tools -name '*.[ch]' -o -name '*.cc' | sort | while read srcfile; do
   /usr/local/cloudabi/bin/clang-format -style='{
 BasedOnStyle: Google,
 AllowShortIfStatementsOnASingleLine: false,
@@ -71,7 +71,8 @@ make -k -j8 -f _obj/Makefile all
 
 echo "=> Linking libraries"
 rm -f _obj/libc.a
-find src/libc contrib/jemalloc-3.6.0 -name "*.[cS]" \! -name "*_test.c" | sort |
+find src/libc contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
+    \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
     xargs ${TARGET}-ar -rcs _obj/libc.a
 
