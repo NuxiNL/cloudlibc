@@ -3,20 +3,8 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/float.h>
+#define NAME wcstof_l
+typedef float flt_t;
+#define WIDE 1
 
-#include <errno.h>
-#include <wchar.h>
-
-float wcstof_l(const wchar_t *restrict nptr, wchar_t **restrict endptr,
-               locale_t locale) {
-  struct float2 f2;
-  if (!__wcstofloat2(nptr, endptr, locale, &f2)) {
-    errno = EINVAL;
-    return 0.0;
-  }
-  float value;
-  if (!__float2_to_float(&f2, &value))
-    errno = ERANGE;
-  return value;
-}
+#include <common/strtofloat.h>

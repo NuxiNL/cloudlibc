@@ -3,20 +3,8 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/float.h>
+#define NAME strtod_l
+typedef double flt_t;
+#define WIDE 0
 
-#include <errno.h>
-#include <stdlib.h>
-
-double strtod_l(const char *restrict nptr, char **restrict endptr,
-                locale_t locale) {
-  struct float2 f2;
-  if (!__strtofloat2(nptr, endptr, locale, &f2)) {
-    errno = EINVAL;
-    return 0.0;
-  }
-  double value;
-  if (!__float2_to_double(&f2, &value))
-    errno = ERANGE;
-  return value;
-}
+#include <common/strtofloat.h>

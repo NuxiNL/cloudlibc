@@ -40,11 +40,4 @@ float __float10_to_float(const char *, size_t, int);
 double __float10_to_double(const char *, size_t, int);
 __END_DECLS
 
-__BEGIN_DECLS
-bool __strtofloat2(const char *__restrict, char **__restrict, locale_t,
-                   struct float2 *);
-bool __wcstofloat2(const wchar_t *__restrict, wchar_t **__restrict, locale_t,
-                   struct float2 *);
-__END_DECLS
-
 #endif

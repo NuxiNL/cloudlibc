@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <limits.h>
 #include <locale.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -281,10 +282,11 @@ int NAME(const char_t *restrict s, locale_t locale,
 
         // Determine up to where we can parse.
         size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
+        typedef long double flt_t;
 #define PEEK(n)                                                              \
   (idx + (n) < end && INPUT_REMAINING(idx + (n) + 1) ? INPUT_PEEK(idx + (n)) \
                                                      : '\0')
-#include "parser_strtofloat2.h"
+#include "parser_strtofloat.h"
 #undef PEEK
 #undef SKIP
 
