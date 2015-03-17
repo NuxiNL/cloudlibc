@@ -8,7 +8,8 @@ CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/jemalloc
 COPTFLAGS="-O3"
 WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare"
 
-SRCS=$(find src contrib/jemalloc-3.6.0 -name "*.[cS]" | sort)
+SRCS=$(find src contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
+    \( -name '*.[cS]' -o -name '*.cc' \) | sort)
 
 echo "=> Testing headers"
 for std in c89 gnu89 c90 gnu90 c99 gnu99 c11 gnu11; do
