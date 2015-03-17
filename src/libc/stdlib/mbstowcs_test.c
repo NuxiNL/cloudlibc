@@ -29,7 +29,7 @@ TEST(mbstowcs, length) {
 }
 
 TEST(mbstowcs, convert) {
-  // Compute length of string, regardless of the length provided.
+  // Convert the string.
   {
     wchar_t buf[12] = L"AAAAAAAAAAAA";
     ASSERT_EQ(0, mbstowcs_l(buf, "Düsseldorf", 0, LC_C_UNICODE_LOCALE));
