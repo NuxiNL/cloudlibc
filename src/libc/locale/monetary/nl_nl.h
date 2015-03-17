@@ -7,24 +7,25 @@
 
 #include <limits.h>
 
-// TODO(edje): Make more accurate.
 static const struct lc_monetary monetary_nl_nl = {
     .mon_decimal_point = L",",
     .mon_thousands_sep = L" ",
-    .mon_grouping = "\x7f",  // CHAR_MAX.
+    .mon_grouping = "\x03\x03",
+    .negative_sign = L"-",
     .currency_symbol = L"€",
-    .frac_digits = CHAR_MAX,
+    .frac_digits = 2,
     .p_cs_precedes = 1,
-    .p_sep_by_space = CHAR_MAX,
-    .p_sign_posn = CHAR_MAX,
+    .p_sep_by_space = 1,
+    .p_sign_posn = 1,
     .n_cs_precedes = 1,
-    .n_sep_by_space = CHAR_MAX,
-    .n_sign_posn = CHAR_MAX,
-    .int_frac_digits = CHAR_MAX,
-    .int_p_cs_precedes = CHAR_MAX,
-    .int_p_sep_by_space = CHAR_MAX,
-    .int_p_sign_posn = CHAR_MAX,
-    .int_n_cs_precedes = CHAR_MAX,
-    .int_n_sep_by_space = CHAR_MAX,
-    .int_n_sign_posn = CHAR_MAX,
+    .n_sep_by_space = 1,
+    .n_sign_posn = 2,
+    .int_curr_symbol = L"EUR ",
+    .int_frac_digits = 2,
+    .int_p_cs_precedes = 1,
+    .int_p_sep_by_space = 1,
+    .int_p_sign_posn = 1,
+    .int_n_cs_precedes = 1,
+    .int_n_sep_by_space = 1,
+    .int_n_sign_posn = 2,
 };
