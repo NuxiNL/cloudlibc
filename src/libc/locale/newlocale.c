@@ -37,6 +37,8 @@ static struct {
   const struct lc_time *time;
 } languages[] = {
     // TODO(edje): Make these locales more complete.
+    {"cs_CZ", &__collate_posix, &__messages_en_us, &__monetary_posix,
+     &__numeric_posix, &__time_en_us},
     {"en_US", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &__time_en_us},
     {"fr_CA", &__collate_posix, &__messages_en_us, &__monetary_posix,
@@ -47,8 +49,6 @@ static struct {
      &numeric_nl_nl, &time_nl_nl},
     {"ru_RU", &__collate_posix, &messages_ru_ru, &monetary_ru_ru,
      &numeric_ru_ru, &time_ru_ru},
-    {"cs_CZ", &__collate_posix, &__messages_en_us, &__monetary_posix,
-     &__numeric_posix, &__time_en_us},
     {"zh_CN", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &time_zh_cn},
 };
