@@ -1,0 +1,13 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// This file is distrbuted under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#include <common/locale.h>
+
+static const struct lc_numeric numeric_ru_ru = {
+    .decimal_point = L",",
+    .thousands_sep = L" ",
+    // TODO(edje): Determine proper grouping.
+    .grouping = "\x7f",  // CHAR_MAX.
+};

@@ -126,3 +126,65 @@ TEST(nl_langinfo, nl_nl) {
   ASSERT_STREQ("-€", nl_langinfo_l(CRNCYSTR, locale));
   freelocale(locale);
 }
+
+TEST(nl_langinfo, ru_ru) {
+  // Values that nl_langinfo() should return for the Russian locale.
+  locale_t locale = newlocale(LC_ALL_MASK, "ru_RU.UTF-8@Europe/Moscow", 0);
+  ASSERT_STREQ("UTF-8", nl_langinfo_l(CODESET, locale));
+  ASSERT_STREQ("%A, %e %B %Y г. %H:%M:%S", nl_langinfo_l(D_T_FMT, locale));
+  ASSERT_STREQ("%d.%m.%Y", nl_langinfo_l(D_FMT, locale));
+  ASSERT_STREQ("%H:%M:%S", nl_langinfo_l(T_FMT, locale));
+  ASSERT_STREQ("", nl_langinfo_l(T_FMT_AMPM, locale));
+  ASSERT_STREQ("", nl_langinfo_l(AM_STR, locale));
+  ASSERT_STREQ("", nl_langinfo_l(PM_STR, locale));
+  ASSERT_STREQ("воскресенье", nl_langinfo_l(DAY_1, locale));
+  ASSERT_STREQ("понедельник", nl_langinfo_l(DAY_2, locale));
+  ASSERT_STREQ("вторник", nl_langinfo_l(DAY_3, locale));
+  ASSERT_STREQ("среда", nl_langinfo_l(DAY_4, locale));
+  ASSERT_STREQ("четверг", nl_langinfo_l(DAY_5, locale));
+  ASSERT_STREQ("пятница", nl_langinfo_l(DAY_6, locale));
+  ASSERT_STREQ("суббота", nl_langinfo_l(DAY_7, locale));
+  ASSERT_STREQ("вс", nl_langinfo_l(ABDAY_1, locale));
+  ASSERT_STREQ("пн", nl_langinfo_l(ABDAY_2, locale));
+  ASSERT_STREQ("вт", nl_langinfo_l(ABDAY_3, locale));
+  ASSERT_STREQ("ср", nl_langinfo_l(ABDAY_4, locale));
+  ASSERT_STREQ("чт", nl_langinfo_l(ABDAY_5, locale));
+  ASSERT_STREQ("пт", nl_langinfo_l(ABDAY_6, locale));
+  ASSERT_STREQ("сб", nl_langinfo_l(ABDAY_7, locale));
+  ASSERT_STREQ("января", nl_langinfo_l(MON_1, locale));
+  ASSERT_STREQ("февраля", nl_langinfo_l(MON_2, locale));
+  ASSERT_STREQ("марта", nl_langinfo_l(MON_3, locale));
+  ASSERT_STREQ("апреля", nl_langinfo_l(MON_4, locale));
+  ASSERT_STREQ("мая", nl_langinfo_l(MON_5, locale));
+  ASSERT_STREQ("июня", nl_langinfo_l(MON_6, locale));
+  ASSERT_STREQ("июля", nl_langinfo_l(MON_7, locale));
+  ASSERT_STREQ("августа", nl_langinfo_l(MON_8, locale));
+  ASSERT_STREQ("сентября", nl_langinfo_l(MON_9, locale));
+  ASSERT_STREQ("октября", nl_langinfo_l(MON_10, locale));
+  ASSERT_STREQ("ноября", nl_langinfo_l(MON_11, locale));
+  ASSERT_STREQ("декабря", nl_langinfo_l(MON_12, locale));
+  ASSERT_STREQ("янв", nl_langinfo_l(ABMON_1, locale));
+  ASSERT_STREQ("фев", nl_langinfo_l(ABMON_2, locale));
+  ASSERT_STREQ("мар", nl_langinfo_l(ABMON_3, locale));
+  ASSERT_STREQ("апр", nl_langinfo_l(ABMON_4, locale));
+  ASSERT_STREQ("май", nl_langinfo_l(ABMON_5, locale));
+  ASSERT_STREQ("июн", nl_langinfo_l(ABMON_6, locale));
+  ASSERT_STREQ("июл", nl_langinfo_l(ABMON_7, locale));
+  ASSERT_STREQ("авг", nl_langinfo_l(ABMON_8, locale));
+  ASSERT_STREQ("сен", nl_langinfo_l(ABMON_9, locale));
+  ASSERT_STREQ("окт", nl_langinfo_l(ABMON_10, locale));
+  ASSERT_STREQ("ноя", nl_langinfo_l(ABMON_11, locale));
+  ASSERT_STREQ("дек", nl_langinfo_l(ABMON_12, locale));
+  ASSERT_STREQ("", nl_langinfo_l(ERA, locale));
+  ASSERT_STREQ("", nl_langinfo_l(ERA_D_FMT, locale));
+  ASSERT_STREQ("", nl_langinfo_l(ERA_D_T_FMT, locale));
+  ASSERT_STREQ("", nl_langinfo_l(ERA_T_FMT, locale));
+  ASSERT_STREQ("", nl_langinfo_l(ALT_DIGITS, locale));
+  ASSERT_STREQ(",", nl_langinfo_l(RADIXCHAR, locale));
+  ASSERT_STREQ(" ", nl_langinfo_l(THOUSEP, locale));
+  ASSERT_STREQ("^[дДyY]", nl_langinfo_l(YESEXPR, locale));
+  ASSERT_STREQ("^[нНnN]", nl_langinfo_l(NOEXPR, locale));
+  // TODO(edje): Enable!
+  // ASSERT_STREQ("+руб.", nl_langinfo_l(CRNCYSTR, locale));
+  freelocale(locale);
+}

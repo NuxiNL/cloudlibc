@@ -15,10 +15,12 @@
 // Languages.
 
 #include "messages/nl_nl.h"
+#include "messages/ru_ru.h"
 
 #include "monetary/nl_nl.h"
 
 #include "numeric/nl_nl.h"
+#include "numeric/ru_ru.h"
 
 #include "time/fr_fr.h"
 #include "time/nl_nl.h"
@@ -42,8 +44,8 @@ static struct {
      &__numeric_posix, &time_fr_fr},
     {"nl_NL", &__collate_posix, &messages_nl_nl, &monetary_nl_nl,
      &numeric_nl_nl, &time_nl_nl},
-    {"ru_RU", &__collate_posix, &__messages_en_us, &__monetary_posix,
-     &__numeric_posix, &time_ru_ru},
+    {"ru_RU", &__collate_posix, &messages_ru_ru, &__monetary_posix,
+     &numeric_ru_ru, &time_ru_ru},
     {"cs_CZ", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &__time_en_us},
     {"zh_CN", &__collate_posix, &__messages_en_us, &__monetary_posix,
