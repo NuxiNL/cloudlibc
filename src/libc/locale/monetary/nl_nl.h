@@ -5,8 +5,6 @@
 
 #include <common/locale.h>
 
-#include <limits.h>
-
 static const struct lc_monetary monetary_nl_nl = {
     .mon_decimal_point = L",",
     .mon_thousands_sep = L" ",
