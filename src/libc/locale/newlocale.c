@@ -18,6 +18,7 @@
 #include "messages/ru_ru.h"
 
 #include "monetary/nl_nl.h"
+#include "monetary/ru_ru.h"
 
 #include "numeric/nl_nl.h"
 #include "numeric/ru_ru.h"
@@ -44,7 +45,7 @@ static struct {
      &__numeric_posix, &time_fr_fr},
     {"nl_NL", &__collate_posix, &messages_nl_nl, &monetary_nl_nl,
      &numeric_nl_nl, &time_nl_nl},
-    {"ru_RU", &__collate_posix, &messages_ru_ru, &__monetary_posix,
+    {"ru_RU", &__collate_posix, &messages_ru_ru, &monetary_ru_ru,
      &numeric_ru_ru, &time_ru_ru},
     {"cs_CZ", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &__time_en_us},

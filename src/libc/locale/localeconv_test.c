@@ -76,3 +76,36 @@ TEST(localeconv, nl_nl) {
 
   freelocale(locale);
 }
+
+TEST(localeconv, ru_ru) {
+  // Values that localeconv() should return for the Russian locale.
+  locale_t locale = newlocale(LC_ALL_MASK, "ru_RU.UTF-8@Europe/Moscow", 0);
+  struct lconv *lconv = localeconv_l(locale);
+
+  ASSERT_STREQ("руб.", lconv->currency_symbol);
+  ASSERT_STREQ(",", lconv->decimal_point);
+  ASSERT_EQ(2, lconv->frac_digits);
+  ASSERT_STREQ("\x03\x03", lconv->grouping);
+  ASSERT_STREQ("RUB ", lconv->int_curr_symbol);
+  ASSERT_EQ(2, lconv->int_frac_digits);
+  ASSERT_EQ(0, lconv->int_n_cs_precedes);
+  ASSERT_EQ(1, lconv->int_n_sep_by_space);
+  ASSERT_EQ(1, lconv->int_n_sign_posn);
+  ASSERT_EQ(0, lconv->int_p_cs_precedes);
+  ASSERT_EQ(1, lconv->int_p_sep_by_space);
+  ASSERT_EQ(1, lconv->int_p_sign_posn);
+  ASSERT_STREQ(",", lconv->mon_decimal_point);
+  ASSERT_STREQ("\x03\x03", lconv->mon_grouping);
+  ASSERT_STREQ(" ", lconv->mon_thousands_sep);
+  ASSERT_STREQ("-", lconv->negative_sign);
+  ASSERT_EQ(0, lconv->n_cs_precedes);
+  ASSERT_EQ(1, lconv->n_sep_by_space);
+  ASSERT_EQ(1, lconv->n_sign_posn);
+  ASSERT_STREQ("", lconv->positive_sign);
+  ASSERT_EQ(0, lconv->p_cs_precedes);
+  ASSERT_EQ(1, lconv->p_sep_by_space);
+  ASSERT_EQ(1, lconv->p_sign_posn);
+  ASSERT_STREQ(" ", lconv->thousands_sep);
+
+  freelocale(locale);
+}

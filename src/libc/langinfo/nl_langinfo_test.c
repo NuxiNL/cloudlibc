@@ -184,7 +184,6 @@ TEST(nl_langinfo, ru_ru) {
   ASSERT_STREQ(" ", nl_langinfo_l(THOUSEP, locale));
   ASSERT_STREQ("^[дДyY]", nl_langinfo_l(YESEXPR, locale));
   ASSERT_STREQ("^[нНnN]", nl_langinfo_l(NOEXPR, locale));
-  // TODO(edje): Enable!
-  // ASSERT_STREQ("+руб.", nl_langinfo_l(CRNCYSTR, locale));
+  ASSERT_STREQ("+руб.", nl_langinfo_l(CRNCYSTR, locale));
   freelocale(locale);
 }
