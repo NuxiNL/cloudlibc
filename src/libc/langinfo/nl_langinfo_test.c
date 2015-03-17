@@ -120,7 +120,7 @@ TEST(nl_langinfo, nl_nl) {
   ASSERT_STREQ("", nl_langinfo_l(ERA_T_FMT, locale));
   ASSERT_STREQ("", nl_langinfo_l(ALT_DIGITS, locale));
   ASSERT_STREQ(",", nl_langinfo_l(RADIXCHAR, locale));
-  ASSERT_STREQ(" ", nl_langinfo_l(THOUSEP, locale));
+  ASSERT_STREQ("", nl_langinfo_l(THOUSEP, locale));
   ASSERT_STREQ("^[jJyY]", nl_langinfo_l(YESEXPR, locale));
   ASSERT_STREQ("^[nN]", nl_langinfo_l(NOEXPR, locale));
   ASSERT_STREQ("-€", nl_langinfo_l(CRNCYSTR, locale));

@@ -72,7 +72,7 @@ TEST(localeconv, nl_nl) {
   ASSERT_EQ(1, lconv->p_cs_precedes);
   ASSERT_EQ(1, lconv->p_sep_by_space);
   ASSERT_EQ(1, lconv->p_sign_posn);
-  ASSERT_STREQ(" ", lconv->thousands_sep);
+  ASSERT_STREQ("", lconv->thousands_sep);
 
   freelocale(locale);
 }
