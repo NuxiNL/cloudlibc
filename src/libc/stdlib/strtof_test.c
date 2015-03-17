@@ -9,6 +9,15 @@
 #include <stdlib.h>
 #include <testing.h>
 
+TEST(strtof, dec1) {
+  // Simple example.
+  const char *str = "0.25";
+  char *endptr;
+  ASSERT_EQ(0.25f, strtof(str, NULL));
+  ASSERT_EQ(0.25f, strtof(str, &endptr));
+  ASSERT_EQ(str + 4, endptr);
+}
+
 TEST(strtof, hex1) {
   // We should preserve all 24 bits of the significand.
   const char *str = "  0xcaf.eff";
@@ -30,7 +39,7 @@ TEST(strtof, hex3) {
   // Would overflow, so it should return HUGE_VAL.
   const char *str = "\t0x1p+30000";
   char *endptr;
-  ASSERT_EQ(HUGE_VAL, strtof(str, &endptr));
+  ASSERT_EQ(HUGE_VALF, strtof(str, &endptr));
   ASSERT_EQ(str + 11, endptr);
 }
 

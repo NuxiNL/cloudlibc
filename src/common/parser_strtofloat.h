@@ -137,28 +137,37 @@ flt_t number;
       // Turn into normalized base-2 floating point number.
       // TODO(edje): Error handling.
       __float2_normalize(&f2);
-      _Generic(number, float
-               : __float2_to_float, double
-               : __float2_to_double, long double
-               : __float2_to_long_double)(&f2, &number);
+      // clang-format off
+      _Generic(number,
+               float: __float2_to_float,
+               double: __float2_to_double,
+               long double: __float2_to_long_double)(&f2, &number);
+      // clang-format on
     }
   } else {
     // Decimal floating point number.
-    // TODO(edje): Implement.
+    char digitbuf[128];
+    size_t digitbuflen = 0;
+#define PUTDIGIT()                                                             \
+  do {                                                                         \
+    if ((digitbuflen > 0 || PEEK(0) != '0') && digitbuflen < sizeof(digitbuf)) \
+      digitbuf[digitbuflen++] = PEEK(0);                                       \
+  } while (0)
 
     // Parse digits before the period.
     while (PEEK(0) >= '0' && PEEK(0) <= '9') {
-      // uint_fast8_t digit = PEEK(0) - '0';
+      PUTDIGIT();
       SKIP(1);
       have_number = true;
     }
 
     // Parse digits after the period.
     // TODO(edje): Use LC_NUMERIC radix character.
+    size_t periodpos = digitbuflen;
     if (PEEK(0) == '.') {
       SKIP(1);
       while (PEEK(0) >= '0' && PEEK(0) <= '9') {
-        // uint_fast8_t digit = PEEK(0) - '0';
+        PUTDIGIT();
         SKIP(1);
         have_number = true;
       }
@@ -173,14 +182,24 @@ flt_t number;
         // TODO(edje): Bounds checking.
         // bool negative = PEEK(1) == '-';
         SKIP(2);
-        int exponent = 0;
         while (PEEK(0) >= '0' && PEEK(0) <= '9') {
-          exponent = exponent * 10 + PEEK(0) - '0';
           SKIP(1);
         }
       }
 
-      // TODO(edje): store/translate/normalize.
+      if (digitbuflen == 0) {
+        number = 0;
+      } else {
+        // clang-format off
+        number = _Generic(number,
+            float: __float10_to_float,
+            double: __float10_to_double,
+            long double: __float10_to_double)(
+                digitbuf, digitbuflen, -(int)(digitbuflen - periodpos));
+        // clang-format on
+        if (negative)
+          number = -number;
+      }
     }
   }
 }
