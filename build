@@ -51,7 +51,7 @@ make -k -j8 -f _obj/Makefile all
 
 echo "=> Reformatting sources"
 # Pass all source files through clang-format.
-find src -name "*.c" -o -name "*.h" | sort | while read srcfile; do
+find src tools -name "*.c" -o -name "*.h" | sort | while read srcfile; do
   /usr/local/cloudabi/bin/clang-format -style='{
 BasedOnStyle: Google,
 AllowShortIfStatementsOnASingleLine: false,
