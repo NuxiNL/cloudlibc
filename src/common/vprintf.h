@@ -122,6 +122,10 @@ struct numarg_type {
   enum length_modifier modifier;
 };
 
+// Scans through a format string and determines the types of the
+// numbered arguments. These tyes can then be used by
+// get_numarg_values() to extract the arguments of the call iteratively
+// and storing them in an array, so they can be addressed randomly.
 static void get_numarg_types(const char_t *format,
                              struct numarg_type *numarg_types) {
   while (*format != '\0') {
@@ -173,63 +177,23 @@ static void get_numarg_types(const char_t *format,
             numarg_types[arg_value].kind = K_SINT;
             break;
           }
-          case 'o': {
-            // Octal integer.
-            numarg_types[arg_value].kind = K_UINT;
-            break;
-          }
-          case 'u': {
-            // Unsigned decimal integer.
-            numarg_types[arg_value].kind = K_UINT;
-            break;
-          }
-          case 'x': {
-            // Hexadecimal integer, lowercase.
-            numarg_types[arg_value].kind = K_UINT;
-            break;
-          }
+          case 'o':
+          case 'u':
+          case 'x':
           case 'X': {
-            // Hexadecimal integer, uppercase.
+            // Unsigned integer types.
             numarg_types[arg_value].kind = K_UINT;
             break;
           }
-          case 'f': {
-            // Decimal floating point, lowercase.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
-          case 'F': {
-            // Decimal floating point, uppercase.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
-          case 'e': {
-            // Decimal floating point, lowercase, exponential notation.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
-          case 'E': {
-            // Decimal floating point, uppercase, exponential notation.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
-          case 'g': {
-            // Decimal floating point, lowercase, variable exponential notation.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
-          case 'G': {
-            // Decimal floating point, uppercase, variable exponential notation.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
-          case 'a': {
-            // Hexadecimal floating point, lowercase.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
+          case 'f':
+          case 'F':
+          case 'e':
+          case 'E':
+          case 'g':
+          case 'G':
+          case 'a':
           case 'A': {
-            // Hexadecimal floating point, uppercase.
+            // Floating point types.
             numarg_types[arg_value].kind = K_FLOAT;
             break;
           }
@@ -244,24 +208,16 @@ static void get_numarg_types(const char_t *format,
             }
             break;
           }
-          case 's': {
-            // String.
-            numarg_types[arg_value].kind = K_POINTER;
-            break;
-          }
-          case 'p': {
-            // Pointer.
-            numarg_types[arg_value].kind = K_POINTER;
-            break;
-          }
           case 'C': {
             // Wide character.
             numarg_types[arg_value].kind = K_SINT;
             numarg_types[arg_value].modifier = LM_WCHAR;
             break;
           }
+          case 's':
+          case 'p':
           case 'S': {
-            // Wide string.
+            // Pointers.
             numarg_types[arg_value].kind = K_POINTER;
             break;
           }
@@ -278,6 +234,10 @@ union numarg_value {
   long double v_float;
 };
 
+// Extracts all the arguments in a va_list and stores them in an array
+// that can be accessed randomly. It uses the typing information from
+// get_numarg_types() to extract values elements with the right size and
+// alignment from the va_list.
 static void get_numarg_values(size_t numarg_max,
                               struct numarg_type *numarg_types,
                               union numarg_value *numarg_values, va_list ap) {
@@ -309,14 +269,26 @@ static void get_numarg_values(size_t numarg_max,
 }
 
 static char *format_uint(uintmax_t value, unsigned int base, bool uppercase,
-                         locale_t locale, char buf[static NUMBUF_SIZE]) {
-  // TODO(edje): Add thousands separator.
+                         bool grouping, locale_t locale,
+                         char buf[static NUMBUF_SIZE]) {
   const char *symbols = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
   char *ret = buf + NUMBUF_SIZE;
-  do {
+  int grouping_chunk = grouping ? 3 : 0;
+  for (;;) {
+    // Add digit.
     *--ret = symbols[value % base];
     value /= base;
-  } while (value > 0);
+    if (value == 0)
+      break;
+
+    // Use thousand separator.
+    if (--grouping_chunk == 0) {
+      // TODO(edje): Use thousand separator from LC_NUMERIC.
+      // TODO(edje): Honour grouping from LC_NUMERIC.
+      *--ret = ',';
+      grouping_chunk = 3;
+    }
+  }
   return ret;
 }
 

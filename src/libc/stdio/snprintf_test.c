@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <fenv.h>
+#include <locale.h>
 #include <stdio.h>
 #include <testing.h>
 
@@ -35,6 +36,26 @@ TEST(snprintf, number_width_precision_right) {
   ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%-20.10d", 5));
   ASSERT_STREQ("0000000005          ", buf);
 }
+
+TEST(snprintf, grouping_en_us) {
+  locale_t locale = newlocale(LC_NUMERIC_MASK, "en_US", 0);
+  ASSERT_NE(0, locale);
+  char buf[21];
+  ASSERT_EQ(20, snprintf_l(buf, sizeof(buf), locale, "%'020d", 12345678));
+  ASSERT_STREQ("000000000012,345,678", buf);
+  freelocale(locale);
+}
+
+#if 0
+TEST(snprintf, grouping_ru_ru) {
+  locale_t locale = newlocale(LC_NUMERIC_MASK, "ru_RU", 0);
+  ASSERT_NE(0, locale);
+  char buf[21];
+  ASSERT_EQ(20, snprintf_l(buf, sizeof(buf), locale, "%'020d", -123456789));
+  ASSERT_STREQ("-00000000123 456 789", buf);
+  freelocale(locale);
+}
+#endif
 
 TEST(snprintf, numbered_arguments) {
   char buf[4];

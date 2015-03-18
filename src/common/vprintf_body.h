@@ -17,10 +17,10 @@ while (*format != '\0') {
 
     // Parse flags.
     char positive_sign = '\0', left_padding = ' ';
-    bool left_justified = false, alternative_form = false;
+    bool grouping = false, left_justified = false, alternative_form = false;
     for (;;) {
       if (*format == '\'') {
-        // TODO(edje): Implement.
+        grouping = true;
       } else if (*format == '-') {
         left_justified = true;
       } else if (*format == '+') {
@@ -84,13 +84,14 @@ while (*format != '\0') {
         intmax_t value = GET_ARG_SINT_LM(length, arg_value);
         number_prefix[0] = value < 0 ? '-' : positive_sign;
         number_midfix = format_uint(value < 0 ? -value : value, 10, false,
-                                    locale, number_midfix_buf);
+                                    grouping, locale, number_midfix_buf);
         break;
       }
       case 'o': {
         // Octal integer.
         uintmax_t value = GET_ARG_UINT_LM(length, arg_value);
-        number_midfix = format_uint(value, 8, false, locale, number_midfix_buf);
+        number_midfix =
+            format_uint(value, 8, false, false, locale, number_midfix_buf);
         if (alternative_form && value != 0)
           number_prefix[0] = '0';
         break;
@@ -99,7 +100,7 @@ while (*format != '\0') {
         // Unsigned decimal integer.
         uintmax_t value = GET_ARG_UINT_LM(length, arg_value);
         number_midfix =
-            format_uint(value, 10, false, locale, number_midfix_buf);
+            format_uint(value, 10, false, grouping, locale, number_midfix_buf);
         break;
       }
       case 'x': {
@@ -110,7 +111,7 @@ while (*format != '\0') {
           number_prefix[1] = 'x';
         }
         number_midfix =
-            format_uint(value, 16, false, locale, number_midfix_buf);
+            format_uint(value, 16, false, false, locale, number_midfix_buf);
         break;
       }
       case 'X': {
@@ -120,7 +121,8 @@ while (*format != '\0') {
           number_prefix[0] = '0';
           number_prefix[1] = 'X';
         }
-        number_midfix = format_uint(value, 16, true, locale, number_midfix_buf);
+        number_midfix =
+            format_uint(value, 16, true, false, locale, number_midfix_buf);
         break;
       }
       case 'f': {
@@ -204,8 +206,8 @@ while (*format != '\0') {
         number_prefix[0] = '0';
         number_prefix[1] = 'x';
         precision = sizeof(void *) * 2;
-        number_midfix =
-            format_uint((uintptr_t)value, 16, false, locale, number_midfix_buf);
+        number_midfix = format_uint((uintptr_t)value, 16, false, false, locale,
+                                    number_midfix_buf);
         break;
       }
       case 'C': {
@@ -257,6 +259,13 @@ while (*format != '\0') {
       // "If a precision is specified, the '0' flag shall be ignored."
       if (precision >= 0)
         left_padding = ' ';
+
+      if (left_padding != ' ') {
+        for (size_t i = 0;
+             i < sizeof(number_prefix) && number_prefix[i] != '\0'; ++i)
+          PUTCHAR(number_prefix[i]);
+        number_prefix[0] = '\0';
+      }
     }
 
     // Add padding before value.
