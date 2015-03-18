@@ -260,6 +260,9 @@ while (*format != '\0') {
       if (precision >= 0)
         left_padding = ' ';
 
+      // If we have a padding character, make sure that we first print
+      // the number prefix. We don't want a plus, minus or "0x" prefix
+      // to be preceded by additional zeroes.
       if (left_padding != ' ') {
         for (size_t i = 0;
              i < sizeof(number_prefix) && number_prefix[i] != '\0'; ++i)
