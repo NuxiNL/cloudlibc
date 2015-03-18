@@ -90,11 +90,10 @@ flt_t number;
       }
     }
 
-    // Parse digits after the period.
-    // TODO(edje): Use LC_NUMERIC radix character.
-    if (PEEK(0) == '.') {
+// Parse digits after the period.
+#include "parser_strtofloat_radixchar.h"
+    if (parsed_radixchar) {
       for (;;) {
-        SKIP(1);
         uint_fast8_t digit;
         if (PEEK_ISDIGIT(0))
           digit = PEEK(0) - '0';
@@ -105,6 +104,7 @@ flt_t number;
         else
           break;
 
+        SKIP(1);
         if (f2.significand[0] >> 60 == 0) {
           // Still space left to fit the digit. Decrease the exponent for
           // every digit seen.
@@ -153,10 +153,9 @@ flt_t number;
       SKIP(1);
     }
 
-    // Parse digits after the period.
-    // TODO(edje): Use LC_NUMERIC radix character.
-    if (PEEK(0) == '.') {
-      SKIP(1);
+// Parse digits after the period.
+#include "parser_strtofloat_radixchar.h"
+    if (parsed_radixchar) {
       // Skip leading zeroes if we only matched zeroes before the radix
       // character.
       if (ndigits == 0) {

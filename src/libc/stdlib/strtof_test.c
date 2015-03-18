@@ -5,6 +5,7 @@
 
 #include <errno.h>
 #include <float.h>
+#include <locale.h>
 #include <math.h>
 #include <stdlib.h>
 #include <testing.h>
@@ -25,6 +26,21 @@ TEST(strtof, dec2) {
   ASSERT_EQ(128.0f, strtof(str, NULL));
   ASSERT_EQ(128.0f, strtof(str, &endptr));
   ASSERT_EQ(str + 8, endptr);
+}
+
+TEST(strtof, dec3) {
+  // Comma as a radix character. Parsing should stop at the comma.
+  const char *str = "7,5";
+  char *endptr;
+  ASSERT_EQ(7.0f, strtof(str, &endptr));
+  ASSERT_EQ(str + 1, endptr);
+
+  // Except when we use the proper locale.
+  locale_t locale = newlocale(LC_NUMERIC_MASK, "nl_NL", 0);
+  ASSERT_NE(0, locale);
+  ASSERT_EQ(7.5f, strtof_l(str, &endptr, locale));
+  ASSERT_EQ(str + 3, endptr);
+  freelocale(locale);
 }
 
 TEST(strtof, hex1) {
