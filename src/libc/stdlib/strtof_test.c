@@ -184,3 +184,25 @@ TEST(strtof, zero2) {
   ASSERT_EQ(str + 8, endptr);
   ASSERT_EQ(ERANGE, errno);
 }
+
+TEST(strtof, zero3) {
+  // Actual zero.
+  const char *str = "0.0";
+  char *endptr;
+  float v = strtof(str, &endptr);
+  ASSERT_EQ(0.0, v);
+  ASSERT_FALSE(signbit(v));
+  ASSERT_EQ(str + 3, endptr);
+  ASSERT_EQ(0, errno);
+}
+
+TEST(strtof, zero4) {
+  // Actual zero.
+  const char *str = "-0.0";
+  char *endptr;
+  float v = strtof(str, &endptr);
+  ASSERT_EQ(0.0, v);
+  ASSERT_TRUE(signbit(v));
+  ASSERT_EQ(str + 4, endptr);
+  ASSERT_EQ(0, errno);
+}
