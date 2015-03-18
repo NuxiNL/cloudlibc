@@ -10,12 +10,21 @@
 #include <testing.h>
 
 TEST(strtof, dec1) {
-  // Simple example.
-  const char *str = "0.25";
+  // Number without an exponent, but with a radix character.
+  const char *str = "0.0625";
   char *endptr;
-  ASSERT_EQ(0.25f, strtof(str, NULL));
-  ASSERT_EQ(0.25f, strtof(str, &endptr));
-  ASSERT_EQ(str + 4, endptr);
+  ASSERT_EQ(0.0625f, strtof(str, NULL));
+  ASSERT_EQ(0.0625f, strtof(str, &endptr));
+  ASSERT_EQ(str + 6, endptr);
+}
+
+TEST(strtof, dec2) {
+  // Number with an exponent, but no radix character.
+  const char *str = "12800e-2";
+  char *endptr;
+  ASSERT_EQ(128.0f, strtof(str, NULL));
+  ASSERT_EQ(128.0f, strtof(str, &endptr));
+  ASSERT_EQ(str + 8, endptr);
 }
 
 TEST(strtof, hex1) {
@@ -61,12 +70,11 @@ TEST(strtof, hex5) {
 }
 
 TEST(strtof, hex6) {
-  // Should not match.
+  // The 0x should not be matched. Instead, only the zero is procesed.
   const char *str = "0x";
   char *endptr;
   ASSERT_EQ(0, strtof(str, &endptr));
-  ASSERT_EQ(EINVAL, errno);
-  ASSERT_EQ(str, endptr);
+  ASSERT_EQ(str + 1, endptr);
 }
 
 TEST(strtof, hex7) {

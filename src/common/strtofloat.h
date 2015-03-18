@@ -36,7 +36,9 @@ flt_t NAME(const char_t *restrict nptr, char_t **restrict endptr,
     *endptr = (char_t *)(have_number ? s : nptr);
   if (!have_number) {
     errno = EINVAL;
-    return 0;
+    return 0.0;
   }
+  if (have_range_error)
+    errno = ERANGE;
   return number;
 }
