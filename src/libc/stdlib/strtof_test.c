@@ -38,8 +38,14 @@ TEST(strtof, dec3) {
   // Except when we use the proper locale.
   locale_t locale = newlocale(LC_NUMERIC_MASK, "nl_NL", 0);
   ASSERT_NE(0, locale);
+
   ASSERT_EQ(7.5f, strtof_l(str, &endptr, locale));
   ASSERT_EQ(str + 3, endptr);
+
+  str = ",75";
+  ASSERT_EQ(.75f, strtof_l(str, &endptr, locale));
+  ASSERT_EQ(str + 3, endptr);
+
   freelocale(locale);
 }
 

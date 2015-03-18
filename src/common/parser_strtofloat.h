@@ -11,7 +11,7 @@
    (PEEK(o) >= 'a' && PEEK(o) <= 'f'))
 
 // Result of parsing.
-bool have_number = true;
+bool have_number = false;
 bool have_range_error = false;
 flt_t number;
 
@@ -29,6 +29,7 @@ flt_t number;
       (PEEK(1) == 'n' || PEEK(1) == 'N') &&
       (PEEK(2) == 'f' || PEEK(2) == 'F')) {
     // INF.
+    have_number = true;
     SKIP(3);
     number = negative ? -INFINITY : INFINITY;
 
@@ -43,6 +44,7 @@ flt_t number;
              (PEEK(1) == 'a' || PEEK(1) == 'A') &&
              (PEEK(2) == 'n' || PEEK(2) == 'N')) {
     // NAN.
+    have_number = true;
     SKIP(3);
     number = negative ? -NAN : NAN;
 
@@ -59,7 +61,9 @@ flt_t number;
     }
   } else if (PEEK(0) == '0' && (PEEK(1) == 'x' || PEEK(1) == 'X') &&
              (PEEK_ISXDIGIT(2) || (PEEK(2) == '.' && PEEK_ISXDIGIT(3)))) {
+    // TODO(edje): The check above falsely assumes that '.' is the radix!
     // Hexadecimal floating point number.
+    have_number = true;
     SKIP(2);
     struct float2 f2 = {
         .flags = negative ? F2_NEGATIVE : 0,
@@ -131,15 +135,17 @@ flt_t number;
         double: __float2_to_double,
         long double: __float2_to_long_double)(&f2, &number);
     // clang-format on
-  } else if (PEEK_ISDIGIT(0) || (PEEK(0) == '.' && PEEK_ISDIGIT(1))) {
+  } else {
     // Decimal floating point number.
     char digits[DECIMAL_DIG];
     size_t ndigits = 0;
     int digits_exponent = 0;
 
     // Skip leading zeroes.
-    while (PEEK(0) == '0')
+    while (PEEK(0) == '0') {
+      have_number = true;
       SKIP(1);
+    }
 
     // Parse digits before the period.
     while (PEEK_ISDIGIT(0)) {
@@ -150,6 +156,7 @@ flt_t number;
         // Out of buffer space. Raise the exponent instead.
         ++digits_exponent;
       }
+      have_number = true;
       SKIP(1);
     }
 
@@ -160,6 +167,7 @@ flt_t number;
       // character.
       if (ndigits == 0) {
         while (PEEK(0) == '0') {
+          have_number = true;
           SKIP(1);
           --digits_exponent;
         }
@@ -170,40 +178,42 @@ flt_t number;
           digits[ndigits++] = PEEK(0);
           --digits_exponent;
         }
+        have_number = true;
         SKIP(1);
       }
     }
 
-    // Exponentiation.
-    if (PEEK(0) == 'e' || PEEK(0) == 'E') {
+    if (have_number) {
+      // Exponentiation.
+      if (PEEK(0) == 'e' || PEEK(0) == 'E') {
 #include "parser_strtofloat_exponent.h"
-      digits_exponent += exponent;
-    }
-
-    if (ndigits == 0) {
-      number = 0.0;
-    } else {
-      // clang-format off
-      number = _Generic(number,
-          float: __float10_to_float,
-          double: __float10_to_double,
-          long double: __float10_to_long_double)(
-              digits, ndigits, digits_exponent);
-      // clang-format on
-
-      // Overflow or underflow.
-      switch (fpclassify(number)) {
-        case FP_INFINITE:
-        case FP_ZERO:
-          have_range_error = true;
-          break;
+        digits_exponent += exponent;
       }
+
+      if (ndigits == 0) {
+        number = 0.0;
+      } else {
+        // clang-format off
+        number = _Generic(number,
+            float: __float10_to_float,
+            double: __float10_to_double,
+            long double: __float10_to_long_double)(
+                digits, ndigits, digits_exponent);
+        // clang-format on
+
+        // The functions above can only be used to convert a finite
+        // non-zero number. If they obtain infinity or zero, it means
+        // that the conversion caused an overflow or underflow.
+        switch (fpclassify(number)) {
+          case FP_INFINITE:
+          case FP_ZERO:
+            have_range_error = true;
+            break;
+        }
+      }
+      if (negative)
+        number = -number;
     }
-    if (negative)
-      number = -number;
-  } else {
-    // Unknown format.
-    have_number = false;
   }
 }
 
