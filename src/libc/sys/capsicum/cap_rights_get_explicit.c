@@ -5,7 +5,7 @@
 
 #include <common/syscalls.h>
 
-#include <sys/capability.h>
+#include <sys/capsicum.h>
 
 #include <assert.h>
 #include <errno.h>

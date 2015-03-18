@@ -3,7 +3,7 @@ Work in progress:
 monetary.h		 0%	Not started
 mqueue.h		 0%	Not started
 poll.h			 0%	Not started
-sys/capability.h	 0%	Not started
+sys/capsicum.h  	 0%	Not started
 sys/event.h		 0%	Not started
 aio.h			 5%	Almost all functionality missing
 regex.h			 5%	Not started

@@ -21,10 +21,10 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <sys/capability.h> - file descriptor access controls
+// <sys/capsicum.h> - file descriptor access controls
 
-#ifndef _SYS_CAPABILITY_H_
-#define _SYS_CAPABILITY_H_
+#ifndef _SYS_CAPSICUM_H_
+#define _SYS_CAPSICUM_H_
 
 #include <_/limits.h>
 #include <_/types.h>

@@ -3,7 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/capability.h>
+#include <sys/capsicum.h>
 
 int cap_rights_get(int fildes, cap_rights_t *rights) {
   // Simply merge the inheriting rights with the base rights.
