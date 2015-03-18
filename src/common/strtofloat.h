@@ -6,6 +6,7 @@
 #include <common/float.h>
 #include <common/locale.h>
 
+#include <float.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>

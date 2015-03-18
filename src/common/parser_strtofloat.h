@@ -133,7 +133,7 @@ flt_t number;
     // clang-format on
   } else if (PEEK_ISDIGIT(0) || (PEEK(0) == '.' && PEEK_ISDIGIT(1))) {
     // Decimal floating point number.
-    char digits[128];
+    char digits[DECIMAL_DIG];
     size_t ndigits = 0;
     int digits_exponent = 0;
 

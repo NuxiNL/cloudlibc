@@ -8,6 +8,7 @@
 #include <common/stdio.h>
 
 #include <assert.h>
+#include <float.h>
 #include <limits.h>
 #include <locale.h>
 #include <math.h>
