@@ -190,6 +190,14 @@ flt_t number;
           double: __float10_to_double,
           long double: __float10_to_double)(digits, ndigits, digits_exponent);
       // clang-format on
+
+      // Overflow or underflow.
+      switch (fpclassify(number)) {
+        case FP_INFINITE:
+        case FP_ZERO:
+          have_range_error = true;
+          break;
+      }
     }
     if (negative)
       number = -number;
