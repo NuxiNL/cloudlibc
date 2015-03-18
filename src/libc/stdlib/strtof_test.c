@@ -138,3 +138,49 @@ TEST(strtof, inf2) {
   ASSERT_EQ(-INFINITY, strtof(str, &endptr));
   ASSERT_EQ(str + 9, endptr);
 }
+
+TEST(strtof, huge_val1) {
+  // Too large for a 32-bits floating point number.
+  const char *str =
+      "10000000000000000000000000000000000000000000000000000000000000000000000"
+      "00000000000000000000000000000000000000000000000000000000000000000000000"
+      "00000000000000000000000000000000000000000000000000000000000000000000000";
+  char *endptr;
+  ASSERT_EQ(HUGE_VALF, strtof(str, &endptr));
+  ASSERT_EQ(str + 213, endptr);
+  ASSERT_EQ(ERANGE, errno);
+}
+
+TEST(strtof, huge_val2) {
+  // Too large for a 32-bits floating point number.
+  const char *str = "-1e3000";
+  char *endptr;
+  ASSERT_EQ(-HUGE_VALF, strtof(str, &endptr));
+  ASSERT_EQ(str + 7, endptr);
+  ASSERT_EQ(ERANGE, errno);
+}
+
+TEST(strtof, zero1) {
+  // Too small for a 32-bits floating point number.
+  const char *str =
+      "0.000000000000000000000000000000000000000000000000000000000000000000000"
+      "00000000000000000000000000000000000000000000000000000000000000000000000"
+      "00000000000000000000000000000000000000000000000000000000000000000000001";
+  char *endptr;
+  float v = strtof(str, &endptr);
+  ASSERT_EQ(0.0, v);
+  ASSERT_FALSE(signbit(v));
+  ASSERT_EQ(str + 213, endptr);
+  ASSERT_EQ(ERANGE, errno);
+}
+
+TEST(strtof, zero2) {
+  // Too small for a 32-bits floating point number.
+  const char *str = "-1e-3000";
+  char *endptr;
+  float v = strtof(str, &endptr);
+  ASSERT_EQ(0.0, v);
+  ASSERT_TRUE(signbit(v));
+  ASSERT_EQ(str + 8, endptr);
+  ASSERT_EQ(ERANGE, errno);
+}
