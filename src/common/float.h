@@ -38,6 +38,7 @@ __END_DECLS
 __BEGIN_DECLS
 float __float10_to_float(const char *, size_t, int);
 double __float10_to_double(const char *, size_t, int);
+long double __float10_to_long_double(const char *, size_t, int);
 __END_DECLS
 
 #endif

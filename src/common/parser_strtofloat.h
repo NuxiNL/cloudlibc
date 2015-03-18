@@ -188,7 +188,8 @@ flt_t number;
       number = _Generic(number,
           float: __float10_to_float,
           double: __float10_to_double,
-          long double: __float10_to_double)(digits, ndigits, digits_exponent);
+          long double: __float10_to_long_double)(
+              digits, ndigits, digits_exponent);
       // clang-format on
 
       // Overflow or underflow.
