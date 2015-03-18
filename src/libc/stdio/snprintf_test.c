@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <fenv.h>
 #include <stdio.h>
 #include <testing.h>
 
@@ -90,10 +91,20 @@ TEST(snprintf, float2_negative) {
 }
 
 #if 0
-TEST(snprintf, float2_trunc) {
-  char buf[10];
-  ASSERT_EQ(9, snprintf(buf, sizeof(buf), "%.2a", 1.51));
-  ASSERT_STREQ("0x1.82p+0", buf);
+TEST(snprintf, float2_round) {
+  char buf[21];
+  ASSERT_EQ(0, fesetround(FE_DOWNWARD));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_STREQ("0x1.82p+0 -0x1.83p+0", buf);
+  ASSERT_EQ(0, fesetround(FE_TONEAREST));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_STREQ("0x1.83p+0 -0x1.83p+0", buf);
+  ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_STREQ("0x1.82p+0 -0x1.82p+0", buf);
+  ASSERT_EQ(0, fesetround(FE_UPWARD));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_STREQ("0x1.83p+0 -0x1.82p+0", buf);
 }
 
 TEST(snprintf, float2_align) {
