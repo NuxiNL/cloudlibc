@@ -111,17 +111,21 @@ TEST(strtof, hex8) {
   const char *below = "-0x0.ffffffffffffffffffffffffffffffffffffffffffffffffff";
   const char *exact = "-0x1.0";
   const char *above = "-0x1.00000000000000000000000000000000000000000000000001";
+#if FLT_MANT_DIG == 24
+  float low = 0x1.fffffep-1;
+  float high = 0x1.000002p+0;
+#else
+#error "Unknown floating point type"
+#endif
 
   // Test different rounding modes.
   ASSERT_EQ(0, fesetround(FE_DOWNWARD));
-  ASSERT_LT(0.9f, strtof(below + 1, NULL));
-  ASSERT_GT(1.0f, strtof(below + 1, NULL));
+  ASSERT_EQ(low, strtof(below + 1, NULL));
   ASSERT_EQ(1.0f, strtof(exact + 1, NULL));
   ASSERT_EQ(1.0f, strtof(above + 1, NULL));
   ASSERT_EQ(-1.0f, strtof(below, NULL));
   ASSERT_EQ(-1.0f, strtof(exact, NULL));
-  ASSERT_LT(-1.1f, strtof(above, NULL));
-  ASSERT_GT(-1.0f, strtof(above, NULL));
+  ASSERT_EQ(-high, strtof(above, NULL));
 
   ASSERT_EQ(0, fesetround(FE_TONEAREST));
   ASSERT_EQ(1.0f, strtof(below + 1, NULL));
@@ -132,22 +136,18 @@ TEST(strtof, hex8) {
   ASSERT_EQ(-1.0f, strtof(above, NULL));
 
   ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
-  ASSERT_LT(0.9f, strtof(below + 1, NULL));
-  ASSERT_GT(1.0f, strtof(below + 1, NULL));
+  ASSERT_EQ(low, strtof(below + 1, NULL));
   ASSERT_EQ(1.0f, strtof(exact + 1, NULL));
   ASSERT_EQ(1.0f, strtof(above + 1, NULL));
-  ASSERT_LT(-1.0f, strtof(below, NULL));
-  ASSERT_GT(-0.9f, strtof(below, NULL));
+  ASSERT_EQ(-low, strtof(below, NULL));
   ASSERT_EQ(-1.0f, strtof(exact, NULL));
   ASSERT_EQ(-1.0f, strtof(above, NULL));
 
   ASSERT_EQ(0, fesetround(FE_UPWARD));
   ASSERT_EQ(1.0f, strtof(below + 1, NULL));
   ASSERT_EQ(1.0f, strtof(exact + 1, NULL));
-  ASSERT_LT(1.0f, strtof(above + 1, NULL));
-  ASSERT_GT(1.1f, strtof(above + 1, NULL));
-  ASSERT_LT(-1.0f, strtof(below, NULL));
-  ASSERT_GT(-0.9f, strtof(below, NULL));
+  ASSERT_EQ(high, strtof(above + 1, NULL));
+  ASSERT_EQ(-low, strtof(below, NULL));
   ASSERT_EQ(-1.0f, strtof(exact, NULL));
   ASSERT_EQ(-1.0f, strtof(above, NULL));
 }
