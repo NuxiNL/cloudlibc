@@ -3,8 +3,8 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#ifndef COMMON_F16_H
-#define COMMON_F16_H
+#ifndef COMMON_FLOAT16_H
+#define COMMON_FLOAT16_H
 
 #include <assert.h>
 #include <fenv.h>
@@ -19,7 +19,7 @@
 // string representations of floating point numbers to the native
 // floating point types of the system.
 //
-// The following example shows how the number 0x123.cafep0 can be
+// The following example shows how the string "0x123.cafep0" can be
 // converted to a float:
 //
 //   struct f16enc f16;
