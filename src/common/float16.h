@@ -90,11 +90,41 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
   }
 }
 
+// Returns floating zero in case the converter stores value zero.
+#define RETURN_ZERO_IF_ZERO()                                     \
+  do {                                                            \
+    if (f16->significand == 0) {                                  \
+      assert(f16->bits == -1 && "Invalid bit count");             \
+      assert(f16->trailing == 0 && "Invalid trailing bits");      \
+      *have_range_error = false;                                  \
+      return 0.0;                                                 \
+    }                                                             \
+    assert(f16->significand >> (F16_SIGNIFICAND_BITS - 1) != 0 && \
+           "Floating point value not normalized");                \
+  } while (0)
+
+// Adjusts the exponent for the number of bits of data we read. Adds the
+// exponent bias as well. The exponent shall then lie between
+// [1, 2^k - 2], where k is the number of exponent bits.
+#define APPLY_BIAS_TO_EXPONENT(exp_dig)     \
+  do {                                      \
+    int bias = (1 << (exp_dig - 1)) - 1;    \
+    exponent += f16->bits + bias;           \
+    if (exponent > (1 << exp_dig) - 2) {    \
+      /* Overflow. */                       \
+      *have_range_error = true;             \
+      return INFINITY;                      \
+    } else if (exponent < 1) {              \
+      /* TODO(edje): Support subnormals! */ \
+      /* Underflow. */                      \
+      *have_range_error = true;             \
+      return 0.0;                           \
+    }                                       \
+  } while (0)
+
 // IEEE 754-2008 "bin32": Single-precision floating-point.
 
 #define F16_BIN32_MANT_DIG 24
-#define F16_BIN32_EXP_DIG 8
-#define F16_BIN32_EXP_BIAS 127
 
 #if FLT_MANT_DIG == F16_BIN32_MANT_DIG
 typedef float f16_bin32_t;
@@ -110,15 +140,7 @@ typedef long double f16_bin32_t;
 static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  // Zero value.
-  if (f16->significand == 0) {
-    assert(f16->bits == -1 && "Invalid bit count");
-    assert(f16->trailing == 0 && "Invalid trailing bits");
-    *have_range_error = false;
-    return 0.0;
-  }
-  assert(f16->significand >> (F16_SIGNIFICAND_BITS - 1) != 0 &&
-         "Floating point value not normalized");
+  RETURN_ZERO_IF_ZERO();
 
   // Apply rounding. For rounding to the nearest, we should only inspect
   // the first bit after the significand. When rounding upward, any bits
@@ -136,20 +158,7 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
     }
   }
 
-  // Adjust the exponent for the number of bits of data we read. Add the
-  // exponent bias as well. The exponent should now lie between
-  // [1, 2^k - 2], where k is the number of exponent bits.
-  exponent += f16->bits + F16_BIN32_EXP_BIAS;
-  if (exponent > (1 << F16_BIN32_EXP_DIG) - 2) {
-    // Overflow.
-    *have_range_error = true;
-    return INFINITY;
-  } else if (exponent < 1) {
-    // TODO(edje): Support subnormals!
-    // Underflow.
-    *have_range_error = true;
-    return 0.0;
-  }
+  APPLY_BIAS_TO_EXPONENT(8);
 
   // Convert significand and exponent to native floating point type.
   union {
@@ -167,8 +176,6 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
 // IEEE 754-2008 "bin64": Double-precision floating-point.
 
 #define F16_BIN64_MANT_DIG 53
-#define F16_BIN64_EXP_DIG 11
-#define F16_BIN64_EXP_BIAS 1023
 
 #if FLT_MANT_DIG == F16_BIN64_MANT_DIG
 typedef float f16_bin64_t;
@@ -184,15 +191,7 @@ typedef long double f16_bin64_t;
 static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  // Zero value.
-  if (f16->significand == 0) {
-    assert(f16->bits == -1 && "Invalid bit count");
-    assert(f16->trailing == 0 && "Invalid trailing bits");
-    *have_range_error = false;
-    return 0.0;
-  }
-  assert(f16->significand >> (F16_SIGNIFICAND_BITS - 1) != 0 &&
-         "Floating point value not normalized");
+  RETURN_ZERO_IF_ZERO();
 
   // Apply rounding. For rounding to the nearest, we should only inspect
   // the first bit after the significand. When rounding upward, any bits
@@ -210,20 +209,7 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
     }
   }
 
-  // Adjust the exponent for the number of bits of data we read. Add the
-  // exponent bias as well. The exponent should now lie between
-  // [1, 2^k - 2], where k is the number of exponent bits.
-  exponent += f16->bits + F16_BIN64_EXP_BIAS;
-  if (exponent > (1 << F16_BIN64_EXP_DIG) - 2) {
-    // Overflow.
-    *have_range_error = true;
-    return INFINITY;
-  } else if (exponent < 1) {
-    // TODO(edje): Support subnormals!
-    // Underflow.
-    *have_range_error = true;
-    return 0.0;
-  }
+  APPLY_BIAS_TO_EXPONENT(11);
 
   // Convert significand and exponent to native floating point type.
   union {
@@ -241,8 +227,6 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
 // x86 80-bit Extended Precision Format.
 
 #define F16_BIN80_MANT_DIG 64
-#define F16_BIN80_EXP_DIG 15
-#define F16_BIN80_EXP_BIAS 16383
 
 #if FLT_MANT_DIG == F16_BIN80_MANT_DIG
 typedef float f16_bin80_t;
@@ -258,15 +242,7 @@ typedef long double f16_bin80_t;
 static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  // Zero value.
-  if (f16->significand == 0) {
-    assert(f16->bits == -1 && "Invalid bit count");
-    assert(f16->trailing == 0 && "Invalid trailing bits");
-    *have_range_error = false;
-    return 0.0;
-  }
-  assert(f16->significand >> (F16_SIGNIFICAND_BITS - 1) != 0 &&
-         "Floating point value not normalized");
+  RETURN_ZERO_IF_ZERO();
 
   // Apply rounding. For rounding to the nearest, we should only inspect
   // the first bit after the significand. When rounding upward, any bits
@@ -282,20 +258,7 @@ static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
     }
   }
 
-  // Adjust the exponent for the number of bits of data we read. Add the
-  // exponent bias as well. The exponent should now lie between
-  // [1, 2^k - 2], where k is the number of exponent bits.
-  exponent += f16->bits + F16_BIN80_EXP_BIAS;
-  if (exponent > (1 << F16_BIN80_EXP_DIG) - 2) {
-    // Overflow.
-    *have_range_error = true;
-    return INFINITY;
-  } else if (exponent < 1) {
-    // TODO(edje): Support subnormals!
-    // Underflow.
-    *have_range_error = true;
-    return 0.0;
-  }
+  APPLY_BIAS_TO_EXPONENT(15);
 
   // Convert significand and exponent to native floating point type.
   union {
@@ -307,6 +270,9 @@ static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
   return result.f;
 }
 #endif
+
+#undef RETURN_ZERO_IF_ZERO
+#undef APPLY_BIAS_TO_EXPONENT
 
 static inline float f16enc_get_float(const struct f16enc *f16, int exponent,
                                      int round, bool *have_range_error) {
