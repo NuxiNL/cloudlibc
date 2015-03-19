@@ -57,7 +57,6 @@ static inline void f16enc_init(struct f16enc *f16) {
 
 static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
   assert(xdigit < 16 && "Digit out of bounds");
-  f16->bits += 4;
   if (f16->shift >= 0) {
     // Add digit to the significand.
     f16->significand |= (f16_significand_t)xdigit << f16->shift;
@@ -66,10 +65,8 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
     // significand is set.
     while (f16->significand >> (F16_SIGNIFICAND_BITS - 1) == 0) {
       // Leading zero digit. Leave conversion in initial state.
-      if (f16->significand == 0) {
-        f16->bits = -1;
+      if (f16->significand == 0)
         return;
-      }
       f16->significand <<= 1;
       --f16->bits;
       ++f16->shift;
@@ -88,6 +85,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
     // not discard any input.
     f16->trailing |= xdigit << (8 + f16->shift);
   }
+  f16->bits += 4;
 }
 
 // Returns floating zero in case the converter stores value zero.
