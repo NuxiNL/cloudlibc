@@ -158,6 +158,7 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
   } result = {
       .i = (significand & ((UINT32_C(1) << (F16_BIN32_MANT_DIG - 1)) - 1)) |
            ((uint32_t)exponent << (F16_BIN32_MANT_DIG - 1))};
+  static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
   *have_range_error = false;
   return result.f;
 }
@@ -231,6 +232,7 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
   } result = {
       .i = (significand & ((UINT64_C(1) << (F16_BIN64_MANT_DIG - 1)) - 1)) |
            ((uint64_t)exponent << (F16_BIN64_MANT_DIG - 1))};
+  static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
   *have_range_error = false;
   return result.f;
 }
@@ -238,11 +240,15 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
 
 // x86 80-bit Extended Precision Format.
 
-#if FLT_MANT_DIG == 64
+#define F16_BIN80_MANT_DIG 64
+#define F16_BIN80_EXP_DIG 15
+#define F16_BIN80_EXP_BIAS 16383
+
+#if FLT_MANT_DIG == F16_BIN80_MANT_DIG
 typedef float f16_bin80_t;
-#elif DBL_MANT_DIG == 64
+#elif DBL_MANT_DIG == F16_BIN80_MANT_DIG
 typedef double f16_bin80_t;
-#elif LDBL_MANT_DIG == 64
+#elif LDBL_MANT_DIG == F16_BIN80_MANT_DIG
 typedef long double f16_bin80_t;
 #else
 #define F16_NO_BIN80
@@ -252,18 +258,63 @@ typedef long double f16_bin80_t;
 static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  // TODO(edje): Implement!
-  return f16enc_get_bin64(f16, exponent, round, have_range_error);
+  // Zero value.
+  if (f16->significand == 0) {
+    assert(f16->bits == -1 && "Invalid bit count");
+    assert(f16->trailing == 0 && "Invalid trailing bits");
+    *have_range_error = false;
+    return 0.0;
+  }
+  assert(f16->significand >> (F16_SIGNIFICAND_BITS - 1) != 0 &&
+         "Floating point value not normalized");
+
+  // Apply rounding. For rounding to the nearest, we should only inspect
+  // the first bit after the significand. When rounding upward, any bits
+  // will do.
+  uint64_t significand = f16->significand;
+  if ((round == FE_TONEAREST && f16->trailing >> 7 != 0) ||
+      (round == FE_UPWARD && f16->trailing != 0)) {
+    if (significand == UINT64_MAX) {
+      significand = UINT64_C(1) << 63;
+      ++exponent;
+    } else {
+      ++significand;
+    }
+  }
+
+  // Adjust the exponent for the number of bits of data we read. Add the
+  // exponent bias as well. The exponent should now lie between
+  // [1, 2^k - 2], where k is the number of exponent bits.
+  exponent += f16->bits + F16_BIN80_EXP_BIAS;
+  if (exponent > (1 << F16_BIN80_EXP_DIG) - 2) {
+    // Overflow.
+    *have_range_error = true;
+    return INFINITY;
+  } else if (exponent < 1) {
+    // TODO(edje): Support subnormals!
+    // Underflow.
+    *have_range_error = true;
+    return 0.0;
+  }
+
+  // Convert significand and exponent to native floating point type.
+  union {
+    uint64_t i[2];
+    f16_bin80_t f;
+  } result = {.i = {significand, exponent}};
+  static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
+  *have_range_error = false;
+  return result.f;
 }
 #endif
 
 static inline float f16enc_get_float(const struct f16enc *f16, int exponent,
                                      int round, bool *have_range_error) {
-#if FLT_MANT_DIG == 24
+#if FLT_MANT_DIG == F16_BIN32_MANT_DIG
   return f16enc_get_bin32(f16, exponent, round, have_range_error);
-#elif FLT_MANT_DIG == 53
+#elif FLT_MANT_DIG == F16_BIN64_MANT_DIG
   return f16enc_get_bin64(f16, exponent, round, have_range_error);
-#elif FLT_MANT_DIG == 64
+#elif FLT_MANT_DIG == F16_BIN80_MANT_DIG
   return f16enc_get_bin80(f16, exponent, round, have_range_error);
 #else
 #error "Unsupported format"
@@ -272,11 +323,11 @@ static inline float f16enc_get_float(const struct f16enc *f16, int exponent,
 
 static inline double f16enc_get_double(const struct f16enc *f16, int exponent,
                                        int round, bool *have_range_error) {
-#if DBL_MANT_DIG == 24
+#if DBL_MANT_DIG == F16_BIN32_MANT_DIG
   return f16enc_get_bin32(f16, exponent, round, have_range_error);
-#elif DBL_MANT_DIG == 53
+#elif DBL_MANT_DIG == F16_BIN64_MANT_DIG
   return f16enc_get_bin64(f16, exponent, round, have_range_error);
-#elif DBL_MANT_DIG == 64
+#elif DBL_MANT_DIG == F16_BIN80_MANT_DIG
   return f16enc_get_bin80(f16, exponent, round, have_range_error);
 #else
 #error "Unsupported format"
@@ -286,11 +337,11 @@ static inline double f16enc_get_double(const struct f16enc *f16, int exponent,
 static inline long double f16enc_get_long_double(const struct f16enc *f16,
                                                  int exponent, int round,
                                                  bool *have_range_error) {
-#if LDBL_MANT_DIG == 24
+#if LDBL_MANT_DIG == F16_BIN32_MANT_DIG
   return f16enc_get_bin32(f16, exponent, round, have_range_error);
-#elif LDBL_MANT_DIG == 53
+#elif LDBL_MANT_DIG == F16_BIN64_MANT_DIG
   return f16enc_get_bin64(f16, exponent, round, have_range_error);
-#elif LDBL_MANT_DIG == 64
+#elif LDBL_MANT_DIG == F16_BIN80_MANT_DIG
   return f16enc_get_bin80(f16, exponent, round, have_range_error);
 #else
 #error "Unsupported format"

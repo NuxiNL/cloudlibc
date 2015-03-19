@@ -112,8 +112,8 @@ TEST(strtof, hex8) {
   const char *exact = "-0x1.0";
   const char *above = "-0x1.00000000000000000000000000000000000000000000000001";
 #if FLT_MANT_DIG == 24
-  float low = 0x1.fffffep-1;
-  float high = 0x1.000002p+0;
+  float low = 0x1.fffffep-1f;
+  float high = 0x1.000002p+0f;
 #else
 #error "Unknown floating point type"
 #endif
