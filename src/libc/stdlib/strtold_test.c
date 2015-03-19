@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <testing.h>
 
-#include <stdio.h>
-
 TEST(strtold, hex1) {
   const char *below = "-0x0.ffffffffffffffffffffffffffffffffffffffffffffffffff";
   const char *exact = "-0x1.0";
@@ -23,7 +21,6 @@ TEST(strtold, hex1) {
 
   // Test different rounding modes.
   ASSERT_EQ(0, fesetround(FE_DOWNWARD));
-  dprintf(1, "%La\n", strtold(below + 1, NULL));
   ASSERT_EQ(low, strtold(below + 1, NULL));
   ASSERT_EQ(1.0L, strtold(exact + 1, NULL));
   ASSERT_EQ(1.0L, strtold(above + 1, NULL));
