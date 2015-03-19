@@ -3,7 +3,6 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/float.h>
 #include <common/locale.h>
 #include <common/stdio.h>
 
@@ -288,59 +287,6 @@ static char *format_uint(uintmax_t value, unsigned int base, bool uppercase,
       *--ret = ',';
       grouping_chunk = 3;
     }
-  }
-  return ret;
-}
-
-static char *format_float2(const struct float2 *value, bool uppercase,
-                           locale_t locale, char buf[static NUMBUF_SIZE]) {
-  char *ret = buf + NUMBUF_SIZE;
-  if (value->significand[0] == 0 && value->significand[1] == 0) {
-    // Significand is zero, so ignore the exponent.
-    *--ret = '0';
-    *--ret = '+';
-    *--ret = 'p';
-    *--ret = '0';
-  } else {
-    // Significand is non-zero, so the number will start with a "1".
-    // First print the exponent.
-    int exponent = value->exponent + 127;
-    exponent = exponent < 0 ? -exponent : exponent;
-    do {
-      *--ret = (exponent % 10) + '0';
-      exponent /= 10;
-    } while (exponent > 0);
-    *--ret = (value->exponent + 127) < 0 ? '-' : '+';
-    *--ret = 'p';
-
-    // Print the significand. The significand will always have the form
-    // 1.[digits], so just strip off the top bit to get the digits to
-    // align properly.
-    assert((value->significand[0] & 0x8000000000000000) != 0 &&
-           "Significand is not normalized");
-    uint64_t significand[2] = {
-        (value->significand[0] << 1) | (value->significand[1] >> 63),
-        value->significand[1] << 1,
-    };
-    if (significand[0] != 0 || significand[1] != 0) {
-      // Skip trailing zero digits.
-      while ((significand[1] & 0xf) == 0) {
-        significand[1] = (significand[1] >> 4) | (significand[0] << 60);
-        significand[0] >>= 4;
-      }
-
-      // Print the digits.
-      const char *symbols = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
-      while (significand[0] != 0 || significand[1] != 0) {
-        *--ret = symbols[(significand[1] & 0xf) % 16];
-        significand[1] = (significand[1] >> 4) | (significand[0] << 60);
-        significand[0] >>= 4;
-      }
-
-      // TODO(edje): Use proper radix character?
-      *--ret = '.';
-    }
-    *--ret = '1';
   }
   return ret;
 }

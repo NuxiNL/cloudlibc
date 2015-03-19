@@ -157,19 +157,8 @@ while (*format != '\0') {
       }
       case 'a': {
         // Hexadecimal floating point, lowercase.
-        struct float2 f2;
-        __long_double_to_float2(GET_ARG_FLOAT_LM(length, arg_value), &f2);
-        // TODO(edje): Handle NAN and INF.
-        if (f2.flags & F2_NEGATIVE) {
-          number_prefix[0] = '-';
-          number_prefix[1] = '0';
-          number_prefix[2] = 'x';
-        } else {
-          number_prefix[0] = '0';
-          number_prefix[1] = 'x';
-        }
-        number_midfix = format_float2(&f2, false, locale, number_midfix_buf);
-        break;
+        // TODO(edje): Implement.
+        continue;
       }
       case 'A': {
         // Hexadecimal floating point, uppercase.
