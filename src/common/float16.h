@@ -253,8 +253,7 @@ static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
   // TODO(edje): Implement!
-  *have_range_error = true;
-  return 0.0;
+  return f16enc_get_bin64(f16, exponent, round, have_range_error);
 }
 #endif
 
