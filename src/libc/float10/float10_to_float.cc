@@ -3,7 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/float.h>
+#include <common/float10.h>
 
 #include <strtod.h>
 

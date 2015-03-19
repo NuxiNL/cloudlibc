@@ -3,9 +3,11 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/float.h>
+#include <common/float10.h>
+#include <common/float16.h>
 #include <common/locale.h>
 
+#include <fenv.h>
 #include <float.h>
 #include <math.h>
 #include <stdint.h>

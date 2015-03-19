@@ -31,7 +31,7 @@ flt_t number;
     // INF.
     have_number = true;
     SKIP(3);
-    number = negative ? -INFINITY : INFINITY;
+    number = INFINITY;
 
     // INFINITY.
     if ((PEEK(0) == 'i' || PEEK(0) == 'I') &&
@@ -46,7 +46,7 @@ flt_t number;
     // NAN.
     have_number = true;
     SKIP(3);
-    number = negative ? -NAN : NAN;
+    number = NAN;
 
     // NAN(...). Find closing parenthesis.
     if (PEEK(0) == '(') {
@@ -65,10 +65,9 @@ flt_t number;
     // Hexadecimal floating point number.
     have_number = true;
     SKIP(2);
-    struct float2 f2 = {
-        .flags = negative ? F2_NEGATIVE : 0,
-    };
-    f2.exponent = 0;
+    struct f16enc f16;
+    f16enc_init(&f16);
+    int digits_exponent = 0;
 
     // Parse digits before the period.
     for (;;) {
@@ -81,22 +80,13 @@ flt_t number;
         digit = PEEK(0) - 'a' + 10;
       else
         break;
+      f16enc_push_xdigit(&f16, digit);
       SKIP(1);
-
-      if (f2.significand[0] >> 60 == 0) {
-        // Still space left to fit the digit.
-        f2.significand[0] =
-            (f2.significand[0] << 4) | (f2.significand[1] >> 60);
-        f2.significand[1] = (f2.significand[1] << 4) | digit;
-      } else {
-        // No space left. Just increase the exponent instead.
-        f2.exponent += 4;
-      }
     }
 
-// Parse digits after the period.
 #include "parser_strtofloat_radixchar.h"
     if (parsed_radixchar) {
+      // Parse digits after the period.
       for (;;) {
         uint_fast8_t digit;
         if (PEEK_ISDIGIT(0))
@@ -107,33 +97,36 @@ flt_t number;
           digit = PEEK(0) - 'a' + 10;
         else
           break;
-
+        f16enc_push_xdigit(&f16, digit);
+        digits_exponent -= 4;
         SKIP(1);
-        if (f2.significand[0] >> 60 == 0) {
-          // Still space left to fit the digit. Decrease the exponent for
-          // every digit seen.
-          f2.significand[0] =
-              (f2.significand[0] << 4) | (f2.significand[1] >> 60);
-          f2.significand[1] = (f2.significand[1] << 4) | digit;
-          f2.exponent -= 4;
-        }
       }
     }
 
     // Exponentiation.
     if (PEEK(0) == 'p' || PEEK(0) == 'P') {
 #include "parser_strtofloat_exponent.h"
-      f2.exponent += exponent;
+      digits_exponent += exponent;
     }
 
-    // Turn into normalized base-2 floating point number.
-    __float2_normalize(&f2);
+    // Determine rounding. If we're going to generate a negative number,
+    // invert FE_DOWNWARD and FE_UPWARD.
+    int round = fegetround();
+    if (negative) {
+      if (round == FE_UPWARD)
+        round = FE_DOWNWARD;
+      else if (round == FE_DOWNWARD)
+        round = FE_UPWARD;
+    }
+
+    // Generate floating point value.
     // clang-format off
-    have_range_error = !_Generic(
+    number = _Generic(
         number,
-        float: __float2_to_float,
-        double: __float2_to_double,
-        long double: __float2_to_long_double)(&f2, &number);
+        float: f16enc_get_float,
+        double: f16enc_get_double,
+        long double: f16enc_get_long_double)(
+            &f16, digits_exponent, fegetround(), &have_range_error);
     // clang-format on
   } else {
     // Decimal floating point number.
@@ -160,11 +153,10 @@ flt_t number;
       SKIP(1);
     }
 
-// Parse digits after the period.
 #include "parser_strtofloat_radixchar.h"
     if (parsed_radixchar) {
-      // Skip leading zeroes if we only matched zeroes before the radix
-      // character.
+      // Parse digits after the period. Skip leading zeroes if we only
+      // matched zeroes before the radix character.
       if (ndigits == 0) {
         while (PEEK(0) == '0') {
           have_number = true;
@@ -211,10 +203,10 @@ flt_t number;
             break;
         }
       }
-      if (negative)
-        number = -number;
     }
   }
+  if (negative)
+    number = -number;
 }
 
 #undef PEEK_ISDIGIT

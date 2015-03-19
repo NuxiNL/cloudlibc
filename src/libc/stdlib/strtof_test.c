@@ -67,7 +67,7 @@ TEST(strtof, hex2) {
 }
 
 TEST(strtof, hex3) {
-  // Would overflow, so it should return HUGE_VAL.
+  // Would overflow, so it should return HUGE_VALF.
   const char *str = "\t0x1p+30000";
   char *endptr;
   ASSERT_EQ(HUGE_VALF, strtof(str, &endptr));
@@ -75,11 +75,10 @@ TEST(strtof, hex3) {
 }
 
 TEST(strtof, hex4) {
-  // Would underflow, so it should return FLT_MIN.
-  // TODO(edje): Let this return FLT_TRUE_MIN.
+  // Would underflow, so it should return 0.0f.
   const char *str = "\n0X1P-30000 ";
   char *endptr;
-  ASSERT_EQ(FLT_MIN, strtof(str, &endptr));
+  ASSERT_EQ(0.0f, strtof(str, &endptr));
   ASSERT_EQ(str + 11, endptr);
 }
 

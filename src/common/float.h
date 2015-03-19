@@ -6,7 +6,6 @@
 #ifndef COMMON_FLOAT_H
 #define COMMON_FLOAT_H
 
-#include <locale.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <wchar.h>
@@ -26,19 +25,7 @@ struct float2 {
 
 __BEGIN_DECLS
 void __float2_normalize(struct float2 *);
-bool __float2_to_float(const struct float2 *, float *);
-bool __float2_to_double(const struct float2 *, double *);
-bool __float2_to_long_double(const struct float2 *, long double *);
 void __long_double_to_float2(long double, struct float2 *);
-__END_DECLS
-
-// Handling of base-10 floating point numbers. These functions are
-// wrappers around the double-conversion library.
-
-__BEGIN_DECLS
-float __float10_to_float(const char *, size_t, int);
-double __float10_to_double(const char *, size_t, int);
-long double __float10_to_long_double(const char *, size_t, int);
 __END_DECLS
 
 #endif
