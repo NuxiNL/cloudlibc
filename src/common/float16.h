@@ -39,7 +39,6 @@
 
 typedef uint64_t f16_significand_t;
 #define F16_SIGNIFICAND_BITS 64
-#define F16_SHIFT_INIT (F16_SIGNIFICAND_BITS - 4)
 
 struct f16enc {
   f16_significand_t significand;  // Significand bits.
@@ -52,7 +51,7 @@ static inline void f16enc_init(struct f16enc *f16) {
   f16->significand = 0;
   f16->trailing = 0;
   f16->bits = -1;
-  f16->shift = F16_SHIFT_INIT;
+  f16->shift = F16_SIGNIFICAND_BITS - 4;
 }
 
 static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
