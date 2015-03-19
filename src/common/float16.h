@@ -155,8 +155,9 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
   union {
     uint32_t i;
     f16_bin32_t f;
-  } result = {.i = (significand & ((1 << (F16_BIN32_MANT_DIG - 1)) - 1)) |
-                   (exponent << (F16_BIN32_MANT_DIG - 1))};
+  } result = {
+      .i = (significand & ((UINT32_C(1) << (F16_BIN32_MANT_DIG - 1)) - 1)) |
+           ((uint32_t)exponent << (F16_BIN32_MANT_DIG - 1))};
   *have_range_error = false;
   return result.f;
 }
@@ -164,11 +165,15 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
 
 // IEEE 754-2008 "bin64": Double-precision floating-point.
 
-#if FLT_MANT_DIG == 53
+#define F16_BIN64_MANT_DIG 53
+#define F16_BIN64_EXP_DIG 11
+#define F16_BIN64_EXP_BIAS 1023
+
+#if FLT_MANT_DIG == F16_BIN64_MANT_DIG
 typedef float f16_bin64_t;
-#elif DBL_MANT_DIG == 53
+#elif DBL_MANT_DIG == F16_BIN64_MANT_DIG
 typedef double f16_bin64_t;
-#elif LDBL_MANT_DIG == 53
+#elif LDBL_MANT_DIG == F16_BIN64_MANT_DIG
 typedef long double f16_bin64_t;
 #else
 #define F16_NO_BIN64
@@ -178,9 +183,56 @@ typedef long double f16_bin64_t;
 static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  // TODO(edje): Implement!
-  *have_range_error = true;
-  return 0.0;
+  // Zero value.
+  if (f16->significand == 0) {
+    assert(f16->bits == -1 && "Invalid bit count");
+    assert(f16->trailing == 0 && "Invalid trailing bits");
+    *have_range_error = false;
+    return 0.0;
+  }
+  assert(f16->significand >> (F16_SIGNIFICAND_BITS - 1) != 0 &&
+         "Floating point value not normalized");
+
+  // Apply rounding. For rounding to the nearest, we should only inspect
+  // the first bit after the significand. When rounding upward, any bits
+  // will do.
+  uint64_t significand =
+      f16->significand >> (F16_SIGNIFICAND_BITS - F16_BIN64_MANT_DIG);
+  f16_significand_t remainder =
+      f16->significand << F16_BIN64_MANT_DIG | f16->trailing;
+  if ((round == FE_TONEAREST && remainder >> (F16_SIGNIFICAND_BITS - 1) != 0) ||
+      (round == FE_UPWARD && remainder != 0)) {
+    ++significand;
+    if (significand >> F16_BIN64_MANT_DIG != 0) {
+      significand >>= 1;
+      ++exponent;
+    }
+  }
+
+  // Adjust the exponent for the number of bits of data we read. Add the
+  // exponent bias as well. The exponent should now lie between
+  // [1, 2^k - 2], where k is the number of exponent bits.
+  exponent += f16->bits + F16_BIN64_EXP_BIAS;
+  if (exponent > (1 << F16_BIN64_EXP_DIG) - 2) {
+    // Overflow.
+    *have_range_error = true;
+    return INFINITY;
+  } else if (exponent < 1) {
+    // TODO(edje): Support subnormals!
+    // Underflow.
+    *have_range_error = true;
+    return 0.0;
+  }
+
+  // Convert significand and exponent to native floating point type.
+  union {
+    uint64_t i;
+    f16_bin64_t f;
+  } result = {
+      .i = (significand & ((UINT64_C(1) << (F16_BIN64_MANT_DIG - 1)) - 1)) |
+           ((uint64_t)exponent << (F16_BIN64_MANT_DIG - 1))};
+  *have_range_error = false;
+  return result.f;
 }
 #endif
 
