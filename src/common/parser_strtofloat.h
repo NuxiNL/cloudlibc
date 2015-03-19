@@ -126,7 +126,7 @@ flt_t number;
         float: f16enc_get_float,
         double: f16enc_get_double,
         long double: f16enc_get_long_double)(
-            &f16, digits_exponent, fegetround(), &have_range_error);
+            &f16, digits_exponent, round, &have_range_error);
     // clang-format on
   } else {
     // Decimal floating point number.

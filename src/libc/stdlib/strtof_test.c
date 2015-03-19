@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <errno.h>
+#include <fenv.h>
 #include <float.h>
 #include <locale.h>
 #include <math.h>
@@ -104,6 +105,51 @@ TEST(strtof, hex7) {
   char *endptr;
   ASSERT_EQ(0.5, strtof(str, &endptr));
   ASSERT_EQ(str + 4, endptr);
+}
+
+TEST(strtof, hex8) {
+  const char *below = "-0x0.ffffffffffffffffffffffffffffffffffffffffffffffffff";
+  const char *exact = "-0x1.0";
+  const char *above = "-0x1.00000000000000000000000000000000000000000000000001";
+
+  // Test different rounding modes.
+  ASSERT_EQ(0, fesetround(FE_DOWNWARD));
+  ASSERT_LT(0.9f, strtof(below + 1, NULL));
+  ASSERT_GT(1.0f, strtof(below + 1, NULL));
+  ASSERT_EQ(1.0f, strtof(exact + 1, NULL));
+  ASSERT_EQ(1.0f, strtof(above + 1, NULL));
+  ASSERT_EQ(-1.0f, strtof(below, NULL));
+  ASSERT_EQ(-1.0f, strtof(exact, NULL));
+  ASSERT_LT(-1.1f, strtof(above, NULL));
+  ASSERT_GT(-1.0f, strtof(above, NULL));
+
+  ASSERT_EQ(0, fesetround(FE_TONEAREST));
+  ASSERT_EQ(1.0f, strtof(below + 1, NULL));
+  ASSERT_EQ(1.0f, strtof(exact + 1, NULL));
+  ASSERT_EQ(1.0f, strtof(above + 1, NULL));
+  ASSERT_EQ(-1.0f, strtof(below, NULL));
+  ASSERT_EQ(-1.0f, strtof(exact, NULL));
+  ASSERT_EQ(-1.0f, strtof(above, NULL));
+
+  ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+  ASSERT_LT(0.9f, strtof(below + 1, NULL));
+  ASSERT_GT(1.0f, strtof(below + 1, NULL));
+  ASSERT_EQ(1.0f, strtof(exact + 1, NULL));
+  ASSERT_EQ(1.0f, strtof(above + 1, NULL));
+  ASSERT_LT(-1.0f, strtof(below, NULL));
+  ASSERT_GT(-0.9f, strtof(below, NULL));
+  ASSERT_EQ(-1.0f, strtof(exact, NULL));
+  ASSERT_EQ(-1.0f, strtof(above, NULL));
+
+  ASSERT_EQ(0, fesetround(FE_UPWARD));
+  ASSERT_EQ(1.0f, strtof(below + 1, NULL));
+  ASSERT_EQ(1.0f, strtof(exact + 1, NULL));
+  ASSERT_LT(1.0f, strtof(above + 1, NULL));
+  ASSERT_GT(1.1f, strtof(above + 1, NULL));
+  ASSERT_LT(-1.0f, strtof(below, NULL));
+  ASSERT_GT(-0.9f, strtof(below, NULL));
+  ASSERT_EQ(-1.0f, strtof(exact, NULL));
+  ASSERT_EQ(-1.0f, strtof(above, NULL));
 }
 
 TEST(strtof, nan1) {

@@ -111,7 +111,7 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
   // Zero value.
-  if (f16->bits == 0) {
+  if (f16->significand == 0) {
     assert(f16->bits == -1 && "Invalid bit count");
     assert(f16->trailing == 0 && "Invalid trailing bits");
     *have_range_error = false;
@@ -155,7 +155,7 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
   union {
     uint32_t i;
     f16_bin32_t f;
-  } result = {.i = (significand & ((1 << F16_BIN32_MANT_DIG) - 1)) |
+  } result = {.i = (significand & ((1 << (F16_BIN32_MANT_DIG - 1)) - 1)) |
                    (exponent << (F16_BIN32_MANT_DIG - 1))};
   *have_range_error = false;
   return result.f;
