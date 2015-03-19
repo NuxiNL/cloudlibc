@@ -13,15 +13,39 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// Converter for base-16 floating point literals to native types.
+//
+// This structure and functions below can be used to convert base-16
+// string representations of floating point numbers to the native
+// floating point types of the system.
+//
+// The following example shows how the number 0x123.cafep0 can be
+// converted to a float:
+//
+//   struct f16enc f16;
+//   f16enc_init(&f16);
+//   f16enc_push_xdigit(&f16, 1); // '1'
+//   f16enc_push_xdigit(&f16, 2); // '2'
+//   f16enc_push_xdigit(&f16, 3); // '3'
+//   f16enc_push_xdigit(&f16, 12); // 'c'
+//   f16enc_push_xdigit(&f16, 10); // 'a'
+//   f16enc_push_xdigit(&f16, 15); // 'f'
+//   f16enc_push_xdigit(&f16, 14); // 'e'
+//   bool have_range_error;
+//   float f = f16enc_get_float(&f16, -16, FE_TONEAREST, &have_range_error);
+//
+// The encoder does not support the concept of a radix character, as it
+// can simply be emulated by adjusting the exponent.
+
 typedef uint64_t f16_significand_t;
 #define F16_SIGNIFICAND_BITS 64
 #define F16_SHIFT_INIT (F16_SIGNIFICAND_BITS - 4)
 
 struct f16enc {
-  f16_significand_t significand;
-  uint8_t trailing;
-  int bits;
-  int shift;
+  f16_significand_t significand;  // Significand bits.
+  uint8_t trailing;               // Trailing significand bits for rounding.
+  int bits;                       // Total number of bits inserted.
+  int shift;                      // Shift state for significand.
 };
 
 static inline void f16enc_init(struct f16enc *f16) {
