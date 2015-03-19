@@ -85,7 +85,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
   } else {
     // Garbage bits at the very end. If we try to parse a very long
     // number like 0x1.000.....0001 and have to round up, we must
-    // discard any input.
+    // not discard any input.
     f16->trailing |= xdigit << (8 + f16->shift);
   }
 }
