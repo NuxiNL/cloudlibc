@@ -16,7 +16,7 @@ string.h	80%	strcoll() and strxfrm() still missing
 sys/socket.h	80%	Needs more polishing
 unistd.h	80%	exec(), fpathconf() and sysconf() still missing
 pthread.h	90%	thread detaching and tests for rwlock incomplete
-stdlib.h	90%	__cxa_atexit(), atexit(), strtod() and strtold() still missing
+stdlib.h	90%	__cxa_atexit() and atexit() still missing
 
 Done:
 -----
