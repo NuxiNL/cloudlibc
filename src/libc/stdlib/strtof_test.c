@@ -152,6 +152,30 @@ TEST(strtof, hex8) {
   ASSERT_EQ(-1.0f, strtof(above, NULL));
 }
 
+#if FLT_HAS_SUBNORM == 1
+TEST(strtof, hex9) {
+#if FLT_MANT_DIG == 24
+  const char *normal = "0x1p-126";
+  const char *highest_subnormal = "0x1.fffffcp-127";
+  float high = 0x1.fffffcp-127;
+  const char *lowest_subnormal = "0x1p-149";
+  const char *underflow = "0x1p-150";
+#else
+#error "Unknown floating point type"
+#endif
+
+  // Test parsing of subnormal values.
+  ASSERT_EQ(FLT_MIN, strtof(normal, NULL));
+  ASSERT_EQ(0, errno);
+  ASSERT_EQ(high, strtof(highest_subnormal, NULL));
+  ASSERT_EQ(0, errno);
+  ASSERT_EQ(FLT_TRUE_MIN, strtof(lowest_subnormal, NULL));
+  ASSERT_EQ(0, errno);
+  ASSERT_EQ(0.0, strtof(underflow, NULL));
+  ASSERT_EQ(ERANGE, errno);
+}
+#endif
+
 TEST(strtof, nan1) {
   // NAN.
   const char *str = "NaN(Hello";

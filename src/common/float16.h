@@ -104,20 +104,26 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
 // Adjusts the exponent for the number of bits of data we read. Adds the
 // exponent bias as well. The exponent shall then lie between
 // [1, 2^k - 2], where k is the number of exponent bits.
-#define APPLY_BIAS_TO_EXPONENT(exp_dig)     \
-  do {                                      \
-    int bias = (1 << (exp_dig - 1)) - 1;    \
-    exponent += f16->bits + bias;           \
-    if (exponent > (1 << exp_dig) - 2) {    \
-      /* Overflow. */                       \
-      *have_range_error = true;             \
-      return INFINITY;                      \
-    } else if (exponent < 1) {              \
-      /* TODO(edje): Support subnormals! */ \
-      /* Underflow. */                      \
-      *have_range_error = true;             \
-      return 0.0;                           \
-    }                                       \
+#define APPLY_BIAS_TO_EXPONENT(exp_dig, mant_dig, has_subnorm) \
+  do {                                                         \
+    int bias = (1 << (exp_dig - 1)) - 1;                       \
+    exponent += f16->bits + bias;                              \
+    if (exponent > (1 << exp_dig) - 2) {                       \
+      /* Overflow. */                                          \
+      *have_range_error = true;                                \
+      return INFINITY;                                         \
+    } else if (exponent <= 0) {                                \
+      if (has_subnorm == 1 && exponent > 1 - mant_dig) {       \
+        /* Number is still in subnormal range. */              \
+        /* TODO(edje): Implement rounding! */                  \
+        significand >>= 1 - exponent;                          \
+        exponent = 0;                                          \
+      } else {                                                 \
+        /* Smaller than subnormal. */                          \
+        *have_range_error = true;                              \
+        return 0.0;                                            \
+      }                                                        \
+    }                                                          \
   } while (0)
 
 // IEEE 754-2008 "bin32": Single-precision floating-point.
@@ -126,10 +132,13 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
 
 #if FLT_MANT_DIG == F16_BIN32_MANT_DIG
 typedef float f16_bin32_t;
+#define F16_BIN32_HAS_SUBNORM FLT_HAS_SUBNORM
 #elif DBL_MANT_DIG == F16_BIN32_MANT_DIG
 typedef double f16_bin32_t;
+#define F16_BIN32_HAS_SUBNORM DBL_HAS_SUBNORM
 #elif LDBL_MANT_DIG == F16_BIN32_MANT_DIG
 typedef long double f16_bin32_t;
+#define F16_BIN32_HAS_SUBNORM LDBL_HAS_SUBNORM
 #else
 #define F16_NO_BIN32
 #endif
@@ -156,7 +165,7 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
     }
   }
 
-  APPLY_BIAS_TO_EXPONENT(8);
+  APPLY_BIAS_TO_EXPONENT(8, F16_BIN32_MANT_DIG, F16_BIN32_HAS_SUBNORM);
 
   // Convert significand and exponent to native floating point type.
   union {
@@ -177,10 +186,13 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
 
 #if FLT_MANT_DIG == F16_BIN64_MANT_DIG
 typedef float f16_bin64_t;
+#define F16_BIN64_HAS_SUBNORM FLT_HAS_SUBNORM
 #elif DBL_MANT_DIG == F16_BIN64_MANT_DIG
 typedef double f16_bin64_t;
+#define F16_BIN64_HAS_SUBNORM DBL_HAS_SUBNORM
 #elif LDBL_MANT_DIG == F16_BIN64_MANT_DIG
 typedef long double f16_bin64_t;
+#define F16_BIN64_HAS_SUBNORM LDBL_HAS_SUBNORM
 #else
 #define F16_NO_BIN64
 #endif
@@ -207,7 +219,7 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
     }
   }
 
-  APPLY_BIAS_TO_EXPONENT(11);
+  APPLY_BIAS_TO_EXPONENT(11, F16_BIN64_MANT_DIG, F16_BIN64_HAS_SUBNORM);
 
   // Convert significand and exponent to native floating point type.
   union {
@@ -228,10 +240,13 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
 
 #if FLT_MANT_DIG == F16_BIN80_MANT_DIG
 typedef float f16_bin80_t;
+#define F16_BIN80_HAS_SUBNORM FLT_HAS_SUBNORM
 #elif DBL_MANT_DIG == F16_BIN80_MANT_DIG
 typedef double f16_bin80_t;
+#define F16_BIN80_HAS_SUBNORM DBL_HAS_SUBNORM
 #elif LDBL_MANT_DIG == F16_BIN80_MANT_DIG
 typedef long double f16_bin80_t;
+#define F16_BIN80_HAS_SUBNORM LDBL_HAS_SUBNORM
 #else
 #define F16_NO_BIN80
 #endif
@@ -256,7 +271,7 @@ static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
     }
   }
 
-  APPLY_BIAS_TO_EXPONENT(15);
+  APPLY_BIAS_TO_EXPONENT(15, F16_BIN80_MANT_DIG, F16_BIN80_HAS_SUBNORM);
 
   // Convert significand and exponent to native floating point type.
   union {
