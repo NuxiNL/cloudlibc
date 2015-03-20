@@ -69,9 +69,20 @@ while (*format != '\0') {
 
     // Parameters for integer printing.
     uintmax_t integer_value;
-    char integer_prefix[3] = {};  // "-", "0", "0x" or "-0x".
-    size_t integer_prefixlen = 0;
     unsigned int integer_base;
+
+    // Shared parameters for integer and floating point printing.
+    char number_prefix[3] = {};  // "-", "0", "0x" or "-0x".
+    size_t number_prefixlen = 0;
+#define SET_NUMBER_PREFIX(...)                      \
+  do {                                              \
+    const char str[] = __VA_ARGS__;                 \
+    number_prefixlen = 0;                           \
+    for (size_t i = 0; i < sizeof(str); ++i)        \
+      if (str[i] != '\0')                           \
+        number_prefix[number_prefixlen++] = str[i]; \
+  } while (0)
+    const char *number_charset;
 
     // Parameters for string printing.
     char string_buf[2] = {};
@@ -83,8 +94,7 @@ while (*format != '\0') {
 
     // Parse conversion specifier.
     char_t specifier = *format++;
-    const char *digit_charset =
-        specifier >= 'a' ? "0123456789abcdef" : "0123456789ABCDEF";
+    number_charset = specifier >= 'a' ? "0123456789abcdef" : "0123456789ABCDEF";
     switch (specifier) {
       case 'd':
       case 'i': {
@@ -92,14 +102,10 @@ while (*format != '\0') {
         integer_base = 10;
         intmax_t value = GET_ARG_SINT_LM(length, arg_value);
         if (value >= 0) {
-          if (positive_sign != '\0') {
-            integer_prefix[0] = positive_sign;
-            integer_prefixlen = 1;
-          }
+          SET_NUMBER_PREFIX({positive_sign});
           integer_value = value;
         } else {
-          integer_prefix[0] = '-';
-          integer_prefixlen = 1;
+          SET_NUMBER_PREFIX({'-'});
           integer_value = -value;
         }
         goto LABEL(integer);
@@ -108,10 +114,8 @@ while (*format != '\0') {
         // Octal integer.
         integer_base = 8;
         integer_value = GET_ARG_UINT_LM(length, arg_value);
-        if (alternative_form && integer_value != 0) {
-          integer_prefix[0] = '0';
-          integer_prefixlen = 1;
-        }
+        if (alternative_form && integer_value != 0)
+          SET_NUMBER_PREFIX({'0'});
         goto LABEL(integer);
       }
       case 'u': {
@@ -124,22 +128,16 @@ while (*format != '\0') {
         // Hexadecimal integer, lowercase.
         integer_base = 16;
         integer_value = GET_ARG_UINT_LM(length, arg_value);
-        if (alternative_form && integer_value != 0) {
-          integer_prefix[0] = '0';
-          integer_prefix[1] = 'x';
-          integer_prefixlen = 2;
-        }
+        if (alternative_form && integer_value != 0)
+          SET_NUMBER_PREFIX({'0', 'x'});
         goto LABEL(integer);
       }
       case 'X': {
         // Hexadecimal integer, uppercase.
         integer_base = 16;
         integer_value = GET_ARG_UINT_LM(length, arg_value);
-        if (alternative_form && integer_value != 0) {
-          integer_prefix[0] = '0';
-          integer_prefix[1] = 'X';
-          integer_prefixlen = 2;
-        }
+        if (alternative_form && integer_value != 0)
+          SET_NUMBER_PREFIX({'0', 'X'});
         goto LABEL(integer);
       }
       case 'f':
@@ -157,9 +155,16 @@ while (*format != '\0') {
             string = negative ? "-nan" : "nan";
             goto LABEL(string);
           default:
-            // TODO(edje): Implement.
-            string = "unimplemented";
-            goto LABEL(string);
+            switch (specifier) {
+              case 'a':
+                // Hexadecimal floating point, lowercase.
+                SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'x'});
+                goto LABEL(float16);
+              default:
+                // TODO(edje): Implement.
+                string = "unimplemented";
+                goto LABEL(string);
+            }
         }
       }
       case 'F':
@@ -177,9 +182,16 @@ while (*format != '\0') {
             string = negative ? "-NAN" : "NAN";
             goto LABEL(string);
           default:
-            // TODO(edje): Implement.
-            string = "unimplemented";
-            goto LABEL(string);
+            switch (specifier) {
+              case 'A':
+                // Hexadecimal floating point, uppercase.
+                SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'X'});
+                goto LABEL(float16);
+              default:
+                // TODO(edje): Implement.
+                string = "UNIMPLEMENTED";
+                goto LABEL(string);
+            }
         }
       }
       case 'c': {
@@ -208,9 +220,7 @@ while (*format != '\0') {
         // Pointer.
         integer_base = 16;
         integer_value = (uintptr_t)GET_ARG_POINTER_T(void, arg_value);
-        integer_prefix[0] = '0';
-        integer_prefix[1] = 'x';
-        integer_prefixlen = 2;
+        SET_NUMBER_PREFIX({'0', 'x'});
         goto LABEL(integer);
       }
       case 'C': {
@@ -235,7 +245,7 @@ while (*format != '\0') {
           char *digits = digitsbuf + sizeof(digitsbuf);
           int grouping_chunk = integer_base == 10 && grouping ? 3 : 0;
           for (;;) {
-            *--digits = digit_charset[integer_value % integer_base];
+            *--digits = number_charset[integer_value % integer_base];
             integer_value /= integer_base;
             if (integer_value == 0)
               break;
@@ -253,7 +263,7 @@ while (*format != '\0') {
           size_t width = digitsbuf + sizeof(digitsbuf) - digits;
           if ((ssize_t)width < precision)
             width = precision;
-          width += integer_prefixlen;
+          width += number_prefixlen;
 
           // Print padding if right-justified. If a precision is
           // specified, the '0' flag is ignored.
@@ -268,14 +278,20 @@ while (*format != '\0') {
           // Print the prefix of the number, followed by zero padding if
           // a precision is specified, followed by the digits, followed
           // by padding if left-justified.
-          for (size_t i = 0; i < integer_prefixlen; ++i)
-            PUTCHAR(integer_prefix[i]);
+          for (size_t i = 0; i < number_prefixlen; ++i)
+            PUTCHAR(number_prefix[i]);
           while (precision-- > digitsbuf + sizeof(digitsbuf) - digits)
             PUTCHAR('0');
           while (digits < digitsbuf + sizeof(digitsbuf))
             PUTCHAR(*digits++);
           while (field_width-- > width)
             PUTCHAR(' ');
+          break;
+        }
+
+        // Hexadecimal floating point.
+        LABEL(float16) : {
+          // TODO(edje): Implement.
           break;
         }
 
@@ -431,6 +447,7 @@ while (*format != '\0') {
           break;
         }
     }
+#undef SET_NUMBER_PREFIX
   } else {
     PUTCHAR(*format);
     ++format;
