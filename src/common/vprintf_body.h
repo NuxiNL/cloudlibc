@@ -3,6 +3,8 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+const struct lc_ctype *ctype = locale->ctype;
+
 while (*format != '\0') {
   if (*format == '%') {
     // Escaped percent symbol.
@@ -16,8 +18,9 @@ while (*format != '\0') {
     PARSE_ARGNUM(arg_value);
 
     // Parse flags.
-    char positive_sign = '\0', left_padding = ' ';
-    bool grouping = false, left_justified = false, alternative_form = false;
+    char positive_sign = '\0';
+    bool grouping = false, left_justified = false, alternative_form = false,
+         zero_padding = false;
     for (;;) {
       if (*format == '\'') {
         grouping = true;
@@ -31,7 +34,7 @@ while (*format != '\0') {
       } else if (*format == '#') {
         alternative_form = true;
       } else if (*format == '0') {
-        left_padding = '0';
+        zero_padding = true;
       } else {
         break;
       }
@@ -64,15 +67,18 @@ while (*format != '\0') {
     // Length modifier.
     enum length_modifier length = get_length_modifier(&format);
 
-    // State for number printing.
-    char number_prefix[3] = {};  // "0", "0x" or "-0x".
-    char number_midfix_buf[NUMBUF_SIZE];
-    char *number_midfix = NULL;
-    // char number_suffix[NUMBUF_SIZE]; // Exponent.
+    // Parameters for integer printing.
+    uintmax_t integer_value;
+    const char *integer_charset = "0123456789abcdef";
+    char integer_prefix[3] = {};  // "-", "0", "0x" or "-0x".
+    size_t integer_prefixlen = 0;
+    unsigned int integer_base;
 
-    // State for string printing.
+    // Parameters for string printing.
     char string_buf[2] = {};
     const char *string = NULL;
+
+    // Parameters for wide string printing.
     wchar_t wstring_buf[2] = {};
     const wchar_t *wstring = NULL;
 
@@ -82,49 +88,59 @@ while (*format != '\0') {
       case 'd':
       case 'i': {
         // Signed decimal integer.
+        integer_base = 10;
         intmax_t value = GET_ARG_SINT_LM(length, arg_value);
-        number_prefix[0] = value < 0 ? '-' : positive_sign;
-        number_midfix = format_uint(value < 0 ? -value : value, 10, false,
-                                    grouping, locale, number_midfix_buf);
-        goto LABEL(number);
+        if (value >= 0) {
+          if (positive_sign != '\0') {
+            integer_prefix[0] = positive_sign;
+            integer_prefixlen = 1;
+          }
+          integer_value = value;
+        } else {
+          integer_prefix[0] = '-';
+          integer_prefixlen = 1;
+          integer_value = -value;
+        }
+        goto LABEL(integer);
       }
       case 'o': {
         // Octal integer.
-        uintmax_t value = GET_ARG_UINT_LM(length, arg_value);
-        number_midfix =
-            format_uint(value, 8, false, false, locale, number_midfix_buf);
-        if (alternative_form && value != 0)
-          number_prefix[0] = '0';
-        goto LABEL(number);
+        integer_base = 8;
+        integer_value = GET_ARG_UINT_LM(length, arg_value);
+        if (alternative_form && integer_value != 0) {
+          integer_prefix[0] = '0';
+          integer_prefixlen = 1;
+        }
+        goto LABEL(integer);
       }
       case 'u': {
         // Unsigned decimal integer.
-        uintmax_t value = GET_ARG_UINT_LM(length, arg_value);
-        number_midfix =
-            format_uint(value, 10, false, grouping, locale, number_midfix_buf);
-        goto LABEL(number);
+        integer_base = 10;
+        integer_value = GET_ARG_UINT_LM(length, arg_value);
+        goto LABEL(integer);
       }
       case 'x': {
         // Hexadecimal integer, lowercase.
-        uintmax_t value = GET_ARG_UINT_LM(length, arg_value);
-        if (alternative_form && value != 0) {
-          number_prefix[0] = '0';
-          number_prefix[1] = 'x';
+        integer_base = 16;
+        integer_value = GET_ARG_UINT_LM(length, arg_value);
+        if (alternative_form && integer_value != 0) {
+          integer_prefix[0] = '0';
+          integer_prefix[1] = 'x';
+          integer_prefixlen = 2;
         }
-        number_midfix =
-            format_uint(value, 16, false, false, locale, number_midfix_buf);
-        goto LABEL(number);
+        goto LABEL(integer);
       }
       case 'X': {
         // Hexadecimal integer, uppercase.
-        uintmax_t value = GET_ARG_UINT_LM(length, arg_value);
-        if (alternative_form && value != 0) {
-          number_prefix[0] = '0';
-          number_prefix[1] = 'X';
+        integer_base = 16;
+        integer_value = GET_ARG_UINT_LM(length, arg_value);
+        if (alternative_form && integer_value != 0) {
+          integer_prefix[0] = '0';
+          integer_prefix[1] = 'X';
+          integer_prefixlen = 2;
         }
-        number_midfix =
-            format_uint(value, 16, true, false, locale, number_midfix_buf);
-        goto LABEL(number);
+        integer_charset = "0123456789ABCDEF";
+        goto LABEL(integer);
       }
       case 'f':
       case 'e':
@@ -190,13 +206,12 @@ while (*format != '\0') {
       }
       case 'p': {
         // Pointer.
-        const void *value = GET_ARG_POINTER_T(void, arg_value);
-        number_prefix[0] = '0';
-        number_prefix[1] = 'x';
-        precision = sizeof(void *) * 2;
-        number_midfix = format_uint((uintptr_t)value, 16, false, false, locale,
-                                    number_midfix_buf);
-        goto LABEL(number);
+        integer_base = 16;
+        integer_value = (uintptr_t)GET_ARG_POINTER_T(void, arg_value);
+        integer_prefix[0] = '0';
+        integer_prefix[1] = 'x';
+        integer_prefixlen = 2;
+        goto LABEL(integer);
       }
       case 'C': {
         // Wide character.
@@ -210,130 +225,209 @@ while (*format != '\0') {
         goto LABEL(wstring);
       }
 
-        LABEL(number) : {
-          // Number printing.
-          size_t width = strnlen(number_prefix, sizeof(number_prefix));
-          size_t buflen = number_midfix_buf + NUMBUF_SIZE - number_midfix;
-          width += (ssize_t)buflen > precision ? buflen : (size_t)precision;
-          // "If a precision is specified, the '0' flag shall be ignored."
-          if (precision >= 0)
-            left_padding = ' ';
+        // Integer printing.
+        LABEL(integer) : {
+          // Convert integer to string representation. We generate up to
+          // ~3 characters per byte. Take into account locale specific
+          // grouping characters and 8 characters per byte should be a
+          // safe upperbound.
+          char digitsbuf[sizeof(uintmax_t) * 8];
+          char *digits = digitsbuf + sizeof(digitsbuf);
+          int grouping_chunk = integer_base == 10 && grouping ? 3 : 0;
+          for (;;) {
+            *--digits = integer_charset[integer_value % integer_base];
+            integer_value /= integer_base;
+            if (integer_value == 0)
+              break;
 
-          // If we have a padding character, make sure that we first print
-          // the number prefix. We don't want a plus, minus or "0x" prefix
-          // to be preceded by additional zeroes.
-          if (left_padding != ' ') {
-            for (size_t i = 0;
-                 i < sizeof(number_prefix) && number_prefix[i] != '\0'; ++i)
-              PUTCHAR(number_prefix[i]);
-            number_prefix[0] = '\0';
+            // Use thousand separator.
+            if (--grouping_chunk == 0) {
+              // TODO(edje): Use thousand separator from LC_NUMERIC.
+              // TODO(edje): Honour grouping from LC_NUMERIC.
+              *--digits = ',';
+              grouping_chunk = 3;
+            }
           }
 
-          // Add padding before value.
+          // Determine width of the number, minus the padding.
+          size_t width = digitsbuf + sizeof(digitsbuf) - digits;
+          if ((ssize_t)width < precision)
+            width = precision;
+          width += integer_prefixlen;
+
+          // Print padding if right-justified. If a precision is
+          // specified, the '0' flag is ignored.
           if (!left_justified) {
+            char padding = zero_padding && precision < 0 ? '0' : ' ';
             while (field_width > width) {
-              PUTCHAR(left_padding);
+              PUTCHAR(padding);
               --field_width;
             }
           }
 
-          // Print value.
-          for (size_t i = 0;
-               i < sizeof(number_prefix) && number_prefix[i] != '\0'; ++i)
-            PUTCHAR(number_prefix[i]);
-          while (precision-- > (ssize_t)buflen)
+          // Print the prefix of the number, followed by zero padding if
+          // a precision is specified, followed by the digits, followed
+          // by padding if left-justified.
+          for (size_t i = 0; i < integer_prefixlen; ++i)
+            PUTCHAR(integer_prefix[i]);
+          while (precision-- > digitsbuf + sizeof(digitsbuf) - digits)
             PUTCHAR('0');
-          while (number_midfix < number_midfix_buf + NUMBUF_SIZE) {
-            PUTCHAR(*number_midfix);
-            ++number_midfix;
-          }
-
-          // Add padding after value.
+          while (digits < digitsbuf + sizeof(digitsbuf))
+            PUTCHAR(*digits++);
           while (field_width-- > width)
             PUTCHAR(' ');
           break;
         }
 
+        // String printing.
         LABEL(string) : {
+          // Extension: print "(null)" instead of dereferencing a null
+          // pointer.
           if (string == NULL)
             string = "(null)";
-#if WIDE
-          // TODO(edje): Implement.
-          size_t width = 0;
-#else
-          size_t width = strnlen(string, precision);
-#endif
 
-          // Add padding before value.
-          if (!left_justified) {
-            while (field_width > width) {
-              PUTCHAR(' ');
-              --field_width;
+          if (left_justified) {
+            // String is left-justified. Print characters from the
+            // string until the precision is reached.
+            size_t width = 0;
+#if WIDE
+            struct mbtoc32state ps = {};
+            while (width < (size_t)precision) {
+              char32_t c32;
+              ssize_t len =
+                  ctype->mbtoc32(&c32, string, SIZE_MAX, &ps, ctype->data);
+              if (len < 0)
+                goto bad;
+              if (c32 == U'\0')
+                break;
+              PUTCHAR(c32);
+              string += len;
+              ++width;
             }
-          }
-
-#if WIDE
-          // TODO(edje): Implement.
-          errno = ENOSYS;
-          goto bad;
 #else
-          for (size_t i = 0; i < width; ++i)
-            PUTCHAR(string[i]);
+            while (width < (size_t)precision && *string != L'\0') {
+              PUTCHAR(*string++);
+              ++width;
+            }
 #endif
 
-          // Add padding after value.
-          while (field_width-- > width)
-            PUTCHAR(' ');
+            // Fill up the remaining space with padding.
+            while (field_width-- > width)
+              PUTCHAR(' ');
+          } else {
+#if WIDE
+            // String is right-justified. First compute the length to
+            // determine how much padding we can write on the left.
+            size_t width = 0;
+            struct mbtoc32state ps = {};
+            const char *string_end = string;
+            while (width < (size_t)precision) {
+              char32_t c32;
+              ssize_t len =
+                  ctype->mbtoc32(&c32, string_end, SIZE_MAX, &ps, ctype->data);
+              if (len < 0)
+                goto bad;
+              if (c32 == U'\0')
+                break;
+              string_end += len;
+              ++width;
+            }
+#else
+            size_t width = strnlen(string, precision);
+#endif
+
+            // Fill the leading space with padding.
+            while (field_width-- > width)
+              PUTCHAR(' ');
+
+#if WIDE
+            // Print the string after the padding.
+            while (string < string_end) {
+              char32_t c32;
+              ssize_t len =
+                  ctype->mbtoc32(&c32, string, SIZE_MAX, &ps, ctype->data);
+              if (len < 0)
+                goto bad;
+              if (c32 == U'\0')
+                break;
+              PUTCHAR(c32);
+              string += len;
+            }
+#else
+            for (size_t i = 0; i < width; ++i)
+              PUTCHAR(string[i]);
+#endif
+          }
           break;
         }
 
+        // Wide string printing.
         LABEL(wstring) : {
+          // Extension: print "(null)" instead of dereferencing a null
+          // pointer.
           if (wstring == NULL)
             wstring = L"(null)";
-#if WIDE
-          size_t width = wcsnlen(wstring, precision);
-#else
-          size_t width = 0;
-          for (size_t i = 0;
-               (precision < 0 || i < (size_t)precision) && wstring[i] != L'\0';
-               ++i) {
-            char buf[MB_LEN_MAX];
-            const struct lc_ctype *ctype = locale->ctype;
-            ssize_t len = ctype->c32tomb(buf, wstring[i], ctype->data);
-            if (len < 0)
-              goto bad;
-            width += len;
-          }
-#endif
 
-          // Add padding before value.
-          if (!left_justified) {
-            while (field_width > width) {
-              PUTCHAR(' ');
-              --field_width;
+          if (left_justified) {
+            // String is left-justified. Print characters from the
+            // string until the precision is reached.
+            size_t width = 0;
+            while (width < (size_t)precision && *wstring != L'\0') {
+#if WIDE
+              PUTCHAR(*wstring++);
+              ++width;
+#else
+              char buf[MB_LEN_MAX];
+              ssize_t len = ctype->c32tomb(buf, *wstring++, ctype->data);
+              if (len < 0)
+                goto bad;
+              if (width + len > (size_t)precision)
+                break;
+              for (ssize_t j = 0; j < len; ++j)
+                PUTCHAR(buf[j]);
+              width += len;
+#endif
             }
-          }
 
+            // Fill up the remaining space with padding.
+            while (field_width-- > width)
+              PUTCHAR(' ');
+          } else {
 #if WIDE
-          for (size_t i = 0; i < width; ++i)
-            PUTCHAR(wstring[i]);
+            // String is right-justified. First compute the length to
+            // determine how much padding we can write on the left.
+            size_t width = wcsnlen(wstring, precision);
 #else
-          for (size_t i = 0;
-               (precision < 0 || i < (size_t)precision) && wstring[i] != L'\0';
-               ++i) {
-            char buf[MB_LEN_MAX];
-            const struct lc_ctype *ctype = locale->ctype;
-            ssize_t len = ctype->c32tomb(buf, wstring[i], ctype->data);
-            if (len < 0)
-              goto bad;
-            for (ssize_t j = 0; j < len; ++j)
-              PUTCHAR(buf[j]);
-          }
+            size_t width = 0;
+            const wchar_t *wstring_end = wstring;
+            while (width < (size_t)precision && *wstring_end != L'\0') {
+              char buf[MB_LEN_MAX];
+              ssize_t len = ctype->c32tomb(buf, *wstring_end++, ctype->data);
+              if (len < 0)
+                goto bad;
+              if (width + len > (size_t)precision)
+                break;
+              width += len;
+            }
 #endif
 
-          // Add padding after value.
-          while (field_width-- > width)
-            PUTCHAR(' ');
+            // Fill the leading space with padding.
+            while (field_width-- > width)
+              PUTCHAR(' ');
+
+#if WIDE
+            // Print the string after the padding.
+            for (size_t i = 0; i < width; ++i)
+              PUTCHAR(wstring[i]);
+#else
+            while (wstring < wstring_end) {
+              char buf[MB_LEN_MAX];
+              ssize_t len = ctype->c32tomb(buf, *wstring++, ctype->data);
+              for (ssize_t j = 0; j < len; ++j)
+                PUTCHAR(buf[j]);
+            }
+#endif
+          }
           break;
         }
     }

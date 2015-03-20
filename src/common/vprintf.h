@@ -33,9 +33,6 @@ typedef char char_t;
 #define VFPRINTF 3
 #define VSNPRINTF 4
 
-// TODO(edje): Pick right value.
-#define NUMBUF_SIZE 128
-
 #define GET_ARG_SINT_LM(lm, index)                                             \
   ((lm) == LM_SHORT_SHORT                                                      \
        ? (signed char)GET_ARG_SINT_T(int, index)                               \
@@ -266,30 +263,6 @@ static void get_numarg_values(size_t numarg_max,
 #undef GET_ARG_SINT_T
 #undef GET_ARG_UINT_T
 #undef GET_ARG_POINTER_T
-}
-
-static char *format_uint(uintmax_t value, unsigned int base, bool uppercase,
-                         bool grouping, locale_t locale,
-                         char buf[static NUMBUF_SIZE]) {
-  const char *symbols = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
-  char *ret = buf + NUMBUF_SIZE;
-  int grouping_chunk = grouping ? 3 : 0;
-  for (;;) {
-    // Add digit.
-    *--ret = symbols[value % base];
-    value /= base;
-    if (value == 0)
-      break;
-
-    // Use thousand separator.
-    if (--grouping_chunk == 0) {
-      // TODO(edje): Use thousand separator from LC_NUMERIC.
-      // TODO(edje): Honour grouping from LC_NUMERIC.
-      *--ret = ',';
-      grouping_chunk = 3;
-    }
-  }
-  return ret;
 }
 
 #if STYLE == VASPRINTF
