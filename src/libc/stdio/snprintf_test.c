@@ -87,6 +87,7 @@ TEST(snprintf, octal2) {
   ASSERT_STREQ("01", buf);
 }
 
+#if 0
 TEST(snprintf, float2_simple_zero) {
   char buf[7];
   ASSERT_EQ(6, snprintf(buf, sizeof(buf), "%a", 0.0));
@@ -111,7 +112,6 @@ TEST(snprintf, float2_negative) {
   ASSERT_STREQ("-0x1.2345678p+24", buf);
 }
 
-#if 0
 TEST(snprintf, float2_round) {
   char buf[21];
   ASSERT_EQ(0, fesetround(FE_DOWNWARD));

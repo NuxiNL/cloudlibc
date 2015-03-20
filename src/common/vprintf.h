@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <locale.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -411,24 +412,28 @@ int NAME(char_t *s, size_t n, locale_t locale, const char_t *format,
 #define GET_ARG_POINTER_T(type, index) \
   ((const type *)numarg_values[index].v_pointer)
 #define GET_ARG_FLOAT_T(type, index) ((type)numarg_values[index].v_float)
+#define LABEL(n) n##_1
 #include "vprintf_body.h"
 #undef PARSE_ARGNUM
 #undef GET_ARG_SINT_T
 #undef GET_ARG_UINT_T
 #undef GET_ARG_POINTER_T
 #undef GET_ARG_FLOAT_T
+#undef LABEL
   } else {
 #define PARSE_ARGNUM(field)
 #define GET_ARG_SINT_T(type, index) va_arg(ap, type)
 #define GET_ARG_UINT_T(type, index) va_arg(ap, type)
 #define GET_ARG_POINTER_T(type, index) va_arg(ap, const type *)
 #define GET_ARG_FLOAT_T(type, index) va_arg(ap, type)
+#define LABEL(n) n##_2
 #include "vprintf_body.h"
 #undef PARSE_ARGNUM
 #undef GET_ARG_SINT_T
 #undef GET_ARG_UINT_T
 #undef GET_ARG_POINTER_T
 #undef GET_ARG_FLOAT_T
+#undef LABEL
   }
 #if STYLE == VASPRINTF
 done:
