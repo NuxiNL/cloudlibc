@@ -69,7 +69,6 @@ while (*format != '\0') {
 
     // Parameters for integer printing.
     uintmax_t integer_value;
-    const char *integer_charset = "0123456789abcdef";
     char integer_prefix[3] = {};  // "-", "0", "0x" or "-0x".
     size_t integer_prefixlen = 0;
     unsigned int integer_base;
@@ -82,8 +81,10 @@ while (*format != '\0') {
     wchar_t wstring_buf[2] = {};
     const wchar_t *wstring = NULL;
 
-    // Conversion specifiers.
+    // Parse conversion specifier.
     char_t specifier = *format++;
+    const char *digit_charset =
+        specifier >= 'a' ? "0123456789abcdef" : "0123456789ABCDEF";
     switch (specifier) {
       case 'd':
       case 'i': {
@@ -139,7 +140,6 @@ while (*format != '\0') {
           integer_prefix[1] = 'X';
           integer_prefixlen = 2;
         }
-        integer_charset = "0123456789ABCDEF";
         goto LABEL(integer);
       }
       case 'f':
@@ -235,7 +235,7 @@ while (*format != '\0') {
           char *digits = digitsbuf + sizeof(digitsbuf);
           int grouping_chunk = integer_base == 10 && grouping ? 3 : 0;
           for (;;) {
-            *--digits = integer_charset[integer_value % integer_base];
+            *--digits = digit_charset[integer_value % integer_base];
             integer_value /= integer_base;
             if (integer_value == 0)
               break;
