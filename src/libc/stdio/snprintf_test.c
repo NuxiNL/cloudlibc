@@ -6,6 +6,7 @@
 #include <fenv.h>
 #include <float.h>
 #include <locale.h>
+#include <math.h>
 #include <stdio.h>
 #include <testing.h>
 
@@ -86,6 +87,22 @@ TEST(snprintf, octal2) {
   char buf[3];
   ASSERT_EQ(2, snprintf(buf, sizeof(buf), "%#o", 1));
   ASSERT_STREQ("01", buf);
+}
+
+TEST(snprintf, float16_nan) {
+  char buf[11];
+  ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%-10a", -NAN));
+  ASSERT_STREQ("-nan      ", buf);
+  ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%10A", NAN));
+  ASSERT_STREQ("       NAN", buf);
+}
+
+TEST(snprintf, float16_inf) {
+  char buf[11];
+  ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%10a", INFINITY));
+  ASSERT_STREQ("       inf", buf);
+  ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%-10A", -INFINITY));
+  ASSERT_STREQ("-INF      ", buf);
 }
 
 TEST(snprintf, float16_simple_zero) {
