@@ -73,6 +73,7 @@ while (*format != '\0') {
 
     // Parameters for floating point printing.
     long double float_value;
+    char float_exponent_char;
 
     // Shared parameters for integer and floating point printing.
     char number_prefix[3] = {};  // "-", "0", "0x" or "-0x".
@@ -170,6 +171,7 @@ while (*format != '\0') {
               case 'a':
                 // Hexadecimal floating point, lowercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'x'});
+                float_exponent_char = 'p';
                 goto LABEL(float16);
               default:
                 // TODO(edje): Implement.
@@ -197,6 +199,7 @@ while (*format != '\0') {
               case 'A':
                 // Hexadecimal floating point, uppercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'X'});
+                float_exponent_char = 'P';
                 goto LABEL(float16);
               default:
                 // TODO(edje): Implement.
@@ -353,7 +356,7 @@ while (*format != '\0') {
             PUTCHAR(number_charset[digits[i]]);
           while (precision-- > (ssize_t)ndigits)
             PUTCHAR('0');
-          PUTCHAR(specifier == 'a' ? 'p' : 'P');
+          PUTCHAR(float_exponent_char);
           PUTCHAR(exp_negative ? '-' : '+');
           while (exp_digits < exp_digitsbuf + sizeof(exp_digitsbuf))
             PUTCHAR(*exp_digits++);
