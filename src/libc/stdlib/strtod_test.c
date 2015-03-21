@@ -58,7 +58,7 @@ TEST(strtod, hex1) {
 TEST(strtod, hex2) {
 #if DBL_MANT_DIG == 53
   const char *normal = "0x1p-1022";
-  const char *highest_subnormal = "0x1.ffffffffffffep-1023";
+  const char *highest_subnormal = "0X1.fFfFfFfFfFfFEP-1023";
   double high = 0x1.ffffffffffffep-1023;
   const char *lowest_subnormal = "0x1p-1074";
   const char *underflow = "0x1p-1075";

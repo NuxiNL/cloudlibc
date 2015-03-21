@@ -327,26 +327,33 @@ while (*format != '\0') {
               break;
           }
 
-          // TODO(edje): Clean up the code below.
-
-          // Determine width of the number, minus the padding.
-          size_t width = number_prefixlen + 2 +
-                         ((ssize_t)ndigits > precision ? ndigits : precision) +
-                         2 + exp_digitsbuf + sizeof(exp_digitsbuf) - exp_digits;
+          // Determine width of the number as it would be printed, minus
+          // the padding.
+          size_t width = (ssize_t)ndigits > precision ? ndigits : precision;
+          bool print_radixchar = alternative_form || width > 0;
+          width += number_prefixlen + exp_digitsbuf + sizeof(exp_digitsbuf) -
+                   exp_digits + (print_radixchar ? 4 : 3);
 
           // Print the number.
-          if (!left_justified)
-            PAD_TO_FIELD_WIDTH(' ');
-          for (size_t i = 0; i < number_prefixlen; ++i)
-            PUTCHAR(number_prefix[i]);
+          if (zero_padding) {
+            for (size_t i = 0; i < number_prefixlen; ++i)
+              PUTCHAR(number_prefix[i]);
+            PAD_TO_FIELD_WIDTH('0');
+          } else {
+            if (!left_justified)
+              PAD_TO_FIELD_WIDTH(' ');
+            for (size_t i = 0; i < number_prefixlen; ++i)
+              PUTCHAR(number_prefix[i]);
+          }
           PUTCHAR(leading);
           // TODO(edje): Use radix character from LC_NUMERIC.
-          PUTCHAR('.');
+          if (print_radixchar)
+            PUTCHAR('.');
           for (size_t i = 0; i < ndigits; ++i)
             PUTCHAR(number_charset[digits[i]]);
           while (precision-- > (ssize_t)ndigits)
             PUTCHAR('0');
-          PUTCHAR('p');
+          PUTCHAR(specifier == 'a' ? 'p' : 'P');
           PUTCHAR(exp_negative ? '-' : '+');
           while (exp_digits < exp_digitsbuf + sizeof(exp_digitsbuf))
             PUTCHAR(*exp_digits++);
