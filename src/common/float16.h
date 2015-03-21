@@ -328,7 +328,21 @@ static inline long double f16enc_get_long_double(const struct f16enc *f16,
 }
 
 // Converter for floating point native types to base-16 literals.
-
+//
+// This function can convert a normal or subnormal floating point value
+// to a sequence of hexadecimal digits and extract its exponent. This
+// can be used to implement printf()'s "%a".
+//
+// The following piece of code converts the floating point value 1.51 to
+// a hexadecimal representation with a precision of two digits, rounding
+// the number upward to 0x1.83p0:
+//
+//   unsigned char digits[2];
+//   size_t ndigits = 2;
+//   int exponent;
+//   f16dec(1.51, digits, &ndigits, &exponent, FE_UPWARD);
+//
+// The digits array will now hold the numbers 8 and 3.
 static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
                           int *exponent, int round) {
   // Invert the rounding mode if the value is negative, so that the code
