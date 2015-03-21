@@ -11,6 +11,7 @@
 #include <float.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 // Converter for base-16 floating point literals to native types.
@@ -321,6 +322,73 @@ static inline long double f16enc_get_long_double(const struct f16enc *f16,
   return f16enc_get_bin64(f16, exponent, round, have_range_error);
 #elif LDBL_MANT_DIG == F16_BIN80_MANT_DIG
   return f16enc_get_bin80(f16, exponent, round, have_range_error);
+#else
+#error "Unsupported format"
+#endif
+}
+
+// Converter for floating point native types to base-16 literals.
+
+static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
+                          int *exponent, int round) {
+  // Invert the rounding mode if the value is negative, so that the code
+  // below does not need to take the sign bit into account.
+  if (signbit(f)) {
+    if (round == FE_UPWARD)
+      round = FE_DOWNWARD;
+    else if (round == FE_DOWNWARD)
+      round = FE_UPWARD;
+  }
+
+#if LDBL_MANT_DIG == 64
+  // Extract the significand and the exponent from the floating point value.
+  union {
+    long double f;
+    uint64_t i[2];
+  } value = {.f = f};
+  uint64_t significand;
+  if (value.i[1] == 0) {
+    // Subnormal floating point value.
+    // TODO(edje): Support subnormals!
+    significand = 0;
+    *exponent = 0;
+  } else {
+    // Normal floating point value.
+    significand = value.i[0] << 1;
+    *exponent = (int)(value.i[1] & 0x7fff) - 16383;
+  }
+
+  // Apply rounding if the number of digits requested is less than the
+  // size of the significand.
+  if (*ndigits < 16) {
+    uint64_t increment = 0;
+    switch (round) {
+      case FE_TONEAREST:
+        // Add half an epsilon.
+        increment = UINT64_C(1) << (62 - *ndigits * 4);
+        break;
+      case FE_UPWARD:
+        // Add slightly less than one epsilon.
+        increment = (UINT64_C(1) << (63 - *ndigits * 4)) - 1;
+        break;
+    }
+
+    // Add our increment to the significand. If it overflows, increment
+    // the exponent.
+    significand = (significand >> 1) + increment;
+    *exponent += significand >> 63;
+    significand <<= 1;
+  }
+
+  // Convert bits in the significand to hexadecimal digits.
+  for (size_t i = 0; i < *ndigits; ++i) {
+    if (significand == 0) {
+      *ndigits = i;
+      break;
+    }
+    digits[i] = significand >> 60;
+    significand <<= 4;
+  }
 #else
 #error "Unsupported format"
 #endif

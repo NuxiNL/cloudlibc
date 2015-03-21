@@ -3,11 +3,13 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/float16.h>
 #include <common/locale.h>
 #include <common/stdio.h>
 
 #include <assert.h>
 #include <errno.h>
+#include <fenv.h>
 #include <limits.h>
 #include <locale.h>
 #include <math.h>
@@ -352,8 +354,9 @@ int NAME(char_t *s, size_t n, locale_t locale, const char_t *format,
   size_t resultstored = 0;
 #define PUTCHAR(c)            \
   do {                        \
+    char_t ch = (c);          \
     if (resultstored + 1 < n) \
-      s[resultstored] = (c);  \
+      s[resultstored] = ch;   \
     ++resultstored;           \
   } while (0)
 #else

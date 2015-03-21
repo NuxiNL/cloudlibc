@@ -99,6 +99,7 @@ TEST(snprintf, float2_simple_one) {
   ASSERT_EQ(6, snprintf(buf, sizeof(buf), "%a", 1.0));
   ASSERT_STREQ("0x1p+0", buf);
 }
+#endif
 
 TEST(snprintf, float2_simple_number) {
   char buf[16];
@@ -133,4 +134,3 @@ TEST(snprintf, float2_align) {
   ASSERT_EQ(30, snprintf(buf, sizeof(buf), "%#30.15a", 0x12.345p12));
   ASSERT_STREQ("       0x1.234500000000000p+16", buf);
 }
-#endif

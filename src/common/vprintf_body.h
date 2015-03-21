@@ -71,17 +71,12 @@ while (*format != '\0') {
     uintmax_t integer_value;
     unsigned int integer_base;
 
+    // Parameters for floating point printing.
+    long double float_value;
+
     // Shared parameters for integer and floating point printing.
     char number_prefix[3] = {};  // "-", "0", "0x" or "-0x".
     size_t number_prefixlen = 0;
-#define SET_NUMBER_PREFIX(...)                      \
-  do {                                              \
-    const char str[] = __VA_ARGS__;                 \
-    number_prefixlen = 0;                           \
-    for (size_t i = 0; i < sizeof(str); ++i)        \
-      if (str[i] != '\0')                           \
-        number_prefix[number_prefixlen++] = str[i]; \
-  } while (0)
     const char *number_charset;
 
     // Parameters for string printing.
@@ -91,6 +86,22 @@ while (*format != '\0') {
     // Parameters for wide string printing.
     wchar_t wstring_buf[2] = {};
     const wchar_t *wstring = NULL;
+
+#define SET_NUMBER_PREFIX(...)                      \
+  do {                                              \
+    const char str[] = __VA_ARGS__;                 \
+    number_prefixlen = 0;                           \
+    for (size_t i = 0; i < sizeof(str); ++i)        \
+      if (str[i] != '\0')                           \
+        number_prefix[number_prefixlen++] = str[i]; \
+  } while (0)
+#define PAD_TO_FIELD_WIDTH(padding) \
+  do {                              \
+    while (field_width > width) {   \
+      PUTCHAR(padding);             \
+      --field_width;                \
+    }                               \
+  } while (0)
 
     // Parse conversion specifier.
     char_t specifier = *format++;
@@ -145,9 +156,9 @@ while (*format != '\0') {
       case 'g':
       case 'a': {
         // Floating point, lowercase.
-        long double value = GET_ARG_FLOAT_LM(length, arg_value);
-        bool negative = signbit(value);
-        switch (fpclassify(value)) {
+        float_value = GET_ARG_FLOAT_LM(length, arg_value);
+        bool negative = signbit(float_value);
+        switch (fpclassify(float_value)) {
           case FP_INFINITE:
             string = negative ? "-inf" : "inf";
             goto LABEL(string);
@@ -172,9 +183,9 @@ while (*format != '\0') {
       case 'G':
       case 'A': {
         // Floating point, uppercase.
-        long double value = GET_ARG_FLOAT_LM(length, arg_value);
-        bool negative = signbit(value);
-        switch (fpclassify(value)) {
+        float_value = GET_ARG_FLOAT_LM(length, arg_value);
+        bool negative = signbit(float_value);
+        switch (fpclassify(float_value)) {
           case FP_INFINITE:
             string = negative ? "-INF" : "INF";
             goto LABEL(string);
@@ -265,33 +276,81 @@ while (*format != '\0') {
             width = precision;
           width += number_prefixlen;
 
-          // Print padding if right-justified. If a precision is
-          // specified, the '0' flag is ignored.
-          if (!left_justified) {
-            char padding = zero_padding && precision < 0 ? '0' : ' ';
-            while (field_width > width) {
-              PUTCHAR(padding);
-              --field_width;
-            }
-          }
-
           // Print the prefix of the number, followed by zero padding if
           // a precision is specified, followed by the digits, followed
           // by padding if left-justified.
+          if (!left_justified) {
+            char padding = zero_padding && precision < 0 ? '0' : ' ';
+            PAD_TO_FIELD_WIDTH(padding);
+          }
           for (size_t i = 0; i < number_prefixlen; ++i)
             PUTCHAR(number_prefix[i]);
           while (precision-- > digitsbuf + sizeof(digitsbuf) - digits)
             PUTCHAR('0');
           while (digits < digitsbuf + sizeof(digitsbuf))
             PUTCHAR(*digits++);
-          while (field_width-- > width)
-            PUTCHAR(' ');
+          PAD_TO_FIELD_WIDTH(' ');
           break;
         }
 
         // Hexadecimal floating point.
         LABEL(float16) : {
-          // TODO(edje): Implement.
+          // Convert floating point number to digits.
+          char leading;
+          unsigned char digits[LDBL_MANT_DIG / 4 + 1];
+          size_t ndigits;
+          int exponent;
+          if (fpclassify(float_value) == FP_ZERO) {
+            leading = '0';
+            ndigits = 0;
+            exponent = 0;
+          } else {
+            leading = '1';
+            ndigits = precision >= 0 && precision < (ssize_t)sizeof(digits)
+                          ? precision
+                          : sizeof(digits);
+            f16dec(float_value, digits, &ndigits, &exponent, fegetround());
+          }
+
+          // Convert exponent to digits.
+          bool exp_negative = false;
+          if (exponent < 0) {
+            exp_negative = true;
+            exponent = -exponent;
+          }
+          char exp_digitsbuf[sizeof(int) * 3];
+          char *exp_digits = exp_digitsbuf + sizeof(exp_digitsbuf);
+          for (;;) {
+            *--exp_digits = number_charset[exponent % 10];
+            exponent /= 10;
+            if (exponent == 0)
+              break;
+          }
+
+          // TODO(edje): Clean up the code below.
+
+          // Determine width of the number, minus the padding.
+          size_t width = number_prefixlen + 2 +
+                         ((ssize_t)ndigits > precision ? ndigits : precision) +
+                         2 + exp_digitsbuf + sizeof(exp_digitsbuf) - exp_digits;
+
+          // Print the number.
+          if (!left_justified)
+            PAD_TO_FIELD_WIDTH(' ');
+          for (size_t i = 0; i < number_prefixlen; ++i)
+            PUTCHAR(number_prefix[i]);
+          PUTCHAR(leading);
+          // TODO(edje): Use radix character from LC_NUMERIC.
+          PUTCHAR('.');
+          for (size_t i = 0; i < ndigits; ++i)
+            PUTCHAR(number_charset[digits[i]]);
+          while (precision-- > (ssize_t)ndigits)
+            PUTCHAR('0');
+          PUTCHAR('p');
+          PUTCHAR(exp_negative ? '-' : '+');
+          while (exp_digits < exp_digitsbuf + sizeof(exp_digitsbuf))
+            PUTCHAR(*exp_digits++);
+          PAD_TO_FIELD_WIDTH(' ');
           break;
         }
 
@@ -326,10 +385,7 @@ while (*format != '\0') {
               ++width;
             }
 #endif
-
-            // Fill up the remaining space with padding.
-            while (field_width-- > width)
-              PUTCHAR(' ');
+            PAD_TO_FIELD_WIDTH(' ');
           } else {
 #if WIDE
             // String is right-justified. First compute the length to
@@ -351,11 +407,7 @@ while (*format != '\0') {
 #else
             size_t width = strnlen(string, precision);
 #endif
-
-            // Fill the leading space with padding.
-            while (field_width-- > width)
-              PUTCHAR(' ');
-
+            PAD_TO_FIELD_WIDTH(' ');
 #if WIDE
             // Print the string after the padding.
             while (string < string_end) {
@@ -404,10 +456,7 @@ while (*format != '\0') {
               width += len;
 #endif
             }
-
-            // Fill up the remaining space with padding.
-            while (field_width-- > width)
-              PUTCHAR(' ');
+            PAD_TO_FIELD_WIDTH(' ');
           } else {
 #if WIDE
             // String is right-justified. First compute the length to
@@ -426,11 +475,7 @@ while (*format != '\0') {
               width += len;
             }
 #endif
-
-            // Fill the leading space with padding.
-            while (field_width-- > width)
-              PUTCHAR(' ');
-
+            PAD_TO_FIELD_WIDTH(' ');
 #if WIDE
             // Print the string after the padding.
             for (size_t i = 0; i < width; ++i)
@@ -448,6 +493,7 @@ while (*format != '\0') {
         }
     }
 #undef SET_NUMBER_PREFIX
+#undef PAD_TO_FIELD_WIDTH
   } else {
     PUTCHAR(*format);
     ++format;
