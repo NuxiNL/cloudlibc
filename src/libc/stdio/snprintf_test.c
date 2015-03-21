@@ -115,22 +115,22 @@ TEST(snprintf, float2_negative) {
 TEST(snprintf, float2_round) {
   char buf[21];
   ASSERT_EQ(0, fesetround(FE_DOWNWARD));
-  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a", 1.51, -1.51));
   ASSERT_STREQ("0x1.82p+0 -0x1.83p+0", buf);
   ASSERT_EQ(0, fesetround(FE_TONEAREST));
-  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a", 1.51, -1.51));
   ASSERT_STREQ("0x1.83p+0 -0x1.83p+0", buf);
   ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
-  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a", 1.51, -1.51));
   ASSERT_STREQ("0x1.82p+0 -0x1.82p+0", buf);
   ASSERT_EQ(0, fesetround(FE_UPWARD));
-  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a\n", 1.51, -1.51));
+  ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a", 1.51, -1.51));
   ASSERT_STREQ("0x1.83p+0 -0x1.82p+0", buf);
 }
 
 TEST(snprintf, float2_align) {
   char buf[31];
-  ASSERT_EQ(30, snprintf(buf, sizeof(buf), "%#30.15a\n", 0x12.345p12));
+  ASSERT_EQ(30, snprintf(buf, sizeof(buf), "%#30.15a", 0x12.345p12));
   ASSERT_STREQ("       0x1.234500000000000p+16", buf);
 }
 #endif
