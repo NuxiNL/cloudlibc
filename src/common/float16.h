@@ -361,37 +361,44 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
     uint64_t i[2];
   } value = {.f = f};
   uint64_t significand;
-  if (value.i[1] == 0) {
-    // Subnormal floating point value.
-    // TODO(edje): Support subnormals!
-    significand = 0;
-    *exponent = 0;
+  int exp = value.i[1] & 0x7fff;
+  if (exp == 0) {
+    // Subnormal floating point value. Normalize it.
+    significand = value.i[0];
+    assert(significand != 0 && "Floating point has value zero");
+    *exponent = -16382;
+    while ((significand >> 63) == 0) {
+      significand <<= 1;
+      --*exponent;
+    }
   } else {
     // Normal floating point value.
-    significand = value.i[0] << 1;
-    *exponent = (int)(value.i[1] & 0x7fff) - 16383;
+    significand = value.i[0];
+    *exponent = exp - 16383;
   }
+  // Discard the one digit before the radix character.
+  significand <<= 1;
 
   // Apply rounding if the number of digits requested is less than the
   // size of the significand.
   if (*ndigits < 16) {
-    uint64_t increment = 0;
+    uint64_t increment;
     switch (round) {
       case FE_TONEAREST:
         // Add half an epsilon.
         increment = UINT64_C(1) << (62 - *ndigits * 4);
-        break;
+        goto round;
       case FE_UPWARD:
         // Add slightly less than one epsilon.
         increment = (UINT64_C(1) << (63 - *ndigits * 4)) - 1;
-        break;
+        goto round;
+      round:
+        // Add our increment to the significand. If it overflows, increment
+        // the exponent.
+        significand = (significand >> 1) + increment;
+        *exponent += significand >> 63;
+        significand <<= 1;
     }
-
-    // Add our increment to the significand. If it overflows, increment
-    // the exponent.
-    significand = (significand >> 1) + increment;
-    *exponent += significand >> 63;
-    significand <<= 1;
   }
 
   // Convert bits in the significand to hexadecimal digits.

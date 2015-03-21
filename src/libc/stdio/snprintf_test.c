@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <fenv.h>
+#include <float.h>
 #include <locale.h>
 #include <stdio.h>
 #include <testing.h>
@@ -88,32 +89,32 @@ TEST(snprintf, octal2) {
 }
 
 #if 0
-TEST(snprintf, float2_simple_zero) {
+TEST(snprintf, float16_simple_zero) {
   char buf[7];
   ASSERT_EQ(6, snprintf(buf, sizeof(buf), "%a", 0.0));
   ASSERT_STREQ("0x0p+0", buf);
 }
 
-TEST(snprintf, float2_simple_one) {
+TEST(snprintf, float16_simple_one) {
   char buf[7];
   ASSERT_EQ(6, snprintf(buf, sizeof(buf), "%a", 1.0));
   ASSERT_STREQ("0x1p+0", buf);
 }
 #endif
 
-TEST(snprintf, float2_simple_number) {
+TEST(snprintf, float16_simple_number) {
   char buf[16];
   ASSERT_EQ(15, snprintf(buf, sizeof(buf), "%a", 0x1234.5678p12));
   ASSERT_STREQ("0x1.2345678p+24", buf);
 }
 
-TEST(snprintf, float2_negative) {
+TEST(snprintf, float16_negative) {
   char buf[17];
   ASSERT_EQ(16, snprintf(buf, sizeof(buf), "%a", -0x1234.5678p12));
   ASSERT_STREQ("-0x1.2345678p+24", buf);
 }
 
-TEST(snprintf, float2_round) {
+TEST(snprintf, float16_round) {
   char buf[21];
   ASSERT_EQ(0, fesetround(FE_DOWNWARD));
   ASSERT_EQ(20, snprintf(buf, sizeof(buf), "%.2a %.2a", 1.51, -1.51));
@@ -129,8 +130,20 @@ TEST(snprintf, float2_round) {
   ASSERT_STREQ("0x1.83p+0 -0x1.82p+0", buf);
 }
 
-TEST(snprintf, float2_align) {
+TEST(snprintf, float16_align) {
   char buf[31];
   ASSERT_EQ(30, snprintf(buf, sizeof(buf), "%#30.15a", 0x12.345p12));
   ASSERT_STREQ("       0x1.234500000000000p+16", buf);
 }
+
+#if 0
+TEST(snprintf, float16_subnormal) {
+#if LDBL_MANT_DIG == 64
+  char buf[11];
+  ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%La", LDBL_TRUE_MIN));
+  ASSERT_STREQ("0x1p-16445", buf);
+#else
+#error "Unknown floating point type"
+#endif
+}
+#endif
