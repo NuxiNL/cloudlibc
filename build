@@ -4,12 +4,12 @@ set -e
 
 TARGET="x86_64-unknown-cloudabi"
 CC="${TARGET}-cc"
-CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include -Werror -fno-exceptions -fno-rtti"
+CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include -Icontrib/openlibm-ef29d06/include -Icontrib/openlibm-ef29d06/src -Icontrib/openlibm-ef29d06/ld80 -Icontrib/openlibm-ef29d06 -Werror -fno-exceptions -fno-rtti -DOPENLIBM_USE_HOST_COMPLEX_H -DOPENLIBM_USE_HOST_FENV_H -DOPENLIBM_USE_HOST_MATH_H -DOPENLIBM_ONLY_THREAD_SAFE"
 COPTFLAGS="-O3"
 WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare"
 
 SRCS=$(find src contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
-    \( -name '*.[cS]' -o -name '*.cc' \) | sort)
+    contrib/openlibm-ef29d06 \( -name '*.[cS]' -o -name '*.cc' \) | sort)
 
 echo "=> Testing headers"
 for std in c89 gnu89 c90 gnu90 c99 gnu99 c11 gnu11; do
@@ -35,6 +35,7 @@ done | xargs -P 8 -n 5 ${CC} ${CFLAGS} -MM
 for srcfile in ${SRCS}; do
   safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
   case "${srcfile}" in
+  contrib/openlibm-ef29d06/*) extraflags="${COPTFLAGS} -Werror -Wmissing-prototypes -fstack-protector-strong" ;;
   contrib/*) extraflags="${COPTFLAGS} -fstack-protector-strong" ;;
   src/crt/*) extraflags="${COPTFLAGS} ${WARNFLAGS}" ;;
   *_test.c) extraflags="${WARNFLAGS} -fno-builtin -fstack-protector-strong" ;;
@@ -75,6 +76,7 @@ make -k -j8 -f _obj/Makefile all
 echo "=> Linking libraries"
 rm -f _obj/libc.a
 find src/libc contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
+    contrib/openlibm-ef29d06 \
     \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
     xargs ${TARGET}-ar -rcs _obj/libc.a
