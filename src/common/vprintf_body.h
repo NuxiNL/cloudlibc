@@ -352,7 +352,7 @@ while (*format != '\0') {
             // No digits available.
             float_digits[0] = 1;
             float_ndigits =
-                precision >= 0 && precision < (ssize_t)sizeof(float_digits)
+                precision >= 0 && precision < (int)sizeof(float_digits)
                     ? precision
                     : sizeof(float_digits);
             f16dec(float_value, float_digits + 1, &float_ndigits,
