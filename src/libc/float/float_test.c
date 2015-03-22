@@ -8,14 +8,11 @@
 #include <math.h>
 #include <testing.h>
 
-// TODO(edje): See whether we can test this without using libm.
-#if 0
 TEST(float, mant_dig) {
   ASSERT_EQ(FLT_RADIX, scalbnf(FLT_EPSILON, FLT_MANT_DIG));
   ASSERT_EQ(FLT_RADIX, scalbn(DBL_EPSILON, DBL_MANT_DIG));
   ASSERT_EQ(FLT_RADIX, scalbnl(LDBL_EPSILON, LDBL_MANT_DIG));
 }
-#endif
 
 TEST(float, true_min) {
   // If we support subnormal numbers, we can go down by another factor
