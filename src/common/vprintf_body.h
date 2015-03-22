@@ -193,7 +193,6 @@ while (*format != '\0') {
               default:
                 // TODO(edje): Implement.
                 PRINT_FIXED_STRING("unimplemented");
-                goto LABEL(string);
             }
         }
       }
@@ -225,7 +224,6 @@ while (*format != '\0') {
               default:
                 // TODO(edje): Implement.
                 PRINT_FIXED_STRING("UNIMPLEMENTED");
-                goto LABEL(string);
             }
         }
       }
