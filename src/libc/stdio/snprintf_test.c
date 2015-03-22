@@ -122,8 +122,6 @@ TEST(snprintf, float10_e_pi) {
   ASSERT_EQ(13, snprintf(buf, sizeof(buf), "%.7e", M_PI));
   ASSERT_STREQ("3.1415927e+00", buf);
   ASSERT_EQ(14, snprintf(buf, sizeof(buf), "%.8e", M_PI));
-  dprintf(1, "%.8e\n", M_PI);
-  dprintf(1, "%.100e\n", M_PI);
   ASSERT_STREQ("3.14159265e+00", buf);
 
 #if DBL_MANT_DIG == 53
