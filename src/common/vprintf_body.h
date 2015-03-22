@@ -103,6 +103,19 @@ while (*format != '\0') {
       --field_width;                \
     }                               \
   } while (0)
+#if WIDE
+#define PRINT_FIXED_STRING(str) \
+  do {                          \
+    wstring = L##str;           \
+    goto LABEL(wstring);        \
+  } while (0)
+#else
+#define PRINT_FIXED_STRING(str) \
+  do {                          \
+    string = str;               \
+    goto LABEL(string);         \
+  } while (0)
+#endif
 
     // Parse conversion specifier.
     char_t specifier = *format++;
@@ -161,11 +174,15 @@ while (*format != '\0') {
         bool negative = signbit(float_value);
         switch (fpclassify(float_value)) {
           case FP_INFINITE:
-            string = negative ? "-inf" : "inf";
-            goto LABEL(string);
+            if (negative)
+              PRINT_FIXED_STRING("-inf");
+            else
+              PRINT_FIXED_STRING("inf");
           case FP_NAN:
-            string = negative ? "-nan" : "nan";
-            goto LABEL(string);
+            if (negative)
+              PRINT_FIXED_STRING("-nan");
+            else
+              PRINT_FIXED_STRING("nan");
           default:
             switch (specifier) {
               case 'a':
@@ -175,7 +192,7 @@ while (*format != '\0') {
                 goto LABEL(float16);
               default:
                 // TODO(edje): Implement.
-                string = "unimplemented";
+                PRINT_FIXED_STRING("unimplemented");
                 goto LABEL(string);
             }
         }
@@ -189,11 +206,15 @@ while (*format != '\0') {
         bool negative = signbit(float_value);
         switch (fpclassify(float_value)) {
           case FP_INFINITE:
-            string = negative ? "-INF" : "INF";
-            goto LABEL(string);
+            if (negative)
+              PRINT_FIXED_STRING("-INF");
+            else
+              PRINT_FIXED_STRING("INF");
           case FP_NAN:
-            string = negative ? "-NAN" : "NAN";
-            goto LABEL(string);
+            if (negative)
+              PRINT_FIXED_STRING("-NAN");
+            else
+              PRINT_FIXED_STRING("NAN");
           default:
             switch (specifier) {
               case 'A':
@@ -203,7 +224,7 @@ while (*format != '\0') {
                 goto LABEL(float16);
               default:
                 // TODO(edje): Implement.
-                string = "UNIMPLEMENTED";
+                PRINT_FIXED_STRING("UNIMPLEMENTED");
                 goto LABEL(string);
             }
         }
