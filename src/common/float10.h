@@ -12,9 +12,9 @@
 // wrappers around the double-conversion library.
 
 __BEGIN_DECLS
-float __float10_to_float(const char *, size_t, int);
-double __float10_to_double(const char *, size_t, int);
-long double __float10_to_long_double(const char *, size_t, int);
+float __f10enc_get_float(const char *, size_t, int);
+double __f10enc_get_double(const char *, size_t, int);
+long double __f10enc_get_long_double(const char *, size_t, int);
 __END_DECLS
 
 #endif

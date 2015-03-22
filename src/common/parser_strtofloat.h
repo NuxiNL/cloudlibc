@@ -187,9 +187,9 @@ flt_t number;
       } else {
         // clang-format off
         number = _Generic(number,
-            float: __float10_to_float,
-            double: __float10_to_double,
-            long double: __float10_to_long_double)(
+            float: __f10enc_get_float,
+            double: __f10enc_get_double,
+            long double: __f10enc_get_long_double)(
                 digits, ndigits, digits_exponent);
         // clang-format on
 

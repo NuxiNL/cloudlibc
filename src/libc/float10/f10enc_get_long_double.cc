@@ -7,7 +7,9 @@
 
 #include <strtod.h>
 
-double __float10_to_double(const char *str, size_t len, int exponent) {
+long double __f10enc_get_long_double(const char *str, size_t len,
+                                     int exponent) {
+  // TODO(edje): double-conversion does not support long double.
   return double_conversion::Strtod(
       double_conversion::Vector<const char>(str, len), exponent);
 }
