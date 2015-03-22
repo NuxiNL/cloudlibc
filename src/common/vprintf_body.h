@@ -332,9 +332,9 @@ while (*format != '\0') {
           // Convert floating point value to a sequence of decimal digits.
           if (precision < 0)
             precision = 6;
-          float_ndigits = precision < (int)sizeof(float_ndigits)
+          float_ndigits = precision < (int)sizeof(float_digits)
                               ? precision + 1
-                              : sizeof(float_ndigits);
+                              : sizeof(float_digits);
           __f10dec_exp(float_value, float_digits, &float_ndigits,
                        &float_exponent);
           --float_exponent;

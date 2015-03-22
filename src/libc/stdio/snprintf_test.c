@@ -89,7 +89,7 @@ TEST(snprintf, octal2) {
   ASSERT_STREQ("01", buf);
 }
 
-TEST(snprintf, float10_zero) {
+TEST(snprintf, float10_e_zero) {
   char buf[13];
   ASSERT_EQ(12, snprintf(buf, sizeof(buf), "%e", 0.0));
   ASSERT_STREQ("0.000000e+00", buf);
@@ -101,6 +101,41 @@ TEST(snprintf, float10_zero) {
   ASSERT_STREQ(" 0e+00", buf);
   ASSERT_EQ(6, snprintf(buf, sizeof(buf), "%+.0e", 0.0));
   ASSERT_STREQ("+0e+00", buf);
+}
+
+TEST(snprintf, float10_e_pi) {
+  char buf[107];
+  ASSERT_EQ(5, snprintf(buf, sizeof(buf), "%.0e", M_PI));
+  ASSERT_STREQ("3e+00", buf);
+  ASSERT_EQ(7, snprintf(buf, sizeof(buf), "%.1e", M_PI));
+  ASSERT_STREQ("3.1e+00", buf);
+  ASSERT_EQ(8, snprintf(buf, sizeof(buf), "%.2e", M_PI));
+  ASSERT_STREQ("3.14e+00", buf);
+  ASSERT_EQ(9, snprintf(buf, sizeof(buf), "%.3e", M_PI));
+  ASSERT_STREQ("3.142e+00", buf);
+  ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%.4e", M_PI));
+  ASSERT_STREQ("3.1416e+00", buf);
+  ASSERT_EQ(11, snprintf(buf, sizeof(buf), "%.5e", M_PI));
+  ASSERT_STREQ("3.14159e+00", buf);
+  ASSERT_EQ(12, snprintf(buf, sizeof(buf), "%.6e", M_PI));
+  ASSERT_STREQ("3.141593e+00", buf);
+  ASSERT_EQ(13, snprintf(buf, sizeof(buf), "%.7e", M_PI));
+  ASSERT_STREQ("3.1415927e+00", buf);
+  ASSERT_EQ(14, snprintf(buf, sizeof(buf), "%.8e", M_PI));
+  dprintf(1, "%.8e\n", M_PI);
+  dprintf(1, "%.100e\n", M_PI);
+  ASSERT_STREQ("3.14159265e+00", buf);
+
+#if DBL_MANT_DIG == 53
+  // This implementation already starts to return zeroes as soon as the
+  // digits uniquely correspond with the floating point value.
+  ASSERT_EQ(106, snprintf(buf, sizeof(buf), "%.100e", M_PI));
+  ASSERT_STREQ(
+      "3."
+      "141592653589793100000000000000000000000000000000000000000000000000000000"
+      "0000000000000000000000000000e+00",
+      buf);
+#endif
 }
 
 TEST(snprintf, float16_nan) {
