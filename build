@@ -4,7 +4,7 @@ set -e
 
 TARGET="x86_64-unknown-cloudabi"
 CC="${TARGET}-cc"
-CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include -Werror"
+CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include -Werror -fno-exceptions -fno-rtti"
 COPTFLAGS="-O3"
 WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare"
 
@@ -39,6 +39,9 @@ for srcfile in ${SRCS}; do
   src/crt/*) extraflags="${COPTFLAGS} ${WARNFLAGS}" ;;
   *_test.c) extraflags="${WARNFLAGS} -fno-builtin -fstack-protector-strong" ;;
   *) extraflags="${COPTFLAGS} ${WARNFLAGS} -fstack-protector-strong" ;;
+  esac
+  case "${srcfile}" in
+  *.cc) extraflags="${extraflags} -std=c++11" ;;
   esac
   cat >> "_obj/dep/${safename}.d" << EOF
 	${CC} ${CFLAGS} ${extraflags} -c -o _obj/${safename}.o ${srcfile}
