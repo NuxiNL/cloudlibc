@@ -20,16 +20,13 @@ stdlib.h	90%	__cxa_atexit() and atexit() still missing
 
 Done:
 -----
-arpa/inet.h assert.h cpio.h ctype.h dirent.h elf.h errno.h fcntl.h
-fenv.h float.h iconv.h inttypes.h iso646.h langinfo.h libgen.h limits.h
-link.h locale.h netinet/in.h sched.h semaphore.h setjmp.h signal.h
-stdalign.h stdarg.h stdatomic.h stdbool.h stddef.h stdint.h
-stdnoreturn.h strings.h sys/mman.h sys/stat.h sys/types.h sys/uio.h
-sys/un.h tar.h testing.h tgmath.h threads.h time.h uchar.h wctype.h
-
-Provided externally:
---------------------
-complex.h math.h
+arpa/inet.h assert.h complex.h cpio.h ctype.h dirent.h elf.h errno.h
+fcntl.h fenv.h float.h iconv.h inttypes.h iso646.h langinfo.h libgen.h
+limits.h link.h locale.h math.h netinet/in.h sched.h semaphore.h
+setjmp.h signal.h stdalign.h stdarg.h stdatomic.h stdbool.h stddef.h
+stdint.h stdnoreturn.h strings.h sys/mman.h sys/stat.h sys/types.h
+sys/uio.h sys/un.h tar.h testing.h tgmath.h threads.h time.h uchar.h
+wctype.h
 
 Will not be implemented:
 ------------------------
