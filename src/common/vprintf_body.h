@@ -559,6 +559,7 @@ while (*format != '\0') {
     }
 #undef SET_NUMBER_PREFIX
 #undef PAD_TO_FIELD_WIDTH
+#undef PRINT_FIXED_STRING
   } else {
     PUTCHAR(*format);
     ++format;
