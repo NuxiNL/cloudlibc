@@ -74,10 +74,10 @@ while (*format != '\0') {
     // Parameters for floating point printing.
     long double float_value;
     char float_exponent_char;
-    unsigned char float_leading;
-    unsigned char float_digits[F10DEC_DIGITS_MAX];
+    unsigned char float_digits[DECIMAL_DIG];
     size_t float_ndigits;
     int float_exponent;
+    int float_exponent_mindigits;
 
     // Shared parameters for integer and floating point printing.
     char number_prefix[3] = {};  // "-", "0", "0x" or "-0x".
@@ -189,19 +189,18 @@ while (*format != '\0') {
               PRINT_FIXED_STRING("nan");
           default:
             switch (specifier) {
+              case 'f':  // TODO(edje): Implement!
+              case 'e':
+              case 'g':  // TODO(edje): Implement!
+                // Decimal floating point, exponential notation, lowercase.
+                SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
+                float_exponent_char = 'e';
+                goto LABEL(float10_exponential);
               case 'a':
                 // Hexadecimal floating point, lowercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'x'});
                 float_exponent_char = 'p';
                 goto LABEL(float16);
-              case 'e':
-                // Decimal floating point, exponential notation, lowercase.
-                SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
-                float_exponent_char = 'e';
-                goto LABEL(float10_exponential);
-              default:
-                // TODO(edje): Implement.
-                PRINT_FIXED_STRING("unimplemented");
             }
         }
       }
@@ -225,19 +224,18 @@ while (*format != '\0') {
               PRINT_FIXED_STRING("NAN");
           default:
             switch (specifier) {
+              case 'F':  // TODO(edje): Implement!
+              case 'E':
+              case 'G':  // TODO(edje): Implement!
+                // Decimal floating point, exponential notation, uppercase.
+                SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
+                float_exponent_char = 'E';
+                goto LABEL(float10_exponential);
               case 'A':
                 // Hexadecimal floating point, uppercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'X'});
                 float_exponent_char = 'P';
                 goto LABEL(float16);
-              case 'E':
-                // Decimal floating point, exponential notation, uppercase.
-                SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
-                float_exponent_char = 'E';
-                goto LABEL(float10_exponential);
-              default:
-                // TODO(edje): Implement.
-                PRINT_FIXED_STRING("UNIMPLEMENTED");
             }
         }
       }
@@ -331,38 +329,37 @@ while (*format != '\0') {
 
         // Decimal floating point, using exponential notation.
         LABEL(float10_exponential) : {
-          // Convert floating point number to digits.
-          if (fpclassify(float_value) == FP_ZERO) {
-            float_leading = 0;
-            float_ndigits = 0;
-            float_exponent = 0;
-          } else {
-            float_ndigits =
-                precision >= 0 && precision < (ssize_t)sizeof(float_digits)
-                    ? precision
-                    : 6;
-            __f10dec_exp(float_value, &float_leading, float_digits,
-                         float_ndigits, &float_exponent);
-          }
+          // Convert floating point value to a sequence of decimal digits.
+          if (precision < 0)
+            precision = 6;
+          float_ndigits = precision < (int)sizeof(float_ndigits)
+                              ? precision + 1
+                              : sizeof(float_ndigits);
+          __f10dec_exp(float_value, float_digits, &float_ndigits,
+                       &float_exponent);
+          --float_exponent;
+          float_exponent_mindigits = 2;
           goto LABEL(float_exponential);
         }
 
         // Hexadecimal floating point.
         LABEL(float16) : {
-          // Convert floating point number to digits.
           if (fpclassify(float_value) == FP_ZERO) {
-            float_leading = 0;
+            // Just zero digits.
             float_ndigits = 0;
             float_exponent = 0;
           } else {
-            float_leading = 1;
+            // No digits available.
+            float_digits[0] = 1;
             float_ndigits =
                 precision >= 0 && precision < (ssize_t)sizeof(float_digits)
                     ? precision
                     : sizeof(float_digits);
-            f16dec(float_value, float_digits, &float_ndigits, &float_exponent,
-                   fegetround());
+            f16dec(float_value, float_digits + 1, &float_ndigits,
+                   &float_exponent, fegetround());
+            ++float_ndigits;
           }
+          float_exponent_mindigits = 1;
           goto LABEL(float_exponential);
         }
 
@@ -376,20 +373,24 @@ while (*format != '\0') {
           }
           char exp_digitsbuf[sizeof(int) * 3];
           char *exp_digits = exp_digitsbuf + sizeof(exp_digitsbuf);
-          for (;;) {
+          while (float_exponent_mindigits-- > 0 || float_exponent != 0) {
             *--exp_digits = number_charset[float_exponent % 10];
             float_exponent /= 10;
-            if (float_exponent == 0)
-              break;
+          }
+
+          // Always make sure to print at least a single digit.
+          if (float_ndigits == 0) {
+            float_digits[0] = 0;
+            float_ndigits = 1;
           }
 
           // Determine width of the number as it would be printed, minus
           // the padding.
-          size_t width =
-              (ssize_t)float_ndigits > precision ? float_ndigits : precision;
-          bool print_radixchar = alternative_form || width > 0;
+          size_t width = precision + 1 > (ssize_t)float_ndigits ? precision + 1
+                                                                : float_ndigits;
+          bool print_radixchar = alternative_form || width > 1;
           width += number_prefixlen + exp_digitsbuf + sizeof(exp_digitsbuf) -
-                   exp_digits + (print_radixchar ? 4 : 3);
+                   exp_digits + (print_radixchar ? 3 : 2);
 
           // Print the number.
           if (zero_padding) {
@@ -402,13 +403,13 @@ while (*format != '\0') {
             for (size_t i = 0; i < number_prefixlen; ++i)
               PUTCHAR(number_prefix[i]);
           }
-          PUTCHAR(float_leading + '0');
+          PUTCHAR(number_charset[float_digits[0]]);
           // TODO(edje): Use radix character from LC_NUMERIC.
           if (print_radixchar)
             PUTCHAR('.');
-          for (size_t i = 0; i < float_ndigits; ++i)
+          for (size_t i = 1; i < float_ndigits; ++i)
             PUTCHAR(number_charset[float_digits[i]]);
-          while (precision-- > (ssize_t)float_ndigits)
+          while (precision-- >= (ssize_t)float_ndigits)
             PUTCHAR('0');
           PUTCHAR(float_exponent_char);
           PUTCHAR(exp_negative ? '-' : '+');

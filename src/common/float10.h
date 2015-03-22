@@ -11,13 +11,11 @@
 // Handling of base-10 floating point numbers. These functions are
 // wrappers around the double-conversion library.
 
-#define F10DEC_DIGITS_MAX 120
-
 __BEGIN_DECLS
 float __f10enc_get_float(const char *, size_t, int);
 double __f10enc_get_double(const char *, size_t, int);
 long double __f10enc_get_long_double(const char *, size_t, int);
-void __f10dec_exp(long double, unsigned char *, unsigned char *, size_t, int *);
+void __f10dec_exp(long double, unsigned char *, size_t *, int *);
 __END_DECLS
 
 #endif

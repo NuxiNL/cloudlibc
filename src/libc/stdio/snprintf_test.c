@@ -89,6 +89,20 @@ TEST(snprintf, octal2) {
   ASSERT_STREQ("01", buf);
 }
 
+TEST(snprintf, float10_zero) {
+  char buf[13];
+  ASSERT_EQ(12, snprintf(buf, sizeof(buf), "%e", 0.0));
+  ASSERT_STREQ("0.000000e+00", buf);
+  ASSERT_EQ(5, snprintf(buf, sizeof(buf), "%.0e", 0.0));
+  ASSERT_STREQ("0e+00", buf);
+  ASSERT_EQ(6, snprintf(buf, sizeof(buf), "%#.0e", 0.0));
+  ASSERT_STREQ("0.e+00", buf);
+  ASSERT_EQ(6, snprintf(buf, sizeof(buf), "% .0e", 0.0));
+  ASSERT_STREQ(" 0e+00", buf);
+  ASSERT_EQ(6, snprintf(buf, sizeof(buf), "%+.0e", 0.0));
+  ASSERT_STREQ("+0e+00", buf);
+}
+
 TEST(snprintf, float16_nan) {
   char buf[11];
   ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%-10a", -NAN));
