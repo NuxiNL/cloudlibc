@@ -39,7 +39,7 @@ struct lconv *localeconv_l(locale_t locale) {
       CHAR(monetary, p_cs_precedes), CHAR(monetary, p_sep_by_space),
       CHAR(monetary, p_sign_posn), CHAR(monetary, n_cs_precedes),
       CHAR(monetary, n_sep_by_space), CHAR(monetary, n_sign_posn),
-      WSTRING(monetary, int_curr_symbol), CHAR(monetary, int_frac_digits),
+      STRING(monetary, int_curr_symbol), CHAR(monetary, int_frac_digits),
       CHAR(monetary, int_p_cs_precedes), CHAR(monetary, int_p_sep_by_space),
       CHAR(monetary, int_p_sign_posn), CHAR(monetary, int_n_cs_precedes),
       CHAR(monetary, int_n_sep_by_space), CHAR(monetary, int_n_sign_posn),

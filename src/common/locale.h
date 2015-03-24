@@ -205,7 +205,7 @@ struct lc_monetary {
   char n_cs_precedes;                // Local, < 0: Currency symbol precedes.
   char n_sep_by_space;               // Local, < 0: Currency symbol separation.
   char n_sign_posn;                  // Local, < 0: Negative sign position.
-  const wchar_t *int_curr_symbol;    // Int.: Currency symbol.
+  char int_curr_symbol[5];           // Int.: Currency symbol.
   char int_frac_digits;              // Int.: Number of fractional digits.
   char int_p_cs_precedes;            // Int., >= 0: Currency symbol precedes.
   char int_p_sep_by_space;           // Int., >= 0: Currency symbol sep.
@@ -327,7 +327,6 @@ struct lc_compiled {
   _Atomic(char *) monetary_positive_sign;
   _Atomic(char *) monetary_negative_sign;
   _Atomic(char *) monetary_currency_symbol;
-  _Atomic(char *) monetary_int_curr_symbol;
 
   // Compiled strings for LC_NUMERIC.
   _Atomic(char *) numeric_decimal_point;
