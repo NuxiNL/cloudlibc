@@ -3,13 +3,13 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <complex.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
 #include <string.h>
 #include <testing.h>
+#include <tgmath.h>
 #include <threads.h>
 #include <wchar.h>
 
