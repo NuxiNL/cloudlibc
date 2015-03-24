@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <complex.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,9 +50,14 @@ GENERATE_PRINT_VALUE_INT(unsigned long long, ullong, "ll", "u");
 
 #undef GENERATE_PRINT_VALUE_INT
 
-#define GENERATE_PRINT_VALUE_FLOAT(type, stype, size)                \
-  static void print_value_##stype(type value) {                      \
-    __testing_printf("%10" size "f == %#10" size "a", value, value); \
+#define GENERATE_PRINT_VALUE_FLOAT(type, stype, size)                         \
+  static void print_value_##stype(type value) {                               \
+    __testing_printf("%10" size "f == %#10" size "a", value, value);          \
+  }                                                                           \
+  static void print_value_c##stype(type complex value) {                      \
+    __testing_printf("%10" size "f + %10" size "fi == %#10" size              \
+                     "a + %#10" size "ai",                                    \
+                     creal(value), cimag(value), creal(value), cimag(value)); \
   }
 
 GENERATE_PRINT_VALUE_FLOAT(float, float, "");

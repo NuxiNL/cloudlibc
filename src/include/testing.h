@@ -31,7 +31,7 @@
 // clang-format off
 
 // Instantiate the same macro for all separate types.
-#define _MACRO_FOREACH_TYPE(macro, ...)            \
+#define _MACRO_FOREACH_INEQUALITY_TYPE(macro, ...) \
   macro(_Bool, bool, ##__VA_ARGS__)                \
   macro(char, char, ##__VA_ARGS__)                 \
   macro(signed char, schar, ##__VA_ARGS__)         \
@@ -48,6 +48,11 @@
   macro(double, double, ##__VA_ARGS__)             \
   macro(long double, ldouble, ##__VA_ARGS__)       \
   macro(const void *, ptr, ##__VA_ARGS__)
+#define _MACRO_FOREACH_TYPE(macro, ...)                \
+  macro(float _Complex, cfloat, ##__VA_ARGS__)         \
+  macro(double _Complex, cdouble, ##__VA_ARGS__)       \
+  macro(long double _Complex, cldouble, ##__VA_ARGS__) \
+  _MACRO_FOREACH_INEQUALITY_TYPE(macro, ##__VA_ARGS__)
 
 // Evaluate to a different identifier name based on the type.
 #define _EXPRESSION_FOREACH_CASE(type, stype, prefix) \
@@ -55,6 +60,10 @@
   type const: prefix##_##stype,                       \
   type volatile: prefix##_##stype,                    \
   type const volatile: prefix##_##stype,
+#define _EXPRESSION_FOREACH_INEQUALITY_TYPE(prefix, expression)             \
+  _Generic(expression,                                                      \
+           _MACRO_FOREACH_INEQUALITY_TYPE(_EXPRESSION_FOREACH_CASE, prefix) \
+           default: prefix##_ptr)
 #define _EXPRESSION_FOREACH_TYPE(prefix, expression)             \
   _Generic(expression,                                           \
            _MACRO_FOREACH_TYPE(_EXPRESSION_FOREACH_CASE, prefix) \
@@ -124,23 +133,26 @@ __END_DECLS
                             actual_str, file, line);                 \
   }
 _MACRO_FOREACH_TYPE(_GENERATE_COMPARE, EQ, == )
-_MACRO_FOREACH_TYPE(_GENERATE_COMPARE, GE, >= )
-_MACRO_FOREACH_TYPE(_GENERATE_COMPARE, GT, > )
-_MACRO_FOREACH_TYPE(_GENERATE_COMPARE, LE, <= )
-_MACRO_FOREACH_TYPE(_GENERATE_COMPARE, LT, < )
 _MACRO_FOREACH_TYPE(_GENERATE_COMPARE, NE, != )
+_MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, GE, >= )
+_MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, GT, > )
+_MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, LE, <= )
+_MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, LT, < )
 #undef _GENERATE_COMPARE
 
 #define _ASSERT_BIN(op, expected, actual)                \
   _EXPRESSION_FOREACH_TYPE(__test_compare_##op, actual)( \
       expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define _ASSERT_BIN_INEQUALITY(op, expected, actual)                \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_##op, actual)( \
+      expected, #expected, actual, #actual, __FILE__, __LINE__)
 
 #define ASSERT_EQ(expected, actual) _ASSERT_BIN(EQ, expected, actual)
-#define ASSERT_GE(expected, actual) _ASSERT_BIN(GE, expected, actual)
-#define ASSERT_GT(expected, actual) _ASSERT_BIN(GT, expected, actual)
-#define ASSERT_LE(expected, actual) _ASSERT_BIN(LE, expected, actual)
-#define ASSERT_LT(expected, actual) _ASSERT_BIN(LT, expected, actual)
 #define ASSERT_NE(expected, actual) _ASSERT_BIN(NE, expected, actual)
+#define ASSERT_GE(expected, actual) _ASSERT_BIN_INEQUALITY(GE, expected, actual)
+#define ASSERT_GT(expected, actual) _ASSERT_BIN_INEQUALITY(GT, expected, actual)
+#define ASSERT_LE(expected, actual) _ASSERT_BIN_INEQUALITY(LE, expected, actual)
+#define ASSERT_LT(expected, actual) _ASSERT_BIN_INEQUALITY(LT, expected, actual)
 
 // Boolean comparison.
 //
