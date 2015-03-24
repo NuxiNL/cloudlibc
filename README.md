@@ -58,23 +58,10 @@ Nuxi would like to thank its authors for their work.
 
 cloudlibc is a standard C library built on top of CloudABI. It
 implements almost all features of the C11 standard, but also a large
-part of POSIX.1-2008. Certain interfaces have been omitted for one of
-the following reasons:
+part of POSIX.1-2008. There are interfaces, however, that have been
+omitted for one of the following reasons:
 
-* **Incompatibility with capability-based security.** <br/>
-  As access to global namespaces is prohibited, functions such as
-  `open()`, `fopen()`, `stat()`, `mkdir()` and `wait()` have been
-  omitted. For filesystem access it is possible to use the POSIX.1-2008
-  `*at()` functions instead. In some other cases alternatives have been
-  developed (e.g., `pdfork()` and `pdwait()`).
-
-* **Lack of valid use cases in a cluster/cloud computing environment.** <br/>
-  Though it is perfectly fine to run CloudABI processes from a
-  command-line interface, the primary use case remains running services.
-  This means that certain programming interfaces have been omitted
-  entirely (`<termios.h>`, `stdin`, `stdout`).
-
-* **Bad design.** <br/>
+* **Safety first.** <br/>
   cloudlibc aims to make it easier for people to design and implement
   robust services. C applications may easily be prone to buffer
   overflows. Functions whose only purpose is to cause such bugs (e.g.,
@@ -82,6 +69,23 @@ the following reasons:
   functions that are inherently thread unsafe (`strtok()`), degrade
   security (`srand()`), introduce unneeded global state (`setlocale()`)
   or offer bad abstraction (signal handlers).
+
+* **Pure capability-based security.** <br/>
+  As access to global namespaces is prohibited, functions such as
+  `open()`, `fopen()`, `stat()`, `mkdir()` and `wait()` have been
+  omitted. For filesystem access it is possible to use the POSIX.1-2008
+  `*at()` functions instead. In some other cases alternatives have been
+  developed (e.g., `pdfork()` and `pdwait()`). Fear not: most of these
+  interfaces are either available on systems such as FreeBSD or have
+  been designed in such a way that they can easily be added to existing
+  operating systems.
+
+* **Computing in the cloud.** <br/>
+  Though it is perfectly fine to run CloudABI processes from a
+  command-line on your own workstation, the primary use case remains
+  running networked services in the cloud or on a cluster. Certain
+  concepts (e.g., UNIX user credentials, TTY handling, accounting) make
+  little sense in such an environment.
 
 The source tree is structured as follows:
 
