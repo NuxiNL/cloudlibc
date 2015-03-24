@@ -4,7 +4,6 @@
 // See the LICENSE file for details.
 
 #include <complex.h>
-#include <math.h>
 #include <testing.h>
 
 TEST(complex, presence) {
