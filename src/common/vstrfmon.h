@@ -39,23 +39,20 @@ typedef char char_t;
     }                         \
   } while (0)
 #else
-#define PUTSTRING(str)                                     \
-  do {                                                     \
-    const wchar_t *s = (str);                              \
-    const struct lc_ctype *ctype = locale->ctype;          \
-    while (*s != L'\0') {                                  \
-      char mb[MB_LEN_MAX];                                 \
-      ssize_t len = ctype->c32tomb(mb, *s++, ctype->data); \
-      if (len == -1) {                                     \
-        mb[0] = '?';                                       \
-        len = 1;                                           \
-      }                                                    \
-      if ((ssize_t)buflen < len)                           \
-        return nwritten;                                   \
-      buflen -= len;                                       \
-      for (ssize_t i = 0; i < len; ++i)                    \
-        buf[nwritten++] = mb[i];                           \
-    }                                                      \
+#define PUTSTRING(str)                                                 \
+  do {                                                                 \
+    const wchar_t *s = (str);                                          \
+    const struct lc_ctype *ctype = locale->ctype;                      \
+    while (*s != L'\0') {                                              \
+      if (buflen < MB_LEN_MAX)                                         \
+        return nwritten;                                               \
+      ssize_t len = ctype->c32tomb(&buf[nwritten], *s++, ctype->data); \
+      if (len < 0) {                                                   \
+        buf[nwritten++] = '?';                                         \
+      } else {                                                         \
+        nwritten += len;                                               \
+      }                                                                \
+    }                                                                  \
   } while (0)
 #endif
 
@@ -150,7 +147,7 @@ static size_t generate_suffix(char_t *buf, size_t buflen,
 
 ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
              const char_t *restrict format, va_list ap) {
-  const struct lc_monetary *monetary = locale->monetary;
+  // Output buffer handling.
   size_t nwritten = 0;
 #define PUTCHAR(c)             \
   do {                         \
@@ -161,6 +158,47 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
     s[nwritten++] = (c);       \
   } while (0)
 
+  // Fetch attributes from the locale that are independent from the
+  // flags and the values that are printed. Already convert the
+  // thousands separator and the decimal point, for the reason that
+  // their width strongly influences the width computation.
+  const struct lc_monetary *monetary = locale->monetary;
+#if WIDE
+#define CONVERT_LOCALE_STRING(field, defval)    \
+  const wchar_t *field = monetary->mon_##field; \
+  if (field == NULL || *field == L'\0')         \
+    field = defval;                             \
+  size_t field##_len = wcslen(field)
+#else
+#define CONVERT_LOCALE_STRING(field, defval)                                  \
+  char field[16];                                                             \
+  size_t field##_len = 0;                                                     \
+  do {                                                                        \
+    const wchar_t *str = monetary->mon_##field;                               \
+    if (str == NULL || *str == L'\0')                                         \
+      str = defval;                                                           \
+    const struct lc_ctype *ctype = locale->ctype;                             \
+    while (*str != L'\0' && sizeof(field) - field##_len >= MB_LEN_MAX) {      \
+      ssize_t len = ctype->c32tomb(&field[field##_len], *str++, ctype->data); \
+      if (len < 0) {                                                          \
+        field[field##_len++] = '?';                                           \
+      } else {                                                                \
+        field##_len += len;                                                   \
+      }                                                                       \
+    }                                                                         \
+  } while (0)
+#endif
+  CONVERT_LOCALE_STRING(thousands_sep, L"");
+  CONVERT_LOCALE_STRING(decimal_point, L".");
+#undef CONVERT_LOCALE_STRING
+  const wchar_t *positive_sign = monetary->positive_sign;
+  if (positive_sign == NULL)
+    positive_sign = L"";
+  const wchar_t *negative_sign = monetary->negative_sign;
+  if (negative_sign == NULL || *negative_sign == L'\0')
+    negative_sign = L"-";
+
+  // Process the format string.
   while (*format != '\0') {
     if (*format == '%') {
       ++format;
@@ -237,12 +275,6 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         const wchar_t *currency_symbol = monetary->currency_symbol;
         if (!use_currency_symbol)
           currency_symbol = L"";
-        const wchar_t *positive_sign = monetary->positive_sign;
-        if (positive_sign == NULL)
-          positive_sign = L"";
-        const wchar_t *negative_sign = monetary->negative_sign;
-        if (negative_sign == NULL || *negative_sign == L'\0')
-          negative_sign = L"-";
         const wchar_t *sign = negative ? negative_sign : positive_sign;
         const wchar_t *opposite_sign = negative ? positive_sign : negative_sign;
 #define LOCALE_ATTRIBUTE(name)                                           \
@@ -302,12 +334,12 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         left_digits_with_grouping +=
             numeric_grouping_init(&numeric_grouping, mon_grouping,
                                   left_digits_with_grouping) *
-            1;  // TODO(edje): Use the right value.
+            thousands_sep_len;
         size_t left_precision_with_grouping =
             left_precision +
             numeric_grouping_init(&(struct numeric_grouping){}, mon_grouping,
                                   left_precision) *
-                1;  // TODO(edje): Use the right value.
+                thousands_sep_len;
 
         // Determine the total width of the value we are going to print.
         size_t width =
@@ -315,9 +347,7 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
             (left_digits_with_grouping > left_precision_with_grouping
                  ? left_digits_with_grouping
                  : left_precision_with_grouping) +
-            (right_precision > 0
-                 ? 1 + right_precision  // TODO(edje): Use the right value.
-                 : 0) +
+            (right_precision > 0 ? decimal_point_len + right_precision : 0) +
             (suffixlen > opposite_suffixlen ? suffixlen : opposite_suffixlen);
 
         // Print all of the padding, followed by the prefix.
@@ -354,13 +384,14 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
               idx >= 0 && (size_t)idx < ndigits ? digits[idx] : 0;
           if (position > 0) {
             // Print the grouping character.
-            // TODO(edje): Use the right character.
-            if (numeric_grouping_step(&numeric_grouping))
-              PUTCHAR(',');
+            if (numeric_grouping_step(&numeric_grouping)) {
+              for (size_t i = 0; i < thousands_sep_len; ++i)
+                PUTCHAR(thousands_sep[i]);
+            }
           } else if (position == 0) {
             // Print the radix character.
-            // TODO(edje): Use the right character.
-            PUTCHAR('.');
+            for (size_t i = 0; i < decimal_point_len; ++i)
+              PUTCHAR(decimal_point[i]);
           }
           PUTCHAR(digit + '0');
           --position;
