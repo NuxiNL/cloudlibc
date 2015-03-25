@@ -371,18 +371,18 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         ssize_t idx;
         if (exponent >= 1) {
           // At least one digit is placed before the radix character.
-          position = exponent;
+          position = -exponent;
           idx = 0;
         } else {
           // None of the digits are placed before the radix character.
           // Force zero padding.
-          position = 1;
+          position = -1;
           idx = exponent - 1;
         }
-        while (position > -(ssize_t)right_precision) {
+        while (position < (ssize_t)right_precision) {
           unsigned char digit =
               idx >= 0 && (size_t)idx < ndigits ? digits[idx] : 0;
-          if (position > 0) {
+          if (position < 0) {
             // Print the grouping character.
             if (numeric_grouping_step(&numeric_grouping)) {
               for (size_t i = 0; i < thousands_sep_len; ++i)
@@ -394,7 +394,7 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
               PUTCHAR(decimal_point[i]);
           }
           PUTCHAR(digit + '0');
-          --position;
+          ++position;
           ++idx;
         }
         assert(idx >= (ssize_t)ndigits && "Not all digits have been printed");
