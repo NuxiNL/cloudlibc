@@ -115,3 +115,20 @@ TEST(strfmon, en_us) {
 
   freelocale(locale);
 }
+
+#if 0
+TEST(strfmon, nl_nl) {
+  locale_t locale =
+      newlocale(LC_CTYPE_MASK | LC_MONETARY_MASK, "nl_NL.UTF-8", 0);
+  ASSERT_NE(0, locale);
+
+  TEST_STRFMON("€ 0,00", "%n", 0.0);
+  TEST_STRFMON("€ 0,01", "%n", 0.01);
+  TEST_STRFMON("€ 0,42-", "%n", -0.42);
+  TEST_STRFMON("€ 123,45", "%n", 123.45);
+  TEST_STRFMON("€ 123,45-", "%n", -123.45);
+  TEST_STRFMON("€ 3 456,781", "%n", 3456.781);
+
+  freelocale(locale);
+}
+#endif
