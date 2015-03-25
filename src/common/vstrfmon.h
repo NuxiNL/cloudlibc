@@ -22,27 +22,69 @@ typedef wchar_t char_t;
 typedef char char_t;
 #endif
 
+#define PUTCHAR(c)         \
+  do {                     \
+    if (buflen-- == 0)     \
+      return nwritten;     \
+    buf[nwritten++] = (c); \
+  } while (0)
+#if WIDE
+#define PUTSTRING(str)        \
+  do {                        \
+    const wchar_t *s = (str); \
+    while (*s != L'\0') {     \
+      if (buflen-- == 0)      \
+        return nwritten;      \
+      buf[nwritten++] = *s++; \
+    }                         \
+  } while (0)
+#else
+#define PUTSTRING(str)                                     \
+  do {                                                     \
+    const wchar_t *s = (str);                              \
+    const struct lc_ctype *ctype = locale->ctype;          \
+    while (*s != L'\0') {                                  \
+      char mb[MB_LEN_MAX];                                 \
+      ssize_t len = ctype->c32tomb(mb, *s++, ctype->data); \
+      if (len == -1) {                                     \
+        mb[0] = '?';                                       \
+        len = 1;                                           \
+      }                                                    \
+      if ((ssize_t)buflen < len)                           \
+        return nwritten;                                   \
+      buflen -= len;                                       \
+      for (ssize_t i = 0; i < len; ++i)                    \
+        buf[nwritten++] = mb[i];                           \
+    }                                                      \
+  } while (0)
+#endif
+
 static size_t generate_prefix(char_t *buf, size_t buflen,
                               const wchar_t *currency_symbol, char cs_precedes,
                               const wchar_t *sign, char sign_posn,
-                              bool negative, char sep_by_space) {
+                              bool negative, char sep_by_space,
+                              locale_t locale) {
   // TODO(edje): Implement.
   size_t nwritten = 0;
-  if (negative)
-    buf[nwritten++] = sign_posn == 0 ? '(' : '-';
-  if (currency_symbol != NULL && *currency_symbol != L'\0')
-    buf[nwritten++] = '$';
+  if (negative) {
+    if (sign_posn == 0)
+      PUTCHAR('(');
+    else
+      PUTSTRING(sign);
+  }
+  PUTSTRING(currency_symbol);
   return nwritten;
 }
 
 static size_t generate_suffix(char_t *buf, size_t buflen,
                               const wchar_t *currency_symbol, char cs_precedes,
                               const wchar_t *sign, char sign_posn,
-                              bool negative, char sep_by_space) {
+                              bool negative, char sep_by_space,
+                              locale_t locale) {
   // TODO(edje): Implement.
   size_t nwritten = 0;
   if (negative && sign_posn == 0)
-    buf[nwritten++] = ')';
+    PUTCHAR(')');
   return nwritten;
 }
 
@@ -134,14 +176,18 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
           right_precision =
               frac_digits >= 0 && frac_digits != CHAR_MAX ? frac_digits : 2;
         }
-        // TODO(edje): Use the right value.
-        const wchar_t *currency_symbol = L"$";
+        // TODO(edje): Use the international currency symbol!
+        const wchar_t *currency_symbol = monetary->currency_symbol;
         if (!use_currency_symbol)
           currency_symbol = L"";
-        const wchar_t *sign =
-            negative ? monetary->negative_sign : monetary->positive_sign;
-        const wchar_t *opposite_sign =
-            negative ? monetary->positive_sign : monetary->negative_sign;
+        const wchar_t *positive_sign = monetary->positive_sign;
+        if (positive_sign == NULL)
+          positive_sign = L"";
+        const wchar_t *negative_sign = monetary->negative_sign;
+        if (negative_sign == NULL || *negative_sign == L'\0')
+          negative_sign = L"-";
+        const wchar_t *sign = negative ? negative_sign : positive_sign;
+        const wchar_t *opposite_sign = negative ? positive_sign : negative_sign;
 #define LOCALE_ATTRIBUTE(name)                                           \
   char name =                                                            \
       international                                                      \
@@ -163,29 +209,29 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
 
         // Generate the text that should appear before the value.
         char_t prefix[32];
-        size_t prefixlen = generate_prefix(prefix, sizeof(prefix),
-                                           currency_symbol, cs_precedes, sign,
-                                           sign_posn, negative, sep_by_space);
+        size_t prefixlen = generate_prefix(
+            prefix, sizeof(prefix), currency_symbol, cs_precedes, sign,
+            sign_posn, negative, sep_by_space, locale);
         char_t opposite_prefix[32];
         size_t opposite_prefixlen = 0;
         if (left_precision > 0)
           opposite_prefixlen = generate_prefix(
               opposite_prefix, sizeof(opposite_prefix), currency_symbol,
               opposite_cs_precedes, opposite_sign, opposite_sign_posn,
-              !negative, opposite_sep_by_space);
+              !negative, opposite_sep_by_space, locale);
 
         // Generate the text that should appear after the value.
         char_t suffix[32];
-        size_t suffixlen = generate_suffix(suffix, sizeof(suffix),
-                                           currency_symbol, cs_precedes, sign,
-                                           sign_posn, negative, sep_by_space);
+        size_t suffixlen = generate_suffix(
+            suffix, sizeof(suffix), currency_symbol, cs_precedes, sign,
+            sign_posn, negative, sep_by_space, locale);
         char_t opposite_suffix[32];
         size_t opposite_suffixlen = 0;
         if (left_precision > 0)
           opposite_suffixlen = generate_suffix(
               opposite_suffix, sizeof(opposite_suffix), currency_symbol,
               opposite_cs_precedes, opposite_sign, opposite_sign_posn,
-              !negative, opposite_sep_by_space);
+              !negative, opposite_sep_by_space, locale);
 
         // Convert floating point value to decimal digits.
         unsigned char digits[DECIMAL_DIG];
