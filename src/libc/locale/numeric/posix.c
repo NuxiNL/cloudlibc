@@ -7,5 +7,4 @@
 
 const struct lc_numeric __numeric_posix = {
     .decimal_point = L".",
-    .grouping = "\x7f",  // CHAR_MAX.
 };

@@ -17,9 +17,11 @@
 #include "messages/nl_nl.h"
 #include "messages/ru_ru.h"
 
+#include "monetary/en_us.h"
 #include "monetary/nl_nl.h"
 #include "monetary/ru_ru.h"
 
+#include "numeric/en_us.h"
 #include "numeric/nl_nl.h"
 #include "numeric/ru_ru.h"
 
@@ -39,8 +41,8 @@ static struct {
     // TODO(edje): Make these locales more complete.
     {"cs_CZ", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &__time_en_us},
-    {"en_US", &__collate_posix, &__messages_en_us, &__monetary_posix,
-     &__numeric_posix, &__time_en_us},
+    {"en_US", &__collate_posix, &__messages_en_us, &monetary_en_us,
+     &numeric_en_us, &__time_en_us},
     {"fr_CA", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &time_fr_fr},
     {"fr_FR", &__collate_posix, &__messages_en_us, &__monetary_posix,

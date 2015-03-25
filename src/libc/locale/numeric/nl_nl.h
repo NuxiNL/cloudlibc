@@ -8,6 +8,5 @@
 static const struct lc_numeric numeric_nl_nl = {
     .decimal_point = L",",
     .thousands_sep = L"",
-    // TODO(edje): Determine proper grouping.
-    .grouping = "\x7f",  // CHAR_MAX.
+    .grouping = (const signed char *)"",
 };

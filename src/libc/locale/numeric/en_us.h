@@ -5,8 +5,8 @@
 
 #include <common/locale.h>
 
-static const struct lc_numeric numeric_ru_ru = {
-    .decimal_point = L",",
-    .thousands_sep = L" ",
+static const struct lc_numeric numeric_en_us = {
+    .decimal_point = L".",
+    .thousands_sep = L",",
     .grouping = (const signed char *)"\x03",
 };

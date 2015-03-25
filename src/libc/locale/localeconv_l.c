@@ -24,7 +24,9 @@ struct lconv *localeconv_l(locale_t locale) {
     return NULL;
   *new_lconv = (struct lconv){
 #define CHAR(category, field) .field = locale->category->field
-#define STRING(category, field) .field = (char *)locale->category->field
+#define STRING(category, field)                                              \
+  .field = locale->category->field != NULL ? (char *)locale->category->field \
+                                           : (char *)""
 #define WSTRING(category, field) \
   .field = (char *)COMPILE_WSTRING(locale, category, field)
       // Fields provided by LC_NUMERIC.

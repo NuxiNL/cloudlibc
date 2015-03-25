@@ -8,7 +8,6 @@
 #include <limits.h>
 
 const struct lc_monetary __monetary_posix = {
-    .mon_grouping = "\x7f",  // CHAR_MAX.
     .frac_digits = CHAR_MAX,
     .p_cs_precedes = CHAR_MAX,
     .p_sep_by_space = CHAR_MAX,

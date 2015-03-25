@@ -8,7 +8,7 @@
 static const struct lc_monetary monetary_ru_ru = {
     .mon_decimal_point = L",",
     .mon_thousands_sep = L" ",
-    .mon_grouping = "\x03\x03",
+    .mon_grouping = (const signed char *)"\x03",
     .negative_sign = L"-",
     .currency_symbol = L"руб.",
     .frac_digits = 2,
