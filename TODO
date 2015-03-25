@@ -1,6 +1,5 @@
 Work in progress:
 -----------------
-monetary.h	 0%	Not started
 mqueue.h	 0%	Not started
 poll.h		 0%	Not started
 sys/capsicum.h	 0%	Not started
@@ -9,6 +8,7 @@ aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 netdb.h		40%	nameinfo still missing
 fnmatch.h	50%	Depends on regex.h. Still needs tests
+monetary.h	50%	Not started
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
 wchar.h		50%	stdio bits still missing. Many tests missing.
 sys/procdesc.h	70%	pdexec() still missing
