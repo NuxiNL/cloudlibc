@@ -156,7 +156,7 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
           // None of the digits are placed before the radix character.
           // Force zero padding.
           position = 1;
-          idx = -exponent - 1;
+          idx = exponent - 1;
         }
 
         // Print fill characters at the start of the value.
