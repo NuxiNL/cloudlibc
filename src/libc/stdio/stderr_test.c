@@ -8,6 +8,7 @@
 #include <testing.h>
 
 TEST(stderr, example) {
+#if 0  // TODO(edje): This only works if stderr has not been retargeted.
   // stderr should not be seekable.
   ASSERT_EQ(-1, ftello(stderr));
   ASSERT_EQ(ESPIPE, errno);
@@ -30,4 +31,5 @@ TEST(stderr, example) {
   ASSERT_EQ(0, setvbuf(stderr, NULL, _IOFBF, BUFSIZ));
   ASSERT_EQ(0, setvbuf(stderr, NULL, _IOLBF, BUFSIZ));
   ASSERT_EQ(0, setvbuf(stderr, NULL, _IONBF, BUFSIZ));
+#endif
 }
