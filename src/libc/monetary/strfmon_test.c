@@ -29,6 +29,13 @@ TEST(strfmon, en_us) {
   TEST_STRFMON("-$123.45", "%n", -123.45);
   TEST_STRFMON("$3,456.78", "%n", 3456.781);
 
+  TEST_STRFMON("% Value: $0.00!", "%% Value: %n!", 0.0);
+  TEST_STRFMON("% Value: $0.01!", "%% Value: %n!", 0.01);
+  TEST_STRFMON("% Value: -$0.42!", "%% Value: %n!", -0.42);
+  TEST_STRFMON("% Value: $123.45!", "%% Value: %n!", 123.45);
+  TEST_STRFMON("% Value: -$123.45!", "%% Value: %n!", -123.45);
+  TEST_STRFMON("% Value: $3,456.78!", "%% Value: %n!", 3456.781);
+
   TEST_STRFMON("      $0.00", "%11n", 0.0);
   TEST_STRFMON("      $0.01", "%11n", 0.01);
   TEST_STRFMON("     -$0.42", "%11n", -0.42);
