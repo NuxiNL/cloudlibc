@@ -43,9 +43,9 @@ TEST(strfmon, posix_examples) {
 
   ASSERT_EQ(11, strfmon_l(buf, sizeof(buf), locale, "%=0#5n", 123.45));
   ASSERT_STREQ(" $000123.45", buf);
-  ASSERT_EQ(11, strfmon_l(buf, sizeof(buf), locale, "%=*#5n", -123.45));
+  ASSERT_EQ(11, strfmon_l(buf, sizeof(buf), locale, "%=0#5n", -123.45));
   ASSERT_STREQ("-$000123.45", buf);
-  ASSERT_EQ(11, strfmon_l(buf, sizeof(buf), locale, "%=*#5n", 3456.781));
+  ASSERT_EQ(11, strfmon_l(buf, sizeof(buf), locale, "%=0#5n", 3456.781));
   ASSERT_STREQ(" $03,456.78", buf);
 
   ASSERT_EQ(10, strfmon_l(buf, sizeof(buf), locale, "%^#5n", 123.45));

@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <float.h>
+#include <limits.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -82,8 +83,10 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         while (*format >= '0' && *format <= '9')
           right_precision = right_precision * 10 + *format++ - '0';
       } else {
-        // TODO(edje): Get default value from locale.
-        right_precision = 2;
+        // Use the default precision from the locale. Fall back to two
+        // digits if the precision is unknown.
+        right_precision =
+            monetary->frac_digits != CHAR_MAX ? monetary->frac_digits : 2;
       }
 
       if (*format == 'i' || *format == 'n') {
@@ -95,26 +98,53 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         int exponent;
         __f10dec_fixed(value, right_precision, digits, &ndigits, &exponent);
 
+        // TODO(edje): The code below does not respect the locale properly!
+
         // Values obtained from the locale.
-        // TODO(edje): Set!
+        const signed char *mon_grouping =
+            grouping ? monetary->mon_grouping : NULL;
         size_t thousands_sep_width = 1;
 
         // Determine the number of characters printed before the decimal point.
         struct numeric_grouping numeric_grouping;
         size_t left_digits_with_grouping = exponent >= 1 ? exponent : 1;
         left_digits_with_grouping +=
-            numeric_grouping_init(&numeric_grouping, monetary->mon_grouping,
+            numeric_grouping_init(&numeric_grouping, mon_grouping,
                                   left_digits_with_grouping) *
             thousands_sep_width;
         size_t left_precision_with_grouping =
             left_precision +
-            numeric_grouping_init(&(struct numeric_grouping){},
-                                  monetary->mon_grouping, left_precision) *
+            numeric_grouping_init(&(struct numeric_grouping){}, mon_grouping,
+                                  left_precision) *
                 thousands_sep_width;
 
+        size_t width = 0;
+        if (negative || left_precision > 0) {
+          if (parentheses)
+            width += 2;
+          else
+            ++width;
+        }
+        if (currency_symbol)
+          ++width;
+        width += left_digits_with_grouping > left_precision_with_grouping
+                     ? left_digits_with_grouping
+                     : left_precision_with_grouping;
+        width += right_precision > 0 ? right_precision + 1 : 0;
+
+        if (!left_justified) {
+          while (field_width > width) {
+            PUTCHAR(' ');
+            --field_width;
+          }
+        }
+
         if (negative)
-          PUTCHAR('-');
-        PUTCHAR('$');
+          PUTCHAR(parentheses ? '(' : '-');
+        else if (left_precision > 0)
+          PUTCHAR(' ');
+        if (currency_symbol)
+          PUTCHAR('$');
 
         ssize_t position = -exponent;
         ssize_t idx;
@@ -149,8 +179,17 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
           --position;
           ++idx;
         }
-
         assert(idx >= (ssize_t)ndigits && "Not all digits have been printed");
+
+        if (parentheses) {
+          if (negative)
+            PUTCHAR(')');
+          else if (left_precision > 0)
+            PUTCHAR(' ');
+        }
+
+        while (field_width-- > width)
+          PUTCHAR(' ');
       } else if (*format == '%') {
         PUTCHAR('%');
       }
