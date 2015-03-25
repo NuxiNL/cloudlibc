@@ -64,15 +64,41 @@ static size_t generate_prefix(char_t *buf, size_t buflen,
                               const wchar_t *sign, char sign_posn,
                               bool negative, char sep_by_space,
                               locale_t locale) {
-  // TODO(edje): Implement.
   size_t nwritten = 0;
-  if (negative) {
-    if (sign_posn == 0)
-      PUTCHAR('(');
-    else
+  // TODO(edje): Pick right value.
+  char separator = ' ';
+
+  // Leading '(' if negative.
+  if (sign_posn == 0 && negative)
+    PUTCHAR('(');
+
+  if (cs_precedes == 1) {
+    // Currency symbol precedes the value.
+    if (sign_posn == 1 || sign_posn == 3) {
+      // Sign string precedes the currency symbol.
       PUTSTRING(sign);
+      if (sep_by_space == 2)
+        PUTCHAR(' ');
+    }
+    if (*currency_symbol != L'\0') {
+      PUTSTRING(currency_symbol);
+      if (sign_posn == 4) {
+        // Sign string succeeds the currency symbol.
+        if (sep_by_space == 2)
+          PUTCHAR(separator);
+        PUTSTRING(sign);
+        if (sep_by_space == 1)
+          PUTCHAR(' ');
+      } else if (sep_by_space == 1) {
+        PUTCHAR(separator);
+      }
+    }
+  } else if (sign_posn == 1) {
+    // Just the sign string.
+    PUTSTRING(sign);
+    if (sep_by_space == 2)
+      PUTCHAR(' ');
   }
-  PUTSTRING(currency_symbol);
   return nwritten;
 }
 
@@ -81,9 +107,40 @@ static size_t generate_suffix(char_t *buf, size_t buflen,
                               const wchar_t *sign, char sign_posn,
                               bool negative, char sep_by_space,
                               locale_t locale) {
-  // TODO(edje): Implement.
   size_t nwritten = 0;
-  if (negative && sign_posn == 0)
+  // TODO(edje): Pick right value.
+  char separator = ' ';
+
+  if (cs_precedes == 0) {
+    // Currency symbol succeeds the value.
+    if (sign_posn == 3) {
+      // Sign string precedes the currency symbol.
+      if (sep_by_space == 1)
+        PUTCHAR(' ');
+      PUTSTRING(sign);
+    }
+    if (*currency_symbol != L'\0') {
+      if ((sign_posn == 3 && sep_by_space == 2) ||
+          (sep_by_space == 1 && (sign_posn == 0 || sign_posn == 1 ||
+                                 sign_posn == 2 || sign_posn == 4)))
+        PUTCHAR(separator);
+      PUTSTRING(currency_symbol);
+      if (sign_posn == 2 || sign_posn == 4) {
+        // Sign string succeeds the currency symbol.
+        if (sep_by_space == 2)
+          PUTCHAR(' ');
+        PUTSTRING(sign);
+      }
+    }
+  } else if (sign_posn == 2) {
+    // Just the sign string.
+    if (sep_by_space == 2)
+      PUTCHAR(' ');
+    PUTSTRING(sign);
+  }
+
+  // Trailing ')' if negative.
+  if (sign_posn == 0 && negative)
     PUTCHAR(')');
   return nwritten;
 }
