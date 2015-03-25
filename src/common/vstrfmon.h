@@ -367,7 +367,7 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
           PUTCHAR(fill_character);
 
         // Print digits from the value.
-        ssize_t position = -exponent;
+        ssize_t position;
         ssize_t idx;
         if (exponent >= 1) {
           // At least one digit is placed before the radix character.
