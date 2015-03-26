@@ -10,11 +10,11 @@ netdb.h		40%	nameinfo still missing
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
 wchar.h		50%	stdio bits still missing. Many tests missing.
-monetary.h	70%	Some locale dependent bits still missing
 sys/procdesc.h	70%	pdexec() still missing
 string.h	80%	strcoll() and strxfrm() still missing
 sys/socket.h	80%	Needs more polishing
 unistd.h	80%	exec(), fpathconf() and sysconf() still missing
+monetary.h	90%	Almost finished...
 pthread.h	90%	thread detaching and tests for rwlock incomplete
 stdlib.h	90%	__cxa_atexit() and atexit() still missing
 
