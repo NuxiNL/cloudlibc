@@ -97,8 +97,31 @@ The source tree is structured as follows:
 
 ## Building and installing cloudlibc
 
-TODO(edje): Add a proper description as soon as the toolchain changes
-have been upstreamed.
+TODO(edje): The build script still needs a lot of cleanups.
+
+After
+[wiki/Building-the-toolchain](building and installing Clang and GNU Binutils),
+cloudlibc may be built and installed by running the following command:
+
+    ./build
+
+Once the script has completed successfully, it should already be
+possible to build simple C programs. A binary containing all cloudlibc
+unit tests is stored at `_obj/unittest`. This program can be invoked on
+a system support CloudABI as follows:
+
+    rm -Rf tmpdir
+    mkdir tmpdir
+    ./unittest < tmpdir
+
+It is strongly advised to also
+[wiki/Building-runtime-libraries](install additional runtime libraries),
+such as LLVM's compiler-rt, libc++ and libc++abi. These libraries are
+required for full C and C++ language support.
+
+## Operating system support
+
+TODO(edje): Release the kernel patches.
 
 ## Support
 
