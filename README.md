@@ -108,7 +108,7 @@ cloudlibc may be built and installed by running the following command:
 Once the script has completed successfully, it should already be
 possible to build simple C programs. A binary containing all cloudlibc
 unit tests is stored at `_obj/unittest`. This program can be invoked on
-a system support CloudABI as follows:
+a system that supports CloudABI as follows:
 
     rm -Rf tmpdir
     mkdir tmpdir
