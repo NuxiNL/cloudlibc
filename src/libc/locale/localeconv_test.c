@@ -53,10 +53,10 @@ TEST(localeconv, en_us) {
   ASSERT_STREQ("USD ", lconv->int_curr_symbol);
   ASSERT_EQ(2, lconv->int_frac_digits);
   ASSERT_EQ(1, lconv->int_n_cs_precedes);
-  ASSERT_EQ(0, lconv->int_n_sep_by_space);
+  ASSERT_EQ(1, lconv->int_n_sep_by_space);
   ASSERT_EQ(1, lconv->int_n_sign_posn);
   ASSERT_EQ(1, lconv->int_p_cs_precedes);
-  ASSERT_EQ(0, lconv->int_p_sep_by_space);
+  ASSERT_EQ(1, lconv->int_p_sep_by_space);
   ASSERT_EQ(1, lconv->int_p_sign_posn);
   ASSERT_STREQ(".", lconv->mon_decimal_point);
   ASSERT_STREQ("\x03", lconv->mon_grouping);

@@ -21,9 +21,9 @@ static const struct lc_monetary monetary_en_us = {
     .int_curr_symbol = "USD \0",
     .int_frac_digits = 2,
     .int_p_cs_precedes = 1,
-    .int_p_sep_by_space = 0,
+    .int_p_sep_by_space = 1,
     .int_p_sign_posn = 1,
     .int_n_cs_precedes = 1,
-    .int_n_sep_by_space = 0,
+    .int_n_sep_by_space = 1,
     .int_n_sign_posn = 1,
 };

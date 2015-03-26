@@ -113,6 +113,13 @@ TEST(strfmon, en_us) {
   TEST_STRFMON(" -$   123.4500", "%14#5.4n", -123.45);
   TEST_STRFMON("  $ 3,456.7810", "%14#5.4n", 3456.781);
 
+  TEST_STRFMON("USD 0.00", "%i", 0.0);
+  TEST_STRFMON("USD 0.01", "%i", 0.01);
+  TEST_STRFMON("-USD 0.42", "%i", -0.42);
+  TEST_STRFMON("USD 123.45", "%i", 123.45);
+  TEST_STRFMON("-USD 123.45", "%i", -123.45);
+  TEST_STRFMON("USD 3,456.78", "%i", 3456.781);
+
   freelocale(locale);
 }
 
@@ -148,6 +155,13 @@ TEST(strfmon, nl_nl) {
   TEST_STRFMON("€ 123,45", "%(n", 123.45);
   TEST_STRFMON("(€ 123,45)", "%(n", -123.45);
   TEST_STRFMON("€ 3 456,78", "%(n", 3456.781);
+
+  TEST_STRFMON("EUR 0,00", "%i", 0.0);
+  TEST_STRFMON("EUR 0,01", "%i", 0.01);
+  TEST_STRFMON("EUR 0,42-", "%i", -0.42);
+  TEST_STRFMON("EUR 123,45", "%i", 123.45);
+  TEST_STRFMON("EUR 123,45-", "%i", -123.45);
+  TEST_STRFMON("EUR 3 456,78", "%i", 3456.781);
 
   freelocale(locale);
 }

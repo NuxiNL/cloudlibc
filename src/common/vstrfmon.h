@@ -271,10 +271,25 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
           right_precision =
               frac_digits >= 0 && frac_digits != CHAR_MAX ? frac_digits : 2;
         }
-        // TODO(edje): Use the international currency symbol!
-        const wchar_t *currency_symbol = monetary->currency_symbol;
-        if (!use_currency_symbol)
+        const wchar_t *currency_symbol;
+        wchar_t int_curr_symbol[4];
+        if (!use_currency_symbol) {
+          // Don't use any currency symbol.
           currency_symbol = L"";
+        } else if (international) {
+          // Use the international currency symbol of the locale. The
+          // first three characters correspond with the currency symbol.
+          // The fourth is used as the separator character.
+          // TODO(edje): Extract separator.
+          currency_symbol = int_curr_symbol;
+          int_curr_symbol[0] = monetary->int_curr_symbol[0];
+          int_curr_symbol[1] = monetary->int_curr_symbol[1];
+          int_curr_symbol[2] = monetary->int_curr_symbol[2];
+          int_curr_symbol[3] = L'\0';
+        } else {
+          // Use the local currency symbol.
+          currency_symbol = monetary->currency_symbol;
+        }
         const wchar_t *sign = negative ? negative_sign : positive_sign;
         const wchar_t *opposite_sign = negative ? positive_sign : negative_sign;
 #define LOCALE_ATTRIBUTE(name)                                           \
