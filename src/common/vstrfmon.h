@@ -59,12 +59,9 @@ typedef char char_t;
 static size_t generate_prefix(char_t *buf, size_t buflen,
                               const wchar_t *currency_symbol, char cs_precedes,
                               const wchar_t *sign, char sign_posn,
-                              bool negative, char sep_by_space,
+                              bool negative, char separator, char sep_by_space,
                               locale_t locale) {
   size_t nwritten = 0;
-  // TODO(edje): Pick right value.
-  char separator = ' ';
-
   // Leading '(' if negative.
   if (sign_posn == 0 && negative)
     PUTCHAR('(');
@@ -102,12 +99,9 @@ static size_t generate_prefix(char_t *buf, size_t buflen,
 static size_t generate_suffix(char_t *buf, size_t buflen,
                               const wchar_t *currency_symbol, char cs_precedes,
                               const wchar_t *sign, char sign_posn,
-                              bool negative, char sep_by_space,
+                              bool negative, char separator, char sep_by_space,
                               locale_t locale) {
   size_t nwritten = 0;
-  // TODO(edje): Pick right value.
-  char separator = ' ';
-
   if (cs_precedes == 0) {
     // Currency symbol succeeds the value.
     if (sign_posn == 3) {
@@ -273,19 +267,23 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         }
         const wchar_t *currency_symbol;
         wchar_t int_curr_symbol[4];
+        char separator = ' ';
         if (!use_currency_symbol) {
           // Don't use any currency symbol.
           currency_symbol = L"";
         } else if (international) {
           // Use the international currency symbol of the locale. The
           // first three characters correspond with the currency symbol.
-          // The fourth is used as the separator character.
-          // TODO(edje): Extract separator.
           currency_symbol = int_curr_symbol;
           int_curr_symbol[0] = monetary->int_curr_symbol[0];
           int_curr_symbol[1] = monetary->int_curr_symbol[1];
           int_curr_symbol[2] = monetary->int_curr_symbol[2];
           int_curr_symbol[3] = L'\0';
+
+          // The fourth is used as the separator character.
+          separator = monetary->int_curr_symbol[3];
+          if (separator == '\0')
+            separator = ' ';
         } else {
           // Use the local currency symbol.
           currency_symbol = monetary->currency_symbol;
@@ -315,27 +313,27 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         char_t prefix[32];
         size_t prefixlen = generate_prefix(
             prefix, sizeof(prefix), currency_symbol, cs_precedes, sign,
-            sign_posn, negative, sep_by_space, locale);
+            sign_posn, negative, separator, sep_by_space, locale);
         char_t opposite_prefix[32];
         size_t opposite_prefixlen = 0;
         if (left_precision > 0)
           opposite_prefixlen = generate_prefix(
               opposite_prefix, sizeof(opposite_prefix), currency_symbol,
               opposite_cs_precedes, opposite_sign, opposite_sign_posn,
-              !negative, opposite_sep_by_space, locale);
+              !negative, separator, opposite_sep_by_space, locale);
 
         // Generate the text that should appear after the value.
         char_t suffix[32];
         size_t suffixlen = generate_suffix(
             suffix, sizeof(suffix), currency_symbol, cs_precedes, sign,
-            sign_posn, negative, sep_by_space, locale);
+            sign_posn, negative, separator, sep_by_space, locale);
         char_t opposite_suffix[32];
         size_t opposite_suffixlen = 0;
         if (left_precision > 0)
           opposite_suffixlen = generate_suffix(
               opposite_suffix, sizeof(opposite_suffix), currency_symbol,
               opposite_cs_precedes, opposite_sign, opposite_sign_posn,
-              !negative, opposite_sep_by_space, locale);
+              !negative, separator, opposite_sep_by_space, locale);
 
         // Convert floating point value to decimal digits.
         unsigned char digits[DECIMAL_DIG];
