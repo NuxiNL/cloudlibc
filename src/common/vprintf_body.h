@@ -283,29 +283,26 @@ while (*format != '\0') {
         // Integer printing.
         LABEL(integer) : {
           // Convert integer to string representation. We generate up to
-          // ~3 characters per byte. Take into account locale specific
-          // grouping characters and 8 characters per byte should be a
-          // safe upperbound.
-          char digitsbuf[sizeof(uintmax_t) * 8];
+          // 3 characters per byte, as the base is at least 8.
+          char digitsbuf[sizeof(uintmax_t) * 3];
           char *digits = digitsbuf + sizeof(digitsbuf);
-          int grouping_chunk = integer_base == 10 && grouping ? 3 : 0;
           for (;;) {
             *--digits = number_charset[integer_value % integer_base];
             integer_value /= integer_base;
             if (integer_value == 0)
               break;
-
-            // Use thousand separator.
-            if (--grouping_chunk == 0) {
-              // TODO(edje): Use thousand separator from LC_NUMERIC.
-              // TODO(edje): Honour grouping from LC_NUMERIC.
-              *--digits = ',';
-              grouping_chunk = 3;
-            }
           }
 
-          // Determine width of the number, minus the padding.
+          // Determine width of the number, minus the padding. Take into
+          // account the number of grouping characters we need to insert
+          // into the number.
           size_t width = digitsbuf + sizeof(digitsbuf) - digits;
+          struct numeric_grouping numeric_grouping;
+          width +=
+              numeric_grouping_init(&numeric_grouping,
+                                    grouping ? locale->numeric->grouping : NULL,
+                                    width) *
+              1;  // TODO(edje): Use the proper width.
           if ((ssize_t)width < precision)
             width = precision;
           width += number_prefixlen;
@@ -321,8 +318,14 @@ while (*format != '\0') {
             PUTCHAR(number_prefix[i]);
           while (precision-- > digitsbuf + sizeof(digitsbuf) - digits)
             PUTCHAR('0');
-          while (digits < digitsbuf + sizeof(digitsbuf))
+          while (digits < digitsbuf + sizeof(digitsbuf)) {
+            if (numeric_grouping_step(&numeric_grouping)) {
+              // Add thousands separator.
+              // TODO(edje): Add proper value from the locale.
+              PUTCHAR(',');
+            }
             PUTCHAR(*digits++);
+          }
           PAD_TO_FIELD_WIDTH(' ');
           break;
         }
