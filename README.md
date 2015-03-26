@@ -100,7 +100,7 @@ The source tree is structured as follows:
 TODO(edje): The build script still needs a lot of cleanups.
 
 After
-[wiki/Building-the-toolchain](building and installing Clang and GNU Binutils),
+[building and installing Clang and GNU Binutils](wiki/Building-the-toolchain),
 cloudlibc may be built and installed by running the following command:
 
     ./build
@@ -115,7 +115,7 @@ a system support CloudABI as follows:
     ./unittest < tmpdir
 
 It is strongly advised to also
-[wiki/Building-runtime-libraries](install additional runtime libraries),
+[install additional runtime libraries](wiki/Building-runtime-libraries),
 such as LLVM's compiler-rt, libc++ and libc++abi. These libraries are
 required for full C and C++ language support.
 
