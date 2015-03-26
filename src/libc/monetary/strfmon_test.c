@@ -128,5 +128,26 @@ TEST(strfmon, nl_nl) {
   TEST_STRFMON("€ 123,45-", "%n", -123.45);
   TEST_STRFMON("€ 3 456,78", "%n", 3456.781);
 
+  TEST_STRFMON("      € 0,00", "%14n", 0.0);
+  TEST_STRFMON("      € 0,01", "%14n", 0.01);
+  TEST_STRFMON("     € 0,42-", "%14n", -0.42);
+  TEST_STRFMON("    € 123,45", "%14n", 123.45);
+  TEST_STRFMON("   € 123,45-", "%14n", -123.45);
+  TEST_STRFMON("  € 3 456,78", "%14n", 3456.781);
+
+  TEST_STRFMON("€   0,00 ", "%#3n", 0.0);
+  TEST_STRFMON("€   0,01 ", "%#3n", 0.01);
+  TEST_STRFMON("€   0,42-", "%#3n", -0.42);
+  TEST_STRFMON("€ 123,45 ", "%#3n", 123.45);
+  TEST_STRFMON("€ 123,45-", "%#3n", -123.45);
+  TEST_STRFMON("€ 3 456,78 ", "%#3n", 3456.781);
+
+  TEST_STRFMON("€ 0,00", "%(n", 0.0);
+  TEST_STRFMON("€ 0,01", "%(n", 0.01);
+  TEST_STRFMON("(€ 0,42)", "%(n", -0.42);
+  TEST_STRFMON("€ 123,45", "%(n", 123.45);
+  TEST_STRFMON("(€ 123,45)", "%(n", -123.45);
+  TEST_STRFMON("€ 3 456,78", "%(n", 3456.781);
+
   freelocale(locale);
 }
