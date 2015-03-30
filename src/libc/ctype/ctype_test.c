@@ -15,6 +15,7 @@ TEST(ctype, all) {
     SCOPED_NOTE(ch, {
       ASSERT_EQ(iswalnum(ch), isalnum(ch));
       ASSERT_EQ(iswalpha(ch), isalpha(ch));
+      ASSERT_TRUE(isascii(ch));
       ASSERT_EQ(iswblank(ch), isblank(ch));
       ASSERT_EQ(iswcntrl(ch), iscntrl(ch));
       ASSERT_EQ(iswdigit(ch), isdigit(ch));
@@ -35,6 +36,7 @@ TEST(ctype, all) {
     SCOPED_NOTE(ch, {
       ASSERT_EQ(0, isalnum(ch));
       ASSERT_EQ(0, isalpha(ch));
+      ASSERT_FALSE(isascii(ch));
       ASSERT_EQ(0, isblank(ch));
       ASSERT_EQ(0, iscntrl(ch));
       ASSERT_EQ(0, isdigit(ch));

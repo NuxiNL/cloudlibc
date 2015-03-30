@@ -40,6 +40,7 @@ typedef __locale_t locale_t;
 __BEGIN_DECLS
 int isalnum(int) __pure2;
 int isalpha(int) __pure2;
+int isascii(int) __pure2;
 int isblank(int) __pure2;
 int iscntrl(int) __pure2;
 int isdigit(int) __pure2;
