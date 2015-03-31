@@ -1,5 +1,6 @@
 Work in progress:
 -----------------
+dlfcn.h		 0%	Not started
 mqueue.h	 0%	Not started
 poll.h		 0%	Not started
 sys/capsicum.h	 0%	Not started
@@ -29,8 +30,8 @@ uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
-dlfcn.h fmtmsg.h ftw.h glob.h grp.h ndbm.h net/if.h netinet/tcp.h
-nl_types.h pwd.h search.h spawn.h stropts.h sys/ipc.h sys/msg.h
-sys/resource.h sys/select.h sys/sem.h sys/shm.h sys/statvfs.h sys/time.h
-sys/times.h sys/utsname.h sys/wait.h syslog.h termios.h trace.h ulimit.h
-utime.h utmpx.h wordexp.h
+fmtmsg.h ftw.h glob.h grp.h ndbm.h net/if.h netinet/tcp.h nl_types.h
+pwd.h search.h spawn.h stropts.h sys/ipc.h sys/msg.h sys/resource.h
+sys/select.h sys/sem.h sys/shm.h sys/statvfs.h sys/time.h sys/times.h
+sys/utsname.h sys/wait.h syslog.h termios.h trace.h ulimit.h utime.h
+utmpx.h wordexp.h
