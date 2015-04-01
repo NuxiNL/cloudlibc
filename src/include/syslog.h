@@ -56,14 +56,14 @@
 #define LOG_MASK(pri) (1 << (pri))
 
 // Logging severities.
-#define LOG_DEBUG 0    // A message useful for debugging programs.
-#define LOG_INFO 1     // A general information message.
-#define LOG_NOTICE 2   // A condition requiring special handling.
-#define LOG_WARNING 3  // A warning message.
+#define LOG_ALERT 0    // A condition that should be corrected immediately.
+#define LOG_CRIT 1     // A critical condition.
+#define LOG_DEBUG 2    // A message useful for debugging programs.
+#define LOG_EMERG 3    // A panic condition was reported to all processes.
 #define LOG_ERR 4      // An error message.
-#define LOG_CRIT 5     // A critical condition.
-#define LOG_ALERT 6    // A condition that should be corrected immediately.
-#define LOG_EMERG 7    // A panic condition was reported to all processes.
+#define LOG_INFO 5     // A general information message.
+#define LOG_NOTICE 6   // A condition requiring special handling.
+#define LOG_WARNING 7  // A warning message.
 
 __BEGIN_DECLS
 int setlogmask(int);

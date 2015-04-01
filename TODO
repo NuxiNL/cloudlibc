@@ -6,12 +6,12 @@ poll.h		 0%	Not started
 sys/capsicum.h	 0%	Not started
 sys/event.h	 0%	Not started
 sys/time.h	 0%	Not started
-syslog.h	 0%	Not started
 aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 netdb.h		40%	nameinfo still missing
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
+syslog.h	50%	Still needs tests
 wchar.h		50%	stdio bits still missing. Many tests missing.
 sys/procdesc.h	70%	pdexec() still missing
 string.h	80%	strcoll() and strxfrm() still missing
