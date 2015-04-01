@@ -30,6 +30,8 @@
 //   a different prototype.
 // - CMSG_LEN() and CMSG_SPACE():
 //   Part of RFC 2292.
+// - PF_*:
+//   Present on most other systems.
 //
 // Features missing:
 // - SO_OOBINLINE, MSG_OOB and sockatmark():
@@ -135,6 +137,12 @@ struct cmsghdr {
 #define AF_INET 1    // Internet domain sockets for use with IPv4 addresses.
 #define AF_INET6 2   // Internet domain sockets for use with IPv6 addresses.
 #define AF_UNIX 3    // UNIX domain sockets.
+
+// For compatibility.
+#define PF_UNSPEC AF_UNSPEC
+#define PF_INET AF_INET
+#define PF_INET6 AF_INET6
+#define PF_UNIX AF_UNIX
 
 #define SHUT_RD 0x1                    // Disables further receive operations.
 #define SHUT_WR 0x2                    // Disables further send operations.
