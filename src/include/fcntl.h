@@ -23,6 +23,10 @@
 
 // <fcntl.h> - file control options
 //
+// Extensions:
+// - O_NDELAY:
+//   Identical to O_NONBLOCK.
+//
 // Features missing:
 // - F_DUPFD and F_DUPFD_CLOEXEC:
 //   Ordering of file descriptors should not be relevant.
@@ -81,9 +85,10 @@ typedef __off_t off_t;
 #define O_SEARCH 0x8000000
 #define O_WRONLY 0x10000000
 
-// For compatibility. These flags have no effect in this environment.
-#define O_CLOEXEC 0
-#define O_NOCTTY 0
+// For compatibility.
+#define O_CLOEXEC 0          // Has no effect.
+#define O_NDELAY O_NONBLOCK  // Different spelling.
+#define O_NOCTTY 0           // Has no effect.
 
 // Access modes.
 #define O_ACCMODE (O_EXEC | O_RDONLY | O_SEARCH | O_WRONLY)
