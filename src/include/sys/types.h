@@ -126,6 +126,10 @@ typedef __size_t size_t;
 typedef __ssize_t ssize_t;
 #define _SSIZE_T_DECLARED
 #endif
+#ifndef _SUSECONDS_T_DECLARED
+typedef __suseconds_t suseconds_t;
+#define _SUSECONDS_T_DECLARED
+#endif
 #ifndef _TIME_T_DECLARED
 typedef __time_t time_t;
 #define _TIME_T_DECLARED

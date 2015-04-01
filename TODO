@@ -5,6 +5,7 @@ mqueue.h	 0%	Not started
 poll.h		 0%	Not started
 sys/capsicum.h	 0%	Not started
 sys/event.h	 0%	Not started
+sys/time.h	 0%	Not started
 aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 netdb.h		40%	nameinfo still missing
@@ -32,6 +33,5 @@ Will not be implemented:
 ------------------------
 fmtmsg.h ftw.h glob.h grp.h ndbm.h net/if.h netinet/tcp.h nl_types.h
 pwd.h search.h spawn.h stropts.h sys/ipc.h sys/msg.h sys/resource.h
-sys/select.h sys/sem.h sys/shm.h sys/statvfs.h sys/time.h sys/times.h
-sys/utsname.h sys/wait.h syslog.h termios.h trace.h ulimit.h utime.h
-utmpx.h wordexp.h
+sys/select.h sys/sem.h sys/shm.h sys/statvfs.h sys/times.h sys/utsname.h
+sys/wait.h syslog.h termios.h trace.h ulimit.h utime.h utmpx.h wordexp.h
