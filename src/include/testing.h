@@ -78,16 +78,26 @@
 //   TEST(module, name) {
 //     ...
 //   }
+//
+//   TEST_SEPARATE_PROCESS(module, name) {
+//     ...
+//   }
 
 struct __test {
   const char *__name;
   void (*__func)(int);
+  _Bool __separate_process;
 };
 
 #define TEST(module, name)                                               \
   static void __test_func_##module##_##name(int);                        \
   static struct __test __test_obj_##module##_##name __section("__tests") \
-      __used = {#module "::" #name, __test_func_##module##_##name};      \
+      __used = {#module "::" #name, __test_func_##module##_##name, 0};   \
+  static void __test_func_##module##_##name(int fd_tmp)
+#define TEST_SEPARATE_PROCESS(module, name)                              \
+  static void __test_func_##module##_##name(int);                        \
+  static struct __test __test_obj_##module##_##name __section("__tests") \
+      __used = {#module "::" #name, __test_func_##module##_##name, 1};   \
   static void __test_func_##module##_##name(int fd_tmp)
 
 // Test execution.

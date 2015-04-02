@@ -3,12 +3,14 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/procdesc.h>
 #include <sys/stat.h>
 
 #include <errno.h>
 #include <fcntl.h>
 #include <fenv.h>
 #include <pthread.h>
+#include <signal.h>
 #include <stdarg.h>
 #include <stdatomic.h>
 #include <stdint.h>
@@ -53,6 +55,25 @@ struct testing_state {
   _Atomic(struct __test *) test_start;  // First test to be executed.
 };
 
+static void run_test(struct testing_state *state, struct __test *test) {
+  __testing_printf("-> %s\n", test->__name);
+
+  // Create a temporary directory for the test to store data.
+  ASSERT_EQ(0, mkdirat(state->tmpdir, test->__name));
+  int fd_tmp = openat(state->tmpdir, test->__name, O_DIRECTORY | O_RDONLY);
+  ASSERT_NE(-1, fd_tmp);
+
+  // Execute the test in a deterministic environment.
+  errno = 0;
+  fesetenv(FE_DFL_ENV);
+  __test_note_stack = NULL;
+  test->__func(fd_tmp);
+
+  // Attempt to destroy the temporary directory to reduce used disk space.
+  ASSERT_EQ(0, close(fd_tmp));
+  unlinkat(state->tmpdir, test->__name, AT_REMOVEDIR);
+}
+
 static void *run_tests(void *arg) {
   struct testing_state *state = arg;
   for (;;) {
@@ -61,22 +82,27 @@ static void *run_tests(void *arg) {
     if (test >= __stop___tests)
       return NULL;
 
-    __testing_printf("-> %s\n", test->__name);
+    if (test->__separate_process) {
+      // Execute test in a separate subprocess.
+      int fd;
+      int ret = pdfork(&fd);
+      if (ret == 0) {
+        run_test(state, test);
+        _Exit(0);
+      }
 
-    // Create a temporary directory for the test to store data.
-    ASSERT_EQ(0, mkdirat(state->tmpdir, test->__name));
-    int fd_tmp = openat(state->tmpdir, test->__name, O_DIRECTORY | O_RDONLY);
-    ASSERT_NE(-1, fd_tmp);
-
-    // Execute the test in a deterministic environment.
-    errno = 0;
-    fesetenv(FE_DFL_ENV);
-    __test_note_stack = NULL;
-    test->__func(fd_tmp);
-
-    // Attempt to destroy the temporary directory to reduce used disk space.
-    ASSERT_EQ(0, close(fd_tmp));
-    unlinkat(state->tmpdir, test->__name, AT_REMOVEDIR);
+      // Wait for the subprocess to terminate.
+      ASSERT_LT(0, ret);
+      siginfo_t si;
+      ASSERT_EQ(0, pdwait(fd, &si, 0));
+      ASSERT_EQ(0, close(fd));
+      ASSERT_EQ(SIGCHLD, si.si_signo);
+      ASSERT_EQ(CLD_EXITED, si.si_code);
+      ASSERT_EQ(0, si.si_status);
+    } else {
+      // Run the test from within the current process.
+      run_test(state, test);
+    }
   }
 }
 
