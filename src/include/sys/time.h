@@ -24,7 +24,7 @@
 // <sys/time.h> - time types
 //
 // Extensions:
-// - gettimeofday()'s last parameter may be omitted entirelly.
+// - gettimeofday()'s last parameter may be omitted entirely.
 //
 // Features missing:
 // - fd_set, FD_CLR(), FD_ISSET(), FD_SET(), FD_ZERO(), FD_SETSIZE and select():
