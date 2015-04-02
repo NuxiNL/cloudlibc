@@ -5,7 +5,6 @@ mqueue.h	 0%	Not started
 poll.h		 0%	Not started
 sys/capsicum.h	 0%	Not started
 sys/event.h	 0%	Not started
-sys/time.h	 0%	Not started
 aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 netdb.h		40%	nameinfo still missing
@@ -27,8 +26,8 @@ fcntl.h fenv.h float.h iconv.h inttypes.h iso646.h langinfo.h libgen.h
 limits.h link.h locale.h math.h monetary.h netinet/in.h sched.h
 semaphore.h setjmp.h signal.h stdalign.h stdarg.h stdatomic.h stdbool.h
 stddef.h stdint.h stdnoreturn.h strings.h sys/mman.h sys/stat.h
-sys/types.h sys/uio.h sys/un.h tar.h testing.h tgmath.h threads.h time.h
-uchar.h wctype.h
+sys/time.h sys/types.h sys/uio.h sys/un.h tar.h testing.h tgmath.h
+threads.h time.h uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
