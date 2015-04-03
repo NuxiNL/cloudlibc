@@ -23,6 +23,10 @@
 
 // <netinet/in.h> - Internet address family
 //
+// Extensions:
+// - INADDR_LOOPBACK:
+//   Present on most other systems.
+//
 // Features missing:
 // - struct ipv6_mreq, IPV6_JOIN_GROUP, IPV6_LEAVE_GROUP,
 //   IPV6_MULTICAST_HOPS, IPV6_MULTICAST_IF, IPV6_MULTICAST_LOOP,
@@ -101,6 +105,7 @@ extern const struct in6_addr in6addr_loopback;
 
 #define INADDR_ANY ((uint32_t)0x00000000)
 #define INADDR_BROADCAST ((uint32_t)0xffffffff)
+#define INADDR_LOOPBACK ((uint32_t)0x7f000001)
 
 #define INET_ADDRSTRLEN 16
 _Static_assert(INET_ADDRSTRLEN == sizeof("255.255.255.255"),
