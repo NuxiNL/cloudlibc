@@ -82,39 +82,36 @@ static size_t get_numarg(const char_t **format) {
 // numbered arguments. If so, it returns the highest numbered argument used.
 // This can be used to allocate space to store the numbered arguments.
 static size_t get_numarg_max(const char_t *format) {
-#ifdef NO_NUMARG
-  return 0;
-#else
   size_t max_numarg = 0;
   while (*format != '\0') {
     if (*format++ == '%') {
-      if (*format == '%') {
-        ++format;
-      } else {
-        // Value.
-        {
+      // Numbered argument value.
+      bool got_numarg = false;
+      {
+        size_t numarg = get_numarg(&format);
+        if (numarg > 0)
+          got_numarg = true;
+        if (max_numarg < numarg)
+          max_numarg = numarg;
+      }
+
+      // Minimum field width and precision.
+      while (strchr("diouxXfFeEgGaAcspCS%m", *format) == NULL) {
+        if (*format++ == '*') {
           size_t numarg = get_numarg(&format);
           if (numarg == 0)
             return 0;
           if (max_numarg < numarg)
             max_numarg = numarg;
         }
-
-        // Minimum field width and precision.
-        while (strchr("diouxXfFeEgGaAcspCS%", *format) == NULL) {
-          if (*format++ == '*') {
-            size_t numarg = get_numarg(&format);
-            if (numarg == 0)
-              return 0;
-            if (max_numarg < numarg)
-              max_numarg = numarg;
-          }
-        }
       }
+
+      // Non-numbered argument encountered.
+      if (*format != '%' && *format != 'm' && !got_numarg)
+        return 0;
     }
   }
   return max_numarg;
-#endif
 }
 
 struct numarg_type {
@@ -130,97 +127,98 @@ static void get_numarg_types(const char_t *format,
                              struct numarg_type *numarg_types) {
   while (*format != '\0') {
     if (*format++ == '%') {
-      if (*format == '%') {
-        ++format;
-      } else {
-        size_t arg_value = get_numarg(&format) - 1;
+      size_t arg_value = get_numarg(&format);
 
 #if WIDE
-        // Skip flags.
-        format += wcsspn(format, L"'-+ #0");
+      // Skip flags.
+      format += wcsspn(format, L"'-+ #0");
 #else
-        format += strspn(format, "'-+ #0");
+      format += strspn(format, "'-+ #0");
 #endif
 
-        // Minimum field width.
+      // Minimum field width.
+      if (*format == '*') {
+        ++format;
+        size_t arg_field_width = get_numarg(&format) - 1;
+        numarg_types[arg_field_width].modifier = LM_DEFAULT;
+        numarg_types[arg_field_width].kind = K_SINT;
+      } else {
+        get_number(&format);
+      }
+
+      // Precision.
+      if (*format == '.') {
+        ++format;
         if (*format == '*') {
           ++format;
-          size_t arg_field_width = get_numarg(&format) - 1;
-          numarg_types[arg_field_width].modifier = LM_DEFAULT;
-          numarg_types[arg_field_width].kind = K_SINT;
+          size_t arg_precision = get_numarg(&format) - 1;
+          numarg_types[arg_precision].modifier = LM_DEFAULT;
+          numarg_types[arg_precision].kind = K_SINT;
         } else {
           get_number(&format);
         }
+      }
 
-        // Precision.
-        if (*format == '.') {
-          ++format;
-          if (*format == '*') {
-            ++format;
-            size_t arg_precision = get_numarg(&format) - 1;
-            numarg_types[arg_precision].modifier = LM_DEFAULT;
-            numarg_types[arg_precision].kind = K_SINT;
-          } else {
-            get_number(&format);
-          }
+      // Not a numbered argument.
+      char_t specifier = *format++;
+      if (arg_value-- == 0)
+        continue;
+
+      // Length modifier.
+      enum length_modifier length = get_length_modifier(&format);
+      numarg_types[arg_value].modifier = length;
+
+      // Conversion specifiers.
+      switch (specifier) {
+        case 'd':
+        case 'i': {
+          // Signed decimal integer.
+          numarg_types[arg_value].kind = K_SINT;
+          break;
         }
-
-        // Length modifier.
-        enum length_modifier length = get_length_modifier(&format);
-        numarg_types[arg_value].modifier = length;
-
-        // Conversion specifiers.
-        switch (*format++) {
-          case 'd':
-          case 'i': {
-            // Signed decimal integer.
-            numarg_types[arg_value].kind = K_SINT;
-            break;
-          }
-          case 'o':
-          case 'u':
-          case 'x':
-          case 'X': {
-            // Unsigned integer types.
-            numarg_types[arg_value].kind = K_UINT;
-            break;
-          }
-          case 'f':
-          case 'F':
-          case 'e':
-          case 'E':
-          case 'g':
-          case 'G':
-          case 'a':
-          case 'A': {
-            // Floating point types.
-            numarg_types[arg_value].kind = K_FLOAT;
-            break;
-          }
-          case 'c': {
-            // Character.
-            if (length == LM_LONG) {
-              numarg_types[arg_value].kind = K_SINT;
-              numarg_types[arg_value].modifier = LM_WCHAR;
-            } else {
-              numarg_types[arg_value].kind = K_UINT;
-              numarg_types[arg_value].modifier = LM_CHAR;
-            }
-            break;
-          }
-          case 'C': {
-            // Wide character.
+        case 'o':
+        case 'u':
+        case 'x':
+        case 'X': {
+          // Unsigned integer types.
+          numarg_types[arg_value].kind = K_UINT;
+          break;
+        }
+        case 'f':
+        case 'F':
+        case 'e':
+        case 'E':
+        case 'g':
+        case 'G':
+        case 'a':
+        case 'A': {
+          // Floating point types.
+          numarg_types[arg_value].kind = K_FLOAT;
+          break;
+        }
+        case 'c': {
+          // Character.
+          if (length == LM_LONG) {
             numarg_types[arg_value].kind = K_SINT;
             numarg_types[arg_value].modifier = LM_WCHAR;
-            break;
+          } else {
+            numarg_types[arg_value].kind = K_UINT;
+            numarg_types[arg_value].modifier = LM_CHAR;
           }
-          case 's':
-          case 'p':
-          case 'S': {
-            // Pointers.
-            numarg_types[arg_value].kind = K_POINTER;
-            break;
-          }
+          break;
+        }
+        case 'C': {
+          // Wide character.
+          numarg_types[arg_value].kind = K_SINT;
+          numarg_types[arg_value].modifier = LM_WCHAR;
+          break;
+        }
+        case 's':
+        case 'p':
+        case 'S': {
+          // Pointers.
+          numarg_types[arg_value].kind = K_POINTER;
+          break;
         }
       }
     }
@@ -363,6 +361,8 @@ int NAME(char_t *s, size_t n, locale_t locale, const char_t *format,
 #else
 #error "Unknown style"
 #endif
+  // Save current errno for %m.
+  int saved_errno = errno;
 
   size_t numarg_max = get_numarg_max(format);
   if (numarg_max > 0) {
@@ -379,11 +379,7 @@ int NAME(char_t *s, size_t n, locale_t locale, const char_t *format,
       // proper type.
       get_numarg_values(numarg_max, numarg_types, numarg_values, ap);
     }
-#define PARSE_ARGNUM(field)             \
-  size_t field = get_numarg(&format);   \
-  if (field == 0 || field > numarg_max) \
-    goto done;                          \
-  --field;
+#define PARSE_ARGNUM(field) size_t field = get_numarg(&format) - 1
 #define GET_ARG_SINT_T(type, index) ((type)numarg_values[index].v_sint)
 #define GET_ARG_UINT_T(type, index) ((type)numarg_values[index].v_uint)
 #define GET_ARG_POINTER_T(type, index) \
@@ -413,7 +409,6 @@ int NAME(char_t *s, size_t n, locale_t locale, const char_t *format,
 #undef LABEL
   }
 #if STYLE == VASPRINTF
-done:
   // Nul-terminate the buffer.
   PUTCHAR('\0');
   *s = result;
@@ -422,7 +417,6 @@ bad:
   free(result);
   return -1;
 #elif STYLE == VDPRINTF
-done:
   while (resultstored > 0) {
     ssize_t l = write(fd, result, resultstored);
     if (l == -1)
@@ -434,14 +428,12 @@ done:
 bad:
   return -1;
 #elif STYLE == VFPRINTF
-done:
   funlockfile(stream);
   return resultwritten;
 bad:
   funlockfile(stream);
   return -1;
 #elif STYLE == VSNPRINTF
-done:
   // Nul-terminate the buffer, if provided.
   if (n > 0)
     s[resultstored < n - 1 ? resultstored : n - 1] = '\0';

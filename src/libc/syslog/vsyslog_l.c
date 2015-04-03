@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <errno.h>
 #include <locale.h>
 #include <stdarg.h>
 #include <stdatomic.h>
@@ -21,6 +22,9 @@ static const char messages[][10] = {
 };
 
 void vsyslog_l(int priority, locale_t locale, const char *message, va_list ap) {
+  // Save errno value, so vfprintf_l() uses the right value.
+  int saved_errno = errno;
+
   // Validate priority and check whether it is part of the logging mask.
   if (priority < 0 || priority >= (int)__arraycount(messages))
     return;
@@ -43,6 +47,7 @@ void vsyslog_l(int priority, locale_t locale, const char *message, va_list ap) {
             tm.tm_sec, ts.tv_nsec, messages[priority]);
 
   // Print the error message.
+  errno = saved_errno;
   vfprintf_l(stderr, locale, message, ap);
 
   // Add a trailing newline if the message itself does not end with one.

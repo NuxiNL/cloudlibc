@@ -10,6 +10,6 @@
 #include <syslog.h>
 
 void vsyslog(int priority, const char *message, va_list ap) {
-  DEFAULT_LOCALE(locale, LC_CTYPE_MASK | LC_NUMERIC_MASK);
+  DEFAULT_LOCALE(locale, LC_CTYPE_MASK | LC_MESSAGES_MASK | LC_NUMERIC_MASK);
   vsyslog_l(priority, locale, message, ap);
 }

@@ -76,11 +76,24 @@ TEST_SEPARATE_PROCESS(syslog, example) {
     /* Severity, followed by message. */                               \
     ASSERT_ARREQ("Z DEBUG     " out "\n", buf + 29, 12 + sizeof(out)); \
   } while (0)
-  TEST_EXAMPLE("Dropped 123 packets", "Dropped %d packets", 123);
+  TEST_EXAMPLE("Dropped 123 packets 10 seconds ago",
+               "Dropped %d packets %d seconds ago", 123, 10);
   TEST_EXAMPLE("Dropped 123 packets 10 seconds ago",
                "Dropped %1$d packets %2$d seconds ago\n", 123, 10);
   TEST_EXAMPLE("Dropped 123 packets 10 seconds ago",
                "Dropped %2$d packets %1$d seconds ago", 10, 123);
-  // TODO(edje): Add support for %m and add tests.
+
+  errno = ENOENT;
+  TEST_EXAMPLE(
+      "Failed to open file /etc/passwd for reading: No such file or directory",
+      "Failed to open file %s for %s: %m", "/etc/passwd", "reading");
+  errno = ENOENT;
+  TEST_EXAMPLE(
+      "Failed to open file /etc/passwd for reading: No such file or directory",
+      "Failed to open file %1$s for %2$s: %m", "/etc/passwd", "reading");
+  errno = ENOENT;
+  TEST_EXAMPLE(
+      "Failed to open file /etc/passwd for reading: No such file or directory",
+      "Failed to open file %2$s for %1$s: %m", "reading", "/etc/passwd");
 #undef TEST_EXAMPLE
 }

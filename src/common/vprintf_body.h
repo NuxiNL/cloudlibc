@@ -4,16 +4,11 @@
 // See the LICENSE file for details.
 
 const struct lc_ctype *ctype = locale->ctype;
+const struct lc_messages *messages = locale->messages;
 
 while (*format != '\0') {
   if (*format == '%') {
-    // Escaped percent symbol.
-    if (*++format == '%') {
-      PUTCHAR(*format);
-      ++format;
-      continue;
-    }
-
+    ++format;
     // Field number, in case of numbered arguments.
     PARSE_ARGNUM(arg_value);
 
@@ -85,11 +80,11 @@ while (*format != '\0') {
     const char *number_charset;
 
     // Parameters for string printing.
-    char string_buf[2] = {};
+    char string_buf[NL_TEXTMAX];
     const char *string = NULL;
 
     // Parameters for wide string printing.
-    wchar_t wstring_buf[2] = {};
+    wchar_t wstring_buf[2];
     const wchar_t *wstring = NULL;
 
 #define SET_NUMBER_PREFIX(...)                      \
@@ -243,10 +238,12 @@ while (*format != '\0') {
         // Character.
         if (length == LM_LONG) {
           wstring_buf[0] = GET_ARG_SINT_T(wchar_t, arg_value);
+          string_buf[1] = L'\0';
           wstring = wstring_buf;
           goto LABEL(wstring);
         } else {
           string_buf[0] = GET_ARG_SINT_T(int, arg_value);
+          string_buf[1] = '\0';
           string = string_buf;
           goto LABEL(string);
         }
@@ -278,6 +275,26 @@ while (*format != '\0') {
         // Wide string.
         wstring = GET_ARG_POINTER_T(wchar_t, arg_value);
         goto LABEL(wstring);
+      }
+      case 'm': {
+        // Extension: error message strings, used by syslog().
+        if (saved_errno >= 0 &&
+            saved_errno < (int)__arraycount(messages->strerror) &&
+            messages->strerror[saved_errno] != NULL) {
+          __locale_translate_string(locale, string_buf,
+                                    messages->strerror[saved_errno],
+                                    sizeof(string_buf));
+        } else {
+          __locale_translate_string(locale, string_buf, messages->unknown_error,
+                                    sizeof(string_buf));
+        }
+        string = string_buf;
+        goto LABEL(string);
+      }
+      case '%': {
+        // Percent symbol.
+        PUTCHAR('%');
+        break;
       }
 
         // Integer printing.
