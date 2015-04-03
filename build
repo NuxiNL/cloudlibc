@@ -102,7 +102,10 @@ done
 # Install stub libraries needed to make simple binaries link. These
 # libraries are added by Clang implicitly. Without these stubs we would
 # not be able to actually build libc++, libc++abi and compiler-rt.
-for lib in compiler_rt c++ c++abi unwind; do
+#
+# Also add stubs for libm and libpthread. These are not present in this
+# environment, but many build scripts expect them.
+for lib in compiler_rt c++ c++abi m pthread unwind; do
   file="${PREFIX}/lib/lib${lib}.a"
   if [ ! -f "${file}" ]; then
     "${TARGET}-ar" -rc "${file}"
