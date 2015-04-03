@@ -24,6 +24,8 @@
 // <netdb.h> - definitions for network database operations
 //
 // Extensions:
+// - NI_MAXHOST and NI_MAXSERV:
+//   Present on most other systems.
 // - gai_strerror_l():
 //   gai_strerror() always uses the C locale.
 //
@@ -102,6 +104,9 @@ struct addrinfo {
 #define EAI_SOCKTYPE 8   // Invalid socket type.
 #define EAI_SYSTEM 9     // A system error occurred.
 #define EAI_OVERFLOW 10  // An argument buffer overflowed.
+
+#define NI_MAXHOST 1025  // Largest hostname returned by getnameinfo().
+#define NI_MAXSERV 32    // Largest service name returned by getnameinfo().
 
 __BEGIN_DECLS
 void endprotoent(void);
