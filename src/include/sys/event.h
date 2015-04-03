@@ -26,9 +26,48 @@
 #ifndef _SYS_EVENT_H_
 #define _SYS_EVENT_H_
 
-#include <_/cdefs.h>
+#include <_/types.h>
+
+struct timespec;
+
+struct kevent {
+  __uintptr_t ident;     // Identifier for this event.
+  short filter;          // Filter for event.
+  unsigned short flags;  // Action flags for kqueue.
+  unsigned int fflags;   // Filter flag value.
+  __intptr_t data;       // Filter data value.
+  void *udata;           // Opaque user data identifier.
+};
+
+#define EV_SET(ke, v_ident, v_filter, v_flags, v_fflags, v_data, v_udata) \
+  do {                                                                    \
+    (ke)->ident = (v_ident);                                              \
+    (ke)->filter = (v_filter);                                            \
+    (ke)->flags = (v_flags);                                              \
+    (ke)->fflags = (v_fflags);                                            \
+    (ke)->data = (v_data);                                                \
+    (ke)->udata = (v_udata);                                              \
+  } while (0)
+
+#define EV_ADD 0x1
+#define EV_CLEAR 0x2
+#define EV_DELETE 0x4
+#define EV_DISABLE 0x8
+#define EV_DISPATCH 0x10
+#define EV_ENABLE 0x20
+#define EV_EOF 0x40
+#define EV_ERROR 0x80
+#define EV_ONESHOT 0x100
+#define EV_RECEIPT 0x200
+
+#define EVFILT_AIO 1
+#define EVFILT_PROCDESC 2
+#define EVFILT_READ 3
+#define EVFILT_WRITE 4
 
 __BEGIN_DECLS
+int kevent(int, const struct kevent *, int, struct kevent *, int,
+           const struct timespec *);
 int kqueue(void);
 __END_DECLS
 
