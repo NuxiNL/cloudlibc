@@ -101,12 +101,12 @@ SYSCALL_4_0(48, sock_connect, cloudabi_fd_t, cloudabi_fd_t, const char *,
 SYSCALL_2_0(49, sock_listen, cloudabi_fd_t, cloudabi_backlog_t);
 SYSCALL_3_0(50, sock_recv, cloudabi_fd_t, const cloudabi_recv_in_t *,
             cloudabi_recv_out_t *);
-SYSCALL_2_0(51, sock_shutdown, cloudabi_fd_t, cloudabi_sdflags_t);
-SYSCALL_3_0(52, sock_stat_get, cloudabi_fd_t, cloudabi_sockstat_t *,
-            cloudabi_ssflags_t);
-SYSCALL_1_1(53, thread_create, cloudabi_threadattr_t *, cloudabi_tid_t);
-SYSCALL_1_N(54, thread_exit, _Atomic(cloudabi_lock_t) *);
-SYSCALL_1_0(55, thread_tcb_set, void *);
-SYSCALL_0_0(56, thread_yield);
-SYSCALL_3_0(57, sock_send, cloudabi_fd_t, const cloudabi_send_in_t *,
+SYSCALL_3_0(51, sock_send, cloudabi_fd_t, const cloudabi_send_in_t *,
             cloudabi_send_out_t *);
+SYSCALL_2_0(52, sock_shutdown, cloudabi_fd_t, cloudabi_sdflags_t);
+SYSCALL_3_0(53, sock_stat_get, cloudabi_fd_t, cloudabi_sockstat_t *,
+            cloudabi_ssflags_t);
+SYSCALL_1_1(54, thread_create, cloudabi_threadattr_t *, cloudabi_tid_t);
+SYSCALL_1_N(55, thread_exit, _Atomic(cloudabi_lock_t) *);
+SYSCALL_1_0(56, thread_tcb_set, void *);
+SYSCALL_0_0(57, thread_yield);
