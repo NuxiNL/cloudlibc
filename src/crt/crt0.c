@@ -74,7 +74,6 @@ noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
         __tls_alignment = phdr->p_align;
         break;
     }
-    ++phdr;
   }
 
   // Set up TLS space for the main thread. Instead of calling malloc()
