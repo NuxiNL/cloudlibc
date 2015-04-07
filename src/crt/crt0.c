@@ -12,11 +12,11 @@
 void *__dso_handle = NULL;
 
 // Stack smashing protection.
-unsigned long __stack_chk_guard = 0xdeadc0de;
+unsigned long __stack_chk_guard;
 
 // ELF program header.
-const ElfW(Phdr) *__elf_phdr = NULL;
-ElfW(Half) __elf_phnum = 0;
+const ElfW(Phdr) * __elf_phdr;
+ElfW(Half) __elf_phnum;
 
 // Initial thread-local storage data.
 const void *__tls_init_data = NULL;
@@ -42,19 +42,27 @@ static void crt_memset(void *s, int c, size_t n) {
     *sb++ = c;
 }
 
-static noreturn void mi_startup(const void *arg, size_t arglen,
-                                const ElfW(Phdr) * phdr, ElfW(Half) phnum,
-                                cloudabi_tid_t pthread_thread_id,
-                                unsigned long stack_chk_guard) {
+noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
+  cloudabi_startup_data_t sd;
+  if (sdplen < sizeof(sd)) {
+    // Kernel provided a smaller startup data structure. Add zero padding.
+    crt_memcpy(&sd, sdp, sdplen);
+    crt_memset((char *)&sd + sdplen, '\0', sizeof(sd) - sdplen);
+  } else {
+    // Kernel provided a larger startup data structure. Truncate.
+    crt_memcpy(&sd, sdp, sizeof(sd));
+  }
+
   // Set stack smashing guard.
-  __stack_chk_guard = stack_chk_guard;
+  __stack_chk_guard = sd.sd_random_seed;
 
   // Iterate through the program header to obtain values of interest.
   // Also store the location of the program header, so it can be
   // returned in the future by dl_iterate_phdr().
-  __elf_phdr = phdr;
-  __elf_phnum = phnum;
-  for (long i = 0; i < phnum; ++i) {
+  __elf_phdr = sd.sd_elf_phdr;
+  __elf_phnum = sd.sd_elf_phdrlen;
+  for (size_t i = 0; i < __elf_phnum; ++i) {
+    const ElfW(Phdr) *phdr = &__elf_phdr[i];
     switch (phdr->p_type) {
       case PT_TLS:
         // TLS header. This process uses variables stored in
@@ -84,10 +92,10 @@ static noreturn void mi_startup(const void *arg, size_t arglen,
   // __pthread_thread_id to ensure that functions like
   // pthread_mutex_lock() write the proper thread ID into the lock.
   struct __pthread self_object = {
-      .join = ATOMIC_VAR_INIT(pthread_thread_id | CLOUDABI_LOCK_WRLOCKED),
+      .join = ATOMIC_VAR_INIT(sd.sd_thread_id | CLOUDABI_LOCK_WRLOCKED),
   };
   __pthread_self_object = &self_object;
-  __pthread_thread_id = pthread_thread_id;
+  __pthread_thread_id = sd.sd_thread_id;
 
   // Invoke global constructors.
   void (**ctor)(void) = __ctors_stop;
@@ -96,77 +104,5 @@ static noreturn void mi_startup(const void *arg, size_t arglen,
 
   // Invoke program_main(). If program_main() is not part of the
   // application, the C library provides a copy that calls main().
-  program_main(arg, arglen);
+  program_main(sd.sd_arg, sd.sd_arglen);
 }
-
-#ifdef __x86_64__
-
-// Auxiliary vector layout and identifiers as described in the x86-64 ABI.
-//
-// http://www.x86-64.org/documentation/abi.pdf
-
-typedef struct {
-  int a_type;
-  union {
-    long a_val;
-    void *a_ptr;
-    void (*a_fnc)();
-  } a_un;
-} auxv_t;
-
-#define AT_NULL 0
-#define AT_PHDR 3
-#define AT_PHENT 4
-#define AT_PHNUM 5
-
-noreturn void _start(void **ap, void (*cleanup)(void)) {
-  // TODO(edje): Patch up the kernel to provide these values in a saner
-  // way. We also want to support binary blob arguments.
-
-  // Obtain auxiliary vector by scanning past the command line arguments
-  // and environment variables.
-  int argc = *(long *)ap;
-  void **auxvptr = ap + argc + 2;
-  while (*auxvptr++ != NULL) {
-  }
-  auxv_t *auxv = (auxv_t *)auxvptr;
-
-  // Process fields stored in the auxiliary vector that we support.
-  const ElfW(Phdr) *phdr = NULL;
-  ElfW(Half) phnum = 0;
-  while (auxv->a_type != AT_NULL) {
-    switch (auxv->a_type) {
-      case AT_PHDR:
-        phdr = auxv->a_un.a_ptr;
-        break;
-      case AT_PHNUM:
-        phnum = auxv->a_un.a_val;
-        break;
-    }
-    ++auxv;
-  }
-
-  // Extract the initial thread ID.
-  cloudabi_lock_t pthread_thread_id;
-  {
-    _Atomic(cloudabi_lock_t) atomic_tid;
-    cloudabi_event_t event = {
-        .type = CLOUDABI_EVENT_TYPE_LOCK_WRLOCK, .lock.lock = &atomic_tid,
-    };
-    size_t triggered;
-    cloudabi_sys_poll_once(&event, 1, &event, 1, &triggered);
-    pthread_thread_id = atomic_load(&atomic_tid);
-  }
-  pthread_thread_id &= ~CLOUDABI_LOCK_WRLOCKED;
-
-  // Generate stack smashing guard.
-  unsigned long stack_chk_guard;
-  cloudabi_sys_random_get(&stack_chk_guard, sizeof(stack_chk_guard));
-
-  // Call into the machine-independent startup sequence.
-  mi_startup(NULL, 0, phdr, phnum, pthread_thread_id, stack_chk_guard);
-}
-
-#else
-#error "Unsupported architecture"
-#endif

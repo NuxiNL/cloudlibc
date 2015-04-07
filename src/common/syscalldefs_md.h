@@ -106,6 +106,17 @@ typedef struct {
 } CLOUDABI_IDENT(send_out_t);
 
 typedef struct {
+  CLOUDABI_PTR(const void) sd_arg;   // Program argument data.
+  CLOUDABI_IDENT(size_t) sd_arglen;  // Program argument data size.
+
+  CLOUDABI_PTR(void) sd_elf_phdr;         // ELF program header.
+  CLOUDABI_IDENT(size_t) sd_elf_phdrlen;  // ELF program header length.
+
+  cloudabi_tid_t sd_thread_id;  // Thread ID.
+  uint64_t sd_random_seed;      // Random seed, used for SSP.
+} CLOUDABI_IDENT(startup_data_t);
+
+typedef struct {
   CLOUDABI_PTR(CLOUDABI_IDENT(threadentry_t)) entry_point;  // Entry point.
   CLOUDABI_PTR(void) stack;           // Pointer to stack buffer.
   CLOUDABI_IDENT(size_t) stack_size;  // Size of stack buffer.

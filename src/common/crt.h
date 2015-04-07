@@ -40,7 +40,7 @@ extern size_t __tls_total_size;
 extern size_t __tls_alignment;
 
 // Executable entry point.
-noreturn void _start(void **, void (*)(void));
+noreturn void _start(const cloudabi_startup_data_t *, size_t);
 
 // Multi-threading: pthread_t handle and thread ID.
 struct __pthread {
