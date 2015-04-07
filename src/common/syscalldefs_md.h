@@ -114,6 +114,9 @@ typedef struct {
 
   cloudabi_tid_t sd_thread_id;  // Thread ID.
   uint64_t sd_random_seed;      // Random seed, used for SSP.
+
+  uint32_t sd_ncpus;     // Number of CPUs.
+  uint32_t sd_pagesize;  // Page size.
 } CLOUDABI_IDENT(startup_data_t);
 
 typedef struct {

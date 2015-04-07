@@ -3,11 +3,12 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/crt.h>
+
 #include <errno.h>
 #include <unistd.h>
 
 long sysconf(int name) {
-  // TODO(edje): Have a proper implementation.
   switch (name) {
     case _SC_2_C_BIND:
     case _SC_ADVISORY_INFO:
@@ -40,6 +41,7 @@ long sysconf(int name) {
     case _SC_XOPEN_ENH_I18N:
       // Options that are always supported.
       return 200809L;
+
     case _SC_2_CHAR_TERM:
     case _SC_2_C_DEV:
     case _SC_2_FORT_DEV:
@@ -75,11 +77,16 @@ long sysconf(int name) {
     case _SC_XOPEN_UUCP:
       // Options that are always unsupported.
       return -1;
+
     case _SC_NPROCESSORS_ONLN:
-      return 4;
+      // Number of processors online.
+      return __ncpus;
     case _SC_PAGESIZE:
-      return 4096;
+      // Page size.
+      return __pagesize;
+
     default:
+      // Unknown option.
       errno = EINVAL;
       return -1;
   }

@@ -33,6 +33,10 @@ extern unsigned long __stack_chk_guard;
 extern const ElfW(Phdr) * __elf_phdr;
 extern ElfW(Half) __elf_phnum;
 
+// Machine properties.
+extern uint32_t __ncpus;
+extern uint32_t __pagesize;
+
 // Initial thread-local storage data.
 extern const void *__tls_init_data;
 extern size_t __tls_init_size;

@@ -18,6 +18,10 @@ unsigned long __stack_chk_guard;
 const ElfW(Phdr) * __elf_phdr;
 ElfW(Half) __elf_phnum;
 
+// Machine properties.
+uint32_t __ncpus;
+uint32_t __pagesize;
+
 // Initial thread-local storage data.
 const void *__tls_init_data = NULL;
 size_t __tls_init_size = 0;
@@ -55,6 +59,10 @@ noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
 
   // Set stack smashing guard.
   __stack_chk_guard = sd.sd_random_seed;
+
+  // Extract machine properties.
+  __ncpus = sd.sd_ncpus;
+  __pagesize = sd.sd_pagesize;
 
   // Iterate through the program header to obtain values of interest.
   // Also store the location of the program header, so it can be
