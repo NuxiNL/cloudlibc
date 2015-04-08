@@ -11,7 +11,7 @@
 
 int poll(struct pollfd *fds, size_t nfds, int timeout) {
   size_t maxevents = 2 * nfds + 1;
-  cloudabi_event_t events[2 * nfds + 1];
+  cloudabi_event_t events[maxevents];
   size_t nevents = 0;
 
   // Construct events for poll().

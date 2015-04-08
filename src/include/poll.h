@@ -25,7 +25,7 @@
 //
 // Features missing:
 // - POLLRDBAND, POLLPRI, POLLWRBAND:
-//   Not exposed by underlying system call.
+//   Out-of-band data is not supported.
 
 #ifndef _POLL_H_
 #define _POLL_H_
