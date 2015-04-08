@@ -31,7 +31,7 @@ int pthread_cond_wait(pthread_cond_t *restrict cond,
   // Remove lock from lock list while blocking.
   LIST_REMOVE(lock, __write_locks);
   cloudabi_errno_t error =
-      cloudabi_sys_poll_once(&event, 1, &event, 1, &triggered);
+      cloudabi_sys_poll(CLOUDABI_POLL_ONCE, &event, 1, &event, 1, &triggered);
   LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)

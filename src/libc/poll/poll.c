@@ -14,7 +14,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
   cloudabi_event_t events[2 * nfds + 1];
   size_t nevents = 0;
 
-  // Construct events for poll_once().
+  // Construct events for poll().
   for (size_t i = 0; i < nfds; ++i) {
     struct pollfd *pollfd = &fds[i];
     if (pollfd->fd < 0)
@@ -44,9 +44,9 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     event->clock.precision = 0;
   }
 
-  // Execute poll_once().
-  cloudabi_errno_t error =
-      cloudabi_sys_poll_once(events, nevents, events, maxevents, &nevents);
+  // Execute poll().
+  cloudabi_errno_t error = cloudabi_sys_poll(
+      CLOUDABI_POLL_ONCE, events, nevents, events, maxevents, &nevents);
   if (error != 0) {
     errno = error;
     return -1;

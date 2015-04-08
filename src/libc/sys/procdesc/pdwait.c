@@ -15,8 +15,8 @@ int pdwait(int fd, siginfo_t *infop, int options) {
     return (EINVAL);
 
   // Prepare set of events on which we should wait. If WNOHANG is
-  // specified, add an additional zero-value clock to force poll_once()
-  // to return immediately.
+  // specified, add an additional zero-value clock to force poll() to
+  // return immediately.
   cloudabi_event_t events[2] = {
       {
           .type = CLOUDABI_EVENT_TYPE_PROC_TERMINATE, .proc_terminate.fd = fd,
@@ -30,8 +30,8 @@ int pdwait(int fd, siginfo_t *infop, int options) {
 
   // Wait for process termination.
   size_t triggered;
-  cloudabi_errno_t error =
-      cloudabi_sys_poll_once(events, nevents, events, nevents, &triggered);
+  cloudabi_errno_t error = cloudabi_sys_poll(
+      CLOUDABI_POLL_ONCE, events, nevents, events, nevents, &triggered);
   if (error != 0)
     return (error);
 

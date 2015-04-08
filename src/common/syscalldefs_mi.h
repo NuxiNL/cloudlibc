@@ -188,6 +188,9 @@
 #define CLOUDABI_O_EXCL 0x4
 #define CLOUDABI_O_TRUNC 0x8
 
+// File descriptor passed to poll() to poll just once.
+#define CLOUDABI_POLL_ONCE 0xffffffff
+
 // File descriptor returned to pdfork()'s child process.
 #define CLOUDABI_PROCESS_CHILD 0xffffffff
 

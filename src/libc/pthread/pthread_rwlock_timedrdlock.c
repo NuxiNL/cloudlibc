@@ -35,7 +35,7 @@ int pthread_rwlock_timedrdlock(pthread_rwlock_t *restrict rwlock,
 
   size_t triggered;
   cloudabi_errno_t error =
-      cloudabi_sys_poll_once(events, 2, events, 2, &triggered);
+      cloudabi_sys_poll(CLOUDABI_POLL_ONCE, events, 2, events, 2, &triggered);
   if (error != 0)
     __pthread_terminate(error, "Failed to acquire read lock");
   for (size_t i = 0; i < triggered; ++i) {
