@@ -49,21 +49,18 @@ struct kevent {
     (ke)->udata = (v_udata);                                              \
   } while (0)
 
-#define EV_ADD 0x1
-#define EV_CLEAR 0x2
-#define EV_DELETE 0x4
-#define EV_DISABLE 0x8
-#define EV_DISPATCH 0x10
-#define EV_ENABLE 0x20
-#define EV_EOF 0x40
-#define EV_ERROR 0x80
-#define EV_ONESHOT 0x100
-#define EV_RECEIPT 0x200
+#define EV_ADD 0x1       // Add the event to the kqueue.
+#define EV_CLEAR 0x2     // Reset event to initial state.
+#define EV_DELETE 0x4    // Removes the event from the kqueue.
+#define EV_DISABLE 0x8   // Disable reporting through kqueue().
+#define EV_ENABLE 0x10   // Enable reporting through kqueue().
+#define EV_ONESHOT 0x20  // Only report first occurrence.
 
-#define EVFILT_AIO 1
-#define EVFILT_PROCDESC 2
-#define EVFILT_READ 3
-#define EVFILT_WRITE 4
+#define EV_EOF 0x20    // Filter-specific end-of-file condition.
+#define EV_ERROR 0x40  // Error has occurred.
+
+#define EVFILT_READ 1   // Data available to read from descriptor.
+#define EVFILT_WRITE 2  // Possibility to write to descriptor.
 
 __BEGIN_DECLS
 int kevent(int, const struct kevent *, int, struct kevent *, int,
