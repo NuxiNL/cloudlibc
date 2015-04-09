@@ -359,13 +359,13 @@ typedef struct {
       // IPv4 address and port number.
       uint8_t addr[4];
       uint16_t port;
-    } inet;
+    } sa_inet;
     struct {
       // IPv6 address and port number.
       // TODO(edje): What about the flow info and scope ID?
       uint8_t addr[16];
       uint16_t port;
-    } inet6;
+    } sa_inet6;
   };
 } cloudabi_sockaddr_t;
 static_assert(sizeof(cloudabi_sockaddr_t) == 20, "ABI has been changed");
