@@ -81,5 +81,12 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     }
   }
 
-  return 0;
+  // Return the number of events with a non-zero revents value.
+  int retval = 0;
+  for (size_t i = 0; i < nfds; ++i) {
+    struct pollfd *pollfd = &fds[i];
+    if (pollfd->revents != 0)
+      ++retval;
+  }
+  return retval;
 }
