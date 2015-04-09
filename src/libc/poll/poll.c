@@ -85,7 +85,10 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
           pollfd->revents |= POLLHUP;
       } else {
         // Data can be written.
-        pollfd->revents |= POLLWRNORM;
+        if (event->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP)
+          pollfd->revents |= POLLHUP;
+        else
+          pollfd->revents |= POLLWRNORM;
       }
     }
   }
