@@ -28,7 +28,7 @@ TEST(poll, pipe) {
 
   // Perform a non-blocking poll.
   {
-    struct pollfd pfd;
+    struct pollfd pfd = {.fd = fds[0], .events = POLLRDNORM};
     ASSERT_EQ(0, poll(&pfd, 1, 0));
     ASSERT_EQ(0, pfd.revents);
   }
@@ -70,6 +70,16 @@ TEST(poll, pipe) {
 }
 
 // TODO(edje): Test sockets, regular files, etc.
+
+TEST(poll, file) {
+  // Regular file should always trigger read and write.
+  int fd = openat(fd_tmp, "hello", O_RDWR | O_CREAT);
+  ASSERT_LE(0, fd);
+  struct pollfd pfd = {.fd = fd, .events = POLLRDNORM | POLLWRNORM};
+  ASSERT_EQ(1, poll(&pfd, 1, -1));
+  ASSERT_EQ(POLLRDNORM | POLLWRNORM, pfd.revents);
+  ASSERT_EQ(0, close(fd));
+}
 
 TEST_SEPARATE_PROCESS(poll, pollnval) {
   // Create a bad file descriptor number.
