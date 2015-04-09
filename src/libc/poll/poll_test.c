@@ -73,6 +73,17 @@ TEST(poll, pipe) {
     ASSERT_EQ(0, close(fds[0]));
   }
 
+  // Close the write side of the pipe, while there is no data in it. We
+  // should still observe both POLLRDNORM and POLLHUP.
+  {
+    ASSERT_EQ(0, pipe(fds));
+    ASSERT_EQ(0, close(fds[1]));
+    struct pollfd pfd = {.fd = fds[0], .events = POLLRDNORM};
+    ASSERT_EQ(1, poll(&pfd, 1, -1));
+    ASSERT_EQ(POLLRDNORM | POLLHUP, pfd.revents);
+    ASSERT_EQ(0, close(fds[0]));
+  }
+
   // When closing the read side of a pipe, we should only observe
   // POLLHUP on the write side -- not POLLWRNORM.
   {
