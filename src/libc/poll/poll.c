@@ -74,7 +74,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
         pollfd->revents = POLLNVAL;
       } else if (event->error == CLOUDABI_EPIPE) {
         // Hangup on write side of pipe.
-        pollfd->revents = POLLHUP;
+        pollfd->revents |= POLLHUP;
       } else if (event->error != 0) {
         // Another error occurred.
         pollfd->revents = POLLERR;
