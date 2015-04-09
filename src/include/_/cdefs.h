@@ -81,7 +81,7 @@
 
 // Convenience macros.
 
-#define __arraycount(x) (sizeof(x) / sizeof(x[0]))
+#define __arraycount(x) (sizeof(x) / sizeof((x)[0]))
 #define __rounddown(x, y) (((x) / (y)) * (y))
 #define __roundup(x, y) ((((x) + (y)-1) / (y)) * (y))
 
