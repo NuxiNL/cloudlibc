@@ -90,8 +90,9 @@ static inline size_t convert_sockaddr(const cloudabi_sockaddr_t *in,
       break;
     }
     case CLOUDABI_AF_INET6: {
-      // TODO(edje): Fill in struct sockaddr_in6 properly.
       ret.in6 = (struct sockaddr_in6){.sin6_family = AF_INET6};
+      memcpy(&ret.in6.sin6_addr, in->sa_inet6.addr, sizeof(ret.in6.sin6_addr));
+      ret.in6.sin6_port = htons(in->sa_inet6.port);
       len = sizeof(ret.in6);
       break;
     }
