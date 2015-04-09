@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <poll.h>
 #include <testing.h>
+#include <time.h>
 #include <unistd.h>
 
 TEST(poll, pipe) {
@@ -79,4 +80,12 @@ TEST_SEPARATE_PROCESS(poll, pollnval) {
   struct pollfd pfd = {.fd = fds[0], POLLRDNORM | POLLWRNORM};
   ASSERT_EQ(1, poll(&pfd, 1, -1));
   ASSERT_EQ(POLLNVAL, pfd.revents);
+}
+
+TEST(poll, sleep) {
+  // We should sleep somewhere between 1 and 2 seconds.
+  time_t before = time(NULL);
+  ASSERT_EQ(0, poll(NULL, 0, 1000));
+  time_t after = time(NULL);
+  ASSERT_TRUE(after - before >= 1 && after - before <= 2);
 }
