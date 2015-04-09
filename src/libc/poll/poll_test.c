@@ -13,8 +13,8 @@
 TEST(poll, pipe) {
   // Poll an empty pipe. Data can be written into it.
   int fds[2];
-  ASSERT_EQ(0, pipe(fds));
   {
+    ASSERT_EQ(0, pipe(fds));
     struct pollfd pfds[] = {
         {.fd = fds[0], .events = POLLRDNORM},
         {.fd = fds[1], .events = POLLWRNORM},
@@ -63,13 +63,29 @@ TEST(poll, pipe) {
     ASSERT_EQ(0, pfds[1].revents);
   }
 
-  // TODO(edje): Test POLLHUP.
+  // Close the write side of the pipe. We should now observe POLLHUP in
+  // addition to POLLRDNORM.
+  {
+    ASSERT_EQ(0, close(fds[1]));
+    struct pollfd pfd = {.fd = fds[0], .events = POLLRDNORM};
+    ASSERT_EQ(1, poll(&pfd, 1, -1));
+    ASSERT_EQ(POLLRDNORM | POLLHUP, pfd.revents);
+    ASSERT_EQ(0, close(fds[0]));
+  }
 
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+  // When closing the read side of a pipe, we should only observe
+  // POLLHUP on the write side -- not POLLWRNORM.
+  {
+    ASSERT_EQ(0, pipe(fds));
+    ASSERT_EQ(0, close(fds[0]));
+    struct pollfd pfd = {.fd = fds[1], .events = POLLWRNORM};
+    ASSERT_EQ(1, poll(&pfd, 1, -1));
+    ASSERT_EQ(POLLHUP, pfd.revents);
+    ASSERT_EQ(0, close(fds[1]));
+  }
 }
 
-// TODO(edje): Test sockets, regular files, etc.
+// TODO(edje): Test sockets.
 
 TEST(poll, file) {
   // Regular file should always trigger read and write.
