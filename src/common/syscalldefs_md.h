@@ -54,8 +54,9 @@ typedef struct {
     // Wait for a file descriptor to allow read() and write() to be
     // called without blocking.
     struct {
-      cloudabi_fd_t fd;
       cloudabi_filesize_t nbytes;
+      cloudabi_fd_t fd;
+      uint16_t flags;
     } fd_readwrite;
 
     // CLOUDABI_EVENT_LOCK_RDLOCK and CLOUDABI_EVENT_LOCK_WRLOCK: Wait

@@ -132,6 +132,8 @@
 // Non-standard error numbers.
 #define CLOUDABI_ENOTCAPABLE 76
 
+#define CLOUDABI_EVENT_FD_READWRITE_HANGUP 0x1
+
 // Filter types for cloudabi_event_t::filter.
 #define CLOUDABI_EVENT_TYPE_CLOCK 1
 #define CLOUDABI_EVENT_TYPE_CONDVAR 2

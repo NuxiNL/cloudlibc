@@ -69,16 +69,20 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
       struct pollfd *pollfd = event->userdata;
       assert((int)event->fd_readwrite.fd == pollfd->fd &&
              "File descriptor mismatch");
-      // TODO(edje): Add support for POLLHUP.
       if (event->error == CLOUDABI_EBADF) {
         // Invalid file descriptor.
-        pollfd->revents |= POLLNVAL;
+        pollfd->revents = POLLNVAL;
+      } else if (event->error == CLOUDABI_EPIPE) {
+        // Hangup on write side of pipe.
+        pollfd->revents = POLLHUP;
       } else if (event->error != 0) {
         // Another error occurred.
-        pollfd->revents |= POLLERR;
+        pollfd->revents = POLLERR;
       } else if (event->type == CLOUDABI_EVENT_TYPE_FD_READ) {
         // Data can be read.
         pollfd->revents |= POLLRDNORM;
+        if (event->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP)
+          pollfd->revents |= POLLHUP;
       } else {
         // Data can be written.
         pollfd->revents |= POLLWRNORM;
