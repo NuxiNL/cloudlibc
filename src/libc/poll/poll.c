@@ -21,13 +21,13 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
       continue;
     if ((pollfd->events & POLLRDNORM) != 0) {
       cloudabi_event_t *event = &events[nevents++];
-      event->userdata = pollfd;
+      event->userdata = (uintptr_t)pollfd;
       event->type = CLOUDABI_EVENT_TYPE_FD_READ;
       event->fd_readwrite.fd = pollfd->fd;
     }
     if ((pollfd->events & POLLWRNORM) != 0) {
       cloudabi_event_t *event = &events[nevents++];
-      event->userdata = pollfd;
+      event->userdata = (uintptr_t)pollfd;
       event->type = CLOUDABI_EVENT_TYPE_FD_WRITE;
       event->fd_readwrite.fd = pollfd->fd;
     }
@@ -66,7 +66,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     const cloudabi_event_t *event = &events[i];
     if (event->type == CLOUDABI_EVENT_TYPE_FD_READ ||
         event->type == CLOUDABI_EVENT_TYPE_FD_WRITE) {
-      struct pollfd *pollfd = event->userdata;
+      struct pollfd *pollfd = (struct pollfd *)(uintptr_t)event->userdata;
       assert((int)event->fd_readwrite.fd == pollfd->fd &&
              "File descriptor mismatch");
       if (event->error == CLOUDABI_EBADF) {

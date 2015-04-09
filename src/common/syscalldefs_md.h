@@ -31,13 +31,14 @@ typedef struct {
 } CLOUDABI_IDENT(ciovec_t);
 
 typedef struct {
-  CLOUDABI_PTR(void) userdata;
+  uint64_t userdata;
   cloudabi_errno_t error;
   uint8_t type;
   union {
     // CLOUDABI_EVENT_TYPE_CLOCK: Wait until the value of a clock
     // exceeds a value.
     struct {
+      uint64_t identifier;
       cloudabi_clockid_t clock_id;
       cloudabi_timestamp_t timeout;
       cloudabi_timestamp_t precision;

@@ -31,6 +31,7 @@
 #include "syscalldefs_mi.h"
 
 typedef size_t cloudabi_size_t;
+typedef uintptr_t cloudabi_uintptr_t;
 
 #define CLOUDABI_IDENT(ident) cloudabi_##ident
 #define CLOUDABI_PTR(type) type *
