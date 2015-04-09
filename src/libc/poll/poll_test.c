@@ -12,19 +12,21 @@ TEST(poll, pipe) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
   {
-    struct pollfd pfds[2] = {
+    struct pollfd pfds[] = {
         {.fd = fds[0], .events = POLLRDNORM},
         {.fd = fds[1], .events = POLLWRNORM},
+        {.fd = -123, .events = POLLRDNORM | POLLWRNORM},
     };
     ASSERT_EQ(1, poll(pfds, __arraycount(pfds), -1));
     ASSERT_EQ(0, pfds[0].revents);
     ASSERT_EQ(POLLWRNORM, pfds[1].revents);
+    ASSERT_EQ(0, pfds[2].revents);
   }
 
   // Write some data into it. We can now read from the pipe.
   ASSERT_EQ(3, write(fds[1], "Hi\n", 3));
   {
-    struct pollfd pfds[2] = {
+    struct pollfd pfds[] = {
         {.fd = fds[0], .events = POLLRDNORM},
         {.fd = fds[1], .events = POLLWRNORM},
     };
