@@ -5,9 +5,9 @@
 
 #include <common/syscalls.h>
 
+#include <assert.h>
 #include <errno.h>
 #include <poll.h>
-#include <stddef.h>
 
 int poll(struct pollfd *fds, size_t nfds, int timeout) {
   size_t maxevents = 2 * nfds + 1;
@@ -64,11 +64,13 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     if (event->type == CLOUDABI_EVENT_TYPE_FD_READ ||
         event->type == CLOUDABI_EVENT_TYPE_FD_WRITE) {
       struct pollfd *pollfd = event->userdata;
+      assert((int)event->fd_readwrite.fd == pollfd->fd &&
+             "File descriptor mismatch");
       // TODO(edje): Add support for POLLHUP.
       if (event->error == EBADF) {
         // Invalid file descriptor.
         pollfd->revents |= POLLNVAL;
-      } else if (pollfd->revents != 0) {
+      } else if (event->error != 0) {
         // Another error occurred.
         pollfd->revents |= POLLERR;
       } else if (event->type == CLOUDABI_EVENT_TYPE_FD_READ) {
