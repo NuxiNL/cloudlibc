@@ -37,10 +37,13 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
   if (timeout >= 0) {
     cloudabi_event_t *event = &events[nevents++];
     event->type = CLOUDABI_EVENT_TYPE_CLOCK;
+    event->clock.clock_id = CLOUDABI_CLOCK_REALTIME;
     event->clock.timeout = 0;
-    cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_REALTIME, 0,
-                                &event->clock.timeout);
-    event->clock.timeout += (cloudabi_timestamp_t)timeout * 1000000;
+    if (timeout > 0) {
+      cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_REALTIME, 0,
+                                  &event->clock.timeout);
+      event->clock.timeout += (cloudabi_timestamp_t)timeout * 1000000;
+    }
     event->clock.precision = 0;
   }
 
@@ -67,7 +70,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
       assert((int)event->fd_readwrite.fd == pollfd->fd &&
              "File descriptor mismatch");
       // TODO(edje): Add support for POLLHUP.
-      if (event->error == EBADF) {
+      if (event->error == CLOUDABI_EBADF) {
         // Invalid file descriptor.
         pollfd->revents |= POLLNVAL;
       } else if (event->error != 0) {

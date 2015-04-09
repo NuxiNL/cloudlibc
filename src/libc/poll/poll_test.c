@@ -25,6 +25,13 @@ TEST(poll, pipe) {
     ASSERT_EQ(0, pfds[2].revents);
   }
 
+  // Perform a non-blocking poll.
+  {
+    struct pollfd pfd;
+    ASSERT_EQ(0, poll(&pfd, 1, 0));
+    ASSERT_EQ(0, pfd.revents);
+  }
+
   // Write some data into it. We can now read from the pipe.
   {
     ASSERT_EQ(3, write(fds[1], "Hi\n", 3));
