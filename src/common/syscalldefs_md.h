@@ -55,6 +55,7 @@ typedef struct {
     // called without blocking.
     struct {
       cloudabi_fd_t fd;
+      cloudabi_filesize_t nbytes;
     } fd_readwrite;
 
     // CLOUDABI_EVENT_LOCK_RDLOCK and CLOUDABI_EVENT_LOCK_WRLOCK: Wait
