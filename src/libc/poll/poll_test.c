@@ -63,20 +63,12 @@ TEST(poll, pipe) {
     ASSERT_EQ(1, poll(pfds, __arraycount(pfds), -1));
     ASSERT_EQ(POLLRDNORM, pfds[0].revents);
     ASSERT_EQ(0, pfds[1].revents);
-  }
-
-  // Close the write side of the pipe. We should now observe POLLHUP in
-  // addition to POLLRDNORM.
-  {
-    ASSERT_EQ(0, close(fds[1]));
-    struct pollfd pfd = {.fd = fds[0], .events = POLLRDNORM};
-    ASSERT_EQ(1, poll(&pfd, 1, -1));
-    ASSERT_EQ(POLLRDNORM | POLLHUP, pfd.revents);
     ASSERT_EQ(0, close(fds[0]));
+    ASSERT_EQ(0, close(fds[1]));
   }
 
-  // Close the write side of the pipe, while there is no data in it. We
-  // should still observe both POLLRDNORM and POLLHUP.
+  // Close the write side of the pipe. We should still observe both
+  // POLLRDNORM and POLLHUP.
   {
     ASSERT_EQ(0, pipe(fds));
     ASSERT_EQ(0, close(fds[1]));
@@ -114,7 +106,6 @@ TEST(poll, socket) {
 
   // Perform a non-blocking poll.
   {
-    ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
     struct pollfd pfds[] = {
         {.fd = fds[0], .events = POLLRDNORM},
         {.fd = fds[1], .events = POLLRDNORM},
@@ -150,11 +141,14 @@ TEST(poll, socket) {
     ASSERT_EQ(1, poll(pfds, __arraycount(pfds), -1));
     ASSERT_EQ(POLLRDNORM | POLLWRNORM, pfds[0].revents);
     ASSERT_EQ(0, pfds[1].revents);
+    ASSERT_EQ(0, close(fds[0]));
+    ASSERT_EQ(0, close(fds[1]));
   }
 
   // Close one side of the socket. We should observe POLLRDNORM in
   // combination with POLLHUP. POLLWRNORM should no longer be set.
   {
+    ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
     ASSERT_EQ(0, close(fds[1]));
     struct pollfd pfd = {.fd = fds[0], .events = POLLRDNORM | POLLWRNORM};
     ASSERT_EQ(1, poll(&pfd, 1, -1));
@@ -187,7 +181,7 @@ TEST_SEPARATE_PROCESS(poll, pollnval) {
 TEST(poll, sleep) {
   // We should sleep somewhere between 1 and 2 seconds.
   time_t before = time(NULL);
-  ASSERT_EQ(0, poll(NULL, 0, 1000));
+  ASSERT_EQ(0, poll(NULL, 0, 1500));
   time_t after = time(NULL);
   ASSERT_TRUE(after - before >= 1 && after - before <= 2);
 }

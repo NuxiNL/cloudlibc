@@ -15,7 +15,9 @@ TEST(thrd_sleep, bad) {
 TEST(thrd_sleep, example) {
   // We should sleep somewhere between 1 and 2 seconds.
   time_t before = time(NULL);
-  ASSERT_EQ(0, thrd_sleep(&(struct timespec){.tv_sec = 1}, NULL));
+  ASSERT_EQ(
+      0,
+      thrd_sleep(&(struct timespec){.tv_sec = 1, .tv_nsec = 500000000L}, NULL));
   time_t after = time(NULL);
   ASSERT_TRUE(after - before >= 1 && after - before <= 2);
 }
