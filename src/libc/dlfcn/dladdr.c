@@ -6,6 +6,7 @@
 #include <dlfcn.h>
 
 int dladdr(const void *addr, Dl_info *info) {
-  // TODO(edje): Implement.
+  // TODO(edje): How can we implement this? Statically linked binaries
+  // do not have .dynsym. The .symtab section is not loaded in memory.
   return 0;
 }
