@@ -22,8 +22,7 @@ extern void (*__ctors_stop[])(void);
 extern void (*__dtors_start[])(void);
 extern void (*__dtors_stop[])(void);
 
-// DSO handle.
-// TODO(edje): Why is this needed?
+// DSO handle. Not used, as we only support static linkage.
 extern void *__dso_handle;
 
 // Stack smashing protection.

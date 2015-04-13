@@ -8,7 +8,7 @@
 
 #include <program.h>
 
-// DSO handle.
+// DSO handle. Not used, as we only support static linkage.
 void *__dso_handle = NULL;
 
 // Stack smashing protection.
