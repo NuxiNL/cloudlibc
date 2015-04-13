@@ -5,6 +5,7 @@
 
 #include <common/pthread.h>
 
+#include <stdatomic.h>
 #include <stddef.h>
 
-_Atomic(struct pthread_atfork *) __pthread_atfork_last = NULL;
+_Atomic(struct pthread_atfork *) __pthread_atfork_last = ATOMIC_VAR_INIT(NULL);

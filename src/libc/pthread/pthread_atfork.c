@@ -31,6 +31,5 @@ int pthread_atfork(void (*prepare)(void), void (*parent)(void),
              &__pthread_atfork_last, &entry->previous, entry,
              memory_order_release, memory_order_relaxed))
     ;
-
   return 0;
 }
