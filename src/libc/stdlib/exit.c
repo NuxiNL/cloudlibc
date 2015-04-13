@@ -9,14 +9,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-noreturn void exit(int ret) {
-  // Flush error messages.
-  fflush(stderr);
+#include "stdlib_impl.h"
 
+noreturn void exit(int ret) {
   // Invoke global destructors.
   void (**dtor)(void) = __dtors_start;
   while (dtor < __dtors_stop)
     (*dtor++)();
+
+  // Invoke atexit() functions.
+  for (struct atexit *entry =
+           atomic_load_explicit(&__atexit_last, memory_order_relaxed);
+       entry != NULL; entry = entry->previous) {
+    if (entry->atexit != NULL)
+      entry->atexit();
+    if (entry->cxa_atexit != NULL)
+      entry->cxa_atexit(entry->cxa_atexit_arg);
+  }
+
+  // Flush error messages.
+  fflush(stderr);
 
   // Terminate process.
   cloudabi_sys_proc_exit(ret);
