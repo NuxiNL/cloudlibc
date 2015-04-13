@@ -121,7 +121,13 @@ required for full C and C++ language support.
 
 ## Operating system support
 
-TODO(edje): Release the kernel patches.
+CloudABI executables can be executed on FreeBSD. A copy of FreeBSD that
+supports CloudABI executables
+[can be found on GitHub](https://github.com/NuxiNL/freebsd). It is
+sufficient to compile a kernel that has the `COMPAT_CLOUDABI64` build
+option enabled.
+
+Support for other operating systems will be released in the future.
 
 ## Support
 
