@@ -37,7 +37,7 @@ for srcfile in ${SRCS}; do
   case "${srcfile}" in
   contrib/openlibm-ef29d06/*) extraflags="${COPTFLAGS} -Werror -Wmissing-prototypes -fstack-protector-strong" ;;
   contrib/*) extraflags="${COPTFLAGS} -fstack-protector-strong" ;;
-  src/crt/*) extraflags="${COPTFLAGS} ${WARNFLAGS}" ;;
+  src/crt/*) extraflags="${COPTFLAGS} ${WARNFLAGS} -ffreestanding" ;;
   *_test.c) extraflags="${WARNFLAGS} -fno-builtin -fstack-protector-strong" ;;
   *) extraflags="${COPTFLAGS} ${WARNFLAGS} -fstack-protector-strong" ;;
   esac
