@@ -162,7 +162,6 @@ _Bool cap_rights_contains(const cap_rights_t *, const cap_rights_t *);
 _Bool cap_rights_equals(const cap_rights_t *, const cap_rights_t *);
 int cap_rights_get(int, cap_rights_t *);
 int cap_rights_get_explicit(int, cap_rights_t *, cap_rights_t *);
-cap_rights_t *cap_rights_intersect(cap_rights_t *, const cap_rights_t *);
 int cap_rights_limit(int, const cap_rights_t *);
 int cap_rights_limit_explicit(int, const cap_rights_t *, const cap_rights_t *);
 cap_rights_t *cap_rights_merge(cap_rights_t *, const cap_rights_t *);
