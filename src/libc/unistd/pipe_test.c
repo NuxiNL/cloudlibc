@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/capsicum.h>
 #include <sys/stat.h>
 
 #include <errno.h>
@@ -36,5 +37,22 @@ TEST(pipe, readwrite) {
   ASSERT_EQ(-1, write(fds[1], &f, 1));
   ASSERT_EQ(EPIPE, errno);
 
+  ASSERT_EQ(0, close(fds[1]));
+}
+
+TEST(pipe, rights) {
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+
+  // Validate default rights on both sides of the pipe.
+  cap_rights_t base, inheriting;
+  ASSERT_EQ(0, cap_rights_get_explicit(fds[0], &base, &inheriting));
+  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_READ, base.__value);
+  ASSERT_EQ(0, inheriting.__value);
+  ASSERT_EQ(0, cap_rights_get_explicit(fds[1], &base, &inheriting));
+  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_WRITE, base.__value);
+  ASSERT_EQ(0, inheriting.__value);
+
+  ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
 }
