@@ -143,13 +143,13 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_PDWAIT _CAP_BIT(28)
 
 #define cap_rights_clear(rights, ...) \
-  __cap_rights_clear(rights, __VA_ARGS__, _CAP_SENTINEL)
+  __cap_rights_clear(rights, ##__VA_ARGS__, _CAP_SENTINEL)
 #define cap_rights_init(rights, ...) \
-  __cap_rights_init(rights, __VA_ARGS__, _CAP_SENTINEL)
+  __cap_rights_init(rights, ##__VA_ARGS__, _CAP_SENTINEL)
 #define cap_rights_is_set(rights, ...) \
-  __cap_rights_is_set(rights, __VA_ARGS__, _CAP_SENTINEL)
+  __cap_rights_is_set(rights, ##__VA_ARGS__, _CAP_SENTINEL)
 #define cap_rights_set(rights, ...) \
-  __cap_rights_set(rights, __VA_ARGS__, _CAP_SENTINEL)
+  __cap_rights_set(rights, ##__VA_ARGS__, _CAP_SENTINEL)
 
 __BEGIN_DECLS
 cap_rights_t *__cap_rights_clear(cap_rights_t *, ...);

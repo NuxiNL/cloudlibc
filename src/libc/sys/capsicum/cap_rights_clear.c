@@ -8,6 +8,7 @@
 #include <stdarg.h>
 
 cap_rights_t *__cap_rights_clear(cap_rights_t *rights, ...) {
+  // Clear all of the capability bits provided as arguments.
   va_list ap;
   va_start(ap, rights);
   for (;;) {
