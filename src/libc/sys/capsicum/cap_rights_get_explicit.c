@@ -50,6 +50,7 @@ static_assert(CAP_FSYNC ==
 static_assert(CAP_FTRUNCATE == CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE,
               "Value mismatch");
 // TODO(edje): CAP_LOOKUP.
+static_assert(CAP_FCNTL == CLOUDABI_RIGHT_FD_STAT_PUT_FLAGS, "Value mismatch");
 static_assert(CAP_FSTAT == CLOUDABI_RIGHT_FILE_STAT_FGET, "Value mismatch");
 static_assert(CAP_FSTATAT == CLOUDABI_RIGHT_FILE_STAT_GET, "Value mismatch");
 static_assert(CAP_FUTIMES == CLOUDABI_RIGHT_FILE_STAT_FPUT_TIMES,

@@ -54,8 +54,8 @@
 //   Semaphores are not represented as file descriptors.
 // - CAP_IOCTL and cap_ioctls_*():
 //   ioctl() not available.
-// - CAP_FCNTL and cap_fcntl_*():
-//   fcntl() can always be used.
+// - cap_fcntl_*():
+//   fcntl() rights cannot be adjusted granularly.
 // - CAP_TTYHOOK:
 //   Terminal management is not available.
 // - CAP_PDGETPID:
@@ -98,6 +98,8 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_SEEK (CAP_SEEK_TELL | _CAP_BIT(2))
 #define CAP_SEEK_TELL _CAP_BIT(5)
 #define CAP_WRITE _CAP_BIT(6)
+
+#define CAP_FCNTL _CAP_BIT(3)
 
 // VFS methods.
 #define CAP_BINDAT _CAP_BIT(32)
