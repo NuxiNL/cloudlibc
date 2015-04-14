@@ -40,16 +40,22 @@ static_assert(CAP_MMAP_WX == (CLOUDABI_RIGHT_FD_WRITE | CLOUDABI_RIGHT_MEM_MAP |
 static_assert(CAP_MMAP_X ==
                   (CLOUDABI_RIGHT_MEM_MAP | CLOUDABI_RIGHT_MEM_MAP_EXEC),
               "Value mismatch");
+static_assert(CAP_POSIX_FADVISE == CLOUDABI_RIGHT_FILE_ADVISE,
+              "Value mismatch");
+static_assert(CAP_POSIX_FALLOCATE == CLOUDABI_RIGHT_FILE_ALLOCATE,
+              "Value mismatch");
 static_assert(CAP_PREAD == (CLOUDABI_RIGHT_FD_READ | CLOUDABI_RIGHT_FD_SEEK),
               "Value mismatch");
 static_assert(CAP_PWRITE == (CLOUDABI_RIGHT_FD_WRITE | CLOUDABI_RIGHT_FD_SEEK),
               "Value mismatch");
 static_assert(CAP_READ == CLOUDABI_RIGHT_FD_READ, "Value mismatch");
+static_assert(CAP_READDIR == CLOUDABI_RIGHT_FILE_READDIR, "Value mismatch");
+static_assert(CAP_READLINK == CLOUDABI_RIGHT_FILE_READLINK, "Value mismatch");
 static_assert(CAP_SEEK == (CLOUDABI_RIGHT_FD_SEEK | CLOUDABI_RIGHT_FD_TELL),
               "Value mismatch");
 static_assert(CAP_SEEK_TELL == CLOUDABI_RIGHT_FD_TELL, "Value mismatch");
 static_assert(CAP_WRITE == CLOUDABI_RIGHT_FD_WRITE, "Value mismatch");
-// TODO(edje): CAP_LOOKUP.
+static_assert(CAP_LOOKUP == CLOUDABI_RIGHT_FILE_OPEN, "Value mismatch");
 static_assert(CAP_FCNTL == CLOUDABI_RIGHT_FD_STAT_PUT_FLAGS, "Value mismatch");
 static_assert(CAP_FSTAT == CLOUDABI_RIGHT_FILE_STAT_FGET, "Value mismatch");
 static_assert(CAP_FSTATAT == CLOUDABI_RIGHT_FILE_STAT_GET, "Value mismatch");

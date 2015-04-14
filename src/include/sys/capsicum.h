@@ -24,17 +24,18 @@
 // <sys/capsicum.h> - file descriptor access controls
 //
 // Extensions:
+// - CAP_POSIX_FADVISE, CAP_POSIX_FALLOCATE, CAP_READDIR, CAP_READLINK:
+//   posix_fadvise(), posix_fallocate(), readdir() and readlink() can be
+//   controlled independently in this environment.
 // - cap_rights_get_explicit() and cap_rights_limit_explicit():
 //   Capabilities are expressed as a pair of base and inheriting rights
 //   in this environment.
 //
 // Features missing:
-// - CAP_LOOKUP:
-//   TODO(edje): Add.
 // - CAP_FCHDIR:
 //   Per-process working directory is not available. Use *at() instead.
-// - CAP_FCHFLAGS, CAP_CHFLAGSAT, CAP_FCHMOD, CAP_FCHMODAT, CAP_FCHOWN,
-//   CAP_FCHOWNAT:
+// - CAP_FCHFLAGS, CAP_CHFLAGSAT, CAP_FCHMOD, CAP_FCHMODAT, CAP_FCHOWN
+//   and CAP_FCHOWNAT:
 //   Filesystem access control management not available.
 // - CAP_FLOCK:
 //   File locking not available.
@@ -80,7 +81,7 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define _CAP_SENTINEL _UINT64_C(0)
 
 // General file I/O.
-#define CAP_CREATE (_CAP_BIT(10) | _CAP_BIT(13))
+#define CAP_CREATE (CAP_LOOKUP | _CAP_BIT(10))
 #define CAP_FEXECVE _CAP_BIT(30)
 #define CAP_FSYNC (_CAP_BIT(0) | _CAP_BIT(4))
 #define CAP_FTRUNCATE _CAP_BIT(18)
@@ -92,12 +93,18 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_MMAP_W (CAP_MMAP | CAP_WRITE)
 #define CAP_MMAP_WX (CAP_MMAP_W | CAP_MMAP_X)
 #define CAP_MMAP_X (CAP_MMAP | _CAP_BIT(25))
+#define CAP_POSIX_FADVISE _CAP_BIT(7)    // Extension.
+#define CAP_POSIX_FALLOCATE _CAP_BIT(8)  // Extension.
 #define CAP_PREAD (CAP_READ | _CAP_BIT(2))
 #define CAP_PWRITE (CAP_WRITE | _CAP_BIT(2))
 #define CAP_READ _CAP_BIT(1)
+#define CAP_READDIR _CAP_BIT(14)   // Extension.
+#define CAP_READLINK _CAP_BIT(15)  // Extension.
 #define CAP_SEEK (CAP_SEEK_TELL | _CAP_BIT(2))
 #define CAP_SEEK_TELL _CAP_BIT(5)
 #define CAP_WRITE _CAP_BIT(6)
+
+#define CAP_LOOKUP _CAP_BIT(13)
 
 #define CAP_FCNTL _CAP_BIT(3)
 
