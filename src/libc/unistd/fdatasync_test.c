@@ -11,6 +11,13 @@
 TEST(fdatasync, bad) {
   ASSERT_EQ(-1, fdatasync(-123));
   ASSERT_EQ(EBADF, errno);
+
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(-1, fdatasync(fds[0]));
+  ASSERT_EQ(EBADF, errno);
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
 }
 
 TEST(fdatasync, example) {
