@@ -152,6 +152,7 @@
 
 // fdstat_put() flags.
 #define CLOUDABI_FDSTAT_FLAGS 0x1
+#define CLOUDABI_FDSTAT_RIGHTS 0x2
 
 // filestat_put() flags.
 #define CLOUDABI_FILESTAT_ATIM 0x1
