@@ -159,7 +159,6 @@ cap_rights_t *__cap_rights_set(cap_rights_t *, ...);
 int cap_enter(void);
 int cap_getmode(unsigned int *);
 _Bool cap_rights_contains(const cap_rights_t *, const cap_rights_t *);
-_Bool cap_rights_equals(const cap_rights_t *, const cap_rights_t *);
 int cap_rights_get(int, cap_rights_t *);
 int cap_rights_get_explicit(int, cap_rights_t *, cap_rights_t *);
 int cap_rights_limit(int, const cap_rights_t *);
