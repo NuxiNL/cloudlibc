@@ -23,34 +23,39 @@ static_assert(O_TRUNC >> 12 == CLOUDABI_O_TRUNC, "Value mismatch");
 
 int openat(int fd, const char *path, int oflag, ...) {
   // Compute rights corresponding with the access modes provided.
+  // Attempt to obtain all rights, except the ones that contradict the
+  // access mode provided to openat().
   cloudabi_rights_t min = 0;
   cloudabi_rights_t max =
-      CLOUDABI_RIGHT_FEXECVE | CLOUDABI_RIGHT_FSTAT | CLOUDABI_RIGHT_FPATHCONF |
-      CLOUDABI_RIGHT_LINK | CLOUDABI_RIGHT_LOOKUP | CLOUDABI_RIGHT_MKDIR |
-      CLOUDABI_RIGHT_RENAME | CLOUDABI_RIGHT_SYMLINK | CLOUDABI_RIGHT_UNLINK;
+      ~(CLOUDABI_RIGHT_FD_DATASYNC | CLOUDABI_RIGHT_FD_READ |
+        CLOUDABI_RIGHT_FD_SYNC | CLOUDABI_RIGHT_FD_WRITE |
+        CLOUDABI_RIGHT_FILE_ALLOCATE | CLOUDABI_RIGHT_FILE_READDIR |
+        CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE | CLOUDABI_RIGHT_MEM_MAP_EXEC |
+        CLOUDABI_RIGHT_PROC_EXEC);
   switch (oflag & O_ACCMODE) {
     case O_RDONLY:
     case O_RDWR:
     case O_WRONLY:
-      max |= CLOUDABI_RIGHT_MMAP | CLOUDABI_RIGHT_SEEK;
       if ((oflag & O_RDONLY) != 0) {
-        min |= (oflag & O_DIRECTORY) == 0 ? CLOUDABI_RIGHT_READ
-                                          : CLOUDABI_RIGHT_READDIR;
-        max |= CLOUDABI_RIGHT_READ | CLOUDABI_RIGHT_READDIR;
+        min |= (oflag & O_DIRECTORY) == 0 ? CLOUDABI_RIGHT_FD_READ
+                                          : CLOUDABI_RIGHT_FILE_READDIR;
+        max |= CLOUDABI_RIGHT_FD_READ | CLOUDABI_RIGHT_FILE_READDIR |
+               CLOUDABI_RIGHT_MEM_MAP_EXEC;
       }
       if ((oflag & O_WRONLY) != 0) {
-        min |= CLOUDABI_RIGHT_WRITE;
+        min |= CLOUDABI_RIGHT_FD_WRITE;
         if ((oflag & O_APPEND) == 0)
-          min |= CLOUDABI_RIGHT_SEEK;
-        max |= CLOUDABI_RIGHT_FSYNC | CLOUDABI_RIGHT_FTRUNCATE |
-               CLOUDABI_RIGHT_FUTIMENS | CLOUDABI_RIGHT_WRITE;
+          min |= CLOUDABI_RIGHT_FD_SEEK;
+        max |= CLOUDABI_RIGHT_FD_DATASYNC | CLOUDABI_RIGHT_FD_SYNC |
+               CLOUDABI_RIGHT_FD_WRITE | CLOUDABI_RIGHT_FILE_ALLOCATE |
+               CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE;
       }
       break;
     case O_EXEC:
-      min |= CLOUDABI_RIGHT_FEXECVE;
+      min |= CLOUDABI_RIGHT_PROC_EXEC;
+      max |= CLOUDABI_RIGHT_PROC_EXEC;
       break;
     case O_SEARCH:
-      min |= CLOUDABI_RIGHT_LOOKUP;
       break;
     default:
       errno = EINVAL;

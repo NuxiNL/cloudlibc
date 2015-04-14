@@ -28,12 +28,13 @@ int fcntl(int fildes, int cmd, ...) {
 
       // Roughly approximate the access mode by converting the rights.
       int oflags = fds.fs_flags;
-      if (fds.fs_rights_base & (CLOUDABI_RIGHT_READ | CLOUDABI_RIGHT_WRITE)) {
-        if ((fds.fs_rights_base & CLOUDABI_RIGHT_READ) != 0)
+      if (fds.fs_rights_base &
+          (CLOUDABI_RIGHT_FD_READ | CLOUDABI_RIGHT_FD_WRITE)) {
+        if ((fds.fs_rights_base & CLOUDABI_RIGHT_FD_READ) != 0)
           oflags |= O_RDONLY;
-        if ((fds.fs_rights_base & CLOUDABI_RIGHT_WRITE) != 0)
+        if ((fds.fs_rights_base & CLOUDABI_RIGHT_FD_WRITE) != 0)
           oflags |= O_WRONLY;
-      } else if ((fds.fs_rights_base & CLOUDABI_RIGHT_FEXECVE) != 0) {
+      } else if ((fds.fs_rights_base & CLOUDABI_RIGHT_PROC_EXEC) != 0) {
         oflags |= O_EXEC;
       } else {
         oflags |= O_SEARCH;
