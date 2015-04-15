@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/capsicum.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -43,6 +44,19 @@ TEST(shm_open, example) {
   ASSERT_NE(MAP_FAILED, mapping);
   memset(mapping, 'A', 1000);
   ASSERT_EQ(0, munmap(mapping, 1000));
+
+  ASSERT_EQ(0, close(fd));
+}
+
+TEST(shm_open, rights) {
+  int fd = shm_open(SHM_ANON, O_RDWR);
+  ASSERT_LE(0, fd);
+
+  // Validate rights from a standard shared memory object.
+  cap_rights_t base, inheriting;
+  ASSERT_EQ(0, cap_rights_get_explicit(fd, &base, &inheriting));
+  ASSERT_EQ(CAP_FSTAT | CAP_FTRUNCATE | CAP_MMAP_RWX, base.__value);
+  ASSERT_EQ(0, inheriting.__value);
 
   ASSERT_EQ(0, close(fd));
 }
