@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <testing.h>
 #include <unistd.h>
 
@@ -52,6 +53,10 @@ TEST(pipe, rights) {
   ASSERT_EQ(0, cap_rights_get_explicit(fds[1], &base, &inheriting));
   ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_WRITE, base.__value);
   ASSERT_EQ(0, inheriting.__value);
+
+  // Validate access modes.
+  ASSERT_EQ(O_RDONLY, fcntl(fds[0], F_GETFL));
+  ASSERT_EQ(O_WRONLY, fcntl(fds[1], F_GETFL));
 
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
