@@ -5,6 +5,7 @@
 
 #include <sys/capsicum.h>
 #include <sys/procdesc.h>
+#include <sys/stat.h>
 
 #include <fcntl.h>
 #include <signal.h>
@@ -17,6 +18,11 @@ TEST(pdfork, rights) {
   int ret = pdfork(&fd);
   if (ret == 0)
     _Exit(200);
+
+  // Validate file type.
+  struct stat sb;
+  ASSERT_EQ(0, fstat(fd, &sb));
+  ASSERT_TRUE(S_TYPEISPROC(sb.st_mode));
 
   // Validate rights from a standard process descriptor.
   cap_rights_t base, inheriting;
