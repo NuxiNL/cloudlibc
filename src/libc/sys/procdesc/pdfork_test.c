@@ -6,6 +6,7 @@
 #include <sys/capsicum.h>
 #include <sys/procdesc.h>
 
+#include <fcntl.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <testing.h>
@@ -22,5 +23,10 @@ TEST(pdfork, rights) {
   ASSERT_EQ(0, cap_rights_get_explicit(fd, &base, &inheriting));
   ASSERT_EQ(CAP_FSTAT | CAP_PDWAIT, base.__value);
   ASSERT_EQ(0, inheriting.__value);
+
+  // Validate access mode. This should return O_SEARCH, as it is the
+  // best we can do. It is not readable, not writable and not executable.
+  ASSERT_EQ(O_SEARCH, fcntl(fd, F_GETFL));
+
   ASSERT_EQ(0, close(fd));
 }
