@@ -112,6 +112,11 @@ TEST(openat, o_nonblock) {
   ASSERT_EQ(EAGAIN, errno);
 
   ASSERT_EQ(0, close(fd));
+
+  // Cannot open a FIFO without a reader.
+  ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
+  ASSERT_EQ(-1, openat(fd_tmp, "fifo", O_WRONLY | O_NONBLOCK));
+  ASSERT_EQ(ENXIO, errno);
 }
 
 TEST(openat, o_trunc) {
