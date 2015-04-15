@@ -71,6 +71,10 @@ int openat(int fd, const char *path, int oflag, ...) {
     errno = error;
     return -1;
   }
+  if (fsb_cur.fs_filetype != CLOUDABI_FILETYPE_DIRECTORY) {
+    errno = EBADF;
+    return -1;
+  }
   if ((min & fsb_cur.fs_rights_inheriting) != min) {
     errno = ENOTCAPABLE;
     return -1;
