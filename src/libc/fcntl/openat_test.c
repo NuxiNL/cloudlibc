@@ -14,7 +14,7 @@
 TEST(openat, bad) {
   int fd = kqueue();
   ASSERT_EQ(-1, openat(fd, "hello", O_WRONLY | O_CREAT));
-  ASSERT_EQ(EBADF, errno);
+  ASSERT_EQ(ENOTDIR, errno);
   ASSERT_EQ(0, close(fd));
 }
 

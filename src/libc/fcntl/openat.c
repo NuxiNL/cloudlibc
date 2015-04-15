@@ -72,7 +72,7 @@ int openat(int fd, const char *path, int oflag, ...) {
     return -1;
   }
   if (fsb_cur.fs_filetype != CLOUDABI_FILETYPE_DIRECTORY) {
-    errno = EBADF;
+    errno = ENOTDIR;
     return -1;
   }
   if ((min & fsb_cur.fs_rights_inheriting) != min) {
