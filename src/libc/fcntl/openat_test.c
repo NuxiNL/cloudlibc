@@ -69,6 +69,10 @@ TEST(openat, o_directory) {
   ASSERT_EQ(-1, openat(fd_tmp, "dir", O_RDWR | O_DIRECTORY));
   ASSERT_EQ(EISDIR, errno);
 
+  // Directory cannot be opened for writing.
+  ASSERT_EQ(-1, openat(fd_tmp, "dir", O_RDWR | O_DIRECTORY));
+  ASSERT_EQ(EISDIR, errno);
+
   {
     int fd = openat(fd_tmp, "dir", O_RDONLY | O_DIRECTORY);
     ASSERT_LE(0, fd);
