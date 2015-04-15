@@ -14,6 +14,14 @@ TEST(pread, bad) {
   ASSERT_EQ(-1, pread(0xdeadc0de, &b, 1, 123));
   ASSERT_EQ(EBADF, errno);
 
+  // Non-seekable file descriptor.
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(-1, pread(fds[0], &b, 1, 123));
+  ASSERT_EQ(ESPIPE, errno);
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
+
   // Invalid offset.
   ASSERT_EQ(-1, pread(fd_tmp, &b, 1, -12));
   ASSERT_EQ(EINVAL, errno);
