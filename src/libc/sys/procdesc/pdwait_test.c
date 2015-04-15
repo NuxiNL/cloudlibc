@@ -16,6 +16,13 @@ TEST(pdwait, bad) {
   ASSERT_EQ(EBADF, pdwait(0xdeadc0de, NULL, 0));
   ASSERT_EQ(EBADF, pdwait(0xdeadc0de, NULL, WNOHANG));
 
+  // Invalid file descriptor type.
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(EINVAL, pdwait(fds[0], NULL, 0));
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
+
   // Invalid flags.
   ASSERT_EQ(EINVAL, pdwait(fd_tmp, NULL, 0xdeadc0de));
 }
