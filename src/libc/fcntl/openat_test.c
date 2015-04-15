@@ -12,10 +12,17 @@
 #include <unistd.h>
 
 TEST(openat, bad) {
+  // Invalid file descriptor type.
   int fd = kqueue();
   ASSERT_EQ(-1, openat(fd, "hello", O_WRONLY | O_CREAT));
   ASSERT_EQ(ENOTDIR, errno);
   ASSERT_EQ(0, close(fd));
+
+  // Extension: access is confined to the directory.
+  ASSERT_EQ(-1, openat(fd_tmp, "../foo", O_WRONLY | O_CREAT));
+  ASSERT_EQ(ENOTCAPABLE, errno);
+  ASSERT_EQ(-1, openat(fd_tmp, "/etc/passwd", O_WRONLY | O_CREAT));
+  ASSERT_EQ(ENOTCAPABLE, errno);
 }
 
 TEST(openat, o_append) {
