@@ -11,7 +11,6 @@ stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
 wchar.h		50%	stdio bits still missing. Many tests missing.
 sys/procdesc.h	70%	pdexec() still missing
 string.h	80%	strcoll() and strxfrm() still missing
-sys/capsicum.h	80%	Needs more tests
 sys/socket.h	80%	Needs more polishing
 unistd.h	80%	exec(), fpathconf() and sysconf() still missing
 
@@ -21,9 +20,10 @@ arpa/inet.h assert.h complex.h cpio.h ctype.h dirent.h elf.h errno.h
 fcntl.h fenv.h float.h iconv.h inttypes.h iso646.h langinfo.h libgen.h
 limits.h link.h locale.h math.h monetary.h netinet/in.h poll.h pthread.h
 sched.h semaphore.h setjmp.h signal.h stdalign.h stdarg.h stdatomic.h
-stdbool.h stddef.h stdint.h stdlib.h stdnoreturn.h strings.h sys/mman.h
-sys/stat.h sys/time.h sys/types.h sys/uio.h sys/un.h syslog.h tar.h
-testing.h tgmath.h threads.h time.h uchar.h wctype.h
+stdbool.h stddef.h stdint.h stdlib.h stdnoreturn.h strings.h
+sys/capsicum.h sys/mman.h sys/stat.h sys/time.h sys/types.h sys/uio.h
+sys/un.h syslog.h tar.h testing.h tgmath.h threads.h time.h uchar.h
+wctype.h
 
 Will not be implemented:
 ------------------------
