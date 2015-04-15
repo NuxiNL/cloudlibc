@@ -35,6 +35,10 @@ TEST(cap_rights_limit, example) {
   // Limiting rights is allowed.
   ASSERT_EQ(&rights, cap_rights_init(&rights, CAP_KQUEUE));
   ASSERT_EQ(0, cap_rights_limit(fd, &rights));
+
+  // Validate rights. Call to fstat() should now fail.
+  ASSERT_EQ(0, cap_rights_get(fd, &rights));
+  ASSERT_EQ(CAP_KQUEUE, rights.__value);
   ASSERT_EQ(-1, fstat(fd, &sb));
   ASSERT_EQ(ENOTCAPABLE, errno);
 
