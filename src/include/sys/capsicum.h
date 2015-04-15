@@ -151,6 +151,16 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 // Process descriptors.
 #define CAP_PDWAIT _CAP_BIT(28)
 
+// Fills sets with all/none of the capabilities.
+#define CAP_ALL(rights)                   \
+  do {                                    \
+    (rights)->__value = _CAP_BIT(39) - 1; \
+  } while (0)
+#define CAP_NONE(rights)   \
+  do {                     \
+    (rights)->__value = 0; \
+  } while (0)
+
 #define cap_rights_clear(rights, ...) \
   __cap_rights_clear(rights, ##__VA_ARGS__, _CAP_SENTINEL)
 #define cap_rights_init(rights, ...) \
