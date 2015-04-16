@@ -131,9 +131,13 @@ Support for other operating systems will be released in the future.
 
 ## Support
 
-### Public support forums
+### Public support
 
-TODO(edje): Set up a mailing list, etc.
+The
+[cloudabi-devel@googlegroups.com](mailto:cloudabi-devel@googlegroups.com)
+mailing list is used to discuss the development of CloudABI. It is
+possible to sign up for this mailing list and browse its archive on
+[Google Groups](https://groups.google.com/forum/#!forum/cloudabi-devel).
 
 ### Commercial support
 
