@@ -139,6 +139,9 @@ mailing list is used to discuss the development of CloudABI. It is
 possible to sign up for this mailing list and browse its archive on
 [Google Groups](https://groups.google.com/forum/#!forum/cloudabi-devel).
 
+Bugs and pull requests can be submitted through
+[GitHub](https://github.com/NuxiNL/cloudlibc).
+
 ### Commercial support
 
 CloudABI has been developed by [Nuxi](https://nuxi.nl/), an IT company
