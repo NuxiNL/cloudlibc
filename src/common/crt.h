@@ -10,7 +10,6 @@
 
 #include <link.h>
 #include <pthread.h>
-#include <stdatomic.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdnoreturn.h>
@@ -51,7 +50,7 @@ struct __pthread {
   void *return_value;             // Value returned by pthread_join().
   void *buffer;                   // Stack buffer used by this thread.
 
-  atomic_uint detachstate;  // Flags related to thread detaching.
+  _Atomic(unsigned int) detachstate;  // Flags related to thread detaching.
 #define DETACH_DETACHED 0x1
 #define DETACH_TERMINATING 0x2
 

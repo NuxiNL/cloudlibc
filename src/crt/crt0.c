@@ -7,6 +7,7 @@
 #include <common/syscalls.h>
 
 #include <program.h>
+#include <stdatomic.h>
 
 // DSO handle. Not used, as we only support static linkage.
 void *__dso_handle = NULL;
