@@ -21,4 +21,15 @@ struct atexit {
 // Pointer to last atexit() handler.
 extern _Atomic(struct atexit *) __atexit_last;
 
+struct at_quick_exit {
+  // Handler registered by at_quick_exit().
+  void (*func)(void);
+
+  // Previous list element.
+  struct at_quick_exit *previous;
+};
+
+// Pointer to last at_quick_exit() handler.
+extern _Atomic(struct at_quick_exit *) __at_quick_exit_last;
+
 #endif

@@ -134,6 +134,7 @@ _Noreturn void _Exit(int);
 size_t MB_CUR_MAX_L(__locale_t);
 _Noreturn void abort(void);
 int abs(int) __pure2;
+int at_quick_exit(void (*)(void));
 int atexit(void (*)(void));
 void *aligned_alloc(size_t, size_t);
 __uint32_t arc4random(void);
@@ -164,6 +165,7 @@ size_t mbstowcs_l(wchar_t *__restrict, const char *__restrict, size_t,
 long mrand48(void);
 int posix_memalign(void **, size_t, size_t);
 void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
+_Noreturn void quick_exit(int);
 int rand(void);
 long random(void);
 void *realloc(void *, size_t);
