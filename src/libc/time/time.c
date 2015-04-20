@@ -4,15 +4,14 @@
 // See the LICENSE file for details.
 
 #include <common/syscalls.h>
+#include <common/time.h>
 
 #include <time.h>
 
-#define PRECISION 1000000000
-
 time_t time(time_t *tloc) {
   cloudabi_timestamp_t ts = 0;
-  cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_REALTIME, PRECISION, &ts);
+  cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_REALTIME, NSEC_PER_SEC, &ts);
   if (tloc != NULL)
-    *tloc = ts / PRECISION;
-  return ts / PRECISION;
+    *tloc = ts / NSEC_PER_SEC;
+  return ts / NSEC_PER_SEC;
 }

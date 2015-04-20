@@ -4,10 +4,11 @@
 // See the LICENSE file for details.
 
 #include <common/syscalls.h>
+#include <common/time.h>
 
 #include <time.h>
 
-#define PRECISION (1000000000 / CLOCKS_PER_SEC)
+#define PRECISION (NSEC_PER_SEC / CLOCKS_PER_SEC)
 
 clock_t clock(void) {
   cloudabi_timestamp_t ts = 0;
