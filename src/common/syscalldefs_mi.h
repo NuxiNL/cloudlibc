@@ -343,12 +343,19 @@ typedef uint64_t cloudabi_timestamp_t;  // clock_*(), struct stat::st_*tim.
 typedef uint8_t cloudabi_ulflags_t;     // unlinkat().
 typedef uint8_t cloudabi_whence_t;      // lseek().
 
+// Macro to force sane alignment rules.
+//
+// On x86-32 it is the case that 64-bit integers are 4-byte aligned when
+// embedded in structs, even though they are 8-byte aligned when not
+// embedded. Force 8-byte alignment explicitly.
+#define MEMBER(type) alignas(type) type
+
 // Directory entries.
 typedef struct {
-  cloudabi_dircookie_t d_next;  // Cookie of the next entry.
-  cloudabi_inode_t d_ino;       // Inode number of the current entry.
-  uint32_t d_namlen;            // Length of the name of the current entry.
-  cloudabi_filetype_t d_type;   // File type of the current entry.
+  MEMBER(cloudabi_dircookie_t) d_next;  // Cookie of the next entry.
+  MEMBER(cloudabi_inode_t) d_ino;       // Inode number of the current entry.
+  MEMBER(uint32_t) d_namlen;  // Length of the name of the current entry.
+  MEMBER(cloudabi_filetype_t) d_type;  // File type of the current entry.
 } cloudabi_dirent_t;
 static_assert(offsetof(cloudabi_dirent_t, d_next) == 0, "ABI has been changed");
 static_assert(offsetof(cloudabi_dirent_t, d_ino) == 8, "ABI has been changed");
@@ -360,10 +367,10 @@ static_assert(sizeof(cloudabi_dirent_t) == 24, "ABI has been changed");
 
 // File descriptor status.
 typedef struct {
-  cloudabi_filetype_t fs_filetype;         // File descriptor type.
-  cloudabi_fdflags_t fs_flags;             // Non-blocking mode, etc.
-  cloudabi_rights_t fs_rights_base;        // Base rights.
-  cloudabi_rights_t fs_rights_inheriting;  // Inheriting rights.
+  MEMBER(cloudabi_filetype_t) fs_filetype;         // File descriptor type.
+  MEMBER(cloudabi_fdflags_t) fs_flags;             // Non-blocking mode, etc.
+  MEMBER(cloudabi_rights_t) fs_rights_base;        // Base rights.
+  MEMBER(cloudabi_rights_t) fs_rights_inheriting;  // Inheriting rights.
 } cloudabi_fdstat_t;
 static_assert(offsetof(cloudabi_fdstat_t, fs_filetype) == 0,
               "ABI has been changed");
@@ -377,14 +384,14 @@ static_assert(sizeof(cloudabi_fdstat_t) == 24, "ABI has been changed");
 
 // File status.
 typedef struct {
-  cloudabi_device_t st_dev;         // Device storing the file.
-  cloudabi_inode_t st_ino;          // Inode of the file.
-  cloudabi_filetype_t st_filetype;  // File type.
-  cloudabi_linkcount_t st_nlink;    // Number of hardlinks.
-  cloudabi_filesize_t st_size;      // Size of the file.
-  cloudabi_timestamp_t st_atim;     // Access time.
-  cloudabi_timestamp_t st_mtim;     // Modification time.
-  cloudabi_timestamp_t st_ctim;     // Change time.
+  MEMBER(cloudabi_device_t) st_dev;         // Device storing the file.
+  MEMBER(cloudabi_inode_t) st_ino;          // Inode of the file.
+  MEMBER(cloudabi_filetype_t) st_filetype;  // File type.
+  MEMBER(cloudabi_linkcount_t) st_nlink;    // Number of hardlinks.
+  MEMBER(cloudabi_filesize_t) st_size;      // Size of the file.
+  MEMBER(cloudabi_timestamp_t) st_atim;     // Access time.
+  MEMBER(cloudabi_timestamp_t) st_mtim;     // Modification time.
+  MEMBER(cloudabi_timestamp_t) st_ctim;     // Change time.
 } cloudabi_filestat_t;
 static_assert(offsetof(cloudabi_filestat_t, st_dev) == 0,
               "ABI has been changed");
@@ -405,18 +412,18 @@ static_assert(offsetof(cloudabi_filestat_t, st_ctim) == 48,
 static_assert(sizeof(cloudabi_filestat_t) == 56, "ABI has been changed");
 
 typedef struct {
-  cloudabi_sa_family_t sa_family;
+  MEMBER(cloudabi_sa_family_t) sa_family;
   union {
     struct {
       // IPv4 address and port number.
-      uint8_t addr[4];
-      uint16_t port;
+      MEMBER(uint8_t) addr[4];
+      MEMBER(uint16_t) port;
     } sa_inet;
     struct {
       // IPv6 address and port number.
       // TODO(edje): What about the flow info and scope ID?
-      uint8_t addr[16];
-      uint16_t port;
+      MEMBER(uint8_t) addr[16];
+      MEMBER(uint16_t) port;
     } sa_inet6;
   };
 } cloudabi_sockaddr_t;
@@ -434,10 +441,10 @@ static_assert(sizeof(cloudabi_sockaddr_t) == 20, "ABI has been changed");
 
 // Socket status.
 typedef struct {
-  cloudabi_sockaddr_t ss_sockname;  // Socket address.
-  cloudabi_sockaddr_t ss_peername;  // Peer address.
-  cloudabi_errno_t ss_error;        // Current error state.
-  uint32_t ss_state;                // State flags.
+  MEMBER(cloudabi_sockaddr_t) ss_sockname;  // Socket address.
+  MEMBER(cloudabi_sockaddr_t) ss_peername;  // Peer address.
+  MEMBER(cloudabi_errno_t) ss_error;        // Current error state.
+  MEMBER(uint32_t) ss_state;                // State flags.
 } cloudabi_sockstat_t;
 static_assert(offsetof(cloudabi_sockstat_t, ss_sockname) == 0,
               "ABI has been changed");
@@ -448,5 +455,7 @@ static_assert(offsetof(cloudabi_sockstat_t, ss_error) == 40,
 static_assert(offsetof(cloudabi_sockstat_t, ss_state) == 44,
               "ABI has been changed");
 static_assert(sizeof(cloudabi_sockstat_t) == 48, "ABI has been changed");
+
+#undef MEMBER
 
 #endif

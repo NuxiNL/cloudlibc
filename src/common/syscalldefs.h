@@ -25,6 +25,7 @@
 #define COMMON_SYSCALLDEFS_H
 
 #include <assert.h>
+#include <stdalign.h>
 #include <stddef.h>
 #include <stdint.h>
 
