@@ -125,7 +125,8 @@ CloudABI executables can be executed on FreeBSD. A copy of FreeBSD that
 supports CloudABI executables
 [can be found on GitHub](https://github.com/NuxiNL/freebsd). It is
 sufficient to compile a kernel that has the `COMPAT_CLOUDABI64` build
-option enabled.
+option enabled, or simply run `kldload cloudabi64` to load in the
+CloudABI kernel module.
 
 Support for other operating systems will be released in the future.
 
