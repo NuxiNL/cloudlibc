@@ -348,7 +348,12 @@ typedef uint8_t cloudabi_whence_t;      // lseek().
 // On x86-32 it is the case that 64-bit integers are 4-byte aligned when
 // embedded in structs, even though they are 8-byte aligned when not
 // embedded. Force 8-byte alignment explicitly.
-#define MEMBER(type) alignas(type) type
+#define MEMBER(type) alignas(alignof(type)) type
+#define ASSERT_FIELD(type, field, offset)                     \
+  static_assert(offsetof(cloudabi_##type, field) == (offset), \
+                "Offset incorrect")
+#define ASSERT_SIZE(type, size) \
+  static_assert(sizeof(cloudabi_##type) == (size), "Size incorrect")
 
 // Directory entries.
 typedef struct {
@@ -357,13 +362,11 @@ typedef struct {
   MEMBER(uint32_t) d_namlen;  // Length of the name of the current entry.
   MEMBER(cloudabi_filetype_t) d_type;  // File type of the current entry.
 } cloudabi_dirent_t;
-static_assert(offsetof(cloudabi_dirent_t, d_next) == 0, "ABI has been changed");
-static_assert(offsetof(cloudabi_dirent_t, d_ino) == 8, "ABI has been changed");
-static_assert(offsetof(cloudabi_dirent_t, d_namlen) == 16,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_dirent_t, d_type) == 20,
-              "ABI has been changed");
-static_assert(sizeof(cloudabi_dirent_t) == 24, "ABI has been changed");
+ASSERT_FIELD(dirent_t, d_next, 0);
+ASSERT_FIELD(dirent_t, d_ino, 8);
+ASSERT_FIELD(dirent_t, d_namlen, 16);
+ASSERT_FIELD(dirent_t, d_type, 20);
+ASSERT_SIZE(dirent_t, 24);
 
 // File descriptor status.
 typedef struct {
@@ -372,15 +375,11 @@ typedef struct {
   MEMBER(cloudabi_rights_t) fs_rights_base;        // Base rights.
   MEMBER(cloudabi_rights_t) fs_rights_inheriting;  // Inheriting rights.
 } cloudabi_fdstat_t;
-static_assert(offsetof(cloudabi_fdstat_t, fs_filetype) == 0,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_fdstat_t, fs_flags) == 2,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_fdstat_t, fs_rights_base) == 8,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_fdstat_t, fs_rights_inheriting) == 16,
-              "ABI has been changed");
-static_assert(sizeof(cloudabi_fdstat_t) == 24, "ABI has been changed");
+ASSERT_FIELD(fdstat_t, fs_filetype, 0);
+ASSERT_FIELD(fdstat_t, fs_flags, 2);
+ASSERT_FIELD(fdstat_t, fs_rights_base, 8);
+ASSERT_FIELD(fdstat_t, fs_rights_inheriting, 16);
+ASSERT_SIZE(fdstat_t, 24);
 
 // File status.
 typedef struct {
@@ -393,23 +392,15 @@ typedef struct {
   MEMBER(cloudabi_timestamp_t) st_mtim;     // Modification time.
   MEMBER(cloudabi_timestamp_t) st_ctim;     // Change time.
 } cloudabi_filestat_t;
-static_assert(offsetof(cloudabi_filestat_t, st_dev) == 0,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_filestat_t, st_ino) == 8,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_filestat_t, st_filetype) == 16,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_filestat_t, st_nlink) == 20,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_filestat_t, st_size) == 24,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_filestat_t, st_atim) == 32,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_filestat_t, st_mtim) == 40,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_filestat_t, st_ctim) == 48,
-              "ABI has been changed");
-static_assert(sizeof(cloudabi_filestat_t) == 56, "ABI has been changed");
+ASSERT_FIELD(filestat_t, st_dev, 0);
+ASSERT_FIELD(filestat_t, st_ino, 8);
+ASSERT_FIELD(filestat_t, st_filetype, 16);
+ASSERT_FIELD(filestat_t, st_nlink, 20);
+ASSERT_FIELD(filestat_t, st_size, 24);
+ASSERT_FIELD(filestat_t, st_atim, 32);
+ASSERT_FIELD(filestat_t, st_mtim, 40);
+ASSERT_FIELD(filestat_t, st_ctim, 48);
+ASSERT_SIZE(filestat_t, 56);
 
 typedef struct {
   MEMBER(cloudabi_sa_family_t) sa_family;
@@ -427,17 +418,12 @@ typedef struct {
     } sa_inet6;
   };
 } cloudabi_sockaddr_t;
-static_assert(offsetof(cloudabi_sockaddr_t, sa_family) == 0,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_sockaddr_t, sa_inet.addr) == 2,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_sockaddr_t, sa_inet.port) == 6,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_sockaddr_t, sa_inet6.addr) == 2,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_sockaddr_t, sa_inet6.port) == 18,
-              "ABI has been changed");
-static_assert(sizeof(cloudabi_sockaddr_t) == 20, "ABI has been changed");
+ASSERT_FIELD(sockaddr_t, sa_family, 0);
+ASSERT_FIELD(sockaddr_t, sa_inet.addr, 2);
+ASSERT_FIELD(sockaddr_t, sa_inet.port, 6);
+ASSERT_FIELD(sockaddr_t, sa_inet6.addr, 2);
+ASSERT_FIELD(sockaddr_t, sa_inet6.port, 18);
+ASSERT_SIZE(sockaddr_t, 20);
 
 // Socket status.
 typedef struct {
@@ -446,16 +432,14 @@ typedef struct {
   MEMBER(cloudabi_errno_t) ss_error;        // Current error state.
   MEMBER(uint32_t) ss_state;                // State flags.
 } cloudabi_sockstat_t;
-static_assert(offsetof(cloudabi_sockstat_t, ss_sockname) == 0,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_sockstat_t, ss_peername) == 20,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_sockstat_t, ss_error) == 40,
-              "ABI has been changed");
-static_assert(offsetof(cloudabi_sockstat_t, ss_state) == 44,
-              "ABI has been changed");
-static_assert(sizeof(cloudabi_sockstat_t) == 48, "ABI has been changed");
+ASSERT_FIELD(sockstat_t, ss_sockname, 0);
+ASSERT_FIELD(sockstat_t, ss_peername, 20);
+ASSERT_FIELD(sockstat_t, ss_error, 40);
+ASSERT_FIELD(sockstat_t, ss_state, 44);
+ASSERT_SIZE(sockstat_t, 48);
 
 #undef MEMBER
+#undef ASSERT_FIELD
+#undef ASSERT_SIZE
 
 #endif

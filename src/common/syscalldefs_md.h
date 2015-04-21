@@ -23,108 +23,187 @@
 
 // Machine dependent definitions.
 
-typedef void CLOUDABI_IDENT(threadentry_t)(cloudabi_tid_t, CLOUDABI_PTR(void));
+// Macro to force sane alignment rules.
+//
+// On x86-32 it is the case that 64-bit integers are 4-byte aligned when
+// embedded in structs, even though they are 8-byte aligned when not
+// embedded. Force 8-byte alignment explicitly.
+#define MEMBER(type) alignas(alignof(type)) type
+#define ASSERT_OFFSET(type, field, offset32, offset64)            \
+  static_assert((sizeof(PTR(void)) == 4 &&                        \
+                 offsetof(IDENT(type), field) == (offset32)) ||   \
+                    (sizeof(PTR(void)) == 8 &&                    \
+                     offsetof(IDENT(type), field) == (offset64)), \
+                "Offset incorrect")
+#define ASSERT_SIZE(type, size32, size64)                              \
+  static_assert(                                                       \
+      (sizeof(PTR(void)) == 4 && sizeof(IDENT(type)) == (size32)) ||   \
+          (sizeof(PTR(void)) == 8 && sizeof(IDENT(type)) == (size64)), \
+      "Size incorrect")
+
+typedef void IDENT(threadentry_t)(cloudabi_tid_t, PTR(void));
 
 typedef struct {
-  CLOUDABI_PTR(const void) iov_base;
-  CLOUDABI_IDENT(size_t) iov_len;
-} CLOUDABI_IDENT(ciovec_t);
+  MEMBER(PTR(const void)) iov_base;
+  MEMBER(IDENT(size_t)) iov_len;
+} IDENT(ciovec_t);
+ASSERT_OFFSET(ciovec_t, iov_base, 0, 0);
+ASSERT_OFFSET(ciovec_t, iov_len, 4, 8);
+ASSERT_SIZE(ciovec_t, 8, 16);
 
 typedef struct {
-  uint64_t userdata;
-  cloudabi_errno_t error;
-  uint8_t type;
+  MEMBER(uint64_t) userdata;
+  MEMBER(cloudabi_errno_t) error;
+  MEMBER(uint8_t) type;
   union {
     // CLOUDABI_EVENT_TYPE_CLOCK: Wait until the value of a clock
     // exceeds a value.
     struct {
-      uint64_t identifier;
-      cloudabi_clockid_t clock_id;
-      cloudabi_timestamp_t timeout;
-      cloudabi_timestamp_t precision;
+      MEMBER(uint64_t) identifier;
+      MEMBER(cloudabi_clockid_t) clock_id;
+      MEMBER(cloudabi_timestamp_t) timeout;
+      MEMBER(cloudabi_timestamp_t) precision;
     } clock;
 
     // CLOUDABI_EVENT_TYPE_CONDVAR: Release a lock and wait on a
     // condition variable.
     struct {
-      CLOUDABI_PTR(_Atomic(cloudabi_condvar_t)) condvar;
-      CLOUDABI_PTR(_Atomic(cloudabi_lock_t)) lock;
+      MEMBER(PTR(_Atomic(cloudabi_condvar_t))) condvar;
+      MEMBER(PTR(_Atomic(cloudabi_lock_t))) lock;
     } condvar;
 
     // CLOUDABI_EVENT_TYPE_FD_READ and CLOUDABI_EVENT_TYPE_FD_WRITE:
     // Wait for a file descriptor to allow read() and write() to be
     // called without blocking.
     struct {
-      cloudabi_filesize_t nbytes;
-      cloudabi_fd_t fd;
-      uint16_t flags;
+      MEMBER(cloudabi_filesize_t) nbytes;
+      MEMBER(cloudabi_fd_t) fd;
+      MEMBER(uint16_t) flags;
     } fd_readwrite;
 
     // CLOUDABI_EVENT_LOCK_RDLOCK and CLOUDABI_EVENT_LOCK_WRLOCK: Wait
     // and acquire a read or write lock.
     struct {
-      CLOUDABI_PTR(_Atomic(cloudabi_lock_t)) lock;
+      MEMBER(PTR(_Atomic(cloudabi_lock_t))) lock;
     } lock;
 
     // CLOUDABI_EVENT_TYPE_PROC_TERMINATE: Wait for a process to terminate.
     struct {
-      cloudabi_fd_t fd;
-      cloudabi_signal_t signal;      // Non-zero if process got killed.
-      cloudabi_exitcode_t exitcode;  // Exit code.
+      MEMBER(cloudabi_fd_t) fd;
+      MEMBER(cloudabi_signal_t) signal;      // Non-zero if process got killed.
+      MEMBER(cloudabi_exitcode_t) exitcode;  // Exit code.
     } proc_terminate;
   };
-} CLOUDABI_IDENT(event_t);
+} IDENT(event_t);
+ASSERT_OFFSET(event_t, userdata, 0, 0);
+ASSERT_OFFSET(event_t, error, 8, 8);
+ASSERT_OFFSET(event_t, type, 10, 10);
+ASSERT_OFFSET(event_t, clock.identifier, 16, 16);
+ASSERT_OFFSET(event_t, clock.clock_id, 24, 24);
+ASSERT_OFFSET(event_t, clock.timeout, 32, 32);
+ASSERT_OFFSET(event_t, clock.precision, 40, 40);
+ASSERT_OFFSET(event_t, condvar.condvar, 16, 16);
+ASSERT_OFFSET(event_t, condvar.lock, 20, 24);
+ASSERT_OFFSET(event_t, fd_readwrite.nbytes, 16, 16);
+ASSERT_OFFSET(event_t, fd_readwrite.fd, 24, 24);
+ASSERT_OFFSET(event_t, fd_readwrite.flags, 28, 28);
+ASSERT_OFFSET(event_t, lock.lock, 16, 16);
+ASSERT_OFFSET(event_t, proc_terminate.fd, 16, 16);
+ASSERT_OFFSET(event_t, proc_terminate.signal, 20, 20);
+ASSERT_OFFSET(event_t, proc_terminate.exitcode, 21, 21);
+ASSERT_SIZE(event_t, 48, 48);
 
 typedef struct {
-  CLOUDABI_PTR(void) iov_base;
-  CLOUDABI_IDENT(size_t) iov_len;
-} CLOUDABI_IDENT(iovec_t);
+  MEMBER(PTR(void)) iov_base;
+  MEMBER(IDENT(size_t)) iov_len;
+} IDENT(iovec_t);
+ASSERT_OFFSET(iovec_t, iov_base, 0, 0);
+ASSERT_OFFSET(iovec_t, iov_len, 4, 8);
+ASSERT_SIZE(iovec_t, 8, 16);
 
 typedef struct {
-  CLOUDABI_PTR(const CLOUDABI_IDENT(iovec_t)) ri_data;  // Data I/O vectors.
-  CLOUDABI_IDENT(size_t) ri_datalen;   // Number of data I/O vectors.
-  CLOUDABI_PTR(cloudabi_fd_t) ri_fds;  // File descriptors.
-  CLOUDABI_IDENT(size_t) ri_fdslen;    // Number of file descriptors.
-  cloudabi_msgflags_t ri_flags;        // Input flags.
-} CLOUDABI_IDENT(recv_in_t);
+  MEMBER(PTR(const IDENT(iovec_t))) ri_data;  // Data I/O vectors.
+  MEMBER(IDENT(size_t)) ri_datalen;           // Number of data I/O vectors.
+  MEMBER(PTR(cloudabi_fd_t)) ri_fds;          // File descriptors.
+  MEMBER(IDENT(size_t)) ri_fdslen;            // Number of file descriptors.
+  MEMBER(cloudabi_msgflags_t) ri_flags;       // Input flags.
+} IDENT(recv_in_t);
+ASSERT_OFFSET(recv_in_t, ri_data, 0, 0);
+ASSERT_OFFSET(recv_in_t, ri_datalen, 4, 8);
+ASSERT_OFFSET(recv_in_t, ri_fds, 8, 16);
+ASSERT_OFFSET(recv_in_t, ri_fdslen, 12, 24);
+ASSERT_OFFSET(recv_in_t, ri_flags, 16, 32);
+ASSERT_SIZE(recv_in_t, 20, 40);
 
 typedef struct {
-  CLOUDABI_IDENT(size_t) ro_datalen;  // Bytes of data received.
-  CLOUDABI_IDENT(size_t) ro_fdslen;   // Number of file descriptors received.
-  cloudabi_sockaddr_t ro_sockname;    // Address of receiver.
-  cloudabi_sockaddr_t ro_peername;    // Address of sender.
-  cloudabi_msgflags_t ro_flags;       // Output flags.
-} CLOUDABI_IDENT(recv_out_t);
+  MEMBER(IDENT(size_t)) ro_datalen;  // Bytes of data received.
+  MEMBER(IDENT(size_t)) ro_fdslen;   // Number of file descriptors received.
+  MEMBER(cloudabi_sockaddr_t) ro_sockname;  // Address of receiver.
+  MEMBER(cloudabi_sockaddr_t) ro_peername;  // Address of sender.
+  MEMBER(cloudabi_msgflags_t) ro_flags;     // Output flags.
+} IDENT(recv_out_t);
+ASSERT_OFFSET(recv_out_t, ro_datalen, 0, 0);
+ASSERT_OFFSET(recv_out_t, ro_fdslen, 4, 8);
+ASSERT_OFFSET(recv_out_t, ro_sockname, 8, 16);
+ASSERT_OFFSET(recv_out_t, ro_peername, 28, 36);
+ASSERT_OFFSET(recv_out_t, ro_flags, 48, 56);
+ASSERT_SIZE(recv_out_t, 52, 64);
 
 typedef struct {
-  CLOUDABI_PTR(const CLOUDABI_IDENT(ciovec_t)) si_data;  // Data I/O vectors.
-  CLOUDABI_IDENT(size_t) si_datalen;         // Number of data I/O vectors.
-  CLOUDABI_PTR(const cloudabi_fd_t) si_fds;  // File descriptors.
-  CLOUDABI_IDENT(size_t) si_fdslen;          // Number of file descriptors.
-  cloudabi_msgflags_t si_flags;              // Input flags.
-} CLOUDABI_IDENT(send_in_t);
+  MEMBER(PTR(const IDENT(ciovec_t))) si_data;  // Data I/O vectors.
+  MEMBER(IDENT(size_t)) si_datalen;            // Number of data I/O vectors.
+  MEMBER(PTR(const cloudabi_fd_t)) si_fds;     // File descriptors.
+  MEMBER(IDENT(size_t)) si_fdslen;             // Number of file descriptors.
+  MEMBER(cloudabi_msgflags_t) si_flags;        // Input flags.
+} IDENT(send_in_t);
+ASSERT_OFFSET(send_in_t, si_data, 0, 0);
+ASSERT_OFFSET(send_in_t, si_datalen, 4, 8);
+ASSERT_OFFSET(send_in_t, si_fds, 8, 16);
+ASSERT_OFFSET(send_in_t, si_fdslen, 12, 24);
+ASSERT_OFFSET(send_in_t, si_flags, 16, 32);
+ASSERT_SIZE(send_in_t, 20, 40);
 
 typedef struct {
-  CLOUDABI_IDENT(size_t) so_datalen;  // Bytes of data sent.
-} CLOUDABI_IDENT(send_out_t);
+  MEMBER(IDENT(size_t)) so_datalen;  // Bytes of data sent.
+} IDENT(send_out_t);
+ASSERT_OFFSET(send_out_t, so_datalen, 0, 0);
+ASSERT_SIZE(send_out_t, 4, 8);
 
 typedef struct {
-  CLOUDABI_PTR(const void) sd_arg;   // Program argument data.
-  CLOUDABI_IDENT(size_t) sd_arglen;  // Program argument data size.
+  MEMBER(PTR(const void)) sd_arg;   // Program argument data.
+  MEMBER(IDENT(size_t)) sd_arglen;  // Program argument data size.
 
-  CLOUDABI_PTR(void) sd_elf_phdr;         // ELF program header.
-  CLOUDABI_IDENT(size_t) sd_elf_phdrlen;  // ELF program header length.
+  MEMBER(PTR(void)) sd_elf_phdr;         // ELF program header.
+  MEMBER(IDENT(size_t)) sd_elf_phdrlen;  // ELF program header length.
 
-  cloudabi_tid_t sd_thread_id;  // Thread ID.
-  uint64_t sd_random_seed;      // Random seed, used for SSP.
+  MEMBER(cloudabi_tid_t) sd_thread_id;  // Thread ID.
+  MEMBER(uint64_t) sd_random_seed;      // Random seed, used for SSP.
 
-  uint32_t sd_ncpus;     // Number of CPUs.
-  uint32_t sd_pagesize;  // Page size.
-} CLOUDABI_IDENT(startup_data_t);
+  MEMBER(uint32_t) sd_ncpus;     // Number of CPUs.
+  MEMBER(uint32_t) sd_pagesize;  // Page size.
+} IDENT(startup_data_t);
+ASSERT_OFFSET(startup_data_t, sd_arg, 0, 0);
+ASSERT_OFFSET(startup_data_t, sd_arglen, 4, 8);
+ASSERT_OFFSET(startup_data_t, sd_elf_phdr, 8, 16);
+ASSERT_OFFSET(startup_data_t, sd_elf_phdrlen, 12, 24);
+ASSERT_OFFSET(startup_data_t, sd_thread_id, 16, 32);
+ASSERT_OFFSET(startup_data_t, sd_random_seed, 24, 40);
+ASSERT_OFFSET(startup_data_t, sd_ncpus, 32, 48);
+ASSERT_OFFSET(startup_data_t, sd_pagesize, 36, 52);
+ASSERT_SIZE(startup_data_t, 40, 56);
 
 typedef struct {
-  CLOUDABI_PTR(CLOUDABI_IDENT(threadentry_t)) entry_point;  // Entry point.
-  CLOUDABI_PTR(void) stack;           // Pointer to stack buffer.
-  CLOUDABI_IDENT(size_t) stack_size;  // Size of stack buffer.
-  CLOUDABI_PTR(void) argument;        // Argument to be passed to entry point.
-} CLOUDABI_IDENT(threadattr_t);
+  MEMBER(PTR(IDENT(threadentry_t))) entry_point;  // Entry point.
+  MEMBER(PTR(void)) stack;                        // Pointer to stack buffer.
+  MEMBER(IDENT(size_t)) stack_size;               // Size of stack buffer.
+  MEMBER(PTR(void)) argument;  // Argument to be passed to entry point.
+} IDENT(threadattr_t);
+ASSERT_OFFSET(threadattr_t, entry_point, 0, 0);
+ASSERT_OFFSET(threadattr_t, stack, 4, 8);
+ASSERT_OFFSET(threadattr_t, stack_size, 8, 16);
+ASSERT_OFFSET(threadattr_t, argument, 12, 24);
+ASSERT_SIZE(threadattr_t, 16, 32);
+
+#undef MEMBER
+#undef ASSERT_OFFSET
+#undef ASSERT_SIZE

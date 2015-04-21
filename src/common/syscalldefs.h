@@ -34,10 +34,10 @@
 typedef size_t cloudabi_size_t;
 typedef uintptr_t cloudabi_uintptr_t;
 
-#define CLOUDABI_IDENT(ident) cloudabi_##ident
-#define CLOUDABI_PTR(type) type *
+#define IDENT(ident) cloudabi_##ident
+#define PTR(type) type *
 #include "syscalldefs_md.h"
-#undef CLOUDABI_IDENT
-#undef CLOUDABI_PTR
+#undef IDENT
+#undef PTR
 
 #endif
