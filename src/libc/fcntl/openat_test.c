@@ -118,15 +118,18 @@ TEST(openat, o_excl) {
 TEST(openat, o_nonblock) {
   // Create a FIFO and open it for reading.
   ASSERT_EQ(0, mkfifoat(fd_tmp, "test"));
-  int fd = openat(fd_tmp, "test", O_RDONLY | O_NONBLOCK);
-  ASSERT_LE(0, fd);
+  int fd1 = openat(fd_tmp, "test", O_RDONLY | O_NONBLOCK);
+  ASSERT_LE(0, fd1);
+  int fd2 = openat(fd_tmp, "test", O_WRONLY);
+  ASSERT_LE(0, fd2);
 
   // Reading should fail.
   char buf[10];
-  ASSERT_EQ(-1, read(fd, buf, sizeof(buf)));
+  ASSERT_EQ(-1, read(fd1, buf, sizeof(buf)));
   ASSERT_EQ(EAGAIN, errno);
 
-  ASSERT_EQ(0, close(fd));
+  ASSERT_EQ(0, close(fd1));
+  ASSERT_EQ(0, close(fd2));
 
   // Cannot open a FIFO without a reader.
   ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
