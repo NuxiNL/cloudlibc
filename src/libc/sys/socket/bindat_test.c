@@ -11,12 +11,21 @@
 #include <unistd.h>
 
 TEST(bindat, failure) {
+  // Bad file descriptor.
   ASSERT_EQ(EBADF, bindat(-1, fd_tmp, "example"));
 
+  // Target already exists.
   int fd = socket(AF_UNIX, SOCK_STREAM, 0);
   ASSERT_LE(0, fd);
+  ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
+  ASSERT_EQ(EADDRINUSE, bindat(fd, fd_tmp, "fifo"));
+
+  // Empty filename.
   ASSERT_EQ(ENOENT, bindat(fd, fd_tmp, ""));
+
+  // Bad pathname.
   ASSERT_EQ(ENOTCAPABLE, bindat(fd, fd_tmp, "../sock"));
+  ASSERT_EQ(ENOTCAPABLE, bindat(fd, fd_tmp, "/sock"));
   ASSERT_EQ(0, close(fd));
 }
 
