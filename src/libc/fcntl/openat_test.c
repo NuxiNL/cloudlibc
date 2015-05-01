@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <sys/event.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 
 #include <errno.h>
@@ -23,6 +24,14 @@ TEST(openat, bad) {
   ASSERT_EQ(ENOTCAPABLE, errno);
   ASSERT_EQ(-1, openat(fd_tmp, "/etc/passwd", O_WRONLY | O_CREAT));
   ASSERT_EQ(ENOTCAPABLE, errno);
+
+  // Opening a socket should return EOPNOTSUPP.
+  fd = socket(AF_UNIX, SOCK_STREAM, 0);
+  ASSERT_LE(0, fd);
+  ASSERT_EQ(0, bindat(fd, fd_tmp, "socket"));
+  ASSERT_EQ(-1, openat(fd_tmp, "socket", O_RDWR));
+  ASSERT_EQ(EOPNOTSUPP, errno);
+  ASSERT_EQ(0, close(fd));
 }
 
 TEST(openat, o_append) {
