@@ -3,10 +3,12 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <testing.h>
 #include <unistd.h>
 
@@ -20,6 +22,12 @@ TEST(accept, bad) {
   ASSERT_EQ(-1, accept(fd, NULL, NULL));
   ASSERT_EQ(EINVAL, errno);
   ASSERT_EQ(0, close(fd));
+
+  // Not a socket.
+  fd = kqueue();
+  ASSERT_EQ(-1, accept(fd, NULL, NULL));
+  ASSERT_EQ(ENOTSOCK, errno);
+  ASSERT_EQ(0, close(fd));
 }
 
 TEST(accept, example_null) {
@@ -28,6 +36,11 @@ TEST(accept, example_null) {
   ASSERT_LE(0, fd1);
   ASSERT_EQ(0, bindat(fd1, fd_tmp, "foo"));
   ASSERT_EQ(0, listen(fd1, 1));
+
+  // Test O_NONBLOCK.
+  ASSERT_EQ(0, fcntl(fd1, F_SETFL, O_NONBLOCK));
+  ASSERT_EQ(-1, accept(fd1, NULL, NULL));
+  ASSERT_TRUE(errno == EAGAIN || errno == EWOULDBLOCK);
 
   // Connect.
   int fd2 = socket(AF_UNIX, SOCK_STREAM, 0);
