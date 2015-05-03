@@ -34,6 +34,8 @@
 //   systems.
 // - mbstowcs_l() and wcstombs_l():
 //   mbstowcs() and wcstombs() always use the C locale.
+// - reallocarray():
+//   Allows for reallocation of buffers without integer overflows.
 //
 // Features missing:
 // - erand48(), jrand48() and nrand48():
@@ -169,6 +171,7 @@ _Noreturn void quick_exit(int);
 int rand(void);
 long random(void);
 void *realloc(void *, size_t);
+void *reallocarray(void *, size_t, size_t);
 double strtod(const char *__restrict, char **__restrict);
 double strtod_l(const char *__restrict, char **__restrict, __locale_t);
 float strtof(const char *__restrict, char **__restrict);
