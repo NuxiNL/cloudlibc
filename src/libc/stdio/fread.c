@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/overflow.h>
 #include <common/stdio.h>
 
 #include <errno.h>
@@ -17,7 +18,8 @@ size_t fread(void *restrict ptr, size_t size, size_t nitems,
     return 0;
 
   // Check for overflow of size * nitems.
-  if (nitems > SIZE_MAX / size) {
+  size_t outbuflen;
+  if (mul_overflow(size, nitems, &outbuflen)) {
     flockfile(stream);
     stream->flags |= F_ERROR;
     funlockfile(stream);
@@ -26,7 +28,6 @@ size_t fread(void *restrict ptr, size_t size, size_t nitems,
   }
 
   char *outbuf = ptr;
-  size_t outbuflen = size * nitems;
   flockfile(stream);
   for (;;) {
     // Obtain the read buffer.

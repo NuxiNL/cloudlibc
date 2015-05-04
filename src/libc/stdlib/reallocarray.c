@@ -3,15 +3,18 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/overflow.h>
+
 #include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 void *reallocarray(void *ptr, size_t nelem, size_t elsize) {
   // Check for overflow of nelem * elsize.
-  if (nelem > 0 && elsize > SIZE_MAX / nelem) {
+  size_t size;
+  if (mul_overflow(nelem, elsize, &size)) {
     errno = ENOMEM;
     return NULL;
   }
-  return realloc(ptr, nelem * elsize);
+  return realloc(ptr, size);
 }

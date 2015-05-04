@@ -7,6 +7,7 @@
 #define COMMON_TIME_H
 
 #include <common/limits.h>
+#include <common/overflow.h>
 #include <common/syscalldefs.h>
 
 #include <stdbool.h>
@@ -45,17 +46,8 @@ static inline bool timespec_to_timestamp_exact(
     return false;
 
   // Make sure our timestamp does not overflow.
-  cloudabi_timestamp_t s = timespec->tv_sec;
-  cloudabi_timestamp_t ns = timespec->tv_nsec;
-  cloudabi_timestamp_t s_max = NUMERIC_MAX(cloudabi_timestamp_t) / NSEC_PER_SEC;
-  cloudabi_timestamp_t ns_max =
-      NUMERIC_MAX(cloudabi_timestamp_t) % NSEC_PER_SEC;
-  if (s > s_max || (s == s_max && ns > ns_max))
-    return false;
-
-  // Construct timestamp value.
-  *timestamp = s * NSEC_PER_SEC + ns;
-  return true;
+  return !mul_overflow(timespec->tv_sec, NSEC_PER_SEC, timestamp) &&
+         !add_overflow(*timestamp, timespec->tv_nsec, timestamp);
 }
 
 static inline bool timespec_to_timestamp_clamp(
@@ -64,25 +56,14 @@ static inline bool timespec_to_timestamp_clamp(
   if (timespec->tv_nsec < 0 || timespec->tv_nsec >= NSEC_PER_SEC)
     return false;
 
-  // Timestamps before the Epoch are not supported.
   if (timespec->tv_sec < 0) {
+    // Timestamps before the Epoch are not supported.
     *timestamp = 0;
-    return true;
-  }
-
-  // Make sure our timestamp does not overflow.
-  cloudabi_timestamp_t s = timespec->tv_sec;
-  cloudabi_timestamp_t ns = timespec->tv_nsec;
-  cloudabi_timestamp_t s_max = NUMERIC_MAX(cloudabi_timestamp_t) / NSEC_PER_SEC;
-  cloudabi_timestamp_t ns_max =
-      NUMERIC_MAX(cloudabi_timestamp_t) % NSEC_PER_SEC;
-  if (s > s_max || (s == s_max && ns > ns_max)) {
+  } else if (mul_overflow(timespec->tv_sec, NSEC_PER_SEC, timestamp) ||
+             add_overflow(*timestamp, timespec->tv_nsec, timestamp)) {
+    // Make sure our timestamp does not overflow.
     *timestamp = NUMERIC_MAX(cloudabi_timestamp_t);
-    return true;
   }
-
-  // Construct timestamp value.
-  *timestamp = s * NSEC_PER_SEC + ns;
   return true;
 }
 

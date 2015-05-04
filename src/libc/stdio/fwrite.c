@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/overflow.h>
 #include <common/stdio.h>
 
 #include <errno.h>
@@ -16,7 +17,8 @@ size_t fwrite(const void *restrict ptr, size_t size, size_t nitems,
     return 0;
 
   // Check for overflow of size * nitems.
-  if (nitems > SIZE_MAX / size) {
+  size_t writelen;
+  if (mul_overflow(size, nitems, &writelen)) {
     flockfile(stream);
     stream->flags |= F_ERROR;
     funlockfile(stream);
@@ -26,7 +28,7 @@ size_t fwrite(const void *restrict ptr, size_t size, size_t nitems,
 
   // Write data.
   flockfile(stream);
-  size_t len = fwrite_put(stream, ptr, size * nitems);
+  size_t len = fwrite_put(stream, ptr, writelen);
   funlockfile(stream);
   return len / size;
 }

@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/overflow.h>
 #include <common/syscalls.h>
 #include <common/time.h>
 
@@ -27,9 +28,8 @@ int clock_nanosleep(clockid_t clock_id, int flags, const struct timespec *rqtp,
         return ENOTSUP;
 
       // Ensure that addition does not cause an overflow.
-      if (now > NUMERIC_MAX(cloudabi_timestamp_t) - ev.clock.timeout)
+      if (add_overflow(ev.clock.timeout, now, &ev.clock.timeout))
         return EINVAL;
-      ev.clock.timeout += now;
       break;
     }
     case TIMER_ABSTIME:
