@@ -6,5 +6,5 @@
 #include <aio.h>
 
 ssize_t aio_return(struct aiocb *aiocbp) {
-  return aiocbp->__aio_return < 0 ? -aiocbp->__aio_return : 0;
+  return aiocbp->__aio_return >= 0 ? aiocbp->__aio_return : -1;
 }

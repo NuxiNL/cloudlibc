@@ -6,5 +6,5 @@
 #include <aio.h>
 
 int aio_error(const struct aiocb *aiocbp) {
-  return aiocbp->__aio_return >= 0 ? aiocbp->__aio_return : -1;
+  return aiocbp->__aio_return < 0 ? -aiocbp->__aio_return : 0;
 }
