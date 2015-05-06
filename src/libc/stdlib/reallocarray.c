@@ -6,7 +6,6 @@
 #include <common/overflow.h>
 
 #include <errno.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 void *reallocarray(void *ptr, size_t nelem, size_t elsize) {
