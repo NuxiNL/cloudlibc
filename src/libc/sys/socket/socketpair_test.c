@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <testing.h>
+#include <time.h>
 #include <unistd.h>
 
 TEST(socketpair, bad) {
@@ -97,8 +98,11 @@ TEST(socketpair, example_stream) {
   ASSERT_EQ(12, read(fds[1], buf, sizeof(buf)));
   ASSERT_ARREQ("Hello world!", buf, 12);
 
-  // Close one side.
+  // Close one side and wait for the other side to switch to the
+  // disconnected state.
   ASSERT_EQ(0, close(fds[1]));
+  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0,
+                               &(struct timespec){.tv_nsec = 100000000L}));
 
   // We can't obtain the peer name anymore.
   ASSERT_EQ(0, getsockname(fds[0], (struct sockaddr *)&su, &sul));
