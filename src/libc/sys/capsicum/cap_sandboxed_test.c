@@ -7,6 +7,6 @@
 
 #include <testing.h>
 
-TEST(cap_getmode, example) {
+TEST(cap_sandboxed, example) {
   ASSERT_TRUE(cap_sandboxed());
 }
