@@ -232,27 +232,27 @@ enum __test_note_kind {
 };
 
 struct __test_note {
-  enum __test_note_kind kind;
+  enum __test_note_kind __kind;
   union {
-#define _TEST_NOTE_VALUE(type, stype) type value_##stype;
+#define _TEST_NOTE_VALUE(type, stype) type __value_##stype;
     _MACRO_FOREACH_TYPE(_TEST_NOTE_VALUE)
 #undef _TEST_NOTE_VALUE
   };
 
-  const char *expression;
-  const char *file;
-  int line;
+  const char *__expression;
+  const char *__file;
+  int __line;
 
-  const struct __test_note *parent;
+  const struct __test_note *__parent;
 };
 
 extern _Thread_local const struct __test_note *__test_note_stack;
 
-#define _GENERATE_NOTE_SET(type, stype)                             \
-  static __inline void __note_set_##stype(struct __test_note *note, \
-                                          type value) {             \
-    note->kind = __test_note_kind_##stype;                          \
-    note->value_##stype = value;                                    \
+#define _GENERATE_NOTE_SET(type, stype)                               \
+  static __inline void __note_set_##stype(struct __test_note *__note, \
+                                          type __value) {             \
+    __note->__kind = __test_note_kind_##stype;                        \
+    __note->__value_##stype = __value;                                \
   }
 _MACRO_FOREACH_TYPE(_GENERATE_NOTE_SET)
 #undef _GENERATE_NOTE_SET
@@ -263,14 +263,14 @@ _MACRO_FOREACH_TYPE(_GENERATE_NOTE_SET)
   do {                                                                 \
     struct __test_note __note_##counter;                               \
     _EXPRESSION_FOREACH_TYPE(__note_set, exp)(&__note_##counter, exp); \
-    __note_##counter.expression = #exp;                                \
-    __note_##counter.file = __FILE__;                                  \
-    __note_##counter.line = __LINE__;                                  \
-    __note_##counter.parent = __test_note_stack;                       \
+    __note_##counter.__expression = #exp;                              \
+    __note_##counter.__file = __FILE__;                                \
+    __note_##counter.__line = __LINE__;                                \
+    __note_##counter.__parent = __test_note_stack;                     \
     __test_note_stack = &__note_##counter;                             \
     do                                                                 \
       block while (0);                                                 \
-    __test_note_stack = __note_##counter.parent;                       \
+    __test_note_stack = __note_##counter.__parent;                     \
   } while (0)
 
 #endif

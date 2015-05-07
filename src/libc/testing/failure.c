@@ -91,10 +91,10 @@ static noreturn void print_test_footer(const char *file, int line) {
     __testing_printf(
         "--\n"
         "Note:      ");
-    switch (note->kind) {
-#define PRINT_NOTE(type, stype)               \
-  case __test_note_kind_##stype:              \
-    print_value_##stype(note->value_##stype); \
+    switch (note->__kind) {
+#define PRINT_NOTE(type, stype)                 \
+  case __test_note_kind_##stype:                \
+    print_value_##stype(note->__value_##stype); \
     break;
       _MACRO_FOREACH_TYPE(PRINT_NOTE)
 #undef PRINT_NOTE
@@ -102,8 +102,8 @@ static noreturn void print_test_footer(const char *file, int line) {
     __testing_printf(
         " == (%s)\n"
         "Location:  %s:%d\n",
-        note->expression, note->file, note->line);
-    note = note->parent;
+        note->__expression, note->__file, note->__line);
+    note = note->__parent;
   }
 
   // Terminate.
