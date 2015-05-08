@@ -55,7 +55,7 @@ typedef __pthread_once_t once_flag;
 enum {
   mtx_plain = 0x1,
   mtx_recursive = 0x2,
-  mtx_timed = 0x4,
+  mtx_timed = 0x4
 };
 
 enum {
@@ -63,7 +63,7 @@ enum {
   thrd_error = 2,
   thrd_nomem = 3,
   thrd_success = 4,
-  thrd_timedout = 5,
+  thrd_timedout = 5
 };
 
 __BEGIN_DECLS
