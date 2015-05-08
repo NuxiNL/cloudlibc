@@ -52,11 +52,7 @@ typedef void (*tss_dtor_t)(void *);
 typedef int (*thrd_start_t)(void *);
 typedef __pthread_once_t once_flag;
 
-enum {
-  mtx_plain = 0x1,
-  mtx_recursive = 0x2,
-  mtx_timed = 0x4
-};
+enum { mtx_plain = 0x1, mtx_recursive = 0x2, mtx_timed = 0x4 };
 
 enum {
   thrd_busy = 1,
