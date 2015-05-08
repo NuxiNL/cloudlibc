@@ -6,7 +6,7 @@ TARGET="x86_64-unknown-cloudabi"
 CC="${TARGET}-cc"
 CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include -Icontrib/openlibm-ef29d06/include -Icontrib/openlibm-ef29d06/src -Icontrib/openlibm-ef29d06/ld80 -Icontrib/openlibm-ef29d06 -Werror -fno-exceptions -fno-rtti -DOPENLIBM_USE_HOST_COMPLEX_H -DOPENLIBM_USE_HOST_FENV_H -DOPENLIBM_USE_HOST_MATH_H -DOPENLIBM_ONLY_THREAD_SAFE"
 COPTFLAGS="-O3"
-WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare"
+WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare -Wundef -Wno-comment"
 
 SRCS=$(find src contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
     contrib/openlibm-ef29d06 \( -name '*.[cS]' -o -name '*.cc' \) | sort)
@@ -15,14 +15,14 @@ echo "=> Testing headers"
 for std in c89 gnu89 c90 gnu90 c99 gnu99 c11 gnu11; do
   (cd src/include; find * -type f) | while read header; do
     echo "#include <$header>"
-  done | (sort -R 2> /dev/null || sort) | ${CC} ${CFLAGS} \
-      -std="${std}" -x c -c -o /dev/null -
+  done | (sort -R 2> /dev/null || sort) | ${CC} ${WARNFLAGS} -nostdinc \
+      -Isrc/include -std="${std}" -x c -c -o /dev/null -
 done
 for std in c++98 gnu++98 c++03 c++11 gnu++11 c++14 gnu++14; do
   (cd src/include; find * -type f) | while read header; do
     echo "#include <$header>"
-  done | (sort -R 2> /dev/null || sort) | ${CC} ${CFLAGS} \
-      -std="${std}" -x c++ -c -o /dev/null -
+  done | (sort -R 2> /dev/null || sort) | ${CC} ${WARNFLAGS} -nostdinc \
+      -Isrc/include -std="${std}" -x c++ -c -o /dev/null -
 done
 
 echo "=> Computing dependencies"
