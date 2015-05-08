@@ -55,7 +55,9 @@ static_assert(CAP_SEEK == (CLOUDABI_RIGHT_FD_SEEK | CLOUDABI_RIGHT_FD_TELL),
               "Value mismatch");
 static_assert(CAP_SEEK_TELL == CLOUDABI_RIGHT_FD_TELL, "Value mismatch");
 static_assert(CAP_WRITE == CLOUDABI_RIGHT_FD_WRITE, "Value mismatch");
-static_assert(CAP_LOOKUP == CLOUDABI_RIGHT_FILE_OPEN, "Value mismatch");
+static_assert(CAP_LOOKUP ==
+                  (CLOUDABI_RIGHT_FILE_LINK_SOURCE | CLOUDABI_RIGHT_FILE_OPEN),
+              "Value mismatch");
 static_assert(CAP_FCNTL == CLOUDABI_RIGHT_FD_STAT_PUT_FLAGS, "Value mismatch");
 static_assert(CAP_BINDAT == CLOUDABI_RIGHT_SOCK_BIND_DIRECTORY,
               "Value mismatch");
@@ -67,12 +69,15 @@ static_assert(CAP_FUTIMES == CLOUDABI_RIGHT_FILE_STAT_FPUT_TIMES,
               "Value mismatch");
 static_assert(CAP_FUTIMESAT == CLOUDABI_RIGHT_FILE_STAT_PUT_TIMES,
               "Value mismatch");
-static_assert(CAP_LINKAT == CLOUDABI_RIGHT_FILE_LINK, "Value mismatch");
+static_assert(CAP_LINKAT == (CLOUDABI_RIGHT_FILE_LINK_TARGET |
+                             CLOUDABI_RIGHT_FILE_RENAME_TARGET),
+              "Value mismatch");
 static_assert(CAP_MKDIRAT == CLOUDABI_RIGHT_FILE_CREATE_DIRECTORY,
               "Value mismatch");
 static_assert(CAP_MKFIFOAT == CLOUDABI_RIGHT_FILE_CREATE_FIFO,
               "Value mismatch");
-static_assert(CAP_RENAMEAT == CLOUDABI_RIGHT_FILE_RENAME, "Value mismatch");
+static_assert(CAP_RENAMEAT == CLOUDABI_RIGHT_FILE_RENAME_SOURCE,
+              "Value mismatch");
 static_assert(CAP_SYMLINKAT == CLOUDABI_RIGHT_FILE_SYMLINK, "Value mismatch");
 static_assert(CAP_UNLINKAT == CLOUDABI_RIGHT_FILE_UNLINK, "Value mismatch");
 static_assert(CAP_ACCEPT == CLOUDABI_RIGHT_SOCK_ACCEPT, "Value mismatch");

@@ -81,58 +81,58 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define _CAP_SENTINEL _UINT64_C(0)
 
 // General file I/O.
-#define CAP_CREATE (CAP_LOOKUP | _CAP_BIT(10))
-#define CAP_FEXECVE _CAP_BIT(30)
+#define CAP_CREATE (_CAP_BIT(10) | _CAP_BIT(14))
+#define CAP_FEXECVE _CAP_BIT(32)
 #define CAP_FSYNC (_CAP_BIT(0) | _CAP_BIT(4))
-#define CAP_FTRUNCATE _CAP_BIT(18)
-#define CAP_MMAP _CAP_BIT(24)
+#define CAP_FTRUNCATE _CAP_BIT(20)
+#define CAP_MMAP _CAP_BIT(26)
 #define CAP_MMAP_R (CAP_MMAP | CAP_READ)
 #define CAP_MMAP_RW (CAP_MMAP_R | CAP_MMAP_W)
 #define CAP_MMAP_RWX (CAP_MMAP_R | CAP_MMAP_W | CAP_MMAP_X)
 #define CAP_MMAP_RX (CAP_MMAP_R | CAP_MMAP_X)
 #define CAP_MMAP_W (CAP_MMAP | CAP_WRITE)
 #define CAP_MMAP_WX (CAP_MMAP_W | CAP_MMAP_X)
-#define CAP_MMAP_X (CAP_MMAP | _CAP_BIT(25))
+#define CAP_MMAP_X (CAP_MMAP | _CAP_BIT(27))
 #define CAP_POSIX_FADVISE _CAP_BIT(7)    // Extension.
 #define CAP_POSIX_FALLOCATE _CAP_BIT(8)  // Extension.
 #define CAP_PREAD (CAP_READ | _CAP_BIT(2))
 #define CAP_PWRITE (CAP_WRITE | _CAP_BIT(2))
 #define CAP_READ _CAP_BIT(1)
-#define CAP_READDIR _CAP_BIT(14)   // Extension.
-#define CAP_READLINK _CAP_BIT(15)  // Extension.
+#define CAP_READDIR _CAP_BIT(15)   // Extension.
+#define CAP_READLINK _CAP_BIT(16)  // Extension.
 #define CAP_SEEK (CAP_SEEK_TELL | _CAP_BIT(2))
 #define CAP_SEEK_TELL _CAP_BIT(5)
 #define CAP_WRITE _CAP_BIT(6)
 
-#define CAP_LOOKUP _CAP_BIT(13)
+#define CAP_LOOKUP (_CAP_BIT(12) | _CAP_BIT(14))
 
 #define CAP_FCNTL _CAP_BIT(3)
 
 // VFS methods.
-#define CAP_BINDAT _CAP_BIT(32)
-#define CAP_CONNECTAT _CAP_BIT(34)
-#define CAP_FSTAT _CAP_BIT(17)
-#define CAP_FSTATAT _CAP_BIT(20)
-#define CAP_FUTIMES _CAP_BIT(19)
-#define CAP_FUTIMESAT _CAP_BIT(21)
-#define CAP_LINKAT _CAP_BIT(12)
+#define CAP_BINDAT _CAP_BIT(34)
+#define CAP_CONNECTAT _CAP_BIT(36)
+#define CAP_FSTAT _CAP_BIT(19)
+#define CAP_FSTATAT _CAP_BIT(22)
+#define CAP_FUTIMES _CAP_BIT(21)
+#define CAP_FUTIMESAT _CAP_BIT(23)
+#define CAP_LINKAT (_CAP_BIT(13) | _CAP_BIT(18))
 #define CAP_MKDIRAT _CAP_BIT(9)
 #define CAP_MKFIFOAT _CAP_BIT(11)
-#define CAP_RENAMEAT _CAP_BIT(16)
-#define CAP_SYMLINKAT _CAP_BIT(22)
-#define CAP_UNLINKAT _CAP_BIT(23)
+#define CAP_RENAMEAT _CAP_BIT(17)
+#define CAP_SYMLINKAT _CAP_BIT(24)
+#define CAP_UNLINKAT _CAP_BIT(25)
 
 // Socket operations.
-#define CAP_ACCEPT _CAP_BIT(31)
-#define CAP_BIND _CAP_BIT(33)
-#define CAP_CONNECT _CAP_BIT(35)
+#define CAP_ACCEPT _CAP_BIT(33)
+#define CAP_BIND _CAP_BIT(35)
+#define CAP_CONNECT _CAP_BIT(37)
 #define CAP_GETPEERNAME CAP_GETSOCKOPT
 #define CAP_GETSOCKNAME CAP_GETSOCKOPT
-#define CAP_GETSOCKOPT _CAP_BIT(38)
-#define CAP_LISTEN _CAP_BIT(36)
+#define CAP_GETSOCKOPT _CAP_BIT(40)
+#define CAP_LISTEN _CAP_BIT(38)
 #define CAP_RECV CAP_READ
 #define CAP_SEND CAP_WRITE
-#define CAP_SHUTDOWN _CAP_BIT(37)
+#define CAP_SHUTDOWN _CAP_BIT(39)
 
 // Commonly used socket operations.
 #define CAP_SOCK_CLIENT                                               \
@@ -143,18 +143,18 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
    CAP_GETSOCKOPT | CAP_LISTEN | CAP_RECV | CAP_SEND | CAP_SHUTDOWN)
 
 // Polling.
-#define CAP_EVENT _CAP_BIT(26)
+#define CAP_EVENT _CAP_BIT(28)
 #define CAP_KQUEUE (CAP_KQUEUE_EVENT | CAP_KQUEUE_CHANGE)
-#define CAP_KQUEUE_CHANGE _CAP_BIT(27)
-#define CAP_KQUEUE_EVENT _CAP_BIT(29)
+#define CAP_KQUEUE_CHANGE _CAP_BIT(29)
+#define CAP_KQUEUE_EVENT _CAP_BIT(31)
 
 // Process descriptors.
-#define CAP_PDWAIT _CAP_BIT(28)
+#define CAP_PDWAIT _CAP_BIT(30)
 
 // Fills sets with all/none of the capabilities.
 #define CAP_ALL(rights)                   \
   do {                                    \
-    (rights)->__value = _CAP_BIT(39) - 1; \
+    (rights)->__value = _CAP_BIT(41) - 1; \
   } while (0)
 #define CAP_NONE(rights)   \
   do {                     \
