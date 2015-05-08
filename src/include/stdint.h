@@ -125,21 +125,21 @@ typedef __uintmax_t uintmax_t;
 #define INT8_MAX _INT8_MAX
 #define INT16_MIN _INT16_MIN
 #define INT16_MAX _INT16_MAX
-#if __INT24_TYPE__
+#ifdef __INT24_TYPE__
 #define INT24_MIN _INT24_MIN
 #define INT24_MAX _INT24_MAX
 #endif
 #define INT32_MIN _INT32_MIN
 #define INT32_MAX _INT32_MAX
-#if __INT40_TYPE__
+#ifdef __INT40_TYPE__
 #define INT40_MIN _INT40_MIN
 #define INT40_MAX _INT40_MAX
 #endif
-#if __INT48_TYPE__
+#ifdef __INT48_TYPE__
 #define INT48_MIN _INT48_MIN
 #define INT48_MAX _INT48_MAX
 #endif
-#if __INT56_TYPE__
+#ifdef __INT56_TYPE__
 #define INT56_MIN _INT56_MIN
 #define INT56_MAX _INT56_MAX
 #endif

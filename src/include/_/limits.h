@@ -38,21 +38,21 @@
 #define _INT8_MAX _INT8_C(0x7f)
 #define _INT16_MIN (-_INT16_MAX - 1)
 #define _INT16_MAX _INT16_C(0x7fff)
-#if __INT24_TYPE__
+#ifdef __INT24_TYPE__
 #define _INT24_MIN (-_INT24_MAX - 1)
 #define _INT24_MAX _INT24_C(0x7fffff)
 #endif
 #define _INT32_MIN (-_INT32_MAX - 1)
 #define _INT32_MAX _INT32_C(0x7fffffff)
-#if __INT40_TYPE__
+#ifdef __INT40_TYPE__
 #define _INT40_MIN (-_INT40_MAX - 1)
 #define _INT40_MAX _INT40_C(0x7fffffffff)
 #endif
-#if __INT48_TYPE__
+#ifdef __INT48_TYPE__
 #define _INT48_MIN (-_INT48_MAX - 1)
 #define _INT48_MAX _INT48_C(0x7fffffffffff)
 #endif
-#if __INT56_TYPE__
+#ifdef __INT56_TYPE__
 #define _INT56_MIN (-_INT56_MAX - 1)
 #define _INT56_MAX _INT56_C(0x7fffffffffffff)
 #endif
@@ -65,7 +65,7 @@
 #define _INT_LEAST16_MIN _INT16_MIN
 #define _INT_LEAST16_MAX _INT16_MAX
 #define _INT16_C(c) _INTN_C(c, __INT16_C_SUFFIX__)
-#if __INT24_TYPE__
+#ifdef __INT24_TYPE__
 #define _INT_LEAST24_MIN _INT24_MIN
 #define _INT_LEAST24_MAX _INT24_MAX
 #define _INT24_C(c) _INTN_C(c, __INT24_C_SUFFIX__)
@@ -77,7 +77,7 @@
 #define _INT_LEAST32_MAX _INT32_MAX
 #define _INT_LEAST32_MIN _INT32_MIN
 #define _INT32_C(c) _INTN_C(c, __INT32_C_SUFFIX__)
-#if __INT40_TYPE__
+#ifdef __INT40_TYPE__
 #define _INT_LEAST40_MIN _INT40_MIN
 #define _INT_LEAST40_MAX _INT40_MAX
 #define _INT40_C(c) _INTN_C(c, __INT40_C_SUFFIX__)
@@ -86,7 +86,7 @@
 #define _INT_LEAST40_MAX _INT_LEAST48_MAX
 #define _INT40_C(c) _INT48_C(c)
 #endif
-#if __INT48_TYPE__
+#ifdef __INT48_TYPE__
 #define _INT_LEAST48_MIN _INT48_MIN
 #define _INT_LEAST48_MAX _INT48_MAX
 #define _INT48_C(c) _INTN_C(c, __INT48_C_SUFFIX__)
@@ -95,7 +95,7 @@
 #define _INT_LEAST48_MAX _INT_LEAST56_MAX
 #define _INT48_C(c) _INT56_C(c)
 #endif
-#if __INT56_TYPE__
+#ifdef __INT56_TYPE__
 #define _INT_LEAST56_MIN _INT56_MIN
 #define _INT_LEAST56_MAX _INT56_MAX
 #define _INT56_C(c) _INTN_C(c, __INT56_C_SUFFIX__)
@@ -135,17 +135,17 @@
 
 #define _UINT8_MAX _UINT8_C(0xff)
 #define _UINT16_MAX _UINT16_C(0xffff)
-#if __UINT24_TYPE__
+#ifdef __UINT24_TYPE__
 #define _UINT24_MAX _UINT24_C(0xffffff)
 #endif
 #define _UINT32_MAX _UINT32_C(0xffffffff)
-#if __UINT40_TYPE__
+#ifdef __UINT40_TYPE__
 #define _UINT40_MAX _UINT40_C(0xffffffffff)
 #endif
-#if __UINT48_TYPE__
+#ifdef __UINT48_TYPE__
 #define _UINT48_MAX _UINT48_C(0xffffffffffff)
 #endif
-#if __UINT56_TYPE__
+#ifdef __UINT56_TYPE__
 #define _UINT56_MAX _UINT56_C(0xffffffffffffff)
 #endif
 #define _UINT64_MAX _UINT64_C(0xffffffffffffffff)
@@ -154,7 +154,7 @@
 #define _UINT8_C(c) _UINTN_C(c, __INT8_C_SUFFIX__)
 #define _UINT_LEAST16_MAX _UINT16_MAX
 #define _UINT16_C(c) _UINTN_C(c, __INT16_C_SUFFIX__)
-#if __UINT24_TYPE__
+#ifdef __UINT24_TYPE__
 #define _UINT_LEAST24_MAX _UINT24_MAX
 #define _UINT24_C(c) _UINTN_C(c, __INT24_C_SUFFIX__)
 #else
@@ -163,21 +163,21 @@
 #endif
 #define _UINT_LEAST32_MAX _UINT32_MAX
 #define _UINT32_C(c) _UINTN_C(c, __INT32_C_SUFFIX__)
-#if __UINT40_TYPE__
+#ifdef __UINT40_TYPE__
 #define _UINT_LEAST40_MAX _UINT40_MAX
 #define _UINT40_C(c) _UINTN_C(c, __INT40_C_SUFFIX__)
 #else
 #define _UINT_LEAST40_MAX _UINT_LEAST48_MAX
 #define _UINT40_C(c) _UINT48_C(c)
 #endif
-#if __UINT48_TYPE__
+#ifdef __UINT48_TYPE__
 #define _UINT_LEAST48_MAX _UINT48_MAX
 #define _UINT48_C(c) _UINTN_C(c, __INT48_C_SUFFIX__)
 #else
 #define _UINT_LEAST48_MAX _UINT_LEAST56_MAX
 #define _UINT48_C(c) _UINT56_C(c)
 #endif
-#if __UINT56_TYPE__
+#ifdef __UINT56_TYPE__
 #define _UINT_LEAST56_MAX _UINT56_MAX
 #define _UINT56_C(c) _UINTN_C(c, __INT56_C_SUFFIX__)
 #else
@@ -240,7 +240,7 @@
 #define _ULONG_MAX _UINTN_MAX(_LONG_BIT)
 #define _ULLONG_MAX _UINTN_MAX(_LLONG_BIT)
 
-#if __CHAR_UNSIGNED__
+#ifdef __CHAR_UNSIGNED__
 #define _CHAR_MIN 0
 #define _CHAR_MAX _UCHAR_MAX
 #else

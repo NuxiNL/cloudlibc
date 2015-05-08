@@ -32,7 +32,7 @@ thread_local const struct __test_note *__test_note_stack = NULL;
       __testing_printf(" == '%c'", (char)value);                            \
   }
 
-#if __CHAR_UNSIGNED__
+#ifdef __CHAR_UNSIGNED__
 GENERATE_PRINT_VALUE_INT(char, char, "hh", "u");
 #else
 GENERATE_PRINT_VALUE_INT(char, char, "hh", "d");
