@@ -150,19 +150,24 @@ _MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, LE, <= )
 _MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, LT, < )
 #undef _GENERATE_COMPARE
 
-#define _ASSERT_BIN(op, expected, actual)                \
-  _EXPRESSION_FOREACH_TYPE(__test_compare_##op, actual)( \
+#define ASSERT_EQ(expected, actual)                    \
+  _EXPRESSION_FOREACH_TYPE(__test_compare_EQ, actual)( \
       expected, #expected, actual, #actual, __FILE__, __LINE__)
-#define _ASSERT_BIN_INEQUALITY(op, expected, actual)                \
-  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_##op, actual)( \
+#define ASSERT_NE(expected, actual)                    \
+  _EXPRESSION_FOREACH_TYPE(__test_compare_NE, actual)( \
       expected, #expected, actual, #actual, __FILE__, __LINE__)
-
-#define ASSERT_EQ(expected, actual) _ASSERT_BIN(EQ, expected, actual)
-#define ASSERT_NE(expected, actual) _ASSERT_BIN(NE, expected, actual)
-#define ASSERT_GE(expected, actual) _ASSERT_BIN_INEQUALITY(GE, expected, actual)
-#define ASSERT_GT(expected, actual) _ASSERT_BIN_INEQUALITY(GT, expected, actual)
-#define ASSERT_LE(expected, actual) _ASSERT_BIN_INEQUALITY(LE, expected, actual)
-#define ASSERT_LT(expected, actual) _ASSERT_BIN_INEQUALITY(LT, expected, actual)
+#define ASSERT_GE(expected, actual)                               \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_GE, actual)( \
+      expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_GT(expected, actual)                               \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_GT, actual)( \
+      expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_LE(expected, actual)                               \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_LE, actual)( \
+      expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_LT(expected, actual)                               \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_LT, actual)( \
+      expected, #expected, actual, #actual, __FILE__, __LINE__)
 
 // Boolean comparison.
 //
