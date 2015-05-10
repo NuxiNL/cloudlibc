@@ -61,7 +61,38 @@ TEST(getsockopt, acceptconn) {
   ASSERT_EQ(0, close(fd));
 }
 
-// TODO(edje): Test SO_ERROR.
+TEST(getsockopt, error) {
+  // Let a socket connect to the other one.
+  int fd1 = socket(AF_UNIX, SOCK_STREAM, 0);
+  ASSERT_LE(0, fd1);
+  ASSERT_EQ(0, bindat(fd1, fd_tmp, "hello"));
+  ASSERT_EQ(0, listen(fd1, 0));
+  int fd2 = socket(AF_UNIX, SOCK_STREAM, 0);
+  ASSERT_LE(0, fd2);
+  ASSERT_EQ(0, connectat(fd2, fd_tmp, "hello"));
+
+  // Error should be zero by default.
+  int err;
+  size_t errlen = sizeof(err);
+  ASSERT_EQ(0, getsockopt(fd2, SOL_SOCKET, SO_ERROR, &err, &errlen));
+  ASSERT_EQ(sizeof(err), errlen);
+  ASSERT_EQ(0, err);
+
+  // Close the receiving side. The sending side should now see ENOTCONN.
+  ASSERT_EQ(0, close(fd1));
+  errlen = sizeof(err);
+  ASSERT_EQ(0, getsockopt(fd2, SOL_SOCKET, SO_ERROR, &err, &errlen));
+  ASSERT_EQ(sizeof(err), errlen);
+  ASSERT_EQ(ENOTCONN, err);
+
+  // Error should be cleared by getsockopt().
+  errlen = sizeof(err);
+  ASSERT_EQ(0, getsockopt(fd2, SOL_SOCKET, SO_ERROR, &err, &errlen));
+  ASSERT_EQ(sizeof(err), errlen);
+  ASSERT_EQ(0, err);
+
+  ASSERT_EQ(0, close(fd2));
+}
 
 TEST(getsockopt, type) {
 #define TEST_SOCKTYPE(socktype)                                         \
