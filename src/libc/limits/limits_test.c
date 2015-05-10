@@ -42,7 +42,9 @@
 #ifdef MQ_OPEN_MAX
 #error "Test missing"
 #endif
-static_assert(MQ_PRIO_MAX >= _POSIX_MQ_PRIO_MAX, "Limit too low");
+#ifdef MQ_PRIO_MAX
+#error "Test missing"
+#endif
 #ifdef OPEN_MAX
 #error "Test missing"
 #endif

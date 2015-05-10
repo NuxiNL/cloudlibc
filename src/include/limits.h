@@ -51,8 +51,8 @@
 // HOST_NAME_MAX: System hostname not available.
 // IOV_MAX: Indeterminate.
 // LOGIN_NAME_MAX: User credentials are not available.
-// MQ_OPEN_MAX: Indeterminate.
-#define MQ_PRIO_MAX _UINT32_MAX
+// MQ_OPEN_MAX: Message queues not supported.
+// MQ_PRIO_MAX: Message queues not supported.
 // OPEN_MAX: Indeterminate.
 // PAGESIZE: Indeterminate.
 // PAGE_SIZE: Indeterminate.
