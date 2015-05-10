@@ -121,14 +121,20 @@ required for full C and C++ language support.
 
 ## Operating system support
 
-CloudABI executables can be executed on FreeBSD. A copy of FreeBSD that
-supports CloudABI executables
+### FreeBSD
+
+A copy of FreeBSD that supports CloudABI executables
 [can be found on GitHub](https://github.com/NuxiNL/freebsd). It is
 sufficient to compile a kernel that has the `COMPAT_CLOUDABI64` build
 option enabled, or simply run `kldload cloudabi64` to load in the
 CloudABI kernel module.
 
-Support for other operating systems will be released in the future.
+### NetBSD
+
+A copy of NetBSD that supports CloudABI executables
+[can also be found on GitHub](https://github.com/NuxiNL/netbsd). As on
+FreeBSD, the kernel compilation option to enable CloudABI support is
+called `COMPAT_CLOUDABI64`.
 
 ## Support
 
