@@ -29,6 +29,7 @@ int getsockopt(int socket, int level, int option_name,
         return -1;
       }
       value = (ss.ss_state & CLOUDABI_SOCKSTAT_ACCEPTCONN) != 0;
+      break;
     }
     case SO_ERROR: {
       // Fetch and clear socket error state.

@@ -56,9 +56,7 @@ TEST(getsockopt, acceptconn) {
   ASSERT_EQ(0, listen(fd, SOMAXCONN));
   ASSERT_EQ(0, getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &acc, &acclen));
   ASSERT_EQ(sizeof(acc), acclen);
-#if 0  // TODO(edje): Implement.
   ASSERT_TRUE(acc);
-#endif
 
   ASSERT_EQ(0, close(fd));
 }
