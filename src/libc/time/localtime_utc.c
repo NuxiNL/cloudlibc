@@ -7,10 +7,11 @@
 
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 
 #include "time_impl.h"
 
-#define ERALENGTH ((time_t)146097 * 24 * 60 * 60)
+#define ERALENGTH ((time_t)146097 * 86400)
 
 int __localtime_utc(time_t timer, struct tm *result) {
   // The calendar repeats every 146097 days (400 years). Normalize the
@@ -24,27 +25,27 @@ int __localtime_utc(time_t timer, struct tm *result) {
   }
 
   // Compute time within the day.
+  uint_fast24_t seconds = (uint_fast40_t)timer % 86400;
   struct tm tm = {};
-  tm.tm_sec = timer % 60;
-  timer /= 60;
-  tm.tm_min = timer % 60;
-  timer /= 60;
-  tm.tm_hour = timer % 24;
-  timer /= 24;
+  tm.tm_sec = seconds % 60;
+  uint_fast16_t minutes = seconds / 60;
+  tm.tm_min = minutes % 60;
+  tm.tm_hour = minutes / 60;
 
   // Compute weekday. Day 0 is a Thursday.
-  tm.tm_wday = (timer + 4) % 7;
+  uint_fast24_t days = (uint_fast40_t)timer / 86400;
+  tm.tm_wday = (days + 4) % 7;
 
   // Apply leap days, so that every year becomes exactly 366 days long.
   // First add the three leap days at the boundaries of the centuries.
   // After that we can add up to three leap days per 1461 days.
-  timer += (timer - 11323) / 36524;
-  timer += timer / 1461 + (timer + 731) / 1461 + (timer + 1096) / 1461;
-  tm.tm_yday = timer % 366;
+  days += ((int_fast24_t)days - 11323) / 36524;
+  days += days / 1461 + (days + 731) / 1461 + (days + 1096) / 1461;
+  tm.tm_yday = days % 366;
 
   // Compute the year. "struct tm" only uses an integer to hold the year
   // number. Bail out if the year number doesn't fit.
-  time_t year = era * 400 + timer / 366 + 70;
+  time_t year = era * 400 + days / 366 + 70;
   if (year < INT_MIN || year > INT_MAX)
     return EOVERFLOW;
   tm.tm_year = year;
