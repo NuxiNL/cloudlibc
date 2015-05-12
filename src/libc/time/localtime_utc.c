@@ -45,13 +45,14 @@ int __localtime_utc(time_t timer, struct tm *result) {
 
   // Compute the year. "struct tm" only uses an integer to hold the year
   // number. Bail out if the year number doesn't fit.
-  time_t year = era * 400 + days / 366 + 70;
+  uint_fast16_t local_year = days / 366 + 70;
+  time_t year = era * 400 + local_year;
   if (year < INT_MIN || year > INT_MAX)
     return EOVERFLOW;
   tm.tm_year = year;
 
   // Compute month and day within month.
-  const short *months = get_months(year);
+  const short *months = get_months(local_year);
   while (tm.tm_yday >= months[tm.tm_mon + 1])
     ++tm.tm_mon;
   tm.tm_mday = tm.tm_yday - months[tm.tm_mon] + 1;
