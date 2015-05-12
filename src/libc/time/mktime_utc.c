@@ -33,11 +33,11 @@ void __mktime_utc(const struct tm *tm, struct timespec *result) {
   // the day computation to work properly. Temporarily normalize the
   // year number by using an additional era counter.
   time_t era = year / 400 - 2;
-  year = year % 400 + 800;
+  uint_fast16_t local_year = year % 400 + 800;
 
   // Compute days since epoch.
-  time_t day = yday + (year - 70) * 365 + (year - 69) / 4 - (year - 1) / 100 +
-               (year + 299) / 400 + era * 146097;
+  time_t day = yday + (local_year - 70) * 365 + (local_year - 69) / 4 -
+               (local_year - 1) / 100 + (local_year + 299) / 400 + era * 146097;
 
   // Merge results together.
   *result = (struct timespec){.tv_sec = sec + day * 86400, .tv_nsec = nsec};
