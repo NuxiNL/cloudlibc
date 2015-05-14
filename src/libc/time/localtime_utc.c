@@ -43,8 +43,7 @@ int __localtime_utc(time_t timer, struct tm *result) {
   days += days / 1461 + (days + 731) / 1461 + (days + 1096) / 1461;
   tm.tm_yday = days % 366;
 
-  // Compute the year. "struct tm" only uses an integer to hold the year
-  // number. Bail out if the year number doesn't fit.
+  // Compute the year.
   uint_fast16_t local_year = days / 366 + 70;
   time_t year = era * 400 + local_year;
 
@@ -54,8 +53,8 @@ int __localtime_utc(time_t timer, struct tm *result) {
     ++tm.tm_mon;
   tm.tm_mday = tm.tm_yday - months[tm.tm_mon] + 1;
 
-  // Determine whether the computation overflowed or not. If it does,
-  // still return a structure, but set th year to INT_MIN or INT_MAX.
+  // Determine whether the result fits in "struct tm". If it does not,
+  // still return a structure, but set the year to INT_MIN or INT_MAX.
   int error;
   if (year < INT_MIN) {
     tm.tm_year = INT_MIN;
