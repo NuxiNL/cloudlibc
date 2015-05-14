@@ -47,9 +47,6 @@ int __localtime_utc(time_t timer, struct tm *result) {
   // number. Bail out if the year number doesn't fit.
   uint_fast16_t local_year = days / 366 + 70;
   time_t year = era * 400 + local_year;
-  if (year < INT_MIN || year > INT_MAX)
-    return EOVERFLOW;
-  tm.tm_year = year;
 
   // Compute month and day within month.
   const short *months = get_months(local_year);
@@ -57,6 +54,19 @@ int __localtime_utc(time_t timer, struct tm *result) {
     ++tm.tm_mon;
   tm.tm_mday = tm.tm_yday - months[tm.tm_mon] + 1;
 
+  // Determine whether the computation overflowed or not. If it does,
+  // still return a structure, but set th year to INT_MIN or INT_MAX.
+  int error;
+  if (year < INT_MIN) {
+    tm.tm_year = INT_MIN;
+    error = EOVERFLOW;
+  } else if (year > INT_MAX) {
+    tm.tm_year = INT_MAX;
+    error = EOVERFLOW;
+  } else {
+    tm.tm_year = year;
+    error = 0;
+  }
   *result = tm;
-  return 0;
+  return error;
 }

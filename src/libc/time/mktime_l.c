@@ -76,20 +76,17 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
         break;
       era = &timezone->eras[i];
     }
-    result->tv_sec -= era->gmtoff;
 
     // Process daylight saving time rules.
     if (era->rules_count > 0) {
       struct tm dst;
-      int error = __localtime_utc(result->tv_sec + era->gmtoff, &dst);
-      if (error != 0)
-        return error;
-
+      __localtime_utc(result->tv_sec, &dst);
       result->tv_sec -=
           determine_applicable_save(era->rules, era->rules_count, &dst,
                                     era->gmtoff, force_dst) *
           600;
     }
+    result->tv_sec -= era->gmtoff;
   }
   return 0;
 }

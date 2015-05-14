@@ -16,13 +16,13 @@ time_t mktime(struct tm *tm) {
 
   // Convert struct timespec back to a sanitized struct tm.
   int error = __localtime_utc(result.tv_sec, tm);
-  if (error != 0) {
-    errno = error;
-    return -1;
-  }
   strlcpy(tm->tm_zone, "UTC", sizeof(tm->tm_zone));
   tm->tm_nsec = result.tv_nsec;
 
   // Only return number of seconds since the Epoch.
+  if (error != 0) {
+    errno = error;
+    return -1;
+  }
   return result.tv_sec;
 }

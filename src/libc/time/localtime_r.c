@@ -12,11 +12,11 @@
 struct tm *localtime_r(const time_t *restrict timer,
                        struct tm *restrict result) {
   int error = __localtime_utc(*timer, result);
+  strlcpy(result->tm_zone, "UTC", sizeof(result->tm_zone));
   if (error != 0) {
     errno = error;
     return NULL;
   }
-  strlcpy(result->tm_zone, "UTC", sizeof(result->tm_zone));
   return result;
 }
 

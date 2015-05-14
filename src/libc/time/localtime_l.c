@@ -135,21 +135,18 @@ int localtime_l(const struct timespec *restrict timer,
     era = &timezone->eras[i];
   }
 
+  int error;
   if (era->rules_count > 0) {
     // Timezone has daylight saving time rules. First compute the
     // standard time and use that to compute the actual offset.
     struct tm std;
-    int error = __localtime_utc(timer->tv_sec + era->gmtoff, &std);
-    if (error != 0)
-      return error;
+    __localtime_utc(timer->tv_sec + era->gmtoff, &std);
 
     // Obtain applicable daylight saving time rule and recompute.
     const struct lc_timezone_rule *rule = determine_applicable_rule(
         era->rules, era->rules_count, &std, era->gmtoff);
     int gmtoff = era->gmtoff + rule->save * 600;
     error = __localtime_utc(timer->tv_sec + gmtoff, result);
-    if (error != 0)
-      return error;
 
     result->tm_isdst = rule->save > 0;
     result->tm_gmtoff = gmtoff;
@@ -158,9 +155,7 @@ int localtime_l(const struct timespec *restrict timer,
   } else {
     // Timezone has no daylight saving time rules. Compute local time
     // with timezone offset directly.
-    int error = __localtime_utc(timer->tv_sec + era->gmtoff, result);
-    if (error != 0)
-      return error;
+    error = __localtime_utc(timer->tv_sec + era->gmtoff, result);
 
     result->tm_gmtoff = era->gmtoff;
     static const struct lc_timezone_rule rule = {};
@@ -169,5 +164,5 @@ int localtime_l(const struct timespec *restrict timer,
   }
 
   result->tm_nsec = timer->tv_nsec;
-  return 0;
+  return error;
 }
