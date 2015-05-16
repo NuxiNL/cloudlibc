@@ -79,18 +79,22 @@ def get_ruleline_day(daystr, year_from, year_to, month):
     # Last weekday of the month, e.g. "lastSun".
     assert daystr[:4] == 'last'
     weekday = daymap.index(daystr[4:])
-    if month != 1:
-      # For all months except February we can translate it to "Day>=n".
-      month_lengths = [31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-      return month_lengths[month] - 6, weekday
 
-    # Ensure that all years in this rule are leap years or not.
-    # TODO(edje): Automatically decompose rules in case this doesn't
-    # hold.
-    leap = is_leap(year_from)
-    for year in range(year_from + 1, year_to + 1):
-      assert is_leap(year) == leap
-    return (29 if leap else 28) - 6, weekday
+    # Safety belt: make sure the rule does not take effect on February
+    # 29th. This code does not support this yet.
+    if month == 1:
+      for year in range(year_from, year_to + 1):
+        day = 29 if is_leap(year) else 28
+        while True:
+          d = datetime.date(year + 1900, month + 1, day)
+          if d.isoweekday() - 1 == weekday:
+            break
+          day = day - 1
+        assert day != 29
+
+    # Translate it to "Day>=n".
+    month_lengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    return month_lengths[month] - 6, weekday
 
 def handle_ruleline(rname, fields):
   entry = {}

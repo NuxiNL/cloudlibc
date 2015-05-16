@@ -29,7 +29,7 @@ static const struct lc_timezone_rule rules_AN[] = {
 };
 static const struct lc_timezone_rule rules_AQ[] = {
     {71, 71, 9, 0, 25, 120, TIMEBASE_STD, 6, "D"},
-    {72, 72, 1, 0, 23, 120, TIMEBASE_STD, 0, "S"},
+    {72, 72, 1, 0, 22, 120, TIMEBASE_STD, 0, "S"},
     {89, 91, 9, 0, 25, 120, TIMEBASE_STD, 6, "D"},
     {90, 92, 2, 0, 1, 120, TIMEBASE_STD, 0, "S"},
 };
@@ -55,7 +55,7 @@ static const struct lc_timezone_rule rules_AT[] = {
     {68, 68, 2, 0, 25, 120, TIMEBASE_STD, 0, "S"},
     {68, 85, 9, 0, 25, 120, TIMEBASE_STD, 6, "D"},
     {69, 71, 2, 0, 8, 120, TIMEBASE_STD, 0, "S"},
-    {72, 72, 1, 0, 23, 120, TIMEBASE_STD, 0, "S"},
+    {72, 72, 1, 0, 22, 120, TIMEBASE_STD, 0, "S"},
     {73, 81, 2, 0, 1, 120, TIMEBASE_STD, 0, "S"},
     {82, 83, 2, 0, 25, 120, TIMEBASE_STD, 0, "S"},
     {84, 86, 2, 0, 1, 120, TIMEBASE_STD, 0, "S"},
@@ -73,7 +73,7 @@ static const struct lc_timezone_rule rules_AT[] = {
 };
 static const struct lc_timezone_rule rules_AV[] = {
     {71, 85, 9, 0, 25, 120, TIMEBASE_STD, 6, "D"},
-    {72, 72, 1, 0, 23, 120, TIMEBASE_STD, 0, "S"},
+    {72, 72, 1, 0, 22, 120, TIMEBASE_STD, 0, "S"},
     {73, 85, 2, 0, 1, 120, TIMEBASE_STD, 0, "S"},
     {86, 90, 2, 0, 15, 120, TIMEBASE_STD, 0, "S"},
     {86, 87, 9, 0, 15, 120, TIMEBASE_STD, 6, "D"},
@@ -343,9 +343,8 @@ static const struct lc_timezone_rule rules_CO[] = {
     {93, 93, 3, 7, 4, 0, TIMEBASE_CUR, 0, ""},
 };
 static const struct lc_timezone_rule rules_CR[] = {
-    {79, 79, 1, 0, 22, 0, TIMEBASE_CUR, 6, "D"},
+    {79, 80, 1, 0, 22, 0, TIMEBASE_CUR, 6, "D"},
     {79, 80, 5, 0, 1, 0, TIMEBASE_CUR, 0, "S"},
-    {80, 80, 1, 0, 23, 0, TIMEBASE_CUR, 6, "D"},
     {91, 92, 0, 6, 15, 0, TIMEBASE_CUR, 6, "D"},
     {91, 91, 6, 7, 1, 0, TIMEBASE_CUR, 0, "S"},
     {92, 92, 2, 7, 15, 0, TIMEBASE_CUR, 0, "S"},
@@ -639,8 +638,7 @@ static const struct lc_timezone_rule rules_Falk[] = {
 };
 static const struct lc_timezone_rule rules_Fiji[] = {
     {98, 99, 10, 0, 1, 120, TIMEBASE_CUR, 6, "S"},
-    {99, 99, 1, 0, 22, 180, TIMEBASE_CUR, 0, ""},
-    {100, 100, 1, 0, 23, 180, TIMEBASE_CUR, 0, ""},
+    {99, 100, 1, 0, 22, 180, TIMEBASE_CUR, 0, ""},
     {109, 109, 10, 7, 29, 120, TIMEBASE_CUR, 6, "S"},
     {110, 110, 2, 0, 25, 180, TIMEBASE_CUR, 0, ""},
     {110, 113, 9, 0, 21, 120, TIMEBASE_CUR, 6, "S"},
@@ -2626,7 +2624,7 @@ static const struct lc_timezone_era eras_America_Chihuahua[] = {
 static const struct lc_timezone_era eras_America_Costa_Rica[] = {
     {NULL, 0, -20173, -2524501427, 0, 0, "LMT", ""},
     {NULL, 0, -20173, -1545071027, 0, 0, "SJMT", ""},
-    {rules_CR, 6, -21600, 0, 0, 0, "C%sT", ""},
+    {rules_CR, 5, -21600, 0, 0, 0, "C%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Creston[] = {
     {NULL, 0, -27964, -2713882436, 0, 0, "LMT", ""},
@@ -4764,7 +4762,7 @@ static const struct lc_timezone_era eras_Pacific_Fakaofo[] = {
 };
 static const struct lc_timezone_era eras_Pacific_Fiji[] = {
     {NULL, 0, 42944, -1709985344, 0, 0, "LMT", ""},
-    {rules_Fiji, 11, 43200, 0, 0, 0, "FJ%sT", ""},
+    {rules_Fiji, 10, 43200, 0, 0, 0, "FJ%sT", ""},
 };
 static const struct lc_timezone_era eras_Pacific_Funafuti[] = {
     {NULL, 0, 43012, -2177495812, 0, 0, "LMT", ""},
