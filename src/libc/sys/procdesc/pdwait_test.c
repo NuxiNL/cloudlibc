@@ -36,15 +36,20 @@ TEST(pdwait, cld_exited) {
   if (ret == 0)
     _Exit(200);
 
+  // Validate exit code.
   ASSERT_LT(0, ret);
   siginfo_t si;
   ASSERT_EQ(0, pdwait(fd, &si, 0));
-  ASSERT_EQ(0, close(fd));
-
-  // Validate exit code.
   ASSERT_EQ(SIGCHLD, si.si_signo);
   ASSERT_EQ(CLD_EXITED, si.si_code);
   ASSERT_EQ(200, si.si_status);
+
+  // Attempt to obtain exit code twice.
+  ASSERT_EQ(0, pdwait(fd, &si, 0));
+  ASSERT_EQ(SIGCHLD, si.si_signo);
+  ASSERT_EQ(CLD_EXITED, si.si_code);
+  ASSERT_EQ(200, si.si_status);
+  ASSERT_EQ(0, close(fd));
 }
 
 TEST(pdwait, cld_killed) {
@@ -58,15 +63,20 @@ TEST(pdwait, cld_killed) {
     _Exit(200);
   }
 
+  // Validate signal.
   ASSERT_LT(0, ret);
   siginfo_t si;
   ASSERT_EQ(0, pdwait(fd, &si, 0));
-  ASSERT_EQ(0, close(fd));
-
-  // Validate signal.
   ASSERT_EQ(SIGCHLD, si.si_signo);
   ASSERT_EQ(CLD_KILLED, si.si_code);
   ASSERT_EQ(SIGSEGV, si.si_status);
+
+  // Attempt to obtain exit code twice.
+  ASSERT_EQ(0, pdwait(fd, &si, 0));
+  ASSERT_EQ(SIGCHLD, si.si_signo);
+  ASSERT_EQ(CLD_KILLED, si.si_code);
+  ASSERT_EQ(SIGSEGV, si.si_status);
+  ASSERT_EQ(0, close(fd));
 }
 
 TEST(pdwait, wnohang) {
