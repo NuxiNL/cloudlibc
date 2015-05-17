@@ -110,7 +110,7 @@ ASSERT_OFFSET(event_t, fd_readwrite.flags, 28, 28);
 ASSERT_OFFSET(event_t, lock.lock, 16, 16);
 ASSERT_OFFSET(event_t, proc_terminate.fd, 16, 16);
 ASSERT_OFFSET(event_t, proc_terminate.signal, 20, 20);
-ASSERT_OFFSET(event_t, proc_terminate.exitcode, 21, 21);
+ASSERT_OFFSET(event_t, proc_terminate.exitcode, 24, 24);
 ASSERT_SIZE(event_t, 48, 48);
 
 typedef struct {

@@ -317,7 +317,7 @@ typedef uint32_t cloudabi_condvar_t;    // pthread_cond_*().
 typedef uint64_t cloudabi_device_t;     // struct stat::st_dev.
 typedef uint64_t cloudabi_dircookie_t;  // readdir().
 typedef uint16_t cloudabi_errno_t;      // errno.
-typedef uint8_t cloudabi_exitcode_t;    // _exit() and _Exit().
+typedef uint32_t cloudabi_exitcode_t;   // _exit() and _Exit().
 typedef uint32_t cloudabi_fd_t;         // File descriptors.
 typedef uint16_t cloudabi_fdflags_t;    // cloudabi_fdstat_t.
 typedef uint16_t cloudabi_fdsflags_t;   // fd_stat_put().
