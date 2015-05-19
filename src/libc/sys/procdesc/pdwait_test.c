@@ -28,13 +28,20 @@ TEST(pdwait, bad) {
 }
 
 TEST(pdwait, cld_exited) {
+  // Pick a random exit code that we should expect.
+  // TODO(edje): FreeBSD and NetBSD still truncate the exit code to 8
+  // bits. We should propagate the full integer, as discussed here:
+  // http://austingroupbugs.net/view.php?id=594
+  uint8_t exitcode;
+  arc4random_buf(&exitcode, sizeof(exitcode));
+
   // Fork process.
   int fd;
   int ret = pdfork(&fd);
 
   // Terminate the child process.
   if (ret == 0)
-    _Exit(200);
+    _Exit(exitcode);
 
   // Validate exit code.
   ASSERT_LT(0, ret);
@@ -42,13 +49,13 @@ TEST(pdwait, cld_exited) {
   ASSERT_EQ(0, pdwait(fd, &si, 0));
   ASSERT_EQ(SIGCHLD, si.si_signo);
   ASSERT_EQ(CLD_EXITED, si.si_code);
-  ASSERT_EQ(200, si.si_status);
+  ASSERT_EQ(exitcode, si.si_status);
 
   // Attempt to obtain exit code twice.
   ASSERT_EQ(0, pdwait(fd, &si, 0));
   ASSERT_EQ(SIGCHLD, si.si_signo);
   ASSERT_EQ(CLD_EXITED, si.si_code);
-  ASSERT_EQ(200, si.si_status);
+  ASSERT_EQ(exitcode, si.si_status);
   ASSERT_EQ(0, close(fd));
 }
 
