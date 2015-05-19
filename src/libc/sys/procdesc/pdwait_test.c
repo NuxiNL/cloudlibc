@@ -7,6 +7,7 @@
 
 #include <errno.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <testing.h>
 #include <unistd.h>
