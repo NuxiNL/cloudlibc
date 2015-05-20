@@ -44,7 +44,7 @@
 //   Randomizer is seeded securely by default. There is no need to seed
 //   manually.
 // - WEXITSTATUS(), WIFEXITED(), WIFSIGNALED(), WIFSTOPPED(),
-//   WSTOPSIG(), WTERMSIG(), WNOHANG, WUNTRACED:
+//   WSTOPSIG(), WTERMSIG(), WUNTRACED:
 //   Only useful if system() would actually work.
 // - a64l() and l64a():
 //   Not thread-safe.
@@ -101,6 +101,9 @@ typedef __wchar_t wchar_t;
 
 // Keep existing code happy that assumes that MB_CUR_MAX_L is a macro.
 #define MB_CUR_MAX_L MB_CUR_MAX_L
+
+// Flags for pdwait().
+#define WNOHANG 0x1
 
 // Inline versions of trivial routines.
 

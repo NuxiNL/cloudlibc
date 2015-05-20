@@ -9,6 +9,7 @@
 
 #include <errno.h>
 #include <signal.h>
+#include <stdlib.h>
 
 int pdwait(int fd, siginfo_t *infop, int options) {
   if ((options & ~WNOHANG) != 0)

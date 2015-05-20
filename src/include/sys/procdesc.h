@@ -28,7 +28,7 @@
 //   Replacement for posix_spawn().
 // - pdfork():
 //   Flags can be omitted.
-// - pdwait() and WNOHANG:
+// - pdwait():
 //   Mixture between waitid() and FreeBSD's pdwait4().
 //
 // Features missing:
@@ -47,9 +47,6 @@
 #include <_/types.h>
 
 struct iovec;
-
-// Flags for pdwait().
-#define WNOHANG 0x1
 
 __BEGIN_DECLS
 int pdexec(int, const struct iovec *, __size_t, const int *, __size_t);
