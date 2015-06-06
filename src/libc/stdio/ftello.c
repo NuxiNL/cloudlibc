@@ -25,3 +25,7 @@ off_t ftello(FILE *stream) {
   funlockfile(stream);
   return result;
 }
+
+#if _LONG_BIT == 64
+__strong_reference(ftello, ftell);
+#endif

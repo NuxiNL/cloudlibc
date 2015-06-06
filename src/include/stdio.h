@@ -46,8 +46,6 @@
 //   putchar_unlocked(), puts(), scanf(), vprintf(), vscanf(), stdin and
 //   stdout:
 //   Standard descriptors stdin and stdout are not available.
-// - fseek() and ftell():
-//   Use fseeko() and ftello() instead.
 // - ungetc():
 //   Bad design practice.
 // - popen() and pclose():
@@ -138,9 +136,15 @@ int fputs(const char *__restrict, FILE *__restrict);
 size_t fread(void *__restrict, size_t, size_t, FILE *__restrict);
 int fscanf(FILE *__restrict, const char *__restrict, ...);
 int fscanf_l(FILE *__restrict, __locale_t, const char *__restrict, ...);
+#if _LONG_BIT == 64
+int fseek(FILE *, long, int);
+#endif
 int fseeko(FILE *, off_t, int);
 int fsetpos(FILE *, const fpos_t *);
 void fswap(FILE *, FILE *);
+#if _LONG_BIT == 64
+long ftell(FILE *);
+#endif
 off_t ftello(FILE *);
 int ftrylockfile(FILE *__stream) __trylocks_exclusive(0, *__stream);
 void funlockfile(FILE *__stream) __unlocks(*__stream);

@@ -19,3 +19,7 @@ int fseeko(FILE *stream, off_t offset, int whence) {
     return -1;
   }
 }
+
+#if _LONG_BIT == 64
+__strong_reference(fseeko, fseek);
+#endif
