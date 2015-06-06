@@ -10,6 +10,9 @@
 TEST(readlinkat, bad) {
   ASSERT_EQ(-1, readlinkat(fd_tmp, "foo", NULL, 0));
   ASSERT_EQ(ENOENT, errno);
+
+  ASSERT_EQ(-1, readlinkat(fd_tmp, ".", NULL, 0));
+  ASSERT_EQ(EINVAL, errno);
 }
 
 TEST(readlinkat, example) {
