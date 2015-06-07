@@ -26,7 +26,7 @@
 // Extensions:
 // - asprintf(), asprintf_l(), vasprintf() and vasprintf_l():
 //   Available on all commonly used operating systems.
-// - fdopen_l(), fmemopen_l() and open_memstream_l():
+// - fdopen_l(), fmemopen_l(), open_memstream_l() and tmpfile_l():
 //   Sets the character set of the file.
 // - fopenat() and fopenat_l():
 //   Replacement for fopen().
@@ -170,6 +170,7 @@ int snprintf_l(char *__restrict, size_t, __locale_t, const char *__restrict,
 int sscanf(const char *__restrict, const char *__restrict, ...);
 int sscanf_l(const char *__restrict, __locale_t, const char *__restrict, ...);
 FILE *tmpfile(void);
+FILE *tmpfile_l(__locale_t);
 int vasprintf(char **, const char *, va_list);
 int vasprintf_l(char **, __locale_t, const char *, va_list);
 int vdprintf(int, const char *__restrict, va_list);
