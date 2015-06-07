@@ -39,8 +39,8 @@
 // Features missing:
 // - gets(), sprintf() and vsprintf():
 //   Prone to buffer overflows. Not safe to use.
-// - fopen(), freopen(), rename(), ctermid(), tempnam(), tmpfile(),
-//   tmpnam(), L_ctermid, L_tmpnam, P_tmpdir and TMP_MAX:
+// - fopen(), freopen(), rename(), ctermid(), tempnam(), tmpnam(),
+//   L_ctermid, L_tmpnam, P_tmpdir and TMP_MAX:
 //   Requires global filesystem namespace.
 // - getchar(), getchar_unlocked(), printf(), putchar(),
 //   putchar_unlocked(), puts(), scanf(), vprintf(), vscanf(), stdin and
@@ -169,6 +169,7 @@ int snprintf_l(char *__restrict, size_t, __locale_t, const char *__restrict,
                ...) __printflike(4, 5);
 int sscanf(const char *__restrict, const char *__restrict, ...);
 int sscanf_l(const char *__restrict, __locale_t, const char *__restrict, ...);
+FILE *tmpfile(void);
 int vasprintf(char **, const char *, va_list);
 int vasprintf_l(char **, __locale_t, const char *, va_list);
 int vdprintf(int, const char *__restrict, va_list);
