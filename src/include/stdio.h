@@ -189,7 +189,7 @@ __END_DECLS
 
 static __inline void __setbuf(FILE *__restrict __stream,
                               char *__restrict __buf) {
-  setvbuf(__stream, __buf, __buf != _NULL ? _IOFBF : _IONBF, BUFSIZ);
+  setvbuf(__stream, __buf, __buf != NULL ? _IOFBF : _IONBF, BUFSIZ);
 }
 
 #define setbuf(stream, buf) __setbuf(stream, buf)
