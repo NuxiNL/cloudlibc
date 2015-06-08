@@ -170,7 +170,7 @@ static __inline void *__bsearch(const void *__key, const void *__base,
 // size of the elements into account. It also reduces the overhead of
 // indirect function calls.
 
-static __inline __ptrdiff_t __qsort_min(__ptrdiff_t __a, __ptrdiff_t __b) {
+static __inline size_t __qsort_min(size_t __a, size_t __b) {
   return __a < __b ? __a : __b;
 }
 
@@ -246,7 +246,7 @@ static __inline void __qsort(void *__base, size_t __nel, size_t __width,
   __s = __qsort_min(__pa - __a, __pb - __pa);
   if (__s > 0)
     __qsort_swap(__a, __pb - __s, __s);
-  __s = __qsort_min(__pd - __pc, __pn - __pd - (__ptrdiff_t)__width);
+  __s = __qsort_min(__pd - __pc, __pn - __pd - __width);
   if (__s > 0)
     __qsort_swap(__pb, __pn - __s, __s);
   __s = __pb - __pa;
