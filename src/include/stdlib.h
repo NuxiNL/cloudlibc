@@ -134,6 +134,34 @@ static __inline lldiv_t __lldiv(long long __numer, long long __denom) {
   return __res;
 }
 
+static __inline void *__bsearch(const void *__key, const void *__base,
+                                size_t __nel, size_t __width,
+                                int (*__compar)(const void *, const void *)) {
+  const char *__basep, *__obj;
+  size_t __mid, __skip;
+  int __cmp;
+
+  __basep = (const char *)__base;
+  while (__nel > 0) {
+    // Pick pivot.
+    __mid = __nel / 2;
+    __obj = __basep + __mid * __width;
+    __cmp = __compar(__key, (const void *)__obj);
+    if (__cmp < 0) {
+      // key < obj. Restrict search to top of the list.
+      __nel = __mid;
+    } else if (__cmp > 0) {
+      // key > obj. Restrict search to bottom of the list.
+      __skip = __mid + 1;
+      __basep += __skip * __width;
+      __nel -= __skip;
+    } else {
+      return (void *)__obj;
+    }
+  }
+  return NULL;
+}
+
 __BEGIN_DECLS
 _Noreturn void _Exit(int);
 size_t MB_CUR_MAX_L(__locale_t);
@@ -211,5 +239,8 @@ __END_DECLS
 #define div(numer, denom) __div(numer, denom)
 #define ldiv(numer, denom) __ldiv(numer, denom)
 #define lldiv(numer, denom) __lldiv(numer, denom)
+
+#define bsearch(key, base, nel, width, compar) \
+  __bsearch(key, base, nel, width, compar)
 
 #endif
