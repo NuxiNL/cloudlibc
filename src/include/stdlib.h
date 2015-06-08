@@ -162,6 +162,101 @@ static __inline void *__bsearch(const void *__key, const void *__base,
   return NULL;
 }
 
+// qsort() implementation from Bentley and McIlroy's
+// "Engineering a Sort Function".
+//
+// This sorting function is inlined into this header, so that the
+// compiler can create an optimized version that takes the alignment and
+// size of the elements into account. It also reduces the overhead of
+// indirect function calls.
+
+static __inline __ptrdiff_t __qsort_min(__ptrdiff_t __a, __ptrdiff_t __b) {
+  return __a < __b ? __a : __b;
+}
+
+static __inline void __qsort_swap(char *__a, char *__b, size_t __n) {
+  char t;
+
+  while (__n-- > 0) {
+    t = *__a;
+    *__a++ = *__b;
+    *__b++ = t;
+  }
+}
+
+static __inline char *__qsort_med3(char *__a, char *__b, char *c,
+                                   int (*__cmp)(const void *, const void *)) {
+  return __cmp(__a, __b) < 0
+             ? (__cmp(__b, c) < 0 ? __b : __cmp(__a, c) < 0 ? c : __a)
+             : (__cmp(__b, c) > 0 ? __b : __cmp(__a, c) > 0 ? c : __a);
+}
+
+static __inline void __qsort(void *__base, size_t __nel, size_t __width,
+                             int (*__cmp)(const void *, const void *)) {
+  char *__a, *__pa, *__pb, *__pc, *__pd, *__pl, *__pm, *__pn, *__pv;
+  int __r;
+  size_t __s;
+
+  __a = (char *)__base;
+  if (__nel < 7) {
+    for (__pm = __a + __width; __pm < __a + __nel * __width; __pm += __width)
+      for (__pl = __pm; __pl > __a && __cmp(__pl - __width, __pl) > 0;
+           __pl -= __width)
+        __qsort_swap(__pl, __pl - __width, __width);
+    return;
+  }
+  __pm = __a + (__nel / 2) * __width;
+  if (__nel > 7) {
+    __pl = __a;
+    __pn = __a + (__nel - 1) * __width;
+    if (__nel > 40) {
+      __s = (__nel / 8) * __width;
+      __pl = __qsort_med3(__pl, __pl + __s, __pl + 2 * __s, __cmp);
+      __pm = __qsort_med3(__pm - __s, __pm, __pm + __s, __cmp);
+      __pn = __qsort_med3(__pn - 2 * __s, __pn - __s, __pn, __cmp);
+    }
+    __pm = __qsort_med3(__pl, __pm, __pn, __cmp);
+  }
+  __pv = __a;
+  __qsort_swap(__pv, __pm, __width);
+  __pa = __pb = __a;
+  __pc = __pd = __a + (__nel - 1) * __width;
+  for (;;) {
+    while (__pb <= __pc && (__r = __cmp(__pb, __pv)) <= 0) {
+      if (__r == 0) {
+        __qsort_swap(__pa, __pb, __width);
+        __pa += __width;
+      }
+      __pb += __width;
+    }
+    while (__pc >= __pb && (__r = __cmp(__pc, __pv)) >= 0) {
+      if (__r == 0) {
+        __qsort_swap(__pc, __pd, __width);
+        __pd -= __width;
+      }
+      __pc -= __width;
+    }
+    if (__pb > __pc)
+      break;
+    __qsort_swap(__pb, __pc, __width);
+    __pb += __width;
+    __pc -= __width;
+  }
+  __pn = __a + __nel * __width;
+  __s = __qsort_min(__pa - __a, __pb - __pa);
+  if (__s > 0)
+    __qsort_swap(__a, __pb - __s, __s);
+  __s = __qsort_min(__pd - __pc, __pn - __pd - (__ptrdiff_t)__width);
+  if (__s > 0)
+    __qsort_swap(__pb, __pn - __s, __s);
+  __s = __pb - __pa;
+  if (__s > __width)
+    __qsort(__a, __s / __width, __width, __cmp);
+  __s = __pd - __pc;
+  if (__s > __width)
+    __qsort(__pn - __s, __s / __width, __width, __cmp);
+}
+
 __BEGIN_DECLS
 _Noreturn void _Exit(int);
 size_t MB_CUR_MAX_L(__locale_t);
@@ -242,5 +337,6 @@ __END_DECLS
 
 #define bsearch(key, base, nel, width, compar) \
   __bsearch(key, base, nel, width, compar)
+#define qsort(base, nel, width, compar) __qsort(base, nel, width, compar)
 
 #endif
