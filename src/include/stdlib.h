@@ -184,11 +184,11 @@ static __inline void __qsort_swap(char *__a, char *__b, size_t __n) {
   }
 }
 
-static __inline char *__qsort_med3(char *__a, char *__b, char *c,
+static __inline char *__qsort_med3(char *__a, char *__b, char *__c,
                                    int (*__cmp)(const void *, const void *)) {
   return __cmp(__a, __b) < 0
-             ? (__cmp(__b, c) < 0 ? __b : __cmp(__a, c) < 0 ? c : __a)
-             : (__cmp(__b, c) > 0 ? __b : __cmp(__a, c) > 0 ? c : __a);
+             ? (__cmp(__b, __c) < 0 ? __b : __cmp(__a, __c) < 0 ? __c : __a)
+             : (__cmp(__b, __c) > 0 ? __b : __cmp(__a, __c) > 0 ? __c : __a);
 }
 
 static __inline void __qsort(void *__base, size_t __nel, size_t __width,
