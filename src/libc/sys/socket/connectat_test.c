@@ -15,7 +15,7 @@ TEST(connectat, failure) {
   int fd = socket(AF_UNIX, SOCK_STREAM, 0);
   ASSERT_LE(0, fd);
   ASSERT_EQ(ENOENT, connectat(fd, fd_tmp, ""));
-  ASSERT_EQ(ENOTCAPABLE, connectat(fd, fd_tmp, "../sock"));
+  ASSERT_EQ(EPERM, connectat(fd, fd_tmp, "../sock"));
   ASSERT_EQ(0, close(fd));
 }
 

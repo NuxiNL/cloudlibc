@@ -15,9 +15,9 @@ TEST(fstatat, escape) {
 
   // Escaping to the parent directory is not.
   ASSERT_EQ(-1, fstatat(fd_tmp, "..", &sb, 0));
-  ASSERT_EQ(ENOTCAPABLE, errno);
+  ASSERT_EQ(EPERM, errno);
 
   // There are no absolute paths.
   ASSERT_EQ(-1, fstatat(fd_tmp, "/dev/null", &sb, 0));
-  ASSERT_EQ(ENOTCAPABLE, errno);
+  ASSERT_EQ(EPERM, errno);
 }

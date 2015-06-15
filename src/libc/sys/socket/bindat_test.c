@@ -24,8 +24,8 @@ TEST(bindat, failure) {
   ASSERT_EQ(ENOENT, bindat(fd, fd_tmp, ""));
 
   // Bad pathname.
-  ASSERT_EQ(ENOTCAPABLE, bindat(fd, fd_tmp, "../sock"));
-  ASSERT_EQ(ENOTCAPABLE, bindat(fd, fd_tmp, "/sock"));
+  ASSERT_EQ(EPERM, bindat(fd, fd_tmp, "../sock"));
+  ASSERT_EQ(EPERM, bindat(fd, fd_tmp, "/sock"));
   ASSERT_EQ(0, close(fd));
 }
 
