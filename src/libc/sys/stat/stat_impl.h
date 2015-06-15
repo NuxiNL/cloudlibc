@@ -46,9 +46,13 @@ static inline void to_public_stat(const cloudabi_filestat_t *in,
   *out = (struct stat){
 #define COPY_FIELD(field) .field = in->field
 #define COPY_TIMESPEC(field) .field = timestamp_to_timespec(in->field)
-      COPY_FIELD(st_dev), COPY_FIELD(st_ino),
-      .st_mode = TRANSLATE_FILETYPE(in->st_filetype), COPY_FIELD(st_nlink),
-      COPY_FIELD(st_size), COPY_TIMESPEC(st_atim), COPY_TIMESPEC(st_mtim),
+      COPY_FIELD(st_dev),
+      COPY_FIELD(st_ino),
+      .st_mode = TRANSLATE_FILETYPE(in->st_filetype),
+      COPY_FIELD(st_nlink),
+      COPY_FIELD(st_size),
+      COPY_TIMESPEC(st_atim),
+      COPY_TIMESPEC(st_mtim),
       COPY_TIMESPEC(st_ctim),
 #undef COPY_FIELD
 #undef COPY_TIMESPEC

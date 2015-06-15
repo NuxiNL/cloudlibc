@@ -11,8 +11,8 @@
 #include <pthread.h>
 
 int pthread_rwlock_timedrdlock(pthread_rwlock_t *restrict rwlock,
-                               const struct timespec *restrict
-                                   abstime) __no_lock_analysis {
+                               const struct timespec *restrict abstime)
+    __no_lock_analysis {
   // Attempt to acquire the lock in userspace.
   for (int i = 0; i < LOCK_RETRY_COUNT; ++i) {
     int error = pthread_rwlock_tryrdlock(rwlock);
