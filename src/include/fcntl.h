@@ -86,6 +86,7 @@ typedef __off_t off_t;
 #define O_WRONLY 0x10000000
 
 // For compatibility.
+#define O_BENEATH 0          // Already enabled by default.
 #define O_CLOEXEC 0          // Has no effect.
 #define O_NDELAY O_NONBLOCK  // Different spelling.
 #define O_NOCTTY 0           // Has no effect.
