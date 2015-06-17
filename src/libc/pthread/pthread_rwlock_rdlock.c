@@ -18,12 +18,13 @@ int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   }
 
   // Call into the kernel to acquire a read lock.
-  cloudabi_event_t event = {
-      .type = CLOUDABI_EVENT_TYPE_LOCK_RDLOCK, .lock.lock = &rwlock->__state,
+  cloudabi_subscription_t subscription = {
+      .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK, .lock.lock = &rwlock->__state,
   };
   size_t triggered;
-  cloudabi_errno_t error =
-      cloudabi_sys_poll(CLOUDABI_POLL_ONCE, &event, 1, &event, 1, &triggered);
+  cloudabi_event_t event;
+  cloudabi_errno_t error = cloudabi_sys_poll(CLOUDABI_POLL_ONCE, &subscription,
+                                             1, &event, 1, &triggered);
   if (error != 0)
     __pthread_terminate(error, "Failed to acquire read lock");
   if (event.error != 0)

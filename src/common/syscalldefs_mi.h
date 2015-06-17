@@ -134,14 +134,14 @@
 
 #define CLOUDABI_EVENT_FD_READWRITE_HANGUP 0x1
 
-// Filter types for cloudabi_event_t::filter.
-#define CLOUDABI_EVENT_TYPE_CLOCK 1
-#define CLOUDABI_EVENT_TYPE_CONDVAR 2
-#define CLOUDABI_EVENT_TYPE_FD_READ 3
-#define CLOUDABI_EVENT_TYPE_FD_WRITE 4
-#define CLOUDABI_EVENT_TYPE_LOCK_RDLOCK 5
-#define CLOUDABI_EVENT_TYPE_LOCK_WRLOCK 6
-#define CLOUDABI_EVENT_TYPE_PROC_TERMINATE 7
+// Filter types for cloudabi_eventtype_t.
+#define CLOUDABI_EVENTTYPE_CLOCK 1
+#define CLOUDABI_EVENTTYPE_CONDVAR 2
+#define CLOUDABI_EVENTTYPE_FD_READ 3
+#define CLOUDABI_EVENTTYPE_FD_WRITE 4
+#define CLOUDABI_EVENTTYPE_LOCK_RDLOCK 5
+#define CLOUDABI_EVENTTYPE_LOCK_WRLOCK 6
+#define CLOUDABI_EVENTTYPE_PROC_TERMINATE 7
 
 // File descriptor behavior flags.
 #define CLOUDABI_FDFLAG_APPEND 0x1
@@ -302,6 +302,14 @@
 // sockstat() state.
 #define CLOUDABI_SOCKSTAT_ACCEPTCONN 0x1
 
+// cloudabi_subscription_t flags.
+#define CLOUDABI_SUBSCRIPTION_ADD 0x1
+#define CLOUDABI_SUBSCRIPTION_CLEAR 0x2
+#define CLOUDABI_SUBSCRIPTION_DELETE 0x4
+#define CLOUDABI_SUBSCRIPTION_DISABLE 0x8
+#define CLOUDABI_SUBSCRIPTION_ENABLE 0x10
+#define CLOUDABI_SUBSCRIPTION_ONESHOT 0x20
+
 // unlinkat().
 #define CLOUDABI_UNLINK_REMOVEDIR 0x1
 
@@ -317,6 +325,7 @@ typedef uint32_t cloudabi_condvar_t;    // pthread_cond_*().
 typedef uint64_t cloudabi_device_t;     // struct stat::st_dev.
 typedef uint64_t cloudabi_dircookie_t;  // readdir().
 typedef uint16_t cloudabi_errno_t;      // errno.
+typedef uint8_t cloudabi_eventtype_t;   // poll().
 typedef uint32_t cloudabi_exitcode_t;   // _exit() and _Exit().
 typedef uint32_t cloudabi_fd_t;         // File descriptors.
 typedef uint16_t cloudabi_fdflags_t;    // cloudabi_fdstat_t.
@@ -343,6 +352,7 @@ typedef uint8_t cloudabi_signal_t;      // raise().
 typedef uint32_t cloudabi_tid_t;        // Thread ID.
 typedef uint64_t cloudabi_timestamp_t;  // clock_*(), struct stat::st_*tim.
 typedef uint8_t cloudabi_ulflags_t;     // unlinkat().
+typedef uint64_t cloudabi_userdata_t;   // User-supplied data for callbacks.
 typedef uint8_t cloudabi_whence_t;      // lseek().
 
 // Macro to force sane alignment rules.

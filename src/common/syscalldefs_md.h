@@ -52,27 +52,23 @@ ASSERT_OFFSET(ciovec_t, iov_len, 4, 8);
 ASSERT_SIZE(ciovec_t, 8, 16);
 
 typedef struct {
-  MEMBER(uint64_t) userdata;
+  MEMBER(cloudabi_userdata_t) userdata;
   MEMBER(cloudabi_errno_t) error;
-  MEMBER(uint8_t) type;
+  MEMBER(cloudabi_eventtype_t) type;
   union {
-    // CLOUDABI_EVENT_TYPE_CLOCK: Wait until the value of a clock
+    // CLOUDABI_EVENTTYPE_CLOCK: Wait until the value of a clock
     // exceeds a value.
     struct {
-      MEMBER(uint64_t) identifier;
-      MEMBER(cloudabi_clockid_t) clock_id;
-      MEMBER(cloudabi_timestamp_t) timeout;
-      MEMBER(cloudabi_timestamp_t) precision;
+      MEMBER(cloudabi_userdata_t) identifier;
     } clock;
 
-    // CLOUDABI_EVENT_TYPE_CONDVAR: Release a lock and wait on a
+    // CLOUDABI_EVENTTYPE_CONDVAR: Release a lock and wait on a
     // condition variable.
     struct {
       MEMBER(PTR(_Atomic(cloudabi_condvar_t))) condvar;
-      MEMBER(PTR(_Atomic(cloudabi_lock_t))) lock;
     } condvar;
 
-    // CLOUDABI_EVENT_TYPE_FD_READ and CLOUDABI_EVENT_TYPE_FD_WRITE:
+    // CLOUDABI_EVENTTYPE_FD_READ and CLOUDABI_EVENTTYPE_FD_WRITE:
     // Wait for a file descriptor to allow read() and write() to be
     // called without blocking.
     struct {
@@ -87,7 +83,7 @@ typedef struct {
       MEMBER(PTR(_Atomic(cloudabi_lock_t))) lock;
     } lock;
 
-    // CLOUDABI_EVENT_TYPE_PROC_TERMINATE: Wait for a process to terminate.
+    // CLOUDABI_EVENTTYPE_PROC_TERMINATE: Wait for a process to terminate.
     struct {
       MEMBER(cloudabi_fd_t) fd;
       MEMBER(cloudabi_signal_t) signal;      // Non-zero if process got killed.
@@ -99,11 +95,7 @@ ASSERT_OFFSET(event_t, userdata, 0, 0);
 ASSERT_OFFSET(event_t, error, 8, 8);
 ASSERT_OFFSET(event_t, type, 10, 10);
 ASSERT_OFFSET(event_t, clock.identifier, 16, 16);
-ASSERT_OFFSET(event_t, clock.clock_id, 24, 24);
-ASSERT_OFFSET(event_t, clock.timeout, 32, 32);
-ASSERT_OFFSET(event_t, clock.precision, 40, 40);
 ASSERT_OFFSET(event_t, condvar.condvar, 16, 16);
-ASSERT_OFFSET(event_t, condvar.lock, 20, 24);
 ASSERT_OFFSET(event_t, fd_readwrite.nbytes, 16, 16);
 ASSERT_OFFSET(event_t, fd_readwrite.fd, 24, 24);
 ASSERT_OFFSET(event_t, fd_readwrite.flags, 28, 28);
@@ -111,7 +103,7 @@ ASSERT_OFFSET(event_t, lock.lock, 16, 16);
 ASSERT_OFFSET(event_t, proc_terminate.fd, 16, 16);
 ASSERT_OFFSET(event_t, proc_terminate.signal, 20, 20);
 ASSERT_OFFSET(event_t, proc_terminate.exitcode, 24, 24);
-ASSERT_SIZE(event_t, 48, 48);
+ASSERT_SIZE(event_t, 32, 32);
 
 typedef struct {
   MEMBER(PTR(void)) iov_base;
@@ -191,6 +183,60 @@ ASSERT_OFFSET(startup_data_t, sd_random_seed, 24, 40);
 ASSERT_OFFSET(startup_data_t, sd_ncpus, 32, 48);
 ASSERT_OFFSET(startup_data_t, sd_pagesize, 36, 52);
 ASSERT_SIZE(startup_data_t, 40, 56);
+
+typedef struct {
+  MEMBER(cloudabi_userdata_t) userdata;
+  uint16_t flags;
+  MEMBER(cloudabi_eventtype_t) type;
+  union {
+    // CLOUDABI_EVENTTYPE_CLOCK: Wait until the value of a clock
+    // exceeds a value.
+    struct {
+      MEMBER(cloudabi_userdata_t) identifier;
+      MEMBER(cloudabi_clockid_t) clock_id;
+      MEMBER(cloudabi_timestamp_t) timeout;
+      MEMBER(cloudabi_timestamp_t) precision;
+    } clock;
+
+    // CLOUDABI_EVENTTYPE_CONDVAR: Release a lock and wait on a
+    // condition variable.
+    struct {
+      MEMBER(PTR(_Atomic(cloudabi_condvar_t))) condvar;
+      MEMBER(PTR(_Atomic(cloudabi_lock_t))) lock;
+    } condvar;
+
+    // CLOUDABI_EVENTTYPE_FD_READ and CLOUDABI_EVENTTYPE_FD_WRITE:
+    // Wait for a file descriptor to allow read() and write() to be
+    // called without blocking.
+    struct {
+      MEMBER(cloudabi_fd_t) fd;
+    } fd_readwrite;
+
+    // CLOUDABI_EVENT_LOCK_RDLOCK and CLOUDABI_EVENT_LOCK_WRLOCK: Wait
+    // and acquire a read or write lock.
+    struct {
+      MEMBER(PTR(_Atomic(cloudabi_lock_t))) lock;
+    } lock;
+
+    // CLOUDABI_EVENTTYPE_PROC_TERMINATE: Wait for a process to terminate.
+    struct {
+      MEMBER(cloudabi_fd_t) fd;
+    } proc_terminate;
+  };
+} IDENT(subscription_t);
+ASSERT_OFFSET(subscription_t, userdata, 0, 0);
+ASSERT_OFFSET(subscription_t, flags, 8, 8);
+ASSERT_OFFSET(subscription_t, type, 10, 10);
+ASSERT_OFFSET(subscription_t, clock.identifier, 16, 16);
+ASSERT_OFFSET(subscription_t, clock.clock_id, 24, 24);
+ASSERT_OFFSET(subscription_t, clock.timeout, 32, 32);
+ASSERT_OFFSET(subscription_t, clock.precision, 40, 40);
+ASSERT_OFFSET(subscription_t, condvar.condvar, 16, 16);
+ASSERT_OFFSET(subscription_t, condvar.lock, 20, 24);
+ASSERT_OFFSET(subscription_t, fd_readwrite.fd, 16, 16);
+ASSERT_OFFSET(subscription_t, lock.lock, 16, 16);
+ASSERT_OFFSET(subscription_t, proc_terminate.fd, 16, 16);
+ASSERT_SIZE(subscription_t, 48, 48);
 
 typedef struct {
   MEMBER(PTR(IDENT(threadentry_t))) entry_point;  // Entry point.

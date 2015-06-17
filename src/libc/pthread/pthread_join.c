@@ -26,12 +26,13 @@ int pthread_join(pthread_t thread, void **value_ptr) {
     // attempting to acquire a read lock on a lock that is owned by the
     // other thread. This allows the kernel to apply priority
     // inheritance.
-    cloudabi_event_t event = {
-        .type = CLOUDABI_EVENT_TYPE_LOCK_RDLOCK, .lock.lock = &thread->join,
+    cloudabi_subscription_t subscription = {
+        .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK, .lock.lock = &thread->join,
     };
     size_t triggered;
-    cloudabi_errno_t error =
-        cloudabi_sys_poll(CLOUDABI_POLL_ONCE, &event, 1, &event, 1, &triggered);
+    cloudabi_event_t event;
+    cloudabi_errno_t error = cloudabi_sys_poll(
+        CLOUDABI_POLL_ONCE, &subscription, 1, &event, 1, &triggered);
     if (error != 0)
       __pthread_terminate(error, "Failed to join on thread");
     if (event.error != 0)

@@ -21,25 +21,26 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock,
   }
 
   // Call into the kernel to acquire a write lock.
-  cloudabi_event_t events[2] = {
+  cloudabi_subscription_t subscriptions[2] = {
       {
-          .type = CLOUDABI_EVENT_TYPE_LOCK_WRLOCK,
-          .lock.lock = &rwlock->__state,
+          .type = CLOUDABI_EVENTTYPE_LOCK_WRLOCK, .lock.lock = &rwlock->__state,
       },
       {
-          .type = CLOUDABI_EVENT_TYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,
+          .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,
       },
   };
-  if (!timespec_to_timestamp_clamp(abstime, &events[1].clock.timeout))
+  if (!timespec_to_timestamp_clamp(abstime, &subscriptions[1].clock.timeout))
     return EINVAL;
 
   size_t triggered;
-  cloudabi_errno_t error =
-      cloudabi_sys_poll(CLOUDABI_POLL_ONCE, events, 2, events, 2, &triggered);
+  cloudabi_event_t events[2];
+  cloudabi_errno_t error = cloudabi_sys_poll(
+      CLOUDABI_POLL_ONCE, subscriptions, __arraycount(subscriptions), events,
+      __arraycount(events), &triggered);
   if (error != 0)
     __pthread_terminate(error, "Failed to acquire write lock");
   for (size_t i = 0; i < triggered; ++i) {
-    if (events[i].type == CLOUDABI_EVENT_TYPE_LOCK_WRLOCK) {
+    if (events[i].type == CLOUDABI_EVENTTYPE_LOCK_WRLOCK) {
       if (events[i].error != 0)
         __pthread_terminate(events[i].error, "Failed to acquire write lock");
 

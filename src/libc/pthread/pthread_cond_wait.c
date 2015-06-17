@@ -21,8 +21,8 @@ int pthread_cond_wait(pthread_cond_t *restrict cond,
          "Cannot wait using a write recursive lock");
 
   // Call into the kernel to wait on the condition variable.
-  cloudabi_event_t event = {
-      .type = CLOUDABI_EVENT_TYPE_CONDVAR,
+  cloudabi_subscription_t subscription = {
+      .type = CLOUDABI_EVENTTYPE_CONDVAR,
       .condvar.condvar = &cond->__waiters,
       .condvar.lock = &lock->__state,
   };
@@ -30,8 +30,9 @@ int pthread_cond_wait(pthread_cond_t *restrict cond,
 
   // Remove lock from lock list while blocking.
   LIST_REMOVE(lock, __write_locks);
-  cloudabi_errno_t error =
-      cloudabi_sys_poll(CLOUDABI_POLL_ONCE, &event, 1, &event, 1, &triggered);
+  cloudabi_event_t event;
+  cloudabi_errno_t error = cloudabi_sys_poll(CLOUDABI_POLL_ONCE, &subscription,
+                                             1, &event, 1, &triggered);
   LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)

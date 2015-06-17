@@ -53,13 +53,14 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
     // Initialization routine is being executed. Suspend execution of
     // this thread until the other thread has finished executing the
     // initialization routine.
-    cloudabi_event_t event = {
-        .type = CLOUDABI_EVENT_TYPE_LOCK_RDLOCK,
+    cloudabi_subscription_t subscription = {
+        .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK,
         .lock.lock = &once_control->__state,
     };
     size_t triggered;
-    cloudabi_errno_t error =
-        cloudabi_sys_poll(CLOUDABI_POLL_ONCE, &event, 1, &event, 1, &triggered);
+    cloudabi_event_t event;
+    cloudabi_errno_t error = cloudabi_sys_poll(
+        CLOUDABI_POLL_ONCE, &subscription, 1, &event, 1, &triggered);
     if (error != 0)
       __pthread_terminate(error, "Failed to wait on once object");
     if (event.error != 0)

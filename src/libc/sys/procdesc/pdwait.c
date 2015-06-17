@@ -18,27 +18,28 @@ int pdwait(int fd, siginfo_t *infop, int options) {
   // Prepare set of events on which we should wait. If WNOHANG is
   // specified, add an additional zero-value clock to force poll() to
   // return immediately.
-  cloudabi_event_t events[2] = {
+  cloudabi_subscription_t subscriptions[2] = {
       {
-          .type = CLOUDABI_EVENT_TYPE_PROC_TERMINATE, .proc_terminate.fd = fd,
+          .type = CLOUDABI_EVENTTYPE_PROC_TERMINATE, .proc_terminate.fd = fd,
       },
       {
-          .type = CLOUDABI_EVENT_TYPE_CLOCK,
+          .type = CLOUDABI_EVENTTYPE_CLOCK,
           .clock.clock_id = CLOUDABI_CLOCK_MONOTONIC,
       },
   };
-  size_t nevents = (options & WNOHANG) != 0 ? 2 : 1;
 
   // Wait for process termination.
   size_t triggered;
+  cloudabi_event_t events[2];
   cloudabi_errno_t error = cloudabi_sys_poll(
-      CLOUDABI_POLL_ONCE, events, nevents, events, nevents, &triggered);
+      CLOUDABI_POLL_ONCE, subscriptions, (options & WNOHANG) != 0 ? 2 : 1,
+      events, __arraycount(events), &triggered);
   if (error != 0)
     return (error);
 
   for (size_t i = 0; i < triggered; ++i) {
     const cloudabi_event_t *ev = &events[i];
-    if (ev->type == CLOUDABI_EVENT_TYPE_PROC_TERMINATE) {
+    if (ev->type == CLOUDABI_EVENTTYPE_PROC_TERMINATE) {
       if (ev->error != 0) {
         // Invalid file descriptor.
         return (ev->error);

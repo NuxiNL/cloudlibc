@@ -23,30 +23,32 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
          "Cannot wait using a write recursive lock");
 
   // Call into the kernel to wait on the condition variable.
-  cloudabi_event_t events[2] = {
+  cloudabi_subscription_t subscriptions[2] = {
       {
-          .type = CLOUDABI_EVENT_TYPE_CONDVAR,
+          .type = CLOUDABI_EVENTTYPE_CONDVAR,
           .condvar.condvar = &cond->__waiters,
           .condvar.lock = &lock->__state,
       },
       {
-          .type = CLOUDABI_EVENT_TYPE_CLOCK, .clock.clock_id = cond->__clock,
+          .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = cond->__clock,
       },
   };
-  if (!timespec_to_timestamp_clamp(abstime, &events[1].clock.timeout))
+  if (!timespec_to_timestamp_clamp(abstime, &subscriptions[1].clock.timeout))
     return EINVAL;
   size_t triggered;
 
   // Remove lock from lock list while blocking.
   LIST_REMOVE(lock, __write_locks);
-  cloudabi_errno_t error =
-      cloudabi_sys_poll(CLOUDABI_POLL_ONCE, events, 2, events, 2, &triggered);
+  cloudabi_event_t events[2];
+  cloudabi_errno_t error = cloudabi_sys_poll(
+      CLOUDABI_POLL_ONCE, subscriptions, __arraycount(subscriptions), events,
+      __arraycount(events), &triggered);
   LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)
     __pthread_terminate(error, "Failed to wait on condition variable");
   for (size_t i = 0; i < triggered; ++i) {
-    if (events[i].type == CLOUDABI_EVENT_TYPE_CONDVAR) {
+    if (events[i].type == CLOUDABI_EVENTTYPE_CONDVAR) {
       if (events[i].error != 0)
         __pthread_terminate(events[i].error,
                             "Failed to wait on condition variable");
