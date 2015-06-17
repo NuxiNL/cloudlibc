@@ -24,6 +24,8 @@
 // <fcntl.h> - file control options
 //
 // Extensions:
+// - O_BENEATH:
+//   Always enforced. Also present on Linux.
 // - O_NDELAY:
 //   Identical to O_NONBLOCK.
 //
