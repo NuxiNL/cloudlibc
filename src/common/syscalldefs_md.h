@@ -186,7 +186,7 @@ ASSERT_SIZE(startup_data_t, 40, 56);
 
 typedef struct {
   MEMBER(cloudabi_userdata_t) userdata;
-  uint16_t flags;
+  MEMBER(uint16_t) flags;
   MEMBER(cloudabi_eventtype_t) type;
   union {
     // CLOUDABI_EVENTTYPE_CLOCK: Wait until the value of a clock
