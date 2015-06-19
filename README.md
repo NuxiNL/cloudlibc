@@ -97,24 +97,15 @@ The source tree is structured as follows:
 
 ## Building and installing cloudlibc
 
-TODO(edje): The build script still needs a lot of cleanups.
-
 After
 [building and installing Clang and GNU Binutils](https://github.com/NuxiNL/cloudlibc/wiki/Building-the-toolchain),
 cloudlibc may be built and installed by running the following command:
 
     ./build
+    sudo ./install
 
-Once the script has completed successfully, it should already be
-possible to build simple C programs. A binary containing all cloudlibc
-unit tests is stored at `_obj/unittest`. This program can be invoked on
-a system that supports CloudABI as follows:
-
-    rm -Rf tmpdir
-    mkdir tmpdir
-    ./unittest < tmpdir
-
-It is strongly advised to also
+Once the build and installation has completed successfully, it should be
+possible to
 [install additional runtime libraries](https://github.com/NuxiNL/cloudlibc/wiki/Building-runtime-libraries),
 such as LLVM's compiler-rt, libc++ and libc++abi. These libraries are
 required for full C and C++ language support.
