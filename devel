@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -e
+
+: ${CC:=x86_64-unknown-cloudabi-cc}
+: ${AR:=x86_64-unknown-cloudabi-ar}
+: ${PREFIX:=/usr/local/x86_64-unknown-cloudabi}
+
+WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers \
+-Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch \
+-Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes \
+-Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety 
+-Wsign-compare -Wundef -Wno-comment"
+
+echo "=> Testing headers"
+for std in c89 gnu89 c90 gnu90 c99 gnu99 c11 gnu11; do
+  (cd src/include; find * -type f) | while read header; do
+    echo "#include <$header>"
+  done | (sort -R 2> /dev/null || sort) | ${CC} ${WARNFLAGS} -nostdinc \
+      -Isrc/include -std="${std}" -x c -c -o /dev/null -
+done
+for std in c++98 gnu++98 c++03 c++11 gnu++11 c++14 gnu++14; do
+  (cd src/include; find * -type f) | while read header; do
+    echo "#include <$header>"
+  done | (sort -R 2> /dev/null || sort) | ${CC} ${WARNFLAGS} -nostdinc \
+      -Isrc/include -std="${std}" -x c++ -c -o /dev/null -
+done
+
+./build
+
+echo "=> Reformatting sources"
+# Pass all source files through clang-format.
+find src tools -name '*.[ch]' -o -name '*.cc' | sort | while read srcfile; do
+  clang-format -style='{
+BasedOnStyle: Google,
+AllowShortIfStatementsOnASingleLine: false,
+AllowShortLoopsOnASingleLine: false,
+AllowShortFunctionsOnASingleLine: None,
+DerivePointerBinding: false,
+PointerAlignment: Right,
+}' "${srcfile}" > _obj/clang-format
+  if ! cmp -s _obj/clang-format "${srcfile}"; then
+    echo "=> Style fixing ${srcfile}"
+    mv _obj/clang-format "${srcfile}"
+  fi
+done
+# Invoke the build again if we had to fix up one or more sources files.
+./build
+
+sudo ./install
+
+echo "=> Building unit tests"
+${CC} -o _obj/unittest $(find src -name "*_test.c" | sort |
+    sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')

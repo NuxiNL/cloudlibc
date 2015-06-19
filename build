@@ -2,28 +2,23 @@
 
 set -e
 
-TARGET="x86_64-unknown-cloudabi"
-CC="${TARGET}-cc"
-CFLAGS="-fomit-frame-pointer -g -nostdinc -Isrc -Isrc/include -Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include -Icontrib/openlibm-ef29d06/include -Icontrib/openlibm-ef29d06/src -Icontrib/openlibm-ef29d06/ld80 -Icontrib/openlibm-ef29d06 -Werror -fno-exceptions -fno-rtti -DOPENLIBM_USE_HOST_COMPLEX_H -DOPENLIBM_USE_HOST_FENV_H -DOPENLIBM_USE_HOST_MATH_H -DOPENLIBM_ONLY_THREAD_SAFE"
-COPTFLAGS="-O3"
-WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety -Wsign-compare -Wundef -Wno-comment"
+# Variables that can be provided externally.
+: ${CC:=x86_64-unknown-cloudabi-cc}
+: ${AR:=x86_64-unknown-cloudabi-ar}
+: ${CFLAGS:=-O3 -fstack-protector-strong -fomit-frame-pointer -g}
+: ${WARNFLAGS:=}
 
+# Additional compiler flags to include the right files, etc.
+CFLAGS="${CFLAGS} -nostdinc -Isrc -Isrc/include \
+-Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-3.6.0/include \
+-Icontrib/openlibm-ef29d06/include -Icontrib/openlibm-ef29d06/src \
+-Icontrib/openlibm-ef29d06/ld80 -Icontrib/openlibm-ef29d06 -fno-exceptions \
+-fno-rtti -DOPENLIBM_USE_HOST_COMPLEX_H -DOPENLIBM_USE_HOST_FENV_H \
+-DOPENLIBM_USE_HOST_MATH_H -DOPENLIBM_ONLY_THREAD_SAFE"
+
+# List of source files.
 SRCS=$(find src contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
     contrib/openlibm-ef29d06 \( -name '*.[cS]' -o -name '*.cc' \) | sort)
-
-echo "=> Testing headers"
-for std in c89 gnu89 c90 gnu90 c99 gnu99 c11 gnu11; do
-  (cd src/include; find * -type f) | while read header; do
-    echo "#include <$header>"
-  done | (sort -R 2> /dev/null || sort) | ${CC} ${WARNFLAGS} -nostdinc \
-      -Isrc/include -std="${std}" -x c -c -o /dev/null -
-done
-for std in c++98 gnu++98 c++03 c++11 gnu++11 c++14 gnu++14; do
-  (cd src/include; find * -type f) | while read header; do
-    echo "#include <$header>"
-  done | (sort -R 2> /dev/null || sort) | ${CC} ${WARNFLAGS} -nostdinc \
-      -Isrc/include -std="${std}" -x c++ -c -o /dev/null -
-done
 
 echo "=> Computing dependencies"
 rm -Rf _obj/dep
@@ -35,11 +30,10 @@ done | xargs -P 8 -n 5 ${CC} ${CFLAGS} -MM
 for srcfile in ${SRCS}; do
   safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
   case "${srcfile}" in
-  contrib/openlibm-ef29d06/*) extraflags="${COPTFLAGS} -Werror -Wmissing-prototypes -fstack-protector-strong" ;;
-  contrib/*) extraflags="${COPTFLAGS} -fstack-protector-strong" ;;
-  src/crt/*) extraflags="${COPTFLAGS} ${WARNFLAGS} -ffreestanding" ;;
-  *_test.c) extraflags="${WARNFLAGS} -fno-builtin -fstack-protector-strong" ;;
-  *) extraflags="${COPTFLAGS} ${WARNFLAGS} -fstack-protector-strong" ;;
+  contrib/*) extraflags="" ;;
+  src/crt/*) extraflags="${WARNFLAGS} -ffreestanding -fno-stack-protector" ;;
+  *_test.c) extraflags="${WARNFLAGS} -fno-builtin -O0" ;;
+  *) extraflags="${WARNFLAGS}" ;;
   esac
   case "${srcfile}" in
   *.cc) extraflags="${extraflags} -std=c++11" ;;
@@ -54,64 +48,12 @@ cat _obj/dep/*.d > _obj/Makefile
 echo "=> Compiling sources"
 make -k -j8 -f _obj/Makefile all
 
-echo "=> Reformatting sources"
-# Pass all source files through clang-format.
-find src tools -name '*.[ch]' -o -name '*.cc' | sort | while read srcfile; do
-  /usr/local/cloudabi/bin/clang-format -style='{
-BasedOnStyle: Google,
-AllowShortIfStatementsOnASingleLine: false,
-AllowShortLoopsOnASingleLine: false,
-AllowShortFunctionsOnASingleLine: None,
-DerivePointerBinding: false,
-PointerAlignment: Right,
-}' "${srcfile}" > _obj/clang-format
-  if ! cmp -s _obj/clang-format "${srcfile}"; then
-    echo "=> Style fixing ${srcfile}"
-    mv _obj/clang-format "${srcfile}"
-  fi
-done
-# Invoke make again if we had to fix up one or more sources files.
-make -k -j8 -f _obj/Makefile all
-
 echo "=> Linking libraries"
-rm -f _obj/libc.a
+rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a
 find src/libc contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
     contrib/openlibm-ef29d06 \
     \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
-    xargs ${TARGET}-ar -rcs _obj/libc.a
-
-PREFIX=/usr/local/cloudabi/${TARGET}
-
-echo "=> Installing headers"
-(cd src/include; find . -type d \! -empty) | while read dir; do
-  mkdir -p "${PREFIX}/include/${dir}"
-done
-(cd src/include; find . -type f) | while read file; do
-  install -m 444 "src/include/${file}" "${PREFIX}/include/${file}"
-done
-
-echo "=> Installing libraries"
-mkdir -p "${PREFIX}/lib"
-install -m 444 _obj/libc.a "${PREFIX}/lib/libc.a"
-find src/crt -name "*.[cS]" |
-    sed -e 's/.*\///' -e 's/\.[a-zA-Z]*$//' | while read crt; do
-  install -m 444 _obj/src_crt_${crt}.o "${PREFIX}/lib/${crt}.o"
-done
-
-# Install stub libraries needed to make simple binaries link. These
-# libraries are added by Clang implicitly. Without these stubs we would
-# not be able to actually build libc++, libc++abi and compiler-rt.
-#
-# Also add stubs for libm and libpthread. These are not present in this
-# environment, but many build scripts expect them.
-for lib in compiler_rt c++ c++abi m pthread unwind; do
-  file="${PREFIX}/lib/lib${lib}.a"
-  if [ ! -f "${file}" ]; then
-    "${TARGET}-ar" -rc "${file}"
-  fi
-done
-
-echo "=> Building unit tests"
-${CC} -o _obj/unittest $(find src -name "*_test.c" | sort |
-    sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')
+    xargs ${AR} -rcs _obj/libc.a
+${AR} -rcs _obj/libm.a
+${AR} -rcs _obj/libpthread.a
