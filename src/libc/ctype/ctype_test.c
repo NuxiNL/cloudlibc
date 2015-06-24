@@ -4,11 +4,32 @@
 // See the LICENSE file for details.
 
 #include <ctype.h>
+#include <locale.h>
+#include <stdio.h>
 #include <wctype.h>
 
 #include <testing.h>
 
-TEST(ctype, all) {
+TEST(ctype, eof) {
+  // EOF should match anything.
+  ASSERT_EQ(0, isalnum(EOF));
+  ASSERT_EQ(0, isalpha(EOF));
+  ASSERT_FALSE(isascii(EOF));
+  ASSERT_EQ(0, isblank(EOF));
+  ASSERT_EQ(0, iscntrl(EOF));
+  ASSERT_EQ(0, isdigit(EOF));
+  ASSERT_EQ(0, isgraph(EOF));
+  ASSERT_EQ(0, islower(EOF));
+  ASSERT_EQ(0, isprint(EOF));
+  ASSERT_EQ(0, ispunct(EOF));
+  ASSERT_EQ(0, isspace(EOF));
+  ASSERT_EQ(0, isupper(EOF));
+  ASSERT_EQ(0, isxdigit(EOF));
+  ASSERT_EQ(EOF, tolower(EOF));
+  ASSERT_EQ(EOF, toupper(EOF));
+}
+
+TEST(ctype, ascii_to_wchar) {
   // All ASCII values should behave identically to the wide-character
   // counterparts.
   for (int ch = 0; ch <= 127; ++ch) {
@@ -49,6 +70,29 @@ TEST(ctype, all) {
       ASSERT_EQ(0, isxdigit(ch));
       ASSERT_EQ(ch, tolower(ch));
       ASSERT_EQ(ch, toupper(ch));
+    });
+  }
+}
+
+TEST(ctype, ascii_equality) {
+  // The _l() functions should behave identically to the plain versions
+  // in case the C locale is used.
+  for (int ch = -1024; ch < 1024; ++ch) {
+    SCOPED_NOTE(ch, {
+      ASSERT_EQ(isalnum(ch), isalnum_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isalpha(ch), isalpha_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isblank(ch), isblank_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(iscntrl(ch), iscntrl_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isdigit(ch), isdigit_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isgraph(ch), isgraph_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(islower(ch), islower_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isprint(ch), isprint_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(ispunct(ch), ispunct_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isspace(ch), isspace_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isupper(ch), isupper_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(isxdigit(ch), isxdigit_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(tolower(ch), tolower_l(ch, LC_C_LOCALE));
+      ASSERT_EQ(toupper(ch), toupper_l(ch, LC_C_LOCALE));
     });
   }
 }
