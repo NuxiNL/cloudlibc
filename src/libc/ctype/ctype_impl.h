@@ -45,7 +45,7 @@ static int toctrans_l(int c, wctrans_t wctrans, locale_t locale) {
       return c;
   }
 
-  // Convert converted character back to single byte.
+  // Convert transformed character back to single byte.
   char buf[MB_LEN_MAX];
   if (ctype->c32tomb(buf, wctrans(c32), ctype->data) != 1)
     return c;
