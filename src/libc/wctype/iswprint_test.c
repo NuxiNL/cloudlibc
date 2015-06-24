@@ -7,6 +7,8 @@
 #include <wctype.h>
 
 TEST(iswprint, examples) {
+  ASSERT_FALSE(iswprint(WEOF));
+
   ASSERT_TRUE(iswprint(L' '));
   ASSERT_TRUE(iswprint(L'\u2001'));
   ASSERT_TRUE(iswprint(L'\u00a0'));

@@ -7,6 +7,8 @@
 #include <wctype.h>
 
 TEST(iswcntrl, examples) {
+  ASSERT_FALSE(iswcntrl(WEOF));
+
   ASSERT_TRUE(iswcntrl(L'\0'));
   ASSERT_TRUE(iswcntrl(L'\n'));
   ASSERT_TRUE(iswcntrl(L'\t'));

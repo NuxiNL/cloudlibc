@@ -7,6 +7,8 @@
 #include <wctype.h>
 
 TEST(iswpunct, examples) {
+  ASSERT_FALSE(iswpunct(WEOF));
+
   ASSERT_TRUE(iswpunct(L'\u00a0'));
   ASSERT_TRUE(iswpunct(L'.'));
   ASSERT_TRUE(iswpunct(L'€'));

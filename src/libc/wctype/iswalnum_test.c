@@ -7,6 +7,8 @@
 #include <wctype.h>
 
 TEST(iswalnum, examples) {
+  ASSERT_FALSE(iswalnum(WEOF));
+
   ASSERT_TRUE(iswalnum(L'0'));
   ASSERT_TRUE(iswalnum(L'A'));
   ASSERT_TRUE(iswalnum(L'a'));

@@ -7,6 +7,8 @@
 #include <wctype.h>
 
 TEST(iswdigit, examples) {
+  ASSERT_FALSE(iswdigit(WEOF));
+
   ASSERT_TRUE(iswdigit(L'0'));
   ASSERT_TRUE(iswdigit(L'1'));
   ASSERT_TRUE(iswdigit(L'2'));

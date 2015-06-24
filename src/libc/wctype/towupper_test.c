@@ -9,6 +9,8 @@
 #include <wctype.h>
 
 TEST(towupper, examples) {
+  ASSERT_EQ(WEOF, towupper(WEOF));
+
   ASSERT_EQ(L' ', towupper(L' '));
   ASSERT_EQ(L'€', towupper(L'€'));
 

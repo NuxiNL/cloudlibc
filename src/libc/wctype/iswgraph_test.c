@@ -8,6 +8,8 @@
 #include <wctype.h>
 
 TEST(iswgraph, examples) {
+  ASSERT_FALSE(iswgraph(WEOF));
+
   ASSERT_TRUE(iswgraph(L'0'));
   ASSERT_TRUE(iswgraph(L'A'));
   ASSERT_TRUE(iswgraph(L'a'));

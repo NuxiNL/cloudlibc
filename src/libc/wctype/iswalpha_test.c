@@ -7,6 +7,8 @@
 #include <wctype.h>
 
 TEST(iswalpha, examples) {
+  ASSERT_FALSE(iswalpha(WEOF));
+
   ASSERT_TRUE(iswalpha(L'A'));
   ASSERT_TRUE(iswalpha(L'a'));
   ASSERT_TRUE(iswalpha(L'Å'));

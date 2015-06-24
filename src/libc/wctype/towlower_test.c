@@ -7,6 +7,8 @@
 #include <wctype.h>
 
 TEST(towlower, examples) {
+  ASSERT_EQ(WEOF, towlower(WEOF));
+
   ASSERT_EQ(L' ', towlower(L' '));
   ASSERT_EQ(L'€', towlower(L'€'));
 
