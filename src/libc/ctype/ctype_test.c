@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <ctype.h>
+#include <limits.h>
 #include <locale.h>
 #include <stdio.h>
 #include <wctype.h>
@@ -95,4 +96,30 @@ TEST(ctype, ascii_equality) {
       ASSERT_EQ(toupper(ch), toupper_l(ch, LC_C_LOCALE));
     });
   }
+}
+
+TEST(ctype, iso_8859_1_equality) {
+  // For ISO-8859-1, these functions should return the same value as the
+  // wide character functions.
+  locale_t locale = newlocale(LC_CTYPE_MASK, ".ISO-8859-1", 0);
+  ASSERT_NE(0, locale);
+  for (int ch = 0; ch <= UCHAR_MAX; ++ch) {
+    SCOPED_NOTE(ch, {
+      ASSERT_EQ(iswalnum_l(ch, locale), isalnum_l(ch, locale));
+      ASSERT_EQ(iswalpha_l(ch, locale), isalpha_l(ch, locale));
+      ASSERT_EQ(iswblank_l(ch, locale), isblank_l(ch, locale));
+      ASSERT_EQ(iswcntrl_l(ch, locale), iscntrl_l(ch, locale));
+      ASSERT_EQ(iswdigit_l(ch, locale), isdigit_l(ch, locale));
+      ASSERT_EQ(iswgraph_l(ch, locale), isgraph_l(ch, locale));
+      ASSERT_EQ(iswlower_l(ch, locale), islower_l(ch, locale));
+      ASSERT_EQ(iswprint_l(ch, locale), isprint_l(ch, locale));
+      ASSERT_EQ(iswpunct_l(ch, locale), ispunct_l(ch, locale));
+      ASSERT_EQ(iswspace_l(ch, locale), isspace_l(ch, locale));
+      ASSERT_EQ(iswupper_l(ch, locale), isupper_l(ch, locale));
+      ASSERT_EQ(iswxdigit_l(ch, locale), isxdigit_l(ch, locale));
+      ASSERT_EQ(towlower_l(ch, locale), tolower_l(ch, locale));
+      ASSERT_EQ(towupper_l(ch, locale), toupper_l(ch, locale));
+    });
+  }
+  freelocale(locale);
 }
