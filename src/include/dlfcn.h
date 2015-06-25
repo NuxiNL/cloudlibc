@@ -36,7 +36,7 @@
 
 #include <_/cdefs.h>
 
-typedef struct dl_info {
+typedef struct {
   const char *dli_fname;  // Pathname of shared object.
   void *dli_fbase;        // Base address of shared object.
   const char *dli_sname;  // Name of nearest symbol.
