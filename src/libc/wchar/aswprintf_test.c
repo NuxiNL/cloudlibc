@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <errno.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <testing.h>
@@ -27,4 +28,5 @@ TEST(aswprintf, good) {
 TEST(aswprintf, bad) {
   // The non-ASCII symbols in H€llø cannot be converted.
   ASSERT_EQ(-1, aswprintf(NULL, L"%s %S", "H€llø", L"world"));
+  ASSERT_EQ(EILSEQ, errno);
 }
