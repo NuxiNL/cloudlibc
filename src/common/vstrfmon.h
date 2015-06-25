@@ -49,8 +49,10 @@ typedef char char_t;
       ssize_t len = ctype->c32tomb(&buf[nwritten], *s++, ctype->data); \
       if (len < 0) {                                                   \
         buf[nwritten++] = '?';                                         \
+        --buflen;                                                      \
       } else {                                                         \
         nwritten += len;                                               \
+        buflen -= len;                                                 \
       }                                                                \
     }                                                                  \
   } while (0)
