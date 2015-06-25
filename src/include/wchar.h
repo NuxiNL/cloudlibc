@@ -100,8 +100,8 @@ struct tm;
 __BEGIN_DECLS
 int aswprintf(wchar_t **__restrict, const wchar_t *__restrict, ...);
 int aswprintf_l(wchar_t **__restrict, locale_t, const wchar_t *__restrict, ...);
-wint_t btowc(int);
-wint_t btowc_l(int, locale_t);
+wint_t btowc(int) __pure2;
+wint_t btowc_l(int, locale_t) __pure;
 int dwprintf(int, const wchar_t *__restrict, ...);
 int dwprintf_l(int, locale_t, const wchar_t *__restrict, ...);
 wint_t fgetwc(FILE *);
@@ -215,8 +215,8 @@ int wcswidth(const wchar_t *, size_t) __pure;
 size_t wcsxfrm(wchar_t *__restrict, const wchar_t *__restrict, size_t);
 size_t wcsxfrm_l(wchar_t *__restrict, const wchar_t *__restrict, size_t,
                  locale_t);
-int wctob(wint_t);
-int wctob_l(wint_t, locale_t);
+int wctob(wint_t) __pure2;
+int wctob_l(wint_t, locale_t) __pure;
 int wcwidth(wchar_t) __pure2;
 wchar_t *wmemchr(const wchar_t *, wchar_t, size_t) __pure;
 int wmemcmp(const wchar_t *, const wchar_t *, size_t) __pure;

@@ -35,34 +35,34 @@ typedef __locale_t locale_t;
 
 __BEGIN_DECLS
 int isalnum(int) __pure2;
-int isalnum_l(int, locale_t) __pure2;
+int isalnum_l(int, locale_t) __pure;
 int isalpha(int) __pure2;
-int isalpha_l(int, locale_t) __pure2;
+int isalpha_l(int, locale_t) __pure;
 int isascii(int) __pure2;
 int isblank(int) __pure2;
-int isblank_l(int, locale_t) __pure2;
+int isblank_l(int, locale_t) __pure;
 int iscntrl(int) __pure2;
-int iscntrl_l(int, locale_t) __pure2;
+int iscntrl_l(int, locale_t) __pure;
 int isdigit(int) __pure2;
-int isdigit_l(int, locale_t) __pure2;
+int isdigit_l(int, locale_t) __pure;
 int isgraph(int) __pure2;
-int isgraph_l(int, locale_t) __pure2;
+int isgraph_l(int, locale_t) __pure;
 int islower(int) __pure2;
-int islower_l(int, locale_t) __pure2;
+int islower_l(int, locale_t) __pure;
 int isprint(int) __pure2;
-int isprint_l(int, locale_t) __pure2;
+int isprint_l(int, locale_t) __pure;
 int ispunct(int) __pure2;
-int ispunct_l(int, locale_t) __pure2;
+int ispunct_l(int, locale_t) __pure;
 int isspace(int) __pure2;
-int isspace_l(int, locale_t) __pure2;
+int isspace_l(int, locale_t) __pure;
 int isupper(int) __pure2;
-int isupper_l(int, locale_t) __pure2;
+int isupper_l(int, locale_t) __pure;
 int isxdigit(int) __pure2;
-int isxdigit_l(int, locale_t) __pure2;
+int isxdigit_l(int, locale_t) __pure;
 int tolower(int) __pure2;
-int tolower_l(int, locale_t) __pure2;
+int tolower_l(int, locale_t) __pure;
 int toupper(int) __pure2;
-int toupper_l(int, locale_t) __pure2;
+int toupper_l(int, locale_t) __pure;
 __END_DECLS
 
 #endif
