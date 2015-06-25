@@ -11,7 +11,7 @@
 #include <limits.h>
 #include <wctype.h>
 
-static int isctype_l(int c, wctype_t wctype, locale_t locale) {
+static inline int isctype_l(int c, wctype_t wctype, locale_t locale) {
   // Bounds checking.
   if (c < 0 || c > UCHAR_MAX)
     return 0;
@@ -30,7 +30,7 @@ static int isctype_l(int c, wctype_t wctype, locale_t locale) {
   return wctype(c32);
 }
 
-static int toctrans_l(int c, wctrans_t wctrans, locale_t locale) {
+static inline int toctrans_l(int c, wctrans_t wctrans, locale_t locale) {
   // Bounds checking.
   if (c < 0 || c > UCHAR_MAX)
     return c;
