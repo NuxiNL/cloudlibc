@@ -6,10 +6,10 @@ set -e
 : ${AR:=x86_64-unknown-cloudabi-ar}
 : ${PREFIX:=/usr/local/x86_64-unknown-cloudabi}
 
-WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers \
+export WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers \
 -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch \
 -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes \
--Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety 
+-Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety \
 -Wsign-compare -Wundef -Wno-comment"
 
 echo "=> Testing headers"
