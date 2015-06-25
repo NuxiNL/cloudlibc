@@ -53,7 +53,7 @@
 // - grantpt(), posix_openpt(), ptsname() and unlockpt():
 //   Pseudo-terminals are not available.
 // - mblen(), mbtowc(), wctomb():
-//   Not thread-safe. Use <wchar.h> instead.
+//   Not thread-safe. Use mbrlen(), mbrtowc() and wcrtomb() instead.
 // - mkdtemp(), mkstemp() and realpath():
 //   Requires global filesystem namespace.
 // - setkey():
