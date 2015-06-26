@@ -246,7 +246,7 @@ TEST(iconv, einval) {
   char *outbuf = out;
   size_t outbytesleft = sizeof(out);
 
-  // Parsing the character only partially
+  // Parsing the character only partially.
   ASSERT_EQ(-1, iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft));
   ASSERT_EQ(EINVAL, errno);
   ASSERT_EQ(in, inbuf);
