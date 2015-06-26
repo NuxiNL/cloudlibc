@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -486,6 +487,7 @@ struct __locale {
 #if 1
 #define DEFAULT_LOCALE(name, mask)                                           \
   static const struct __locale __obj_##name = {                              \
+      .compiled = ATOMIC_VAR_INIT((struct lc_compiled *)1),                  \
       .collate = ((mask)&LC_COLLATE_MASK) != 0 ? &__collate_posix : NULL,    \
       .ctype = ((mask)&LC_CTYPE_MASK) != 0 ? &__ctype_us_ascii : NULL,       \
       .messages = ((mask)&LC_MESSAGES_MASK) != 0 ? &__messages_en_us : NULL, \
