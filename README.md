@@ -1,4 +1,5 @@
 # Introducing Nuxi CloudABI
+
 Nuxi CloudABI is an
 [application binary interface](http://en.wikipedia.org/wiki/Application_binary_interface)
 for UNIX-like operating systems built around the concept of
@@ -119,6 +120,12 @@ A copy of FreeBSD that supports CloudABI executables
 sufficient to compile a kernel that has the `COMPAT_CLOUDABI64` build
 option enabled, or simply run `kldload cloudabi64` to load in the
 CloudABI kernel module.
+
+The
+[devel/cloudabi-toolchain](http://www.freshports.org/devel/cloudabi-toolchain)
+port can be installed to obtain a full cross compilation toolchain.
+There is no need to install Clang, cloudlibc or any of the LLVM
+libraries manually.
 
 ### NetBSD
 
