@@ -7,7 +7,5 @@
 #include <wctype.h>
 
 wint_t towctrans(wint_t wc, wctrans_t desc) {
-  if (desc == NULL)
-    return wc;
-  return desc(wc);
+  return desc != NULL ? desc(wc) : wc;
 }
