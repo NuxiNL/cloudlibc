@@ -7,7 +7,5 @@
 #include <wctype.h>
 
 int iswctype(wint_t wc, wctype_t charclass) {
-  if (charclass == NULL)
-    return 0;
-  return charclass(wc);
+  return charclass != NULL && charclass(wc);
 }
