@@ -27,5 +27,6 @@ TEST(dirname, example) {
   EXAMPLE("/", "/");
   EXAMPLE(".", ".");
   EXAMPLE("..", ".");
+  EXAMPLE("//foo", "/");
 #undef EXAMPLE
 }
