@@ -8,12 +8,25 @@
 
 #include <argdata.h>
 #include <stddef.h>
+#include <stdint.h>
 
-struct __argdata {};
+struct __argdata {
+  enum { AD_BUFFER } type;
+  union {
+    struct {
+      const uint8_t *buf;
+      size_t len;
+    } buffer;
+  };
+};
+
+enum { ADT_BOOL = 1, ADT_FD = 2, ADT_STRING = 3 };
 
 static inline void argdata_init_binary(argdata_t *ad, const void *buf,
                                        size_t len) {
-  // TODO(ed): Implement!
+  ad->type = AD_BUFFER;
+  ad->buffer.buf = buf;
+  ad->buffer.len = len;
 }
 
 #endif
