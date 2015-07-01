@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
@@ -66,7 +67,7 @@ GENERATE_PRINT_VALUE_FLOAT(double, ldouble, "L");
 
 #undef GENERATE_PRINT_VALUE_FLOAT
 
-static void print_value_bool(_Bool value) {
+static void print_value_bool(bool value) {
   __testing_printf("%-5s", value ? "true" : "false");
 }
 
