@@ -21,10 +21,10 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <program.h> - entry point for programs
+// <argdata.h> - argument data for programs
 
-#ifndef _PROGRAM_H_
-#define _PROGRAM_H_
+#ifndef _ARGDATA_H_
+#define _ARGDATA_H_
 
 #include <_/types.h>
 
@@ -34,7 +34,15 @@ typedef __argdata_t argdata_t;
 #endif
 
 __BEGIN_DECLS
-_Noreturn void program_main(const argdata_t *);
+int argdata_get_bool(const argdata_t *, _Bool *);
+int argdata_get_cstring(const argdata_t *, const char **);
+int argdata_get_fd(const argdata_t *, int *);
+int argdata_get_string(const argdata_t *, const char **, __size_t);
+int argdata_iterate_dict(const argdata_t *, void *,
+                         _Bool (*)(const argdata_t *, const argdata_t *,
+                                   void *));
+int argdata_iterate_list(const argdata_t *, void *,
+                         _Bool (*)(__size_t, const argdata_t *, void *));
 __END_DECLS
 
 #endif

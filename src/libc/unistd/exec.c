@@ -5,10 +5,10 @@
 
 #include <common/syscalls.h>
 
+#include <argdata.h>
 #include <unistd.h>
 
-int exec(int fd, const struct iovec *arg, size_t argcnt, const int *fds,
-         size_t fdscnt) {
-  return cloudabi_sys_proc_exec(fd, (const cloudabi_ciovec_t *)arg, argcnt,
-                                (const cloudabi_fd_t *)fds, fdscnt);
+int exec(int fd, const argdata_t *ad) {
+  // TODO(ed): Convert argument data to values passed to exec().
+  return cloudabi_sys_proc_exec(fd, NULL, 0, NULL, 0);
 }

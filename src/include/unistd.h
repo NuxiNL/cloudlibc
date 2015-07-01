@@ -24,11 +24,11 @@
 // <unistd.h> - standard symbolic constants and types
 //
 // Extensions:
-// - struct iovec and exec():
-//   Replacement for fexecve(). Allows passing binary data and an
-//   explicit list of file descriptors to the executable.
 // - _SC_NPROCESSORS_ONLN:
 //   Present on most systems and used by many pieces of software.
+// - exec():
+//   Replacement for fexecve(). Allows passing structured data
+//   referencing file descriptors to the executable.
 //
 // Features missing:
 // - _POSIX_VERSION, _POSIX2_VERSION, _XOPEN_VERSION, _SC_VERSION,
@@ -309,13 +309,11 @@ typedef __ssize_t ssize_t;
 #define _SSIZE_T_DECLARED
 #endif
 
-struct iovec;
-
 __BEGIN_DECLS
 int close(int);
 int dup(int);
 int dup2(int, int);
-int exec(int, const struct iovec *, size_t, const int *, size_t);
+int exec(int, const __argdata_t *);
 _Noreturn void _exit(int);
 int fdatasync(int);
 long fpathconf(int, int);

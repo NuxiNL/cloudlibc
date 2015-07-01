@@ -7,10 +7,10 @@
 
 #include <sys/procdesc.h>
 
+#include <argdata.h>
 #include <errno.h>
 
-int pdexec(int fd, const struct iovec *arg, size_t argcnt, const int *fds,
-           size_t fdscnt) {
+int pdexec(int fd, const argdata_t *ad) {
   // Fork the current process. There is no need to deal with
   // pthread_atfork handlers, as we are going to execute a new program
   // directly after forking.
@@ -24,8 +24,8 @@ int pdexec(int fd, const struct iovec *arg, size_t argcnt, const int *fds,
 
   if (ret == CLOUDABI_PROCESS_CHILD) {
     // Child process. Start the executable.
-    cloudabi_sys_proc_exec(fd, (const cloudabi_ciovec_t *)arg, argcnt,
-                           (const cloudabi_fd_t *)fds, fdscnt);
+    // TODO(ed): Convert argument data to values passed to exec().
+    cloudabi_sys_proc_exec(fd, NULL, 0, NULL, 0);
     cloudabi_sys_proc_exit(127);
   } else {
     // Parent process. Return the file descriptor.

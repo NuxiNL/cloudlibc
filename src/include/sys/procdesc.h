@@ -46,10 +46,8 @@
 
 #include <_/types.h>
 
-struct iovec;
-
 __BEGIN_DECLS
-int pdexec(int, const struct iovec *, __size_t, const int *, __size_t);
+int pdexec(int, const __argdata_t *);
 int pdfork(int *, ...);
 int pdwait(int, __siginfo_t *, int);
 __END_DECLS

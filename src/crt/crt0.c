@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/argdata.h>
 #include <common/crt.h>
 #include <common/syscalls.h>
 
@@ -112,5 +113,7 @@ noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
 
   // Invoke program_main(). If program_main() is not part of the
   // application, the C library provides a copy that calls main().
-  program_main(sd.sd_arg, sd.sd_arglen);
+  argdata_t ad;
+  argdata_init_binary(&ad, sd.sd_arg, sd.sd_arglen);
+  program_main(&ad);
 }
