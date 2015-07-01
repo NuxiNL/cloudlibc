@@ -35,13 +35,14 @@ typedef __argdata_t argdata_t;
 
 __BEGIN_DECLS
 int argdata_get_bool(const argdata_t *, _Bool *);
-int argdata_get_cstring(const argdata_t *, const char **);
 int argdata_get_fd(const argdata_t *, int *);
-int argdata_get_string(const argdata_t *, const char **, __size_t *);
-int argdata_iterate_dict(const argdata_t *, void *,
-                         _Bool (*)(const char *, const argdata_t *, void *));
-int argdata_iterate_list(const argdata_t *, void *,
-                         _Bool (*)(__size_t, const argdata_t *, void *));
+int argdata_get_str(const argdata_t *, const char **, __size_t *);
+int argdata_get_str_c(const argdata_t *, const char **);
+int argdata_iterate_map(const argdata_t *, void *,
+                        _Bool (*)(const argdata_t *, const argdata_t *,
+                                  void *));
+int argdata_iterate_seq(const argdata_t *, void *,
+                        _Bool (*)(const argdata_t *, void *));
 __END_DECLS
 
 #endif

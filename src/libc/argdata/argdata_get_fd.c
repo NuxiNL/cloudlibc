@@ -7,26 +7,31 @@
 
 #include <argdata.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdint.h>
 
 int argdata_get_fd(const argdata_t *ad, int *value) {
-  // Extract file descriptor number.
-  int fd;
   switch (ad->type) {
-    case AD_BUFFER:
-      if (ad->buffer.len != 5 || ad->buffer.buf[0] != ADT_FD)
-        return EINVAL;
-      fd = (uint_least32_t)ad->buffer.buf[1] << 24 |
-           (uint_least24_t)ad->buffer.buf[2] << 16 |
-           (uint_least16_t)ad->buffer.buf[3] << 8 | ad->buffer.buf[4];
-      break;
+    case AD_BUFFER: {
+      const uint8_t *buf = ad->buffer.buf;
+      size_t len = ad->buffer.len;
+      int error = parse_type(ADT_FD, &buf, &len);
+      if (error != 0)
+        return error;
+
+      // Extract file descriptor number.
+      uint32_t fd;
+      error = parse_uint32(&fd, &buf, &len);
+      if (error != 0)
+        return error;
+
+      // Validate file descriptor number.
+      if (fd > INT_MAX)
+        return EBADF;
+      *value = fd;
+      return 0;
+    }
     default:
       return EINVAL;
   }
-
-  // Validate file descriptor number.
-  if (fd < 0)
-    return EBADF;
-  *value = fd;
-  return 0;
 }

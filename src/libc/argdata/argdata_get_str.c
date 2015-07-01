@@ -7,21 +7,21 @@
 
 #include <argdata.h>
 #include <errno.h>
-#include <stdbool.h>
 
-int argdata_get_bool(const argdata_t *ad, bool *value) {
+int argdata_get_str(const argdata_t *ad, const char **value, size_t *valuelen) {
   switch (ad->type) {
     case AD_BUFFER: {
       const uint8_t *buf = ad->buffer.buf;
       size_t len = ad->buffer.len;
-      int error = parse_type(ADT_BOOL, &buf, &len);
+      int error = parse_type(ADT_STR, &buf, &len);
       if (error != 0)
         return error;
 
-      // Extract boolean value.
-      if (ad->buffer.len != 1)
+      // Validate the string.
+      if (len < 1 || buf[len - 1] != '\0')
         return EINVAL;
-      *value = ad->buffer.buf[1] != 0;
+      *value = (const char *)buf;
+      *valuelen = len - 1;
       return 0;
     }
     default:
