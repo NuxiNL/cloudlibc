@@ -33,6 +33,8 @@ typedef __argdata_t argdata_t;
 #define _ARGDATA_T_DECLARED
 #endif
 
+struct _FILE;
+
 __BEGIN_DECLS
 int argdata_get_bool(const argdata_t *, _Bool *);
 int argdata_get_fd(const argdata_t *, int *);
@@ -43,6 +45,7 @@ int argdata_iterate_map(const argdata_t *, void *,
                                   void *));
 int argdata_iterate_seq(const argdata_t *, void *,
                         _Bool (*)(const argdata_t *, void *));
+int argdata_print_yaml(const argdata_t *, struct _FILE *);
 __END_DECLS
 
 #endif
