@@ -21,7 +21,17 @@ struct __argdata {
   };
 };
 
-enum { ADT_BOOL = 1, ADT_FD = 2, ADT_MAP = 3, ADT_SEQ = 4, ADT_STR = 5 };
+enum {
+  ADT_BINARY = 1,    // A sequence of zero or more octets.
+  ADT_BOOL = 2,      // Mathematical Booleans.
+  ADT_FD = 3,        // Extension to YAML: file descriptor.
+  ARG_FLOAT = 4,     // Floating-point approximation to real numbers.
+  ARG_INT = 5,       // Mathematical integers.
+  ADT_MAP = 6,       // Unordered set of key: value pairs without duplicates.
+  ADT_SEQ = 7,       // Sequence of arbitrary values.
+  ADT_STR = 8,       // A sequence of zero or more Unicode characters.
+  ADT_TIMESTAMP = 9  // A point in time.
+};
 
 static inline void argdata_init_binary(argdata_t *ad, const void *buf,
                                        size_t len) {
