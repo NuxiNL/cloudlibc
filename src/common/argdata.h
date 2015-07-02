@@ -27,8 +27,8 @@ enum {
   ADT_BINARY = 1,    // A sequence of zero or more octets.
   ADT_BOOL = 2,      // Mathematical Booleans.
   ADT_FD = 3,        // Extension to YAML: file descriptor.
-  ARG_FLOAT = 4,     // Floating-point approximation to real numbers.
-  ARG_INT = 5,       // Mathematical integers.
+  ADT_FLOAT = 4,     // Floating-point approximation to real numbers.
+  ADT_INT = 5,       // Mathematical integers.
   ADT_MAP = 6,       // Unordered set of key: value pairs without duplicates.
   ADT_SEQ = 7,       // Sequence of arbitrary values.
   ADT_STR = 8,       // A sequence of zero or more Unicode characters.
