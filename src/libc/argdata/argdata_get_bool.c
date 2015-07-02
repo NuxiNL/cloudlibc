@@ -19,7 +19,7 @@ int argdata_get_bool(const argdata_t *ad, bool *value) {
         return error;
 
       // Extract boolean value.
-      if (len != 1)
+      if (len != 1 || (buf[0] != 0 && buf[0] != 1))
         return EINVAL;
       *value = buf[0] != 0;
       return 0;
