@@ -8,6 +8,8 @@
 
 #include <argdata.h>
 #include <errno.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -55,10 +57,21 @@ static inline int parse_uint32(uint32_t *val, const uint8_t **buf,
 // Parses a field embedded in the input stream.
 static inline int parse_subfield(argdata_t *ad, const uint8_t **buf,
                                  size_t *len) {
-  uint32_t reclen;
-  int error = parse_uint32(&reclen, buf, len);
-  if (error != 0)
-    return error;
+  // Parse the field length. The length is stored in big endian form,
+  // seven bits per byte. The top bit is used to indicate whether the
+  // next byte is also part of the field length.
+  size_t reclen = 0;
+  bool last;
+  do {
+    if (*len == 0)
+      return EINVAL;
+    if (reclen >> (sizeof(reclen) * CHAR_BIT - 7) != 0)
+      return EINVAL;
+    reclen = reclen << 7 | (**buf & 0x7f);
+    last = (**buf & 0x80) == 0;
+    ++*buf;
+    --*len;
+  } while (!last);
 
   if (reclen > *len)
     return EINVAL;
