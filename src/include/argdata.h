@@ -26,6 +26,7 @@
 #ifndef _ARGDATA_H_
 #define _ARGDATA_H_
 
+#include <_/limits.h>
 #include <_/types.h>
 
 #ifndef _ARGDATA_T_DECLARED
@@ -41,6 +42,9 @@ int argdata_get_binary(const argdata_t *, const void **, __size_t *);
 int argdata_get_bool(const argdata_t *, _Bool *);
 int argdata_get_fd(const argdata_t *, int *);
 int argdata_get_float(const argdata_t *, double *);
+int __argdata_get_int_s(const argdata_t *, __intmax_t *, __intmax_t,
+                        __intmax_t);
+int __argdata_get_int_u(const argdata_t *, __uintmax_t *, __uintmax_t);
 int argdata_get_str(const argdata_t *, const char **, __size_t *);
 int argdata_get_str_c(const argdata_t *, const char **);
 int argdata_get_timestamp(const argdata_t *, struct timespec *);
@@ -51,5 +55,61 @@ int argdata_iterate_seq(const argdata_t *, void *,
                         _Bool (*)(const argdata_t *, void *));
 int argdata_print_yaml(const argdata_t *, struct _FILE *);
 __END_DECLS
+
+// Generic fetching of integer values.
+
+#define _ARGDATA_INT_S(type, stype, min, max)                          \
+  static __inline int __argdata_get_int_##stype(const argdata_t *__ad, \
+                                                type *__value) {       \
+    __intmax_t __v;                                                    \
+    int __error;                                                       \
+                                                                       \
+    __error = __argdata_get_int_s(__ad, &__v, min, max);               \
+    if (__error != 0)                                                  \
+      return __error;                                                  \
+    *__value = __v;                                                    \
+    return 0;                                                          \
+  }
+#define _ARGDATA_INT_U(type, stype, max)                               \
+  static __inline int __argdata_get_int_##stype(const argdata_t *__ad, \
+                                                type *__value) {       \
+    __uintmax_t __v;                                                   \
+    int __error;                                                       \
+                                                                       \
+    __error = __argdata_get_int_u(__ad, &__v, max);                    \
+    if (__error != 0)                                                  \
+      return __error;                                                  \
+    *__value = __v;                                                    \
+    return 0;                                                          \
+  }
+_ARGDATA_INT_S(char, char, _CHAR_MIN, _CHAR_MAX);
+_ARGDATA_INT_S(signed char, schar, _SCHAR_MIN, _SCHAR_MAX);
+_ARGDATA_INT_U(unsigned char, uchar, _UCHAR_MAX);
+_ARGDATA_INT_S(short, short, _SHRT_MIN, _SHRT_MAX);
+_ARGDATA_INT_U(unsigned short, ushort, _USHRT_MAX);
+_ARGDATA_INT_S(int, int, _INT_MIN, _INT_MAX);
+_ARGDATA_INT_U(unsigned int, uint, _UINT_MAX);
+_ARGDATA_INT_S(long, long, _LONG_MIN, _LONG_MAX);
+_ARGDATA_INT_U(unsigned long, ulong, _ULONG_MAX);
+_ARGDATA_INT_S(long long, llong, _LLONG_MIN, _LLONG_MAX);
+_ARGDATA_INT_U(unsigned long long, ullong, _ULONG_MAX);
+#undef _ARGDATA_INT_S
+#undef _ARGDATA_INT_U
+
+// clang-format off
+#define argdata_get_int(ad, value)                   \
+  _Generic(*(value),                                 \
+           char: __argdata_get_int_char,             \
+           signed char: __argdata_get_int_schar,     \
+           unsigned char: __argdata_get_int_uchar,   \
+           short: __argdata_get_int_short,           \
+           unsigned short: __argdata_get_int_ushort, \
+           int: __argdata_get_int_int,               \
+           unsigned int: __argdata_get_int_uint,     \
+           long: __argdata_get_int_long,             \
+           unsigned long: __argdata_get_int_ulong,   \
+           long long: __argdata_get_int_llong,       \
+           unsigned long long: __argdata_get_int_ullong)(ad, value)
+// clang-format on
 
 #endif

@@ -96,6 +96,24 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     }
   }
 
+  // Signed integers.
+  {
+    intmax_t value;
+    if (argdata_get_int(ad, &value) == 0) {
+      fprintf(fp, "!!int \"%jd\"", value);
+      return 0;
+    }
+  }
+
+  // Unsigned integers.
+  {
+    uintmax_t value;
+    if (argdata_get_int(ad, &value) == 0) {
+      fprintf(fp, "!!int \"%ju\"", value);
+      return 0;
+    }
+  }
+
   // Maps.
   {
     struct iterate_data id = {.first = true, .fp = fp, .depth = depth + 2};
