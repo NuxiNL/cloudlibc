@@ -20,6 +20,7 @@ int argdata_get_str(const argdata_t *ad, const char **value, size_t *valuelen) {
       // Validate the string.
       if (len < 1 || buf[len - 1] != '\0')
         return EINVAL;
+      // TODO(ed): Validate UTF-8.
       *value = (const char *)buf;
       *valuelen = len - 1;
       return 0;
