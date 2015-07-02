@@ -8,6 +8,43 @@
 #include <stdio.h>
 #include <stdint.h>
 
+struct iterate_data {
+  bool first;
+  FILE *fp;
+  unsigned int depth;
+};
+
+static int print_yaml(const argdata_t *, FILE *, unsigned int);
+
+static void print_space(unsigned int depth, FILE *fp) {
+  // TODO(ed): Implement.
+}
+
+// Prints the elements stored in a map.
+static _Bool iterate_map(const argdata_t *key, const argdata_t *value,
+                         void *thunk) {
+  struct iterate_data *id = thunk;
+  if (id->first) {
+    fputs("!!map {", id->fp);
+    id->first = false;
+  }
+  print_space(id->depth, id->fp);
+  fputs("? ", id->fp);
+  print_yaml(key, id->fp, id->depth);
+  print_space(id->depth, id->fp);
+  fputs(": ", id->fp);
+  print_yaml(value, id->fp, id->depth);
+  fputc(',', id->fp);
+  return true;
+}
+
+// Prints the elements stored in a sequence.
+static _Bool iterate_seq(const argdata_t *ad, void *thunk) {
+  // TODO(ed): Implement.
+  return false;
+}
+
+// Recursively prints a node as YAML.
 static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
   // Binary data. Print using Base64 encoding.
   {
@@ -48,6 +85,38 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     bool value;
     if (argdata_get_bool(ad, &value) == 0) {
       fputs(value ? "!!bool \"true\"" : "!!bool \"false\"", fp);
+      return 0;
+    }
+  }
+
+  // Maps.
+  {
+    struct iterate_data id = {.first = true, .fp = fp, .depth = depth + 2};
+    if (argdata_iterate_map(ad, &id, iterate_map) == 0 || !id.first) {
+      if (id.first) {
+        // Empty map.
+        fputs("!!map {}", fp);
+      } else {
+        // Non-empty map.
+        print_space(depth, fp);
+        fputc('}', fp);
+      }
+      return 0;
+    }
+  }
+
+  // Sequences.
+  {
+    struct iterate_data id = {.first = true, .fp = fp, .depth = depth + 2};
+    if (argdata_iterate_seq(ad, &id, iterate_seq) == 0 || !id.first) {
+      if (id.first) {
+        // Empty sequence.
+        fputs("!!seq []", fp);
+      } else {
+        // Non-empty sequence.
+        print_space(depth, fp);
+        fputc(']', fp);
+      }
       return 0;
     }
   }

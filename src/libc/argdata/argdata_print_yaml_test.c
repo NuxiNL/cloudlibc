@@ -44,5 +44,11 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x02\x00", "!!bool \"false\"");
   TEST_YAML("\x02\x01", "!!bool \"true\"");
   TEST_YAML("\x02\x02", "!!null \"null\"");
+
+  // Maps.
+  TEST_YAML("\x06", "!!map {}");
+
+  // Sequences.
+  TEST_YAML("\x07", "!!seq []");
 #undef TEST_YAML
 }
