@@ -34,12 +34,16 @@ typedef __argdata_t argdata_t;
 #endif
 
 struct _FILE;
+struct timespec;
 
 __BEGIN_DECLS
+int argdata_get_binary(const argdata_t *, const char **, __size_t *);
 int argdata_get_bool(const argdata_t *, _Bool *);
 int argdata_get_fd(const argdata_t *, int *);
+int argdata_get_float(const argdata_t *, double *);
 int argdata_get_str(const argdata_t *, const char **, __size_t *);
 int argdata_get_str_c(const argdata_t *, const char **);
+int argdata_get_timestamp(const argdata_t *, struct timespec *);
 int argdata_iterate_map(const argdata_t *, void *,
                         _Bool (*)(const argdata_t *, const argdata_t *,
                                   void *));
