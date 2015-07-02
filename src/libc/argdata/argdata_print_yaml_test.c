@@ -52,6 +52,7 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x08Hello\x00", "!!str \"Hello\"");
 
   // Maps.
+  // TODO(ed): Add tests for multi-byte lengths.
   TEST_YAML("\x06", "!!map {}");
   TEST_YAML(
       "\x06"
