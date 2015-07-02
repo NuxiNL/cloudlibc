@@ -17,7 +17,7 @@ struct iterate_data {
 static int print_yaml(const argdata_t *, FILE *, unsigned int);
 
 static void print_space(unsigned int depth, FILE *fp) {
-  // TODO(ed): Implement.
+  fprintf(fp, "\n%*s", depth, "");
 }
 
 // Prints the elements stored in a map.
@@ -117,6 +117,17 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         print_space(depth, fp);
         fputc(']', fp);
       }
+      return 0;
+    }
+  }
+
+  // Strings.
+  {
+    const char *buf;
+    size_t len;
+    if (argdata_get_str(ad, &buf, &len) == 0) {
+      // TODO(edje): Add proper escaping.
+      fprintf(fp, "!!str \"%s\"", buf);
       return 0;
     }
   }

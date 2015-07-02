@@ -45,8 +45,30 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x02\x01", "!!bool \"true\"");
   TEST_YAML("\x02\x02", "!!null \"null\"");
 
+  // Strings.
+  // TODO(edje): Add tests for special characters and bad encoding.
+  TEST_YAML("\x08", "!!null \"null\"");
+  TEST_YAML("\x08Hello", "!!null \"null\"");
+  TEST_YAML("\x08Hello\x00", "!!str \"Hello\"");
+
   // Maps.
   TEST_YAML("\x06", "!!map {}");
+  TEST_YAML(
+      "\x06"
+      "\x00\x00\x00\x07\x08Hello\x00\x00\x00\x00\x07\x08World\x00"
+      "\x00\x00\x00\x02\x02\x00\x00\x00\x00\x02\x02\x01"
+      "\x00\x00\x00\x00\x00\x00\x00\x09\x06\x00\x00\x00\x00\x00\x00\x00\x00",
+      "!!map {\n"
+      "  ? !!str \"Hello\"\n"
+      "  : !!str \"World\",\n"
+      "  ? !!bool \"false\"\n"
+      "  : !!bool \"true\",\n"
+      "  ? !!null \"null\"\n"
+      "  : !!map {\n"
+      "    ? !!null \"null\"\n"
+      "    : !!null \"null\",\n"
+      "  },\n"
+      "}");
 
   // Sequences.
   TEST_YAML("\x07", "!!seq []");
