@@ -18,8 +18,27 @@ int __argdata_get_int_u(const argdata_t *ad, uintmax_t *value, uintmax_t max) {
       if (error != 0)
         return error;
 
-      // TODO(ed): Implement.
-      return ENOSYS;
+      // Parse unsigned number.
+      uintmax_t res = 0;
+      if (len > 0) {
+        if ((buf[0] & 0x80) != 0) {
+          // Number is negative.
+          return ERANGE;
+        }
+        if (len > sizeof(res) && (len != sizeof(res) + 1 || buf[0] != 0)) {
+          // Number is too large.
+          return ERANGE;
+        }
+
+        // Add digits.
+        do {
+          res = res << 8 | *buf++;
+        } while (--len > 0);
+        if (res > max)
+          return ERANGE;
+      }
+      *value = res;
+      return 0;
     }
     default:
       return EINVAL;

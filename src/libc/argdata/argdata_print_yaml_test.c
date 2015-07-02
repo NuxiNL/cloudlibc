@@ -38,12 +38,27 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x01Hello", "!!binary \"SGVsbG8=\"");
   TEST_YAML("\x01Hello, world", "!!binary \"SGVsbG8sIHdvcmxk\"");
 
-  // Boolean values. These should have a one-byte payload.
-  TEST_YAML("\x02", "!!null \"null\"");
+  // Boolean values. These should have a one-byte if true.
+  TEST_YAML("\x02", "!!bool \"false\"");
   TEST_YAML("\x02Hello, world", "!!null \"null\"");
-  TEST_YAML("\x02\x00", "!!bool \"false\"");
+  TEST_YAML("\x02\x00", "!!null \"null\"");
   TEST_YAML("\x02\x01", "!!bool \"true\"");
   TEST_YAML("\x02\x02", "!!null \"null\"");
+
+  // Integer values.
+  TEST_YAML("\x05", "!!int \"0\"");
+  TEST_YAML("\x05\x01", "!!int \"1\"");
+  TEST_YAML("\x05\x7f", "!!int \"127\"");
+  // TEST_YAML("\x05\x80", "!!int \"-128\"");
+  // TEST_YAML("\x05\xff", "!!int \"-1\"");
+  TEST_YAML("\x05\x00\x80", "!!int \"128\"");
+  TEST_YAML("\x05\x7f\xff", "!!int \"32767\"");
+  // TEST_YAML("\x05\x80\x00", "!!int \"-32768\"");
+  // TEST_YAML("\x05\xff\x7f", "!!int \"-129\"");
+  TEST_YAML("\x05\x00\x80\x00", "!!int \"32768\"");
+  TEST_YAML("\x05\x7f\xff\xff", "!!int \"8388607\"");
+  // TEST_YAML("\x05\x80\x80\x80", "!!int \"-8388608\"");
+  // TEST_YAML("\x05\xff\x7f\xff", "!!int \"-32769\"");
 
   // Strings.
   // TODO(edje): Add tests for special characters and bad encoding.
@@ -57,7 +72,7 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML(
       "\x06"
       "\x87\x08Hello\x00\x87\x08World\x00"
-      "\x82\x02\x00\x82\x02\x01"
+      "\x81\x02\x82\x02\x01"
       "\x80\x83\x06\x80\x80",
       "!!map {\n"
       "  ? !!str \"Hello\"\n"
@@ -75,7 +90,7 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x07", "!!seq []");
   TEST_YAML(
       "\x07"
-      "\x82\x02\x00"
+      "\x81\x02"
       "\x82\x02\x01"
       "\x80"
       "\x87\x08Hello\x00"
