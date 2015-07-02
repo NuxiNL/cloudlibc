@@ -40,8 +40,15 @@ static _Bool iterate_map(const argdata_t *key, const argdata_t *value,
 
 // Prints the elements stored in a sequence.
 static _Bool iterate_seq(const argdata_t *ad, void *thunk) {
-  // TODO(ed): Implement.
-  return false;
+  struct iterate_data *id = thunk;
+  if (id->first) {
+    fputs("!!seq [", id->fp);
+    id->first = false;
+  }
+  print_space(id->depth, id->fp);
+  print_yaml(ad, id->fp, id->depth);
+  fputc(',', id->fp);
+  return true;
 }
 
 // Recursively prints a node as YAML.

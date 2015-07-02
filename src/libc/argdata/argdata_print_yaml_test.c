@@ -72,5 +72,21 @@ TEST(argdata_print_yaml, examples) {
 
   // Sequences.
   TEST_YAML("\x07", "!!seq []");
+  TEST_YAML(
+      "\x07"
+      "\x00\x00\x00\x02\x02\x00"
+      "\x00\x00\x00\x02\x02\x01"
+      "\x00\x00\x00\x00"
+      "\x00\x00\x00\x07\x08Hello\x00"
+      "\x00\x00\x00\x01\x06"
+      "\x00\x00\x00\x01\x07",
+      "!!seq [\n"
+      "  !!bool \"false\",\n"
+      "  !!bool \"true\",\n"
+      "  !!null \"null\",\n"
+      "  !!str \"Hello\",\n"
+      "  !!map {},\n"
+      "  !!seq [],\n"
+      "]");
 #undef TEST_YAML
 }
