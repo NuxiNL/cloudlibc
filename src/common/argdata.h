@@ -59,19 +59,28 @@ static inline int parse_subfield(argdata_t *ad, const uint8_t **buf,
                                  size_t *len) {
   // Parse the field length. The length is stored in big endian form,
   // seven bits per byte. The top bit is used to indicate whether the
-  // next byte is also part of the field length.
+  // last byte of the field length has been reached.
   size_t reclen = 0;
-  bool last;
-  do {
-    if (*len == 0)
+  for (;;) {
+    // Fetch digit.
+    if ((*len)-- == 0)
       return EINVAL;
+    uint8_t c = *(*buf)++;
+
+    // Make space to fit the digit.
     if (reclen >> (sizeof(reclen) * CHAR_BIT - 7) != 0)
       return EINVAL;
-    reclen = reclen << 7 | (**buf & 0x7f);
-    last = (**buf & 0x80) == 0;
-    ++*buf;
-    --*len;
-  } while (!last);
+    reclen <<= 7;
+
+    if ((c & 0x80) != 0) {
+      // Last byte.
+      reclen |= c & 0x7f;
+      break;
+    } else {
+      // More bytes to come.
+      reclen |= c;
+    }
+  }
 
   if (reclen > *len)
     return EINVAL;

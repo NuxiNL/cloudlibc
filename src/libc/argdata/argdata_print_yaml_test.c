@@ -56,9 +56,9 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x06", "!!map {}");
   TEST_YAML(
       "\x06"
-      "\x07\x08Hello\x00\x07\x08World\x00"
-      "\x02\x02\x00\x02\x02\x01"
-      "\x00\x03\x06\x00\x00",
+      "\x87\x08Hello\x00\x87\x08World\x00"
+      "\x82\x02\x00\x82\x02\x01"
+      "\x80\x83\x06\x80\x80",
       "!!map {\n"
       "  ? !!str \"Hello\"\n"
       "  : !!str \"World\",\n"
@@ -75,12 +75,12 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x07", "!!seq []");
   TEST_YAML(
       "\x07"
-      "\x02\x02\x00"
-      "\x02\x02\x01"
-      "\x00"
-      "\x07\x08Hello\x00"
-      "\x01\x06"
-      "\x01\x07",
+      "\x82\x02\x00"
+      "\x82\x02\x01"
+      "\x80"
+      "\x87\x08Hello\x00"
+      "\x81\x06"
+      "\x81\x07",
       "!!seq [\n"
       "  !!bool \"false\",\n"
       "  !!bool \"true\",\n"
