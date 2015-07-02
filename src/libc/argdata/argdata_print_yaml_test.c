@@ -46,14 +46,18 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x02\x02", "!!null \"null\"");
 
   // Integer values.
-  // TEST_YAML("\x05\x80\x00\x00\x00", "!!int \"-2147483648\"");
-  // TEST_YAML("\x05\xff\x7f\xff\xff", "!!int \"-8388609\"");
-  // TEST_YAML("\x05\x80\x00\x00", "!!int \"-8388608\"");
-  // TEST_YAML("\x05\xff\x7f\xff", "!!int \"-32769\"");
-  // TEST_YAML("\x05\x80\x00", "!!int \"-32768\"");
-  // TEST_YAML("\x05\xff\x7f", "!!int \"-129\"");
-  // TEST_YAML("\x05\x80", "!!int \"-128\"");
-  // TEST_YAML("\x05\xff", "!!int \"-1\"");
+  // TODO(edje): Make signed integer tests more complete.
+  TEST_YAML("\x05\xff\x7f\xff\xff", "!!int \"-8388609\"");
+  TEST_YAML("\x05\x80\x00\x00", "!!int \"-8388608\"");
+  TEST_YAML("\x05\xfe\xff\xff", "!!int \"-65537\"");
+  TEST_YAML("\x05\xff\x00\x00", "!!int \"-65536\"");
+  TEST_YAML("\x05\xff\x7f\xff", "!!int \"-32769\"");
+  TEST_YAML("\x05\x80\x00", "!!int \"-32768\"");
+  TEST_YAML("\x05\xfe\xff", "!!int \"-257\"");
+  TEST_YAML("\x05\xff\x00", "!!int \"-256\"");
+  TEST_YAML("\x05\xff\x7f", "!!int \"-129\"");
+  TEST_YAML("\x05\x80", "!!int \"-128\"");
+  TEST_YAML("\x05\xff", "!!int \"-1\"");
   TEST_YAML("\x05", "!!int \"0\"");
   TEST_YAML("\x05\x01", "!!int \"1\"");
   TEST_YAML("\x05\x7f", "!!int \"127\"");
