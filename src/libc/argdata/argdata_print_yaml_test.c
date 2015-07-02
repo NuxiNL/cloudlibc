@@ -29,6 +29,15 @@ TEST(argdata_print_yaml, examples) {
   } while (0)
   TEST_YAML("", "!!null \"null\"");
 
+  // Binary data.
+  TEST_YAML("\x01", "!!binary \"\"");
+  TEST_YAML("\x01H", "!!binary \"SA==\"");
+  TEST_YAML("\x01He", "!!binary \"SGU=\"");
+  TEST_YAML("\x01Hel", "!!binary \"SGVs\"");
+  TEST_YAML("\x01Hell", "!!binary \"SGVsbA==\"");
+  TEST_YAML("\x01Hello", "!!binary \"SGVsbG8=\"");
+  TEST_YAML("\x01Hello, world", "!!binary \"SGVsbG8sIHdvcmxk\"");
+
   // Boolean values. These should have a one-byte payload.
   TEST_YAML("\x02", "!!null \"null\"");
   TEST_YAML("\x02Hello, world", "!!null \"null\"");

@@ -37,7 +37,7 @@ struct _FILE;
 struct timespec;
 
 __BEGIN_DECLS
-int argdata_get_binary(const argdata_t *, const char **, __size_t *);
+int argdata_get_binary(const argdata_t *, const void **, __size_t *);
 int argdata_get_bool(const argdata_t *, _Bool *);
 int argdata_get_fd(const argdata_t *, int *);
 int argdata_get_float(const argdata_t *, double *);
