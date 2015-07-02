@@ -19,9 +19,9 @@ int argdata_get_bool(const argdata_t *ad, bool *value) {
         return error;
 
       // Extract boolean value.
-      if (ad->buffer.len != 1)
+      if (len != 1)
         return EINVAL;
-      *value = ad->buffer.buf[1] != 0;
+      *value = buf[0] != 0;
       return 0;
     }
     default:
