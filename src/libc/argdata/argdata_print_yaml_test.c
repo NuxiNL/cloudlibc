@@ -46,19 +46,54 @@ TEST(argdata_print_yaml, examples) {
   TEST_YAML("\x02\x02", "!!null \"null\"");
 
   // Integer values.
+  // TEST_YAML("\x05\x80\x00\x00\x00", "!!int \"-2147483648\"");
+  // TEST_YAML("\x05\xff\x7f\xff\xff", "!!int \"-8388609\"");
+  // TEST_YAML("\x05\x80\x00\x00", "!!int \"-8388608\"");
+  // TEST_YAML("\x05\xff\x7f\xff", "!!int \"-32769\"");
+  // TEST_YAML("\x05\x80\x00", "!!int \"-32768\"");
+  // TEST_YAML("\x05\xff\x7f", "!!int \"-129\"");
+  // TEST_YAML("\x05\x80", "!!int \"-128\"");
+  // TEST_YAML("\x05\xff", "!!int \"-1\"");
   TEST_YAML("\x05", "!!int \"0\"");
   TEST_YAML("\x05\x01", "!!int \"1\"");
   TEST_YAML("\x05\x7f", "!!int \"127\"");
-  // TEST_YAML("\x05\x80", "!!int \"-128\"");
-  // TEST_YAML("\x05\xff", "!!int \"-1\"");
   TEST_YAML("\x05\x00\x80", "!!int \"128\"");
+  TEST_YAML("\x05\x00\xff", "!!int \"255\"");
+  TEST_YAML("\x05\x01\x00", "!!int \"256\"");
   TEST_YAML("\x05\x7f\xff", "!!int \"32767\"");
-  // TEST_YAML("\x05\x80\x00", "!!int \"-32768\"");
-  // TEST_YAML("\x05\xff\x7f", "!!int \"-129\"");
   TEST_YAML("\x05\x00\x80\x00", "!!int \"32768\"");
+  TEST_YAML("\x05\x00\xff\xff", "!!int \"65535\"");
+  TEST_YAML("\x05\x01\x00\x00", "!!int \"65536\"");
   TEST_YAML("\x05\x7f\xff\xff", "!!int \"8388607\"");
-  // TEST_YAML("\x05\x80\x80\x80", "!!int \"-8388608\"");
-  // TEST_YAML("\x05\xff\x7f\xff", "!!int \"-32769\"");
+  TEST_YAML("\x05\x00\x80\x00\x00", "!!int \"8388608\"");
+  TEST_YAML("\x05\x00\xff\xff\xff", "!!int \"16777215\"");
+  TEST_YAML("\x05\x01\x00\x00\x00", "!!int \"16777216\"");
+  TEST_YAML("\x05\x7f\xff\xff\xff", "!!int \"2147483647\"");
+  TEST_YAML("\x05\x00\x80\x00\x00\x00", "!!int \"2147483648\"");
+  TEST_YAML("\x05\x00\xff\xff\xff\xff", "!!int \"4294967295\"");
+  TEST_YAML("\x05\x01\x00\x00\x00\x00", "!!int \"4294967296\"");
+  TEST_YAML("\x05\x7f\xff\xff\xff\xff", "!!int \"549755813887\"");
+  TEST_YAML("\x05\x00\x80\x00\x00\x00\x00", "!!int \"549755813888\"");
+  TEST_YAML("\x05\x00\xff\xff\xff\xff\xff", "!!int \"1099511627775\"");
+  TEST_YAML("\x05\x01\x00\x00\x00\x00\x00", "!!int \"1099511627776\"");
+  TEST_YAML("\x05\x7f\xff\xff\xff\xff\xff", "!!int \"140737488355327\"");
+  TEST_YAML("\x05\x00\x80\x00\x00\x00\x00\x00", "!!int \"140737488355328\"");
+  TEST_YAML("\x05\x00\xff\xff\xff\xff\xff\xff", "!!int \"281474976710655\"");
+  TEST_YAML("\x05\x01\x00\x00\x00\x00\x00\x00", "!!int \"281474976710656\"");
+  TEST_YAML("\x05\x7f\xff\xff\xff\xff\xff\xff", "!!int \"36028797018963967\"");
+  TEST_YAML("\x05\x00\x80\x00\x00\x00\x00\x00\x00",
+            "!!int \"36028797018963968\"");
+  TEST_YAML("\x05\x00\xff\xff\xff\xff\xff\xff\xff",
+            "!!int \"72057594037927935\"");
+  TEST_YAML("\x05\x01\x00\x00\x00\x00\x00\x00\x00",
+            "!!int \"72057594037927936\"");
+  TEST_YAML("\x05\x7f\xff\xff\xff\xff\xff\xff\xff",
+            "!!int \"9223372036854775807\"");
+  TEST_YAML("\x05\x00\x80\x00\x00\x00\x00\x00\x00\x00",
+            "!!int \"9223372036854775808\"");
+  TEST_YAML("\x05\x00\xff\xff\xff\xff\xff\xff\xff\xff",
+            "!!int \"18446744073709551615\"");
+  TEST_YAML("\x05\x01\x00\x00\x00\x00\x00\x00\x00\x00", "!!null \"null\"");
 
   // Strings.
   // TODO(edje): Add tests for special characters and bad encoding.
