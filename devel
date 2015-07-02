@@ -28,24 +28,26 @@ done
 
 ./build
 
-echo "=> Reformatting sources"
-# Pass all source files through clang-format.
-find src tools -name '*.[ch]' -o -name '*.cc' | sort | while read srcfile; do
-  clang-format -style='{
-BasedOnStyle: Google,
-AllowShortIfStatementsOnASingleLine: false,
-AllowShortLoopsOnASingleLine: false,
-AllowShortFunctionsOnASingleLine: None,
-DerivePointerBinding: false,
-PointerAlignment: Right,
-}' "${srcfile}" > _obj/clang-format
-  if ! cmp -s _obj/clang-format "${srcfile}"; then
-    echo "=> Style fixing ${srcfile}"
-    mv _obj/clang-format "${srcfile}"
-  fi
-done
-# Invoke the build again if we had to fix up one or more sources files.
-./build
+if [ "$1" != "fast" ]; then
+  echo "=> Reformatting sources"
+  # Pass all source files through clang-format.
+  find src tools -name '*.[ch]' -o -name '*.cc' | sort | while read srcfile; do
+    clang-format -style='{
+  BasedOnStyle: Google,
+  AllowShortIfStatementsOnASingleLine: false,
+  AllowShortLoopsOnASingleLine: false,
+  AllowShortFunctionsOnASingleLine: None,
+  DerivePointerBinding: false,
+  PointerAlignment: Right,
+  }' "${srcfile}" > _obj/clang-format
+    if ! cmp -s _obj/clang-format "${srcfile}"; then
+      echo "=> Style fixing ${srcfile}"
+      mv _obj/clang-format "${srcfile}"
+    fi
+  done
+  # Invoke the build again if we had to fix up one or more sources files.
+  ./build
+fi
 
 sudo ./install
 
