@@ -97,5 +97,5 @@ int __argdata_generate(const argdata_t *ad, void *buf, int **fds,
   // TODO(edje): Return list of file descriptors.
   *fds = NULL;
   *fdslen = 0;
-  return ENOSYS;
+  return 0;
 }

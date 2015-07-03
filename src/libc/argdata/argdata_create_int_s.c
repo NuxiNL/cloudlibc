@@ -27,7 +27,7 @@ argdata_t *__argdata_create_int_s(intmax_t value) {
     *--buf = value;
     value >>= 8;
     ++len;
-  } while (value != -1);
+  } while (value != -1 || (*buf & 0x80) == 0);
 
   // Add type byte.
   *--buf = ADT_INT;
