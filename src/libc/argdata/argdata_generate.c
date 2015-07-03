@@ -73,7 +73,7 @@ static void encode(const argdata_t *ad, uint8_t *buf) {
     case AD_SEQ:
       // Emit every sequence entry.
       *buf++ = ADT_SEQ;
-      for (size_t i = 0; i < ad->map.count; ++i)
+      for (size_t i = 0; i < ad->seq.count; ++i)
         subfield(ad->seq.entries[i], &buf);
       break;
     case AD_STR:
@@ -88,7 +88,7 @@ static void encode(const argdata_t *ad, uint8_t *buf) {
 static void subfield(const argdata_t *ad, uint8_t **buf) {
   put_subfield_length(ad, buf);
   encode(ad, *buf);
-  buf += ad->length;
+  *buf += ad->length;
 }
 
 int __argdata_generate(const argdata_t *ad, void *buf, int **fds,

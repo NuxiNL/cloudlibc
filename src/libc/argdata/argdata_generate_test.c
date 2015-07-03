@@ -106,8 +106,39 @@ TEST(argdata_generate, int) {
 #undef TEST_INT
 }
 
+TEST(argdata_print_yaml, map) {
+  {
+    argdata_t *ad = argdata_create_map(NULL, NULL, 0);
+    TEST_OBJECT(ad, "\x06");
+    argdata_free(ad);
+  }
+
+  {
+    const argdata_t *keys[] = {&argdata_true, &argdata_false, &argdata_null};
+    const argdata_t *values[] = {&argdata_null, &argdata_true, &argdata_false};
+    argdata_t *ad = argdata_create_map(keys, values, __arraycount(keys));
+    TEST_OBJECT(ad, "\x06\x82\x02\x01\x80\x81\x02\x82\x02\x01\x80\x81\x02");
+    argdata_free(ad);
+  }
+}
+
 TEST(argdata_generate, null) {
   TEST_OBJECT(&argdata_null, "");
+}
+
+TEST(argdata_generate, seq) {
+  {
+    argdata_t *ad = argdata_create_seq(NULL, 0);
+    TEST_OBJECT(ad, "\x07");
+    argdata_free(ad);
+  }
+
+  {
+    const argdata_t *entries[] = {&argdata_false, &argdata_null, &argdata_true};
+    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    TEST_OBJECT(ad, "\x07\x81\x02\x80\x82\x02\x01");
+    argdata_free(ad);
+  }
 }
 
 TEST(argdata_generate, str) {
