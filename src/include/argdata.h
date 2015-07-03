@@ -42,6 +42,8 @@ extern const argdata_t argdata_null;
 extern const argdata_t argdata_true;
 
 __BEGIN_DECLS
+argdata_t *__argdata_create_int_s(__intmax_t);
+argdata_t *__argdata_create_int_u(__uintmax_t);
 void argdata_free(argdata_t *);
 int argdata_get_binary(const argdata_t *, const void **, __size_t *);
 int argdata_get_bool(const argdata_t *, _Bool *);
@@ -102,6 +104,19 @@ _ARGDATA_INT_U(unsigned long long, ullong, _ULONG_MAX);
 #undef _ARGDATA_INT_U
 
 // clang-format off
+#define argdata_create_int(value)                  \
+  _Generic(value,                                  \
+           char: __argdata_create_int_s,           \
+           signed char: __argdata_create_int_s,    \
+           unsigned char: __argdata_create_int_u,  \
+           short: __argdata_create_int_s,          \
+           unsigned short: __argdata_create_int_u, \
+           int: __argdata_create_int_s,            \
+           unsigned int: __argdata_create_int_u,   \
+           long: __argdata_create_int_s,           \
+           unsigned long: __argdata_create_int_u,  \
+           long long: __argdata_create_int_s,      \
+           unsigned long long: __argdata_create_int_u)(value)
 #define argdata_get_int(ad, value)                   \
   _Generic(*(value),                                 \
            char: __argdata_get_int_char,             \
