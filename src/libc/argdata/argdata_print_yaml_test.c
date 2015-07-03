@@ -228,11 +228,27 @@ TEST(argdata_print_yaml, int) {
 }
 
 TEST(argdata_print_yaml, map) {
-  argdata_t *ad = argdata_create_map(NULL, NULL, 0);
-  TEST_OBJECT(ad, "!!map {}");
-  argdata_free(ad);
+  {
+    argdata_t *ad = argdata_create_map(NULL, NULL, 0);
+    TEST_OBJECT(ad, "!!map {}");
+    argdata_free(ad);
+  }
 
-  // TODO(edje): Add more tests.
+  {
+    const argdata_t *keys[] = {&argdata_true, &argdata_false, &argdata_null};
+    const argdata_t *values[] = {&argdata_null, &argdata_true, &argdata_false};
+    argdata_t *ad = argdata_create_map(keys, values, __arraycount(keys));
+    TEST_OBJECT(ad,
+                "!!map {\n"
+                "  ? !!bool \"true\"\n"
+                "  : !!null \"null\",\n"
+                "  ? !!bool \"false\"\n"
+                "  : !!bool \"true\",\n"
+                "  ? !!null \"null\"\n"
+                "  : !!bool \"false\",\n"
+                "}");
+    argdata_free(ad);
+  }
 }
 
 TEST(argdata_print_yaml, null) {
@@ -240,11 +256,23 @@ TEST(argdata_print_yaml, null) {
 }
 
 TEST(argdata_print_yaml, seq) {
-  argdata_t *ad = argdata_create_seq(NULL, 0);
-  TEST_OBJECT(ad, "!!seq []");
-  argdata_free(ad);
+  {
+    argdata_t *ad = argdata_create_seq(NULL, 0);
+    TEST_OBJECT(ad, "!!seq []");
+    argdata_free(ad);
+  }
 
-  // TODO(edje): Add more tests.
+  {
+    const argdata_t *entries[] = {&argdata_false, &argdata_null, &argdata_true};
+    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    TEST_OBJECT(ad,
+                "!!seq [\n"
+                "  !!bool \"false\",\n"
+                "  !!null \"null\",\n"
+                "  !!bool \"true\",\n"
+                "]");
+    argdata_free(ad);
+  }
 }
 
 TEST(argdata_print_yaml, str) {

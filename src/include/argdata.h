@@ -47,8 +47,9 @@ argdata_t *argdata_create_fd(int);
 argdata_t *argdata_create_float(double);
 argdata_t *__argdata_create_int_s(__intmax_t);
 argdata_t *__argdata_create_int_u(__uintmax_t);
-argdata_t *argdata_create_map(const argdata_t *, const argdata_t *, __size_t);
-argdata_t *argdata_create_seq(const argdata_t *, __size_t);
+argdata_t *argdata_create_map(argdata_t const *const *,
+                              argdata_t const *const *, __size_t);
+argdata_t *argdata_create_seq(argdata_t const *const *, __size_t);
 argdata_t *argdata_create_str(const char *, __size_t);
 argdata_t *argdata_create_str_c(const char *);
 argdata_t *argdata_create_timestamp(const struct timespec *);

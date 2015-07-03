@@ -8,7 +8,7 @@
 #include <argdata.h>
 #include <stdlib.h>
 
-argdata_t *argdata_create_seq(const argdata_t *entries, size_t count) {
+argdata_t *argdata_create_seq(argdata_t const *const *entries, size_t count) {
   argdata_t *ad = malloc(sizeof(*ad));
   if (ad == NULL)
     return NULL;
@@ -18,6 +18,6 @@ argdata_t *argdata_create_seq(const argdata_t *entries, size_t count) {
   ad->seq.count = count;
   ad->length = 1;
   for (size_t i = 0; i < count; ++i)
-    ad->length += get_subfield_length(&entries[i]);
+    ad->length += get_subfield_length(entries[i]);
   return ad;
 }

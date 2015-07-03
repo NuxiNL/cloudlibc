@@ -20,12 +20,12 @@ struct __argdata {
     const void *binary;     // Binary block of data.
     const char *str;        // UTF-8 string.
     struct {
-      const argdata_t *keys;
-      const argdata_t *values;
+      argdata_t const *const *keys;
+      argdata_t const *const *values;
       size_t count;
     } map;  // Map.
     struct {
-      const argdata_t *entries;
+      argdata_t const *const *entries;
       size_t count;
     } seq;  // Sequence.
   };

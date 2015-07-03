@@ -8,8 +8,8 @@
 #include <argdata.h>
 #include <stdlib.h>
 
-argdata_t *argdata_create_map(const argdata_t *keys, const argdata_t *values,
-                              size_t count) {
+argdata_t *argdata_create_map(argdata_t const *const *keys,
+                              argdata_t const *const *values, size_t count) {
   argdata_t *ad = malloc(sizeof(*ad));
   if (ad == NULL)
     return NULL;
@@ -20,8 +20,8 @@ argdata_t *argdata_create_map(const argdata_t *keys, const argdata_t *values,
   ad->map.count = count;
   ad->length = 1;
   for (size_t i = 0; i < count; ++i) {
-    ad->length += get_subfield_length(&keys[i]);
-    ad->length += get_subfield_length(&values[i]);
+    ad->length += get_subfield_length(keys[i]);
+    ad->length += get_subfield_length(values[i]);
   }
   return ad;
 }

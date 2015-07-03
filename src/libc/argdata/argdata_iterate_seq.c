@@ -35,7 +35,7 @@ int argdata_iterate_seq(const argdata_t *ad, void *thunk,
     }
     case AD_SEQ:
       for (size_t i = 0; i < ad->seq.count; ++i)
-        if (!iterator(&ad->seq.entries[i], thunk))
+        if (!iterator(ad->seq.entries[i], thunk))
           break;
       return 0;
     default:
