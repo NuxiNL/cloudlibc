@@ -16,11 +16,11 @@
 struct __argdata {
   enum { AD_BUFFER } type;
   union {
-    struct {
-      const uint8_t *buf;
-      size_t len;
-    } buffer;
+    // Buffer to binary code.
+    const uint8_t *buffer;
   };
+  // Length of the resulting binary code.
+  size_t length;
 };
 
 enum {
@@ -35,11 +35,11 @@ enum {
   ADT_TIMESTAMP = 9  // A point in time.
 };
 
-static inline void argdata_init_binary(argdata_t *ad, const void *buf,
-                                       size_t len) {
+static inline void argdata_init_binary(argdata_t *ad, const void *buffer,
+                                       size_t length) {
   ad->type = AD_BUFFER;
-  ad->buffer.buf = buf;
-  ad->buffer.len = len;
+  ad->buffer = buffer;
+  ad->length = length;
 }
 
 // Parses a 32-bit unsigned integer in the input stream.

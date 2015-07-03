@@ -7,14 +7,15 @@
 
 #include <argdata.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 int argdata_iterate_seq(const argdata_t *ad, void *thunk,
-                        _Bool (*iterator)(const argdata_t *, void *)) {
+                        bool (*iterator)(const argdata_t *, void *)) {
   switch (ad->type) {
     case AD_BUFFER: {
-      const uint8_t *buf = ad->buffer.buf;
-      size_t len = ad->buffer.len;
+      const uint8_t *buf = ad->buffer;
+      size_t len = ad->length;
       int error = parse_type(ADT_SEQ, &buf, &len);
       if (error != 0)
         return error;

@@ -13,8 +13,8 @@
 int argdata_get_fd(const argdata_t *ad, int *value) {
   switch (ad->type) {
     case AD_BUFFER: {
-      const uint8_t *buf = ad->buffer.buf;
-      size_t len = ad->buffer.len;
+      const uint8_t *buf = ad->buffer;
+      size_t len = ad->length;
       int error = parse_type(ADT_FD, &buf, &len);
       if (error != 0)
         return error;

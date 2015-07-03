@@ -37,7 +37,12 @@ typedef __argdata_t argdata_t;
 struct _FILE;
 struct timespec;
 
+extern const argdata_t argdata_false;
+extern const argdata_t argdata_null;
+extern const argdata_t argdata_true;
+
 __BEGIN_DECLS
+void argdata_free(argdata_t *);
 int argdata_get_binary(const argdata_t *, const void **, __size_t *);
 int argdata_get_bool(const argdata_t *, _Bool *);
 int argdata_get_fd(const argdata_t *, int *);

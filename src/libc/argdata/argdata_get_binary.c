@@ -12,8 +12,8 @@ int argdata_get_binary(const argdata_t *ad, const void **value,
                        size_t *valuelen) {
   switch (ad->type) {
     case AD_BUFFER: {
-      const uint8_t *buf = ad->buffer.buf;
-      size_t len = ad->buffer.len;
+      const uint8_t *buf = ad->buffer;
+      size_t len = ad->length;
       int error = parse_type(ADT_BINARY, &buf, &len);
       if (error != 0)
         return error;
