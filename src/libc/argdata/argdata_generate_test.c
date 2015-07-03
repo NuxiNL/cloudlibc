@@ -11,7 +11,7 @@
 
 #define TEST_OBJECT(obj, out)                                     \
   do {                                                            \
-    ASSERT_EQ(sizeof(out) - 1, obj->length);                      \
+    ASSERT_EQ(sizeof(out) - 1, (obj)->length);                    \
     char outbuf[sizeof(out) - 1];                                 \
     int *fds;                                                     \
     size_t fdslen;                                                \
@@ -20,6 +20,11 @@
     ASSERT_EQ(NULL, fds);                                         \
     ASSERT_EQ(0, fdslen);                                         \
   } while (0)
+
+TEST(argdata_generate, bool) {
+  TEST_OBJECT(&argdata_false, "\x02");
+  TEST_OBJECT(&argdata_true, "\x02\x01");
+}
 
 TEST(argdata_generate, int) {
 #define TEST_INT(value, out)                   \
@@ -93,4 +98,8 @@ TEST(argdata_generate, int) {
            "\x00\x80\x00\x00\x00\x00\x00\x00\x00");
   TEST_INT(UINT64_MAX, "\x00\xff\xff\xff\xff\xff\xff\xff\xff");
 #undef TEST_INT
+}
+
+TEST(argdata_generate, null) {
+  TEST_OBJECT(&argdata_null, "");
 }
