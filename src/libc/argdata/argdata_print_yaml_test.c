@@ -6,6 +6,7 @@
 #include <common/argdata.h>
 
 #include <argdata.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <testing.h>
 
@@ -181,6 +182,22 @@ TEST(argdata_print_yaml, buffer) {
 TEST(argdata_print_yaml, bool) {
   TEST_OBJECT(&argdata_false, "!!bool \"false\"");
   TEST_OBJECT(&argdata_true, "!!bool \"true\"");
+}
+
+TEST(argdata_print_yaml, int) {
+#define TEST_INT(value, out)                   \
+  do {                                         \
+    argdata_t *ad = argdata_create_int(value); \
+    TEST_OBJECT(ad, "!!int \"" out "\"");      \
+    argdata_free(ad);                          \
+  } while (0)
+  // TODO(edje): Add more tests.
+  TEST_INT(0, "0");
+  TEST_INT(0xdeadc0de, "3735929054");
+  TEST_INT(INT64_MIN, "-9223372036854775808");
+  TEST_INT(INT64_MAX, "9223372036854775807");
+  TEST_INT(UINT64_MAX, "18446744073709551615");
+#undef TEST_INT
 }
 
 TEST(argdata_print_yaml, null) {
