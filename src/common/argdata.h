@@ -19,6 +19,15 @@ struct __argdata {
     const uint8_t *buffer;  // Buffer to code.
     const void *binary;     // Binary block of data.
     const char *str;        // UTF-8 string.
+    struct {
+      const argdata_t *keys;
+      const argdata_t *values;
+      size_t count;
+    } map;  // Map.
+    struct {
+      const argdata_t *entries;
+      size_t count;
+    } seq;  // Sequence.
   };
   // Length of the resulting binary code.
   size_t length;
@@ -77,6 +86,18 @@ static inline int parse_subfield(argdata_t *ad, const uint8_t **buf,
   *buf += reclen;
   *len -= reclen;
   return 0;
+}
+
+// Computes the total size of a subfield, including the length that is
+// prefixed to it.
+static inline size_t get_subfield_length(const argdata_t *ad) {
+  size_t total = ad->length;
+  size_t field = ad->length;
+  do {
+    ++total;
+    field >>= 7;
+  } while (field != 0);
+  return total;
 }
 
 // Parses a type byte in the input stream.

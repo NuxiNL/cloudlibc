@@ -1,0 +1,27 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// This file is distrbuted under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#include <common/argdata.h>
+
+#include <argdata.h>
+#include <stdlib.h>
+
+argdata_t *argdata_create_map(const argdata_t *keys, const argdata_t *values,
+                              size_t count) {
+  argdata_t *ad = malloc(sizeof(*ad));
+  if (ad == NULL)
+    return NULL;
+
+  ad->type = AD_MAP;
+  ad->map.keys = keys;
+  ad->map.values = values;
+  ad->map.count = count;
+  ad->length = 1;
+  for (size_t i = 0; i < count; ++i) {
+    ad->length += get_subfield_length(&keys[i]);
+    ad->length += get_subfield_length(&values[i]);
+  }
+  return ad;
+}

@@ -227,8 +227,24 @@ TEST(argdata_print_yaml, int) {
 #undef TEST_INT
 }
 
+TEST(argdata_print_yaml, map) {
+  argdata_t *ad = argdata_create_map(NULL, NULL, 0);
+  TEST_OBJECT(ad, "!!map {}");
+  argdata_free(ad);
+
+  // TODO(edje): Add more tests.
+}
+
 TEST(argdata_print_yaml, null) {
   TEST_OBJECT(&argdata_null, "!!null \"null\"");
+}
+
+TEST(argdata_print_yaml, seq) {
+  argdata_t *ad = argdata_create_seq(NULL, 0);
+  TEST_OBJECT(ad, "!!seq []");
+  argdata_free(ad);
+
+  // TODO(edje): Add more tests.
 }
 
 TEST(argdata_print_yaml, str) {

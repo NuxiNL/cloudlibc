@@ -40,6 +40,11 @@ int argdata_iterate_map(const argdata_t *ad, void *thunk,
       }
       return 0;
     }
+    case AD_MAP:
+      for (size_t i = 0; i < ad->map.count; ++i)
+        if (!iterator(&ad->map.keys[i], &ad->map.values[i], thunk))
+          break;
+      return 0;
     default:
       return EINVAL;
   }
