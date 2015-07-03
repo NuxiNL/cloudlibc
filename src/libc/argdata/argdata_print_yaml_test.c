@@ -230,3 +230,9 @@ TEST(argdata_print_yaml, int) {
 TEST(argdata_print_yaml, null) {
   TEST_OBJECT(&argdata_null, "!!null \"null\"");
 }
+
+TEST(argdata_print_yaml, str) {
+  argdata_t *ad = argdata_create_str_c("Hello, world");
+  TEST_OBJECT(ad, "!!str \"Hello, world\"");
+  argdata_free(ad);
+}

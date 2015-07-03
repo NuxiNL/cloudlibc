@@ -18,6 +18,7 @@ struct __argdata {
   union {
     const uint8_t *buffer;  // Buffer to code.
     const void *binary;     // Binary block of data.
+    const char *str;        // UTF-8 string.
   };
   // Length of the resulting binary code.
   size_t length;

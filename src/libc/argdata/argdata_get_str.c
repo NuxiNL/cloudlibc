@@ -25,6 +25,10 @@ int argdata_get_str(const argdata_t *ad, const char **value, size_t *valuelen) {
       *valuelen = len - 1;
       return 0;
     }
+    case AD_STR:
+      *value = ad->str;
+      *valuelen = ad->length - 2;
+      return 0;
     default:
       return EINVAL;
   }
