@@ -8,7 +8,7 @@
 #include <argdata.h>
 #include <stdint.h>
 
-static uint8_t buf_true[] = {ADT_BOOL, 1};
+static const uint8_t buf_true[] = {ADT_BOOL, 1};
 
 const argdata_t argdata_true = {
     .type = AD_BUFFER, .buffer = buf_true, .length = sizeof(buf_true),
