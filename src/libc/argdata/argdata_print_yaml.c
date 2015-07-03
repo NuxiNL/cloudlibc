@@ -96,6 +96,15 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     }
   }
 
+  // Extension: file descriptors.
+  {
+    int value;
+    if (argdata_get_fd(ad, &value) == 0) {
+      fprintf(fp, "!!fd \"%d\"", value);
+      return 0;
+    }
+  }
+
   // Signed integers.
   {
     intmax_t value;

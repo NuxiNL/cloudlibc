@@ -42,18 +42,6 @@ static inline void argdata_init_binary(argdata_t *ad, const void *buffer,
   ad->length = length;
 }
 
-// Parses a 32-bit unsigned integer in the input stream.
-static inline int parse_uint32(uint32_t *val, const uint8_t **buf,
-                               size_t *len) {
-  if (*len < sizeof(uint32_t))
-    return EINVAL;
-  *val = (uint32_t)(*buf)[0] << 24 | (uint32_t)(*buf)[1] << 16 |
-         (uint32_t)(*buf)[2] << 8 | (uint32_t)(*buf)[3];
-  *buf += sizeof(uint32_t);
-  *len -= sizeof(uint32_t);
-  return 0;
-}
-
 // Parses a field embedded in the input stream.
 static inline int parse_subfield(argdata_t *ad, const uint8_t **buf,
                                  size_t *len) {

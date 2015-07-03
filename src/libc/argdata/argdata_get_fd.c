@@ -20,10 +20,10 @@ int argdata_get_fd(const argdata_t *ad, int *value) {
         return error;
 
       // Extract file descriptor number.
-      uint32_t fd;
-      error = parse_uint32(&fd, &buf, &len);
-      if (error != 0)
-        return error;
+      if (len != sizeof(uint32_t))
+        return EINVAL;
+      uint32_t fd = (uint32_t)buf[0] << 24 | (uint32_t)buf[1] << 16 |
+                    (uint32_t)buf[2] << 8 | (uint32_t)buf[3];
 
       // Validate file descriptor number.
       if (fd > INT_MAX)
