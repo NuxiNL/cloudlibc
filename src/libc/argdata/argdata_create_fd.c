@@ -18,7 +18,7 @@ argdata_t *argdata_create_fd(int value) {
   }
 
   // Allocate object with space for encoded integer value.
-  argdata_t *ad = malloc(sizeof(argdata_t) + sizeof(uint32_t) + 1);
+  argdata_t *ad = malloc(sizeof(*ad) + sizeof(uint32_t) + 1);
   if (ad == NULL)
     return NULL;
 

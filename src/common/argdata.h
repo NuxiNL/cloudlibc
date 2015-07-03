@@ -14,10 +14,10 @@
 #include <stdint.h>
 
 struct __argdata {
-  enum { AD_BUFFER } type;
+  enum { AD_BUFFER, AD_BINARY, AD_MAP, AD_SEQ, AD_STR } type;
   union {
-    // Buffer to binary code.
-    const uint8_t *buffer;
+    const uint8_t *buffer;  // Buffer to code.
+    const void *binary;     // Binary block of data.
   };
   // Length of the resulting binary code.
   size_t length;

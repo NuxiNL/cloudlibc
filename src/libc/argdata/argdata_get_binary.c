@@ -22,6 +22,10 @@ int argdata_get_binary(const argdata_t *ad, const void **value,
       *valuelen = len;
       return 0;
     }
+    case AD_BINARY:
+      *value = ad->binary;
+      *valuelen = ad->length - 1;
+      return 0;
     default:
       return EINVAL;
   }

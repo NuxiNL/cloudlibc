@@ -187,6 +187,16 @@ TEST(argdata_print_yaml, buffer) {
 #undef TEST_BUFFER
 }
 
+TEST(argdata_print_yaml, binary) {
+  argdata_t *ad = argdata_create_binary(NULL, 0);
+  TEST_OBJECT(ad, "!!binary \"\"");
+  argdata_free(ad);
+
+  ad = argdata_create_binary("This is an example string", 25);
+  TEST_OBJECT(ad, "!!binary \"VGhpcyBpcyBhbiBleGFtcGxlIHN0cmluZw==\"");
+  argdata_free(ad);
+}
+
 TEST(argdata_print_yaml, bool) {
   TEST_OBJECT(&argdata_false, "!!bool \"false\"");
   TEST_OBJECT(&argdata_true, "!!bool \"true\"");
