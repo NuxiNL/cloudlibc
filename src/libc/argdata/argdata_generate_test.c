@@ -21,6 +21,12 @@
     ASSERT_EQ(0, fdslen);                                         \
   } while (0)
 
+TEST(argdata_generate, binary) {
+  argdata_t *ad = argdata_create_binary("Hello", 5);
+  TEST_OBJECT(ad, "\x01Hello");
+  argdata_free(ad);
+}
+
 TEST(argdata_generate, bool) {
   TEST_OBJECT(&argdata_false, "\x02");
   TEST_OBJECT(&argdata_true, "\x02\x01");
@@ -102,4 +108,10 @@ TEST(argdata_generate, int) {
 
 TEST(argdata_generate, null) {
   TEST_OBJECT(&argdata_null, "");
+}
+
+TEST(argdata_generate, str) {
+  argdata_t *ad = argdata_create_str("Hello\x00world", 11);
+  TEST_OBJECT(ad, "\x08Hello\x00world\x00");
+  argdata_free(ad);
 }
