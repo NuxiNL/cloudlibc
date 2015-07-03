@@ -85,8 +85,8 @@ SYSCALL_2_0(38, mem_unmap, void *, cloudabi_size_t);
 SYSCALL_5_1(39, poll, cloudabi_fd_t, const cloudabi_subscription_t *,
             cloudabi_size_t, cloudabi_event_t *, cloudabi_size_t,
             cloudabi_size_t);
-SYSCALL_5_0(40, proc_exec, cloudabi_fd_t, const cloudabi_ciovec_t *,
-            cloudabi_size_t, const cloudabi_fd_t *, cloudabi_size_t);
+SYSCALL_5_0(40, proc_exec, cloudabi_fd_t, const void *, cloudabi_size_t,
+            const cloudabi_fd_t *, cloudabi_size_t);
 SYSCALL_1_N(41, proc_exit, cloudabi_exitcode_t);
 SYSCALL_0_2(42, proc_fork, cloudabi_fd_t, cloudabi_tid_t);
 SYSCALL_1_0(43, proc_raise, cloudabi_signal_t);
