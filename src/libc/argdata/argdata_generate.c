@@ -22,20 +22,23 @@ static void encode(const argdata_t *ad, uint8_t *buf) {
       const uint8_t *ibuf = ad->buffer;
       size_t ilen = ad->length - 1;
 
-      // Copy over the field type.
-      uint8_t type = *ibuf++;
-      *buf++ = type;
-      switch (type) {
-        case ADT_SEQ:
-        case ADT_MAP: {
-          // Scan sequence and map entries for file descriptors.
-          argdata_t iad;
-          const uint8_t *lenstart = ibuf;
-          while (parse_subfield(&iad, &ibuf, &ilen) == 0) {
+      // Copy over the field type byte.
+      switch ((*buf++ = *ibuf++)) {
+        case ADT_MAP:
+        case ADT_SEQ: {
+          // Scan map and sequence entries for file descriptors.
+          for (;;) {
+            argdata_t iad;
+            const uint8_t *lenstart = ibuf;
+            if (parse_subfield(&iad, &ibuf, &ilen) != 0)
+              break;
+            // Copy over the length field.
             size_t lenlen = iad.buffer - lenstart;
             memcpy(buf, lenstart, lenlen);
             buf += lenlen;
-            subfield(&iad, &buf);
+            // Process the body of the entry.
+            encode(&iad, buf);
+            buf += iad.length;
           }
           break;
         }

@@ -10,8 +10,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 struct __argdata {
   enum { AD_BUFFER, AD_BINARY, AD_MAP, AD_SEQ, AD_STR } type;
@@ -103,8 +103,21 @@ static inline size_t get_subfield_length(const argdata_t *ad) {
   return total;
 }
 
+// Encodes the length of a field and stores it in an output buffer.
 static inline void put_subfield_length(const argdata_t *ad, uint8_t **buf) {
-  // TODO(edje): Implement.
+  uint8_t digits[__howmany(sizeof(size_t) * CHAR_BIT, 7)];
+  uint8_t *start = digits + sizeof(digits);
+  size_t len = ad->length;
+  *--start = len | 0x80;
+  for (;;) {
+    len >>= 7;
+    if (len == 0)
+      break;
+    *--start = len & 0x7f;
+  }
+  size_t digitslen = digits + sizeof(digits) - start;
+  memcpy(*buf, start, digitslen);
+  *buf += digitslen;
 }
 
 // Parses a type byte in the input stream.
