@@ -53,17 +53,19 @@ static inline void argdata_init_binary(argdata_t *ad, const void *buffer,
 }
 
 // Parses a field embedded in the input stream.
-static inline int parse_subfield(argdata_t *ad, const uint8_t **buf,
-                                 size_t *len) {
+static inline int parse_subfield(argdata_t *ad, const uint8_t **bufp,
+                                 size_t *lenp) {
   // Parse the field length. The length is stored in big endian form,
   // seven bits per byte. The top bit is used to indicate whether the
   // last byte of the field length has been reached.
+  const uint8_t *buf = *bufp;
+  size_t len = *lenp;
   size_t reclen = 0;
   for (;;) {
     // Fetch digit.
-    if ((*len)-- == 0)
+    if (len-- == 0)
       return EINVAL;
-    uint8_t c = *(*buf)++;
+    uint8_t c = *buf++;
 
     // Make space to fit the digit.
     if (reclen >> (sizeof(reclen) * CHAR_BIT - 7) != 0)
@@ -79,12 +81,13 @@ static inline int parse_subfield(argdata_t *ad, const uint8_t **buf,
       reclen |= c;
     }
   }
-
-  if (reclen > *len)
+  if (reclen > len)
     return EINVAL;
-  argdata_init_binary(ad, *buf, reclen);
-  *buf += reclen;
-  *len -= reclen;
+
+  // Successfully obtained a subfield.
+  argdata_init_binary(ad, buf, reclen);
+  *bufp = buf + reclen;
+  *lenp = len - reclen;
   return 0;
 }
 
@@ -100,6 +103,10 @@ static inline size_t get_subfield_length(const argdata_t *ad) {
   return total;
 }
 
+static inline void put_subfield_length(const argdata_t *ad, uint8_t **buf) {
+  // TODO(edje): Implement.
+}
+
 // Parses a type byte in the input stream.
 static inline int parse_type(uint8_t type, const uint8_t **buf, size_t *len) {
   if (*len < 1 || **buf != type)
@@ -109,6 +116,6 @@ static inline int parse_type(uint8_t type, const uint8_t **buf, size_t *len) {
   return 0;
 }
 
-int __argdata_generate(const argdata_t *, void **, size_t *, int **, size_t *);
+int __argdata_generate(const argdata_t *, void *, int **, size_t *);
 
 #endif
