@@ -6,13 +6,24 @@
 #include <common/argdata.h>
 
 #include <argdata.h>
-#include <errno.h>
 #include <stdint.h>
 #include <string.h>
 
-static void subfield(const argdata_t *, uint8_t **);
+static void encode_subfield(const argdata_t *, uint8_t **, int *, size_t *);
 
-static void encode(const argdata_t *ad, uint8_t *buf) {
+static uint32_t map_fd(uint32_t fd, int *fds, size_t *fdslen) {
+  if (fd > INT_MAX)
+    return fd;
+  for (size_t i = 0; i < *fdslen; ++i)
+    if (fds[i] == (int)fd)
+      return i;
+  int newfd = (*fdslen)++;
+  fds[newfd] = fd;
+  return newfd;
+}
+
+static void encode(const argdata_t *ad, uint8_t *buf, int *fds,
+                   size_t *fdslen) {
   // Skip empty nodes.
   if (ad->length == 0)
     return;
@@ -37,7 +48,7 @@ static void encode(const argdata_t *ad, uint8_t *buf) {
             memcpy(buf, lenstart, lenlen);
             buf += lenlen;
             // Process the body of the entry.
-            encode(&iad, buf);
+            encode(&iad, buf, fds, fdslen);
             buf += iad.length;
           }
           break;
@@ -46,8 +57,15 @@ static void encode(const argdata_t *ad, uint8_t *buf) {
           if (ilen != sizeof(uint32_t))
             break;
 
-          // TODO(edje): Translate the file descriptor number.
-          break;
+          // Translate the file descriptor number.
+          uint32_t fd = (uint32_t)ibuf[0] << 24 | (uint32_t)ibuf[1] << 16 |
+                        (uint32_t)ibuf[2] << 8 | (uint32_t)ibuf[3];
+          fd = map_fd(fd, fds, fdslen);
+          buf[0] = fd >> 24;
+          buf[1] = fd >> 16;
+          buf[2] = fd >> 8;
+          buf[3] = fd;
+          return;
       }
 
       // (Remainder of the) payload that is unsupported by this
@@ -66,15 +84,15 @@ static void encode(const argdata_t *ad, uint8_t *buf) {
       // Emit key and value for every map entry.
       *buf++ = ADT_MAP;
       for (size_t i = 0; i < ad->map.count; ++i) {
-        subfield(ad->map.keys[i], &buf);
-        subfield(ad->map.values[i], &buf);
+        encode_subfield(ad->map.keys[i], &buf, fds, fdslen);
+        encode_subfield(ad->map.values[i], &buf, fds, fdslen);
       }
       break;
     case AD_SEQ:
       // Emit every sequence entry.
       *buf++ = ADT_SEQ;
       for (size_t i = 0; i < ad->seq.count; ++i)
-        subfield(ad->seq.entries[i], &buf);
+        encode_subfield(ad->seq.entries[i], &buf, fds, fdslen);
       break;
     case AD_STR:
       // Copy over the string payload and add a terminating null byte.
@@ -85,17 +103,15 @@ static void encode(const argdata_t *ad, uint8_t *buf) {
   }
 }
 
-static void subfield(const argdata_t *ad, uint8_t **buf) {
+static void encode_subfield(const argdata_t *ad, uint8_t **buf, int *fds,
+                            size_t *fdslen) {
   put_subfield_length(ad, buf);
-  encode(ad, *buf);
+  encode(ad, *buf, fds, fdslen);
   *buf += ad->length;
 }
 
-int __argdata_generate(const argdata_t *ad, void *buf, int **fds,
-                       size_t *fdslen) {
-  encode(ad, buf);
-  // TODO(edje): Return list of file descriptors.
-  *fds = NULL;
-  *fdslen = 0;
-  return 0;
+size_t __argdata_generate(const argdata_t *ad, void *buf, int *fds) {
+  size_t nfds = 0;
+  encode(ad, buf, fds, &nfds);
+  return nfds;
 }

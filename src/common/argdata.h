@@ -129,6 +129,7 @@ static inline int parse_type(uint8_t type, const uint8_t **buf, size_t *len) {
   return 0;
 }
 
-int __argdata_generate(const argdata_t *, void *, int **, size_t *);
+void __argdata_getspace(const argdata_t *, size_t *, size_t *);
+size_t __argdata_generate(const argdata_t *, void *, int *);
 
 #endif

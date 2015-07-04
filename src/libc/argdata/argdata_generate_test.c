@@ -9,34 +9,43 @@
 #include <stdint.h>
 #include <testing.h>
 
-#define TEST_OBJECT(obj, out)                                     \
-  do {                                                            \
-    ASSERT_EQ(sizeof(out) - 1, (obj)->length);                    \
-    char outbuf[sizeof(out) - 1];                                 \
-    int *fds;                                                     \
-    size_t fdslen;                                                \
-    ASSERT_EQ(0, __argdata_generate(obj, outbuf, &fds, &fdslen)); \
-    ASSERT_ARREQ(out, outbuf, sizeof(outbuf));                    \
-    ASSERT_EQ(NULL, fds);                                         \
-    ASSERT_EQ(0, fdslen);                                         \
+#define TEST_OBJECT(obj, out, nfds, ...)                               \
+  do {                                                                 \
+    size_t datalen;                                                    \
+    size_t fdslen;                                                     \
+    __argdata_getspace(obj, &datalen, &fdslen);                        \
+    ASSERT_EQ(sizeof(out) - 1, datalen);                               \
+    ASSERT_EQ(nfds, fdslen);                                           \
+    char data[sizeof(out) - 1];                                        \
+    int fds[nfds];                                                     \
+    int efds[] = {__VA_ARGS__};                                        \
+    ASSERT_EQ(__arraycount(efds), __argdata_generate(obj, data, fds)); \
+    ASSERT_ARREQ(out, data, sizeof(data));                             \
+    ASSERT_ARREQ(efds, fds, __arraycount(efds));                       \
   } while (0)
 
 TEST(argdata_generate, binary) {
   argdata_t *ad = argdata_create_binary("Hello", 5);
-  TEST_OBJECT(ad, "\x01Hello");
+  TEST_OBJECT(ad, "\x01Hello", 0);
   argdata_free(ad);
 }
 
 TEST(argdata_generate, bool) {
-  TEST_OBJECT(&argdata_false, "\x02");
-  TEST_OBJECT(&argdata_true, "\x02\x01");
+  TEST_OBJECT(&argdata_false, "\x02", 0);
+  TEST_OBJECT(&argdata_true, "\x02\x01", 0);
+}
+
+TEST(argdata_generate, fd) {
+  argdata_t *ad = argdata_create_fd(12);
+  TEST_OBJECT(ad, "\x03\x00\x00\x00\x00", 1, 12);
+  argdata_free(ad);
 }
 
 TEST(argdata_generate, int) {
 #define TEST_INT(value, out)                   \
   do {                                         \
     argdata_t *ad = argdata_create_int(value); \
-    TEST_OBJECT(ad, "\x05" out);               \
+    TEST_OBJECT(ad, "\x05" out, 0);            \
     argdata_free(ad);                          \
   } while (0)
   TEST_INT(INT64_MIN, "\x80\x00\x00\x00\x00\x00\x00\x00");
@@ -109,7 +118,7 @@ TEST(argdata_generate, int) {
 TEST(argdata_print_yaml, map) {
   {
     argdata_t *ad = argdata_create_map(NULL, NULL, 0);
-    TEST_OBJECT(ad, "\x06");
+    TEST_OBJECT(ad, "\x06", 0);
     argdata_free(ad);
   }
 
@@ -117,26 +126,26 @@ TEST(argdata_print_yaml, map) {
     const argdata_t *keys[] = {&argdata_true, &argdata_false, &argdata_null};
     const argdata_t *values[] = {&argdata_null, &argdata_true, &argdata_false};
     argdata_t *ad = argdata_create_map(keys, values, __arraycount(keys));
-    TEST_OBJECT(ad, "\x06\x82\x02\x01\x80\x81\x02\x82\x02\x01\x80\x81\x02");
+    TEST_OBJECT(ad, "\x06\x82\x02\x01\x80\x81\x02\x82\x02\x01\x80\x81\x02", 0);
     argdata_free(ad);
   }
 }
 
 TEST(argdata_generate, null) {
-  TEST_OBJECT(&argdata_null, "");
+  TEST_OBJECT(&argdata_null, "", 0);
 }
 
 TEST(argdata_generate, seq) {
   {
     argdata_t *ad = argdata_create_seq(NULL, 0);
-    TEST_OBJECT(ad, "\x07");
+    TEST_OBJECT(ad, "\x07", 0);
     argdata_free(ad);
   }
 
   {
     const argdata_t *entries[] = {&argdata_false, &argdata_null, &argdata_true};
     argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
-    TEST_OBJECT(ad, "\x07\x81\x02\x80\x82\x02\x01");
+    TEST_OBJECT(ad, "\x07\x81\x02\x80\x82\x02\x01", 0);
     argdata_free(ad);
   }
 
@@ -149,7 +158,8 @@ TEST(argdata_generate, seq) {
     TEST_OBJECT(ad,
                 "\x07\x80\xff\x08This is a quite long string whose length is "
                 "exactly 125 bytes long. This way its length can be encoded in "
-                "seven bits of data.\x00\x80");
+                "seven bits of data.\x00\x80",
+                0);
     argdata_free(ad);
   }
 
@@ -163,13 +173,14 @@ TEST(argdata_generate, seq) {
         ad,
         "\x07\x80\x01\x80\x08This is a very long string whose length is "
         "exactly 126 bytes long. This way its length can't be encoded in "
-        "seven bits of data.\x00\x80");
+        "seven bits of data.\x00\x80",
+        0);
     argdata_free(ad);
   }
 }
 
 TEST(argdata_generate, str) {
   argdata_t *ad = argdata_create_str("Hello\x00world", 11);
-  TEST_OBJECT(ad, "\x08Hello\x00world\x00");
+  TEST_OBJECT(ad, "\x08Hello\x00world\x00", 0);
   argdata_free(ad);
 }
