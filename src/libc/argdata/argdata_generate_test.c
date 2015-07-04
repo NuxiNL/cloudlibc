@@ -9,19 +9,33 @@
 #include <stdint.h>
 #include <testing.h>
 
-#define TEST_OBJECT(obj, out, nfds, ...)                               \
-  do {                                                                 \
-    size_t datalen;                                                    \
-    size_t fdslen;                                                     \
-    __argdata_getspace(obj, &datalen, &fdslen);                        \
-    ASSERT_EQ(sizeof(out) - 1, datalen);                               \
-    ASSERT_EQ(nfds, fdslen);                                           \
-    char data[sizeof(out) - 1];                                        \
-    int fds[nfds];                                                     \
-    int efds[] = {__VA_ARGS__};                                        \
-    ASSERT_EQ(__arraycount(efds), __argdata_generate(obj, data, fds)); \
-    ASSERT_ARREQ(out, data, sizeof(data));                             \
-    ASSERT_ARREQ(efds, fds, __arraycount(efds));                       \
+#define TEST_OBJECT(obj, out, nfds, ...)                                \
+  do {                                                                  \
+    /* Compute size of resulting code. */                               \
+    size_t datalen;                                                     \
+    size_t fdslen;                                                      \
+    __argdata_getspace(obj, &datalen, &fdslen);                         \
+    ASSERT_EQ(sizeof(out) - 1, datalen);                                \
+    ASSERT_EQ(nfds, fdslen);                                            \
+                                                                        \
+    /* Generate code and compare. */                                    \
+    char data[sizeof(out) - 1];                                         \
+    int fds[nfds];                                                      \
+    int efds[] = {__VA_ARGS__};                                         \
+    ASSERT_EQ(__arraycount(efds), __argdata_generate(obj, data, fds));  \
+    ASSERT_ARREQ(out, data, sizeof(data));                              \
+    ASSERT_ARREQ(efds, fds, __arraycount(efds));                        \
+                                                                        \
+    /* Generating twice should not output different code. */            \
+    argdata_t ad2;                                                      \
+    argdata_init_binary(&ad2, out, sizeof(out) - 1);                    \
+    __argdata_getspace(&ad2, &datalen, &fdslen);                        \
+    ASSERT_EQ(sizeof(out) - 1, datalen);                                \
+    ASSERT_EQ(nfds, fdslen);                                            \
+    ASSERT_EQ(__arraycount(efds), __argdata_generate(&ad2, data, fds)); \
+    ASSERT_ARREQ(out, data, sizeof(data));                              \
+    for (size_t i = 0; i < (nfds); ++i)                                 \
+      ASSERT_EQ(i, fds[i]);                                             \
   } while (0)
 
 TEST(argdata_generate, binary) {
