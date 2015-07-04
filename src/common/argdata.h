@@ -60,6 +60,11 @@ static inline int parse_subfield(argdata_t *ad, const uint8_t **bufp,
   // last byte of the field length has been reached.
   const uint8_t *buf = *bufp;
   size_t len = *lenp;
+
+  // Disallow overlong encodings.
+  if (len == 0 || *buf == 0)
+    return EINVAL;
+
   size_t reclen = 0;
   for (;;) {
     // Fetch digit.

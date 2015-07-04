@@ -40,16 +40,9 @@ static void encode(const argdata_t *ad, uint8_t *buf, int *fds,
           // Scan map and sequence entries for file descriptors.
           for (;;) {
             argdata_t iad;
-            const uint8_t *lenstart = ibuf;
             if (parse_subfield(&iad, &ibuf, &ilen) != 0)
               break;
-            // Copy over the length field.
-            size_t lenlen = iad.buffer - lenstart;
-            memcpy(buf, lenstart, lenlen);
-            buf += lenlen;
-            // Process the body of the entry.
-            encode(&iad, buf, fds, fdslen);
-            buf += iad.length;
+            encode_subfield(&iad, &buf, fds, fdslen);
           }
           break;
         }
