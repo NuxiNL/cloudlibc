@@ -57,6 +57,7 @@ TEST(argdata_print_yaml, buffer) {
   TEST_BUFFER("\x03\x00\x00\x00\x00", "!!fd \"0\"");
   TEST_BUFFER("\x03\x12\x34\x56\x78", "!!fd \"305419896\"");
   TEST_BUFFER("\x03\xff\xff\xff\xff", "!!null \"null\"");
+  TEST_BUFFER("\x03\x00\x00\x00\x00\x00", "!!null \"null\"");
 
   // Integer values.
   TEST_BUFFER("\x05\xff\x7f\xff\xff\xff\xff\xff\xff\xff", "!!null \"null\"");

@@ -31,9 +31,11 @@ static size_t countfds(const argdata_t *ad) {
             fdslen += countfds(&iad);
           }
         }
-        case ADT_FD:
+        case ADT_FD: {
           // A file descriptor.
-          return 1;
+          int fd;
+          return parse_fd(&fd, &ibuf, &ilen) == 0 ? 1 : 0;
+        }
         default:
           // Some other type of object.
           return 0;

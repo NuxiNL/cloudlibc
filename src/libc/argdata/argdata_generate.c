@@ -11,13 +11,11 @@
 
 static void encode_subfield(const argdata_t *, uint8_t **, int *, size_t *);
 
-static uint32_t map_fd(uint32_t fd, int *fds, size_t *fdslen) {
-  if (fd > INT_MAX)
-    return fd;
+static int map_fd(int fd, int *fds, size_t *fdslen) {
   for (size_t i = 0; i < *fdslen; ++i)
-    if (fds[i] == (int)fd)
+    if (fds[i] == fd)
       return i;
-  int newfd = (*fdslen)++;
+  size_t newfd = (*fdslen)++;
   fds[newfd] = fd;
   return newfd;
 }
@@ -46,19 +44,13 @@ static void encode(const argdata_t *ad, uint8_t *buf, int *fds,
           }
           break;
         }
-        case ADT_FD:
-          if (ilen != sizeof(uint32_t))
-            break;
-
-          // Translate the file descriptor number.
-          uint32_t fd = (uint32_t)ibuf[0] << 24 | (uint32_t)ibuf[1] << 16 |
-                        (uint32_t)ibuf[2] << 8 | (uint32_t)ibuf[3];
-          fd = map_fd(fd, fds, fdslen);
-          buf[0] = fd >> 24;
-          buf[1] = fd >> 16;
-          buf[2] = fd >> 8;
-          buf[3] = fd;
-          return;
+        case ADT_FD: {
+          // Remap file descriptors to be sequential starting at zero.
+          int fd;
+          if (parse_fd(&fd, &ibuf, &ilen) == 0)
+            encode_fd(map_fd(fd, fds, fdslen), &buf);
+          break;
+        }
       }
 
       // (Remainder of the) payload that is unsupported by this
@@ -98,7 +90,7 @@ static void encode(const argdata_t *ad, uint8_t *buf, int *fds,
 
 static void encode_subfield(const argdata_t *ad, uint8_t **buf, int *fds,
                             size_t *fdslen) {
-  put_subfield_length(ad, buf);
+  encode_subfield_length(ad, buf);
   encode(ad, *buf, fds, fdslen);
   *buf += ad->length;
 }

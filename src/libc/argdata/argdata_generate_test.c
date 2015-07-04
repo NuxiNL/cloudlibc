@@ -34,9 +34,65 @@
     ASSERT_EQ(nfds, fdslen);                                            \
     ASSERT_EQ(__arraycount(efds), __argdata_generate(&ad2, data, fds)); \
     ASSERT_ARREQ(out, data, sizeof(data));                              \
-    for (size_t i = 0; i < (nfds); ++i)                                 \
+    for (size_t i = 0; i < __arraycount(efds); ++i)                     \
       ASSERT_EQ(i, fds[i]);                                             \
   } while (0)
+
+TEST(argdata_generate, buffer) {
+#define TEST_BUFFER(in, out, nfds, ...)           \
+  do {                                            \
+    argdata_t ad;                                 \
+    argdata_init_binary(&ad, in, sizeof(in) - 1); \
+    TEST_OBJECT(&ad, out, nfds, ##__VA_ARGS__);   \
+  } while (0)
+  // Null.
+  TEST_BUFFER("", "", 0);
+
+  // Binary data.
+  TEST_BUFFER("\x01", "\x01", 0);
+  TEST_BUFFER("\x01Hello", "\x01Hello", 0);
+
+  // Boolean values.
+  TEST_BUFFER("\x02", "\x02", 0);
+  TEST_BUFFER("\x02Hello, world", "\x02Hello, world", 0);
+  TEST_BUFFER("\x02\x00", "\x02\x00", 0);
+  TEST_BUFFER("\x02\x01", "\x02\x01", 0);
+  TEST_BUFFER("\x02\x02", "\x02\x02", 0);
+
+  // File descriptors. Only 32-bit non-negative file descriptors should
+  // get remapped.
+  TEST_BUFFER("\x03", "\x03", 0);
+  TEST_BUFFER("\x03\x00\x00\x00", "\x03\x00\x00\x00", 0);
+  TEST_BUFFER("\x03\x00\x00\x00\x00", "\x03\x00\x00\x00\x00", 1, 0);
+  TEST_BUFFER("\x03\x00\x00\x00\x13", "\x03\x00\x00\x00\x00", 1, 19);
+  TEST_BUFFER("\x03\xff\xff\xff\xff", "\x03\xff\xff\xff\xff", 0);
+
+  // Integer values.
+  TEST_BUFFER("\x05Integers should not get modified",
+              "\x05Integers should not get modified", 0);
+
+  // Strings.
+  TEST_BUFFER("\x08Invalid\x80Unicode? Not a problem!\x00",
+              "\x08Invalid\x80Unicode? Not a problem!\x00", 0);
+  TEST_BUFFER("\x08Improperly terminated string",
+              "\x08Improperly terminated string", 0);
+
+  // Maps. File descriptors should get remapped in sorted order.
+  TEST_BUFFER(
+      "\x06"
+      "\x85\x03\x12\x34\x56\x78\x85\x03\x01\x23\x45\x67"
+      "\x85\x03\x01\x23\x45\x67\x85\x03\x00\x00\x00\x12"
+      "Trailing garbage that is not processed\x85\x03\x00\x00\x00\x42",
+      "\x06"
+      "\x85\x03\x00\x00\x00\x00\x85\x03\x00\x00\x00\x01"
+      "\x85\x03\x00\x00\x00\x01\x85\x03\x00\x00\x00\x02"
+      "Trailing garbage that is not processed\x85\x03\x00\x00\x00\x42",
+      4, 305419896, 19088743, 18);
+
+  // Random garbage shouldn't get modified.
+  TEST_BUFFER("Some random data", "Some random data", 0);
+#undef TEST_BUFFER
+}
 
 TEST(argdata_generate, binary) {
   argdata_t *ad = argdata_create_binary("Hello", 5);

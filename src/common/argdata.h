@@ -109,7 +109,7 @@ static inline size_t get_subfield_length(const argdata_t *ad) {
 }
 
 // Encodes the length of a field and stores it in an output buffer.
-static inline void put_subfield_length(const argdata_t *ad, uint8_t **buf) {
+static inline void encode_subfield_length(const argdata_t *ad, uint8_t **buf) {
   uint8_t digits[__howmany(sizeof(size_t) * CHAR_BIT, 7)];
   uint8_t *start = digits + sizeof(digits);
   size_t len = ad->length;
@@ -132,6 +132,27 @@ static inline int parse_type(uint8_t type, const uint8_t **buf, size_t *len) {
   ++*buf;
   --*len;
   return 0;
+}
+
+// Parses a file descriptor number in the input stream.
+static inline int parse_fd(int *value, const uint8_t **buf, size_t *len) {
+  if (*len != sizeof(uint32_t))
+    return EINVAL;
+  uint32_t fd = (uint32_t)(*buf)[0] << 24 | (uint32_t)(*buf)[1] << 16 |
+                (uint32_t)(*buf)[2] << 8 | (uint32_t)(*buf)[3];
+  if (fd > INT_MAX)
+    return EINVAL;
+  *value = fd;
+  *buf += sizeof(uint32_t);
+  *len = 0;
+  return 0;
+}
+
+static inline void encode_fd(int value, uint8_t **buf) {
+  *(*buf)++ = value >> 24;
+  *(*buf)++ = value >> 16;
+  *(*buf)++ = value >> 8;
+  *(*buf)++ = value;
 }
 
 void __argdata_getspace(const argdata_t *, size_t *, size_t *);

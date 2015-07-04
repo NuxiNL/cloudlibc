@@ -25,15 +25,12 @@ argdata_t *argdata_create_fd(int value) {
   // Store digits. File descriptors are stored as fixed length, so that
   // they can be substituted without causing the binary representation
   // to change radically.
-  uint8_t *buf = (uint8_t *)(ad + 1);
-  buf[0] = ADT_FD;
-  buf[1] = value >> 24;
-  buf[2] = value >> 16;
-  buf[3] = value >> 8;
-  buf[4] = value;
+  uint8_t *bufstart = (uint8_t *)(ad + 1), *buf = bufstart;
+  *buf++ = ADT_FD;
+  encode_fd(value, &buf);
 
   ad->type = AD_BUFFER;
-  ad->buffer = buf;
-  ad->length = sizeof(uint32_t) + 1;
+  ad->buffer = bufstart;
+  ad->length = buf - bufstart;
   return ad;
 }
