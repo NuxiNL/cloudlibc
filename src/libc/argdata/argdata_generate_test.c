@@ -139,6 +139,33 @@ TEST(argdata_generate, seq) {
     TEST_OBJECT(ad, "\x07\x81\x02\x80\x82\x02\x01");
     argdata_free(ad);
   }
+
+  {
+    argdata_t *str = argdata_create_str_c(
+        "This is a quite long string whose length is exactly 125 bytes long. "
+        "This way its length can be encoded in seven bits of data.");
+    const argdata_t *entries[] = {&argdata_null, str, &argdata_null};
+    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    TEST_OBJECT(ad,
+                "\x07\x80\xff\x08This is a quite long string whose length is "
+                "exactly 125 bytes long. This way its length can be encoded in "
+                "seven bits of data.\x00\x80");
+    argdata_free(ad);
+  }
+
+  {
+    argdata_t *str = argdata_create_str_c(
+        "This is a very long string whose length is exactly 126 bytes long. "
+        "This way its length can't be encoded in seven bits of data.");
+    const argdata_t *entries[] = {&argdata_null, str, &argdata_null};
+    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    TEST_OBJECT(
+        ad,
+        "\x07\x80\x01\x80\x08This is a very long string whose length is "
+        "exactly 126 bytes long. This way its length can't be encoded in "
+        "seven bits of data.\x00\x80");
+    argdata_free(ad);
+  }
 }
 
 TEST(argdata_generate, str) {
