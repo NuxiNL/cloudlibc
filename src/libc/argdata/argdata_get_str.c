@@ -17,10 +17,12 @@ int argdata_get_str(const argdata_t *ad, const char **value, size_t *valuelen) {
       if (error != 0)
         return error;
 
-      // Validate the string.
+      // Validate the string for encoding errors.
       if (len < 1 || buf[len - 1] != '\0')
         return EINVAL;
-      // TODO(ed): Validate UTF-8.
+      error = validate_string((const char *)buf, len - 1);
+      if (error != 0)
+        return error;
       *value = (const char *)buf;
       *valuelen = len - 1;
       return 0;

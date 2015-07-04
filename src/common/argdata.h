@@ -155,6 +155,11 @@ static inline void encode_fd(int value, uint8_t **buf) {
   *(*buf)++ = value;
 }
 
+static inline int validate_string(const char *buf, size_t len) {
+  // TODO(edje): Implement.
+  return 0;
+}
+
 void __argdata_getspace(const argdata_t *, size_t *, size_t *);
 size_t __argdata_generate(const argdata_t *, void *, int *);
 
