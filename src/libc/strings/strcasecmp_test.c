@@ -7,7 +7,7 @@
 #include <strings.h>
 #include <testing.h>
 
-// TODO(edje): Add tests for invalid encodings.
+// TODO(ed): Add tests for invalid encodings.
 
 TEST(strcasecmp, example) {
   ASSERT_EQ(0, strcasecmp("hello", "hello"));

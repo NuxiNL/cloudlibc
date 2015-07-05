@@ -11,7 +11,7 @@
 
 TEST(mprotect, bad) {
   ASSERT_EQ(-1, mprotect((void *)UINTPTR_MAX, 100, PROT_READ | PROT_WRITE));
-  // TODO(edje): Which error code should be returned?
+  // TODO(ed): Which error code should be returned?
 }
 
 TEST(mprotect, example) {

@@ -11,7 +11,7 @@
 
 TEST(mlock, bad) {
   ASSERT_EQ(-1, mlock((void *)UINTPTR_MAX, 100));
-  // TODO(edje): Which error code should be returned?
+  // TODO(ed): Which error code should be returned?
 }
 
 TEST(mlock, example) {

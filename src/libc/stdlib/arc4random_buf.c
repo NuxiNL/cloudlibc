@@ -12,7 +12,7 @@
 // "Spritz -- a spongy RC4-like stream cipher and hash function"
 // by Ronald L. Rivest and Jacob C.N. Schuldt.
 // http://people.csail.mit.edu/rivest/pubs/RS14.pdf
-// TODO(edje): Replace this by something faster (e.g., Keccak).
+// TODO(ed): Replace this by something faster (e.g., Keccak).
 
 #define N 256
 #define Sw(n) S[(n) % N]

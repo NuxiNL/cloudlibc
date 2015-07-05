@@ -6,5 +6,5 @@
 #include <netdb.h>
 
 void freeaddrinfo(struct addrinfo *ai) {
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
 }

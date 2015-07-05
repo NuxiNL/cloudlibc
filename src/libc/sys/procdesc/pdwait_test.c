@@ -30,7 +30,7 @@ TEST(pdwait, bad) {
 
 TEST(pdwait, cld_exited) {
   // Pick a random exit code that we should expect.
-  // TODO(edje): FreeBSD and NetBSD still truncate the exit code to 8
+  // TODO(ed): FreeBSD and NetBSD still truncate the exit code to 8
   // bits. We should propagate the full integer, as discussed here:
   // http://austingroupbugs.net/view.php?id=594
   uint8_t exitcode;

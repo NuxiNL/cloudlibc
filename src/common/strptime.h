@@ -161,7 +161,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'g': {
           // Last two digits of the week-based year number.
-          // TODO(edje): Don't discard this.
+          // TODO(ed): Don't discard this.
           int year;
           if (!parse_number_range(&buf, 0, 99, &year))
             return NULL;
@@ -169,7 +169,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'G': {
           // Week-based year number.
-          // TODO(edje): Don't discard this.
+          // TODO(ed): Don't discard this.
           int year;
           bool negative;
           if (field_width == 0)
@@ -257,7 +257,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'U': {
           // Number of the week (first Sunday starts week 1).
-          // TODO(edje): Don't discard this.
+          // TODO(ed): Don't discard this.
           int week;
           if (!parse_number_range(&buf, 0, 53, &week))
             return NULL;
@@ -265,7 +265,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'V': {
           // Number of the week (ISO 8601).
-          // TODO(edje): Don't discard this.
+          // TODO(ed): Don't discard this.
           int week;
           if (!parse_number_range(&buf, 1, 53, &week))
             return NULL;
@@ -279,7 +279,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'W': {
           // Number of the week (first Monday starts week 1).
-          // TODO(edje): Don't discard this.
+          // TODO(ed): Don't discard this.
           int week;
           if (!parse_number_range(&buf, 0, 53, &week))
             return NULL;

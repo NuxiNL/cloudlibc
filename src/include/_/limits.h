@@ -194,7 +194,7 @@
 #define _UINT_FAST64_MAX _UINT_LEAST64_MAX
 
 // Language native types.
-// TODO(edje): Isn't there a way to derive _*_BIT more easily?
+// TODO(ed): Isn't there a way to derive _*_BIT more easily?
 
 #define _CHAR_BIT __CHAR_BIT__
 #if __SIZEOF_SHORT__ * _CHAR_BIT == 16

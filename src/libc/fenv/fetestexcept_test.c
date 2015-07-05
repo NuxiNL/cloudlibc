@@ -6,7 +6,7 @@
 #include <fenv.h>
 #include <testing.h>
 
-// TODO(edje): In addition to using feraiseexcept(), we should actually
+// TODO(ed): In addition to using feraiseexcept(), we should actually
 // trigger the exceptions. Unfortunately, both Clang and GCC don't
 // support FENV_ACCESS.
 

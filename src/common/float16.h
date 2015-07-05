@@ -115,7 +115,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
     } else if (exponent <= 0) {                                \
       if (has_subnorm == 1 && exponent > 1 - mant_dig) {       \
         /* Number is still in subnormal range. */              \
-        /* TODO(edje): Implement rounding! */                  \
+        /* TODO(ed): Implement rounding! */                    \
         significand >>= 1 - exponent;                          \
         exponent = 0;                                          \
       } else {                                                 \

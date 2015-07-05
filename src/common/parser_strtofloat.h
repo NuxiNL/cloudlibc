@@ -61,7 +61,7 @@ flt_t number;
     }
   } else if (PEEK(0) == '0' && (PEEK(1) == 'x' || PEEK(1) == 'X') &&
              (PEEK_ISXDIGIT(2) || (PEEK(2) == '.' && PEEK_ISXDIGIT(3)))) {
-    // TODO(edje): The check above falsely assumes that '.' is the radix!
+    // TODO(ed): The check above falsely assumes that '.' is the radix!
     // Hexadecimal floating point number.
     have_number = true;
     SKIP(2);

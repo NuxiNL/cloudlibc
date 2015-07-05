@@ -182,7 +182,7 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     assert(stream->writebuflen > 0 && "Write flush did not yield a new buffer");
   }
 
-  // TODO(edje): Honour buffering mechanism.
+  // TODO(ed): Honour buffering mechanism.
   memcpy(stream->writebuf, inbuf, inbuflen);
   inbuf += inbuflen;
   stream->writebuf += inbuflen;

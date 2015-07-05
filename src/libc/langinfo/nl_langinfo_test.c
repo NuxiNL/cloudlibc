@@ -71,7 +71,7 @@ TEST(nl_langinfo, en_us) {
   locale_t locale = newlocale(LC_ALL_MASK, "en_US.UTF-8@America/New_York", 0);
   ASSERT_STREQ("UTF-8", nl_langinfo_l(CODESET, locale));
   ASSERT_STREQ("%a %b %e %H:%M:%S %Y", nl_langinfo_l(D_T_FMT, locale));
-  // TODO(edje): Detach POSIX from en_US.
+  // TODO(ed): Detach POSIX from en_US.
   // ASSERT_STREQ("%m/%d/%Y", nl_langinfo_l(D_FMT, locale));
   ASSERT_STREQ("%H:%M:%S", nl_langinfo_l(T_FMT, locale));
   ASSERT_STREQ("%I:%M:%S %p", nl_langinfo_l(T_FMT_AMPM, locale));
@@ -122,7 +122,7 @@ TEST(nl_langinfo, en_us) {
   ASSERT_STREQ("", nl_langinfo_l(ALT_DIGITS, locale));
   ASSERT_STREQ(".", nl_langinfo_l(RADIXCHAR, locale));
   ASSERT_STREQ(",", nl_langinfo_l(THOUSEP, locale));
-  // TODO(edje): Detach POSIX from en_US.
+  // TODO(ed): Detach POSIX from en_US.
   // ASSERT_STREQ("^[yYsS].*", nl_langinfo_l(YESEXPR, locale));
   // ASSERT_STREQ("^[nN].*", nl_langinfo_l(NOEXPR, locale));
   ASSERT_STREQ("-$", nl_langinfo_l(CRNCYSTR, locale));

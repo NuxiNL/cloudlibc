@@ -70,7 +70,7 @@ extern SLIST_HEAD(pthread_key_freelist, __pthread_key) __pthread_key_freelist
 
 // Per-thread specific value list.
 //
-// TODO(edje): Use a splay tree instead?
+// TODO(ed): Use a splay tree instead?
 extern thread_local SLIST_HEAD(pthread_specifics,
                                pthread_specific) __pthread_specifics;
 
@@ -94,7 +94,7 @@ extern thread_local SLIST_HEAD(pthread_specifics,
 
 // Number of times locking in userspace should be attempted before
 // calling into the kernel.
-// TODO(edje): Determine the right number!
+// TODO(ed): Determine the right number!
 #define LOCK_RETRY_COUNT 1
 
 // A list of unique write locks acquired. This list is used by pdfork()

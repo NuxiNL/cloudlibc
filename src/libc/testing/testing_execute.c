@@ -121,7 +121,7 @@ void testing_execute(int tmpdir, int logfile) {
   };
 
   // Spawn a number of threads to execute the tests in parallel.
-  // TODO(edje): Make number of threads configurable.
+  // TODO(ed): Make number of threads configurable.
   pthread_t threads[8];
   for (size_t i = 0; i < __arraycount(threads); ++i)
     ASSERT_EQ(0, pthread_create(&threads[i], NULL, run_tests, &state));

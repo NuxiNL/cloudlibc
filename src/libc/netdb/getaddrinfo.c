@@ -8,6 +8,6 @@
 int getaddrinfo(const char *restrict nodename, const char *restrict servname,
                 const struct addrinfo *restrict hints,
                 struct addrinfo **restrict res) {
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
   return EAI_SYSTEM;
 }

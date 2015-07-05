@@ -62,4 +62,4 @@ TEST(send, example) {
   ASSERT_EQ(0, close(fds[1]));
 }
 
-// TODO(edje): Add tests for MSG_EOR.
+// TODO(ed): Add tests for MSG_EOR.

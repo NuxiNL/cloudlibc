@@ -6,6 +6,6 @@
 #include <wchar.h>
 
 int wcscoll_l(const wchar_t *ws1, const wchar_t *ws2, locale_t locale) {
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
   return wcscmp(ws1, ws2);
 }

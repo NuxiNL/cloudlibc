@@ -76,7 +76,7 @@ const char *__locale_compile_string(locale_t locale,
   }
   return compiled_string;
 #else
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
   return (char *)"";
 #endif
 }

@@ -6,5 +6,5 @@
 #include <regex.h>
 
 void regfree(regex_t *preg) {
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
 }

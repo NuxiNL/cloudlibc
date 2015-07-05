@@ -116,7 +116,7 @@ struct servent_entry {
 // Attempts to fetch a memoized copy of struct servent. If no copy is
 // available, it creates a new copy through create_servent().
 //
-// TODO(edje): This could use a hash table. Maybe see if we could
+// TODO(ed): This could use a hash table. Maybe see if we could
 // implement a generalized hash table for memoization.
 static struct servent *get_servent(const char *entry, uint8_t protoid) {
   static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;

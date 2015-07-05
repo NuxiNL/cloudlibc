@@ -45,10 +45,10 @@ TEST(fdopen, socket) {
   ASSERT_EQ(33, read(fds[1], buf, sizeof(buf)));
   ASSERT_STREQ("Hawaii Five-0\nThis is an example\n", buf);
 
-  // TODO(edje): Add more tests.
+  // TODO(ed): Add more tests.
 
   ASSERT_EQ(0, fclose(file));
   ASSERT_EQ(0, close(fds[1]));
 }
 
-// TODO(edje): Add more tests.
+// TODO(ed): Add more tests.

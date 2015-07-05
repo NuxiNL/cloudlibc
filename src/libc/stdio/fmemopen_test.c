@@ -63,4 +63,4 @@ TEST(fmemopen, append) {
   ASSERT_EQ(0, fclose(file));
 }
 
-// TODO(edje): Polish up code and add more tests.
+// TODO(ed): Polish up code and add more tests.

@@ -180,7 +180,7 @@ struct lc_messages {
   const char *yesexpr;  // Affirmative response expression.
   const char *noexpr;   // Negative response expression.
 
-  // TODO(edje): Pick right sizes.
+  // TODO(ed): Pick right sizes.
   const char *gai_strerror[11];     // gai_strerror().
   const char *regerror[16];         // regerror().
   const char *strerror[ELAST + 1];  // strerror().

@@ -6,7 +6,7 @@
 #include <fenv.h>
 #include <testing.h>
 
-// TODO(edje): We should also test non-stop mode. Unfortunately, both
+// TODO(ed): We should also test non-stop mode. Unfortunately, both
 // Clang and GCC don't support FENV_ACCESS.
 
 TEST(feholdexcept, example) {

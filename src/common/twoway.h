@@ -22,7 +22,7 @@ typedef char char_t;
 //
 // http://monge.univ-mlv.fr/~mac/Articles-PDF/CP-1991-jacm.pdf
 //
-// TODO(edje): Should we add a shift table?
+// TODO(ed): Should we add a shift table?
 
 #define GENERATE_MAXIMAL_SUFFIX(N, OP)                                   \
   static void maximal_suffix_##N(const char_t *needle, size_t needlelen, \

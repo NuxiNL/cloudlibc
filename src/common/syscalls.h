@@ -30,7 +30,7 @@
 
 typedef uint64_t register_t;
 
-// TODO(edje): Determine whether this is correct.
+// TODO(ed): Determine whether this is correct.
 #define CLOBBERS "memory", "rcx", "rdx", "r8", "r9", "r10", "r11"
 
 #define SYSCALL_0_0(number, name)                                    \

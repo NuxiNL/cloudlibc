@@ -37,7 +37,7 @@ static bool mem_write_flush(FILE *file) {
     // Determine current offset within the file.
     size_t offset = file->writebuf - file->fmemopen.buf;
 
-    // TODO(edje): Is this logic correct?
+    // TODO(ed): Is this logic correct?
     if (offset > file->fmemopen.used)
       file->fmemopen.used = file->offset;
 

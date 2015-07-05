@@ -139,7 +139,7 @@ static bool file_seek(FILE *file, off_t offset, int whence) {
 }
 
 static bool file_setvbuf(FILE *file, size_t size) {
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
   errno = ENOSYS;
   return false;
 }
@@ -165,7 +165,7 @@ static FILE *file_open(int fildes, const char *mode, locale_t locale,
     return NULL;
   }
   file->fd = fildes;
-  // TODO(edje): Have separate ops for the append case.
+  // TODO(ed): Have separate ops for the append case.
   file->ops = &ops;
 
   // Attach allocated buffer.
@@ -238,7 +238,7 @@ static bool pipe_seek(FILE *file, off_t offset, int whence) {
 }
 
 static bool pipe_setvbuf(FILE *file, size_t bufsize) {
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
   return true;
 }
 

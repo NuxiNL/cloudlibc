@@ -88,7 +88,7 @@ int NAME(FILE *stream, locale_t locale, const char_t *format, va_list ap) {
 
 static int vfscanf_locked(FILE *stream, locale_t locale, const char_t *format,
                           va_list ap) {
-// TODO(edje): Make INPUT_REMAINING() work. Fix error handling.
+// TODO(ed): Make INPUT_REMAINING() work. Fix error handling.
 #define INPUT_REMAINING(n) false
 #define INPUT_PEEK(n) (stream->readbuf[n])
 #define INPUT_SKIP(n)         \
@@ -115,7 +115,7 @@ int NAME(const char_t *restrict s, locale_t locale,
   size_t input_read = 0;
   size_t conversions_performed = 0;
 
-  // TODO(edje): Implement argument handling properly.
+  // TODO(ed): Implement argument handling properly.
   void *arguments[10];
   for (size_t i = 0; i < 10; ++i)
     arguments[i] = va_arg(ap, void *);
@@ -150,12 +150,12 @@ int NAME(const char_t *restrict s, locale_t locale,
     if (*format == '%') {
       // Escaped percent symbol.
       if (*++format == '%') {
-        // TODO(edje): Implement.
+        // TODO(ed): Implement.
         continue;
       }
     }
 
-    // TODO(edje): Add support for numbered arguments.
+    // TODO(ed): Add support for numbered arguments.
 
     // Suppress assignment.
     bool suppress = false;
@@ -296,7 +296,7 @@ int NAME(const char_t *restrict s, locale_t locale,
         if (!have_number)
           return conversions_performed;
         INPUT_SKIP(idx);
-        // TODO(edje): Store value.
+        // TODO(ed): Store value.
         ++conversions_performed;
         break;
       }
@@ -306,13 +306,13 @@ int NAME(const char_t *restrict s, locale_t locale,
         length = LM_LONG;
       case 's': {
         // String.
-        // TODO(edje): Implement.
+        // TODO(ed): Implement.
         break;
       }
 
       case '[': {
         // Set of characters.
-        // TODO(edje): Implement.
+        // TODO(ed): Implement.
         break;
       }
 
@@ -321,7 +321,7 @@ int NAME(const char_t *restrict s, locale_t locale,
         length = LM_LONG;
       case 'c': {
         // Fixed-size string of characters.
-        // TODO(edje): Add support for %lc.
+        // TODO(ed): Add support for %lc.
         if (field_width == 0)
           field_width = 1;
         if (!INPUT_REMAINING(field_width))

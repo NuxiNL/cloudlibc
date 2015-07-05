@@ -156,7 +156,7 @@ static inline void encode_fd(int value, uint8_t **buf) {
 }
 
 static inline int validate_string(const char *buf, size_t len) {
-  // TODO(edje): Implement.
+  // TODO(ed): Implement.
   return 0;
 }
 

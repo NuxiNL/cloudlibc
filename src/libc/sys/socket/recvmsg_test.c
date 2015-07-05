@@ -48,4 +48,4 @@ TEST(recvmsg, bad) {
   ASSERT_EQ(0, close(fds[1]));
 }
 
-// TODO(edje): Add more tests.
+// TODO(ed): Add more tests.

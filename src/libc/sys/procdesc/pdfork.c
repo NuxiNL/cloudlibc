@@ -46,7 +46,7 @@ int pdfork(int *fdp, ...) {
   if (fd == CLOUDABI_PROCESS_CHILD) {
     // We're the child. Update our thread ID and patch up all locks held
     // by this thread to use the proper thread ID and to have no waiters.
-    // TODO(edje): We should skip pshared locks.
+    // TODO(ed): We should skip pshared locks.
     refcount_init(&__pthread_num_threads, 1);
     __pthread_thread_id = tid;
     __pthread_lock_t *lock;

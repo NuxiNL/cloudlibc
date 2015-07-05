@@ -24,7 +24,7 @@ TEST(clock_nanosleep, monotonic_relative) {
   ASSERT_TRUE(after - before >= 1 && after - before <= 2);
 }
 
-#if 0  // TODO(edje): Re-enable once FreeBSD's nanosleep works.
+#if 0  // TODO(ed): Re-enable once FreeBSD's nanosleep works.
 TEST(clock_nanosleep, realtime_absolute) {
   // Sleep until the next 1-second boundary.
   time_t end = time(NULL) + 1;

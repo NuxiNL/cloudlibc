@@ -29,7 +29,7 @@ noreturn void pthread_exit(void *value_ptr) {
   // Invoke destructors for per-thread values. These destructor functions
   // can register new values, so perform this step multiple times.
   //
-  // TODO(edje): Is it valid to reset all values to NULL at once? This
+  // TODO(ed): Is it valid to reset all values to NULL at once? This
   // could be solved more elegantly if we used a splay tree, as we could
   // just perform lookups while increasing the address.
   for (int i = 0;
@@ -72,7 +72,7 @@ noreturn void pthread_exit(void *value_ptr) {
     assert((old & DETACH_TERMINATING) == 0 &&
            "Attempted to terminate thread twice");
     if ((old & DETACH_DETACHED) != 0) {
-      // TODO(edje): Implement.
+      // TODO(ed): Implement.
     }
   }
 

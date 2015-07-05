@@ -160,7 +160,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     const char *buf;
     size_t len;
     if (argdata_get_str(ad, &buf, &len) == 0) {
-      // TODO(edje): Add proper escaping.
+      // TODO(ed): Add proper escaping.
       fprintf(fp, "!!str \"%s\"", buf);
       return;
     }

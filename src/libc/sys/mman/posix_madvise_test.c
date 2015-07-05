@@ -13,7 +13,7 @@
 TEST(posix_madvise, bad) {
   int x;
   ASSERT_EQ(EINVAL, posix_madvise(&x, sizeof(int), 0xdeadc0de));
-  // TODO(edje): Determine what posix_madvise() should return here.
+  // TODO(ed): Determine what posix_madvise() should return here.
   ASSERT_NE(0, posix_madvise((void *)UINTPTR_MAX, 100, POSIX_MADV_NORMAL));
 }
 

@@ -13,5 +13,5 @@
 static const struct lc_messages messages_ru_ru = {
     .yesexpr = "^[дДyY]", .noexpr = "^[нНnN]",
 
-    // TODO(edje): Add error strings.
+    // TODO(ed): Add error strings.
 };

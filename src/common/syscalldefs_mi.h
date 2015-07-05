@@ -424,7 +424,7 @@ typedef struct {
     } sa_inet;
     struct {
       // IPv6 address and port number.
-      // TODO(edje): What about the flow info and scope ID?
+      // TODO(ed): What about the flow info and scope ID?
       MEMBER(uint8_t) addr[16];
       MEMBER(uint16_t) port;
     } sa_inet6;

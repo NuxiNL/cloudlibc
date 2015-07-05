@@ -184,9 +184,9 @@ while (*format != '\0') {
               PRINT_FIXED_STRING("nan");
           default:
             switch (specifier) {
-              case 'f':  // TODO(edje): Implement!
+              case 'f':  // TODO(ed): Implement!
               case 'e':
-              case 'g':  // TODO(edje): Implement!
+              case 'g':  // TODO(ed): Implement!
                 // Decimal floating point, exponential notation, lowercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
                 float_exponent_char = 'e';
@@ -219,9 +219,9 @@ while (*format != '\0') {
               PRINT_FIXED_STRING("NAN");
           default:
             switch (specifier) {
-              case 'F':  // TODO(edje): Implement!
+              case 'F':  // TODO(ed): Implement!
               case 'E':
-              case 'G':  // TODO(edje): Implement!
+              case 'G':  // TODO(ed): Implement!
                 // Decimal floating point, exponential notation, uppercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
                 float_exponent_char = 'E';
@@ -319,7 +319,7 @@ while (*format != '\0') {
               numeric_grouping_init(&numeric_grouping,
                                     grouping ? locale->numeric->grouping : NULL,
                                     width) *
-              1;  // TODO(edje): Use the proper width.
+              1;  // TODO(ed): Use the proper width.
           if ((ssize_t)width < precision)
             width = precision;
           width += number_prefixlen;
@@ -338,7 +338,7 @@ while (*format != '\0') {
           while (digits < digitsbuf + sizeof(digitsbuf)) {
             if (numeric_grouping_step(&numeric_grouping)) {
               // Add thousands separator.
-              // TODO(edje): Add proper value from the locale.
+              // TODO(ed): Add proper value from the locale.
               PUTCHAR(',');
             }
             PUTCHAR(*digits++);
@@ -424,7 +424,7 @@ while (*format != '\0') {
               PUTCHAR(number_prefix[i]);
           }
           PUTCHAR(number_charset[float_digits[0]]);
-          // TODO(edje): Use radix character from LC_NUMERIC.
+          // TODO(ed): Use radix character from LC_NUMERIC.
           if (print_radixchar)
             PUTCHAR('.');
           for (size_t i = 1; i < float_ndigits; ++i)

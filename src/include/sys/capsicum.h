@@ -40,7 +40,7 @@
 // - CAP_FLOCK:
 //   File locking not available.
 // - CAP_FPATHCONF:
-//   TODO(edje): Add.
+//   TODO(ed): Add.
 // - CAP_FSCK:
 //   Not applicable to this environment.
 // - CAP_FSTATFS:

@@ -14,7 +14,7 @@ static const struct lc_messages messages_nl_nl = {
     .yesexpr = "^[jJyY]",
     .noexpr = "^[nN]",
 
-    // TODO(edje): Add error strings.
+    // TODO(ed): Add error strings.
 
     .unknown_error = "Onbekende fout",
 };

@@ -18,7 +18,7 @@ int fclose(FILE *stream) {
 
   // Free file object and associated data.
   pthread_mutex_destroy(&stream->lock);
-  // TODO(edje): Clean up storage associated with FILE object.
+  // TODO(ed): Clean up storage associated with FILE object.
   free(stream);
   return result;
 }

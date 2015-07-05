@@ -28,7 +28,7 @@ int kevent(int fd, const struct kevent *in, int nin, struct kevent *out,
     const struct kevent *ke = &in[i];
     cloudabi_subscription_t *sub = &subscriptions[i];
     sub->userdata = (uintptr_t)ke->udata;
-    // TODO(edje): Translate flags and fflags.
+    // TODO(ed): Translate flags and fflags.
     switch (ke->filter) {
       case EVFILT_READ:
         sub->type = CLOUDABI_EVENTTYPE_FD_READ;
@@ -44,7 +44,7 @@ int kevent(int fd, const struct kevent *in, int nin, struct kevent *out,
     }
   }
 
-  // TODO(edje): Add timeout.
+  // TODO(ed): Add timeout.
 
   size_t ntriggered;
   cloudabi_event_t events[nout];
@@ -55,7 +55,7 @@ int kevent(int fd, const struct kevent *in, int nin, struct kevent *out,
     return -1;
   }
 
-  // TODO(edje): Convert results back to struct kevent.
+  // TODO(ed): Convert results back to struct kevent.
   errno = ENOSYS;
   return -1;
 }

@@ -16,7 +16,7 @@ bool parsed_radixchar = false;
 
   size_t peeklen = 0;
   for (;;) {
-    // TODO(edje): mbtowc() if !WIDE.
+    // TODO(ed): mbtowc() if !WIDE.
     if (*decimal_point == L'\0') {
       // Full match on the radix character.
       SKIP(peeklen);
