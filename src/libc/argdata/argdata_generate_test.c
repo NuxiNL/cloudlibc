@@ -230,6 +230,7 @@ TEST(argdata_generate, seq) {
                 "exactly 125 bytes long. This way its length can be encoded in "
                 "seven bits of data.\x00\x80",
                 0);
+    argdata_free(str);
     argdata_free(ad);
   }
 
@@ -245,6 +246,7 @@ TEST(argdata_generate, seq) {
         "exactly 126 bytes long. This way its length can't be encoded in "
         "seven bits of data.\x00\x80",
         0);
+    argdata_free(str);
     argdata_free(ad);
   }
 }
