@@ -14,7 +14,7 @@ struct iterate_data {
   unsigned int depth;
 };
 
-static int print_yaml(const argdata_t *, FILE *, unsigned int);
+static void print_yaml(const argdata_t *, FILE *, unsigned int);
 
 static void print_space(unsigned int depth, FILE *fp) {
   fprintf(fp, "\n%*s", depth, "");
@@ -52,7 +52,7 @@ static bool iterate_seq(const argdata_t *ad, void *thunk) {
 }
 
 // Recursively prints a node as YAML.
-static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
+static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
   // Binary data. Print using Base64 encoding.
   {
     const void *buf;
@@ -83,7 +83,7 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         fwrite(b64, 1, sizeof(b64), fp);
       }
       fputc('"', fp);
-      return 0;
+      return;
     }
   }
 
@@ -92,7 +92,7 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     bool value;
     if (argdata_get_bool(ad, &value) == 0) {
       fputs(value ? "!!bool \"true\"" : "!!bool \"false\"", fp);
-      return 0;
+      return;
     }
   }
 
@@ -101,7 +101,7 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     int value;
     if (argdata_get_fd(ad, &value) == 0) {
       fprintf(fp, "!!fd \"%d\"", value);
-      return 0;
+      return;
     }
   }
 
@@ -110,7 +110,7 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     intmax_t value;
     if (argdata_get_int(ad, &value) == 0) {
       fprintf(fp, "!!int \"%jd\"", value);
-      return 0;
+      return;
     }
   }
 
@@ -119,7 +119,7 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     uintmax_t value;
     if (argdata_get_int(ad, &value) == 0) {
       fprintf(fp, "!!int \"%ju\"", value);
-      return 0;
+      return;
     }
   }
 
@@ -135,7 +135,7 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         print_space(depth, fp);
         fputc('}', fp);
       }
-      return 0;
+      return;
     }
   }
 
@@ -151,7 +151,7 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         print_space(depth, fp);
         fputc(']', fp);
       }
-      return 0;
+      return;
     }
   }
 
@@ -162,19 +162,16 @@ static int print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     if (argdata_get_str(ad, &buf, &len) == 0) {
       // TODO(edje): Add proper escaping.
       fprintf(fp, "!!str \"%s\"", buf);
-      return 0;
+      return;
     }
   }
 
+  // Unrepresentable object.
   fputs("!!null \"null\"", fp);
-  return 0;
 }
 
-int argdata_print_yaml(const argdata_t *ad, FILE *fp) {
+void argdata_print_yaml(const argdata_t *ad, FILE *fp) {
   fputs("---\n", fp);
-  int error = print_yaml(ad, fp, 0);
-  if (error != 0)
-    return error;
+  print_yaml(ad, fp, 0);
   fputc('\n', fp);
-  return 0;
 }

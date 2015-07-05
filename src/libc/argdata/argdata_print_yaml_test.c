@@ -17,7 +17,7 @@
     char outbuf[sizeof(out) + 5];                               \
     FILE *fp = fmemopen(outbuf, sizeof(outbuf), "w");           \
     ASSERT_NE(NULL, fp);                                        \
-    ASSERT_EQ(0, argdata_print_yaml(obj, fp));                  \
+    argdata_print_yaml(obj, fp);                                \
     ASSERT_EQ(sizeof(outbuf) - 1, ftello(fp));                  \
     ASSERT_EQ(0, fclose(fp));                                   \
                                                                 \

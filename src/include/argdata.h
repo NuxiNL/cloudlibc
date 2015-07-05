@@ -69,7 +69,7 @@ int argdata_iterate_map(const argdata_t *, void *,
                                   void *));
 int argdata_iterate_seq(const argdata_t *, void *,
                         _Bool (*)(const argdata_t *, void *));
-int argdata_print_yaml(const argdata_t *, struct _FILE *);
+void argdata_print_yaml(const argdata_t *, struct _FILE *);
 __END_DECLS
 
 // Generic fetching of integer values.
