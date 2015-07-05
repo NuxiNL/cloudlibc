@@ -31,8 +31,8 @@ static void encode(const argdata_t *ad, uint8_t *buf, int *fds,
       const uint8_t *ibuf = ad->buffer;
       size_t ilen = ad->length;
 
-      // Copy over the field type byte.
       if (fds != NULL) {
+        // Copy over the field type byte.
         --ilen;
         switch ((*buf++ = *ibuf++)) {
           case ADT_MAP:
