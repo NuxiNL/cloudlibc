@@ -114,6 +114,6 @@ noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
   // Invoke program_main(). If program_main() is not part of the
   // application, the C library provides a copy that calls main().
   argdata_t ad;
-  argdata_init_binary(&ad, sd.sd_arg, sd.sd_arglen);
+  argdata_init_buffer(&ad, sd.sd_arg, sd.sd_arglen);
   program_main(&ad);
 }

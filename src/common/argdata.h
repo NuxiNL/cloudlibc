@@ -45,7 +45,7 @@ enum {
   ADT_TIMESTAMP = 9  // A point in time.
 };
 
-static inline void argdata_init_binary(argdata_t *ad, const void *buffer,
+static inline void argdata_init_buffer(argdata_t *ad, const void *buffer,
                                        size_t length) {
   ad->type = AD_BUFFER;
   ad->buffer = buffer;
@@ -90,7 +90,7 @@ static inline int parse_subfield(argdata_t *ad, const uint8_t **bufp,
     return EINVAL;
 
   // Successfully obtained a subfield.
-  argdata_init_binary(ad, buf, reclen);
+  argdata_init_buffer(ad, buf, reclen);
   *bufp = buf + reclen;
   *lenp = len - reclen;
   return 0;
@@ -159,8 +159,5 @@ static inline int validate_string(const char *buf, size_t len) {
   // TODO(ed): Implement.
   return 0;
 }
-
-void __argdata_getspace(const argdata_t *, size_t *, size_t *);
-size_t __argdata_generate(const argdata_t *, void *, int *);
 
 #endif

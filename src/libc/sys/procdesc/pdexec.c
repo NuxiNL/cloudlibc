@@ -3,7 +3,6 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/argdata.h>
 #include <common/syscalls.h>
 
 #include <sys/procdesc.h>
@@ -27,10 +26,10 @@ int pdexec(int fd, const argdata_t *ad) {
     // Child process. Convert argument data to binary format.
     size_t datalen;
     size_t fdslen;
-    __argdata_getspace(ad, &datalen, &fdslen);
+    argdata_get_buffer_length(ad, &datalen, &fdslen);
     char data[datalen];
     int fds[fdslen];
-    fdslen = __argdata_generate(ad, data, fds);
+    fdslen = argdata_get_buffer(ad, data, fds);
 
     // Start the executable.
     cloudabi_sys_proc_exec(fd, data, datalen, (const cloudabi_fd_t *)fds,

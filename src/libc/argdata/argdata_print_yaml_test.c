@@ -3,8 +3,6 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/argdata.h>
-
 #include <argdata.h>
 #include <errno.h>
 #include <stdint.h>
@@ -26,12 +24,12 @@
   } while (0)
 
 TEST(argdata_print_yaml, buffer) {
-#define TEST_BUFFER(in, out)                      \
-  do {                                            \
-    /* Prepare argument data input. */            \
-    argdata_t ad;                                 \
-    argdata_init_binary(&ad, in, sizeof(in) - 1); \
-    TEST_OBJECT(&ad, out);                        \
+#define TEST_BUFFER(in, out)                                   \
+  do {                                                         \
+    /* Prepare argument data input. */                         \
+    argdata_t *ad = argdata_create_buffer(in, sizeof(in) - 1); \
+    TEST_OBJECT(ad, out);                                      \
+    argdata_free(ad);                                          \
   } while (0)
   TEST_BUFFER("", "!!null \"null\"");
 

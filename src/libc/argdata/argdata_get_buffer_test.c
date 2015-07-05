@@ -3,47 +3,46 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/argdata.h>
-
 #include <argdata.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <testing.h>
 
-#define TEST_OBJECT(obj, out, nfds, ...)                                \
-  do {                                                                  \
-    /* Compute size of resulting code. */                               \
-    size_t datalen;                                                     \
-    size_t fdslen;                                                      \
-    __argdata_getspace(obj, &datalen, &fdslen);                         \
-    ASSERT_EQ(sizeof(out) - 1, datalen);                                \
-    ASSERT_EQ(nfds, fdslen);                                            \
-                                                                        \
-    /* Generate code and compare. */                                    \
-    char data[sizeof(out) - 1];                                         \
-    int fds[nfds];                                                      \
-    int efds[] = {__VA_ARGS__};                                         \
-    ASSERT_EQ(__arraycount(efds), __argdata_generate(obj, data, fds));  \
-    ASSERT_ARREQ(out, data, sizeof(data));                              \
-    ASSERT_ARREQ(efds, fds, __arraycount(efds));                        \
-                                                                        \
-    /* Generating twice should not output different code. */            \
-    argdata_t ad2;                                                      \
-    argdata_init_binary(&ad2, out, sizeof(out) - 1);                    \
-    __argdata_getspace(&ad2, &datalen, &fdslen);                        \
-    ASSERT_EQ(sizeof(out) - 1, datalen);                                \
-    ASSERT_EQ(nfds, fdslen);                                            \
-    ASSERT_EQ(__arraycount(efds), __argdata_generate(&ad2, data, fds)); \
-    ASSERT_ARREQ(out, data, sizeof(data));                              \
-    for (size_t i = 0; i < __arraycount(efds); ++i)                     \
-      ASSERT_EQ(i, fds[i]);                                             \
+#define TEST_OBJECT(obj, out, nfds, ...)                               \
+  do {                                                                 \
+    /* Compute size of resulting code. */                              \
+    size_t datalen;                                                    \
+    size_t fdslen;                                                     \
+    argdata_get_buffer_length(obj, &datalen, &fdslen);                 \
+    ASSERT_EQ(sizeof(out) - 1, datalen);                               \
+    ASSERT_EQ(nfds, fdslen);                                           \
+                                                                       \
+    /* Generate code and compare. */                                   \
+    char data[sizeof(out) - 1];                                        \
+    int fds[nfds];                                                     \
+    int efds[] = {__VA_ARGS__};                                        \
+    ASSERT_EQ(__arraycount(efds), argdata_get_buffer(obj, data, fds)); \
+    ASSERT_ARREQ(out, data, sizeof(data));                             \
+    ASSERT_ARREQ(efds, fds, __arraycount(efds));                       \
+                                                                       \
+    /* Generating twice should not output different code. */           \
+    argdata_t *ad2 = argdata_create_buffer(out, sizeof(out) - 1);      \
+    argdata_get_buffer_length(ad2, &datalen, &fdslen);                 \
+    ASSERT_EQ(sizeof(out) - 1, datalen);                               \
+    ASSERT_EQ(nfds, fdslen);                                           \
+    ASSERT_EQ(__arraycount(efds), argdata_get_buffer(ad2, data, fds)); \
+    argdata_free(ad2);                                                 \
+    ASSERT_ARREQ(out, data, sizeof(data));                             \
+    for (size_t i = 0; i < __arraycount(efds); ++i)                    \
+      ASSERT_EQ(i, fds[i]);                                            \
   } while (0)
 
-TEST(argdata_generate, buffer) {
-#define TEST_BUFFER(in, out, nfds, ...)           \
-  do {                                            \
-    argdata_t ad;                                 \
-    argdata_init_binary(&ad, in, sizeof(in) - 1); \
-    TEST_OBJECT(&ad, out, nfds, ##__VA_ARGS__);   \
+TEST(argdata_get_buffer, buffer) {
+#define TEST_BUFFER(in, out, nfds, ...)                        \
+  do {                                                         \
+    argdata_t *ad = argdata_create_buffer(in, sizeof(in) - 1); \
+    TEST_OBJECT(ad, out, nfds, ##__VA_ARGS__);                 \
+    argdata_free(ad);                                          \
   } while (0)
   // Null.
   TEST_BUFFER("", "", 0);
@@ -94,24 +93,24 @@ TEST(argdata_generate, buffer) {
 #undef TEST_BUFFER
 }
 
-TEST(argdata_generate, binary) {
+TEST(argdata_get_buffer, binary) {
   argdata_t *ad = argdata_create_binary("Hello", 5);
   TEST_OBJECT(ad, "\x01Hello", 0);
   argdata_free(ad);
 }
 
-TEST(argdata_generate, bool) {
+TEST(argdata_get_buffer, bool) {
   TEST_OBJECT(&argdata_false, "\x02", 0);
   TEST_OBJECT(&argdata_true, "\x02\x01", 0);
 }
 
-TEST(argdata_generate, fd) {
+TEST(argdata_get_buffer, fd) {
   argdata_t *ad = argdata_create_fd(12);
   TEST_OBJECT(ad, "\x03\x00\x00\x00\x00", 1, 12);
   argdata_free(ad);
 }
 
-TEST(argdata_generate, int) {
+TEST(argdata_get_buffer, int) {
 #define TEST_INT(value, out)                   \
   do {                                         \
     argdata_t *ad = argdata_create_int(value); \
@@ -201,11 +200,11 @@ TEST(argdata_print_yaml, map) {
   }
 }
 
-TEST(argdata_generate, null) {
+TEST(argdata_get_buffer, null) {
   TEST_OBJECT(&argdata_null, "", 0);
 }
 
-TEST(argdata_generate, seq) {
+TEST(argdata_get_buffer, seq) {
   {
     argdata_t *ad = argdata_create_seq(NULL, 0);
     TEST_OBJECT(ad, "\x07", 0);
@@ -251,7 +250,7 @@ TEST(argdata_generate, seq) {
   }
 }
 
-TEST(argdata_generate, str) {
+TEST(argdata_get_buffer, str) {
   argdata_t *ad = argdata_create_str("Hello\x00world", 11);
   TEST_OBJECT(ad, "\x08Hello\x00world\x00", 0);
   argdata_free(ad);

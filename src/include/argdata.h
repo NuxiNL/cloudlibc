@@ -43,6 +43,7 @@ extern const argdata_t argdata_true;
 
 __BEGIN_DECLS
 argdata_t *argdata_create_binary(const void *, __size_t);
+argdata_t *argdata_create_buffer(const void *, __size_t);
 argdata_t *argdata_create_fd(int);
 argdata_t *argdata_create_float(double);
 argdata_t *__argdata_create_int_s(__intmax_t);
@@ -55,6 +56,8 @@ argdata_t *argdata_create_str_c(const char *);
 argdata_t *argdata_create_timestamp(const struct timespec *);
 void argdata_free(argdata_t *);
 int argdata_get_binary(const argdata_t *, const void **, __size_t *);
+void argdata_get_buffer_length(const argdata_t *, __size_t *, __size_t *);
+__size_t argdata_get_buffer(const argdata_t *, void *, int *);
 int argdata_get_bool(const argdata_t *, _Bool *);
 int argdata_get_fd(const argdata_t *, int *);
 int argdata_get_float(const argdata_t *, double *);

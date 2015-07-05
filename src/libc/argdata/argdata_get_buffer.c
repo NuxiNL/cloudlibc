@@ -29,27 +29,30 @@ static void encode(const argdata_t *ad, uint8_t *buf, int *fds,
   switch (ad->type) {
     case AD_BUFFER: {
       const uint8_t *ibuf = ad->buffer;
-      size_t ilen = ad->length - 1;
+      size_t ilen = ad->length;
 
       // Copy over the field type byte.
-      switch ((*buf++ = *ibuf++)) {
-        case ADT_MAP:
-        case ADT_SEQ: {
-          // Scan map and sequence entries for file descriptors.
-          for (;;) {
-            argdata_t iad;
-            if (parse_subfield(&iad, &ibuf, &ilen) != 0)
-              break;
-            encode_subfield(&iad, &buf, fds, fdslen);
+      if (fds != NULL) {
+        --ilen;
+        switch ((*buf++ = *ibuf++)) {
+          case ADT_MAP:
+          case ADT_SEQ: {
+            // Scan map and sequence entries for file descriptors.
+            for (;;) {
+              argdata_t iad;
+              if (parse_subfield(&iad, &ibuf, &ilen) != 0)
+                break;
+              encode_subfield(&iad, &buf, fds, fdslen);
+            }
+            break;
           }
-          break;
-        }
-        case ADT_FD: {
-          // Remap file descriptors to be sequential starting at zero.
-          int fd;
-          if (parse_fd(&fd, &ibuf, &ilen) == 0)
-            encode_fd(map_fd(fd, fds, fdslen), &buf);
-          break;
+          case ADT_FD: {
+            // Remap file descriptors to be sequential starting at zero.
+            int fd;
+            if (parse_fd(&fd, &ibuf, &ilen) == 0)
+              encode_fd(map_fd(fd, fds, fdslen), &buf);
+            break;
+          }
         }
       }
 
@@ -95,7 +98,7 @@ static void encode_subfield(const argdata_t *ad, uint8_t **buf, int *fds,
   *buf += ad->length;
 }
 
-size_t __argdata_generate(const argdata_t *ad, void *buf, int *fds) {
+size_t argdata_get_buffer(const argdata_t *ad, void *buf, int *fds) {
   size_t nfds = 0;
   encode(ad, buf, fds, &nfds);
   return nfds;

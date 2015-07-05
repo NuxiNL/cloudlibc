@@ -63,7 +63,9 @@ static size_t countfds(const argdata_t *ad) {
   }
 }
 
-void __argdata_getspace(const argdata_t *ad, size_t *datalen, size_t *fdslen) {
+void argdata_get_buffer_length(const argdata_t *ad, size_t *datalen,
+                               size_t *fdslen) {
   *datalen = ad->length;
-  *fdslen = countfds(ad);
+  if (fdslen != NULL)
+    *fdslen = countfds(ad);
 }
