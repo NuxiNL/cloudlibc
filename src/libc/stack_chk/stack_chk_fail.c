@@ -3,13 +3,13 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <common/syscalls.h>
+
 #include <stdnoreturn.h>
 
 noreturn void __stack_chk_fail(void);
 
 noreturn void __stack_chk_fail(void) {
-  fprintf(stderr, "Buffer overflow detected\n");
-  abort();
+  cloudabi_sys_proc_raise(CLOUDABI_SIGABRT);
+  cloudabi_sys_proc_exit(1);
 }
