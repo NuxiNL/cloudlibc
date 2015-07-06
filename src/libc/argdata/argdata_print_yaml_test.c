@@ -9,18 +9,19 @@
 #include <stdio.h>
 #include <testing.h>
 
-#define TEST_OBJECT(obj, out)                                   \
-  do {                                                          \
-    /* Write YAML to output buffer. */                          \
-    char outbuf[sizeof(out) + 5];                               \
-    FILE *fp = fmemopen(outbuf, sizeof(outbuf), "w");           \
-    ASSERT_NE(NULL, fp);                                        \
-    argdata_print_yaml(obj, fp);                                \
-    ASSERT_EQ(sizeof(outbuf) - 1, ftello(fp));                  \
-    ASSERT_EQ(0, fclose(fp));                                   \
-                                                                \
-    /* Compare against expected output. */                      \
-    ASSERT_ARREQ("---\n" out "\n", outbuf, sizeof(outbuf) - 1); \
+#define TEST_OBJECT(obj, out)                                        \
+  do {                                                               \
+    /* Write YAML to output buffer. */                               \
+    char outbuf[sizeof(out) + 30];                                   \
+    FILE *fp = fmemopen(outbuf, sizeof(outbuf), "w");                \
+    ASSERT_NE(NULL, fp);                                             \
+    argdata_print_yaml(obj, fp);                                     \
+    ASSERT_EQ(sizeof(outbuf) - 1, ftello(fp));                       \
+    ASSERT_EQ(0, fclose(fp));                                        \
+                                                                     \
+    /* Compare against expected output. */                           \
+    ASSERT_ARREQ("%TAG ! tag:nuxi.nl,2015:\n---\n" out "\n", outbuf, \
+                 sizeof(outbuf) - 1);                                \
   } while (0)
 
 TEST(argdata_print_yaml, buffer) {
@@ -52,8 +53,8 @@ TEST(argdata_print_yaml, buffer) {
   // File descriptors. These are fixed size.
   TEST_BUFFER("\x03", "!!null \"null\"");
   TEST_BUFFER("\x03\x00\x00\x00", "!!null \"null\"");
-  TEST_BUFFER("\x03\x00\x00\x00\x00", "!!fd \"0\"");
-  TEST_BUFFER("\x03\x12\x34\x56\x78", "!!fd \"305419896\"");
+  TEST_BUFFER("\x03\x00\x00\x00\x00", "!fd \"0\"");
+  TEST_BUFFER("\x03\x12\x34\x56\x78", "!fd \"305419896\"");
   TEST_BUFFER("\x03\xff\xff\xff\xff", "!!null \"null\"");
   TEST_BUFFER("\x03\x00\x00\x00\x00\x00", "!!null \"null\"");
 
@@ -206,7 +207,7 @@ TEST(argdata_print_yaml, fd) {
   ASSERT_EQ(EBADF, errno);
 
   argdata_t *ad = argdata_create_fd(12345678);
-  TEST_OBJECT(ad, "!!fd \"12345678\"");
+  TEST_OBJECT(ad, "!fd \"12345678\"");
   argdata_free(ad);
 }
 

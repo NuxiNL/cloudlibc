@@ -100,7 +100,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
   {
     int value;
     if (argdata_get_fd(ad, &value) == 0) {
-      fprintf(fp, "!!fd \"%d\"", value);
+      fprintf(fp, "!fd \"%d\"", value);
       return;
     }
   }
@@ -171,7 +171,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
 }
 
 void argdata_print_yaml(const argdata_t *ad, FILE *fp) {
-  fputs("---\n", fp);
+  fputs("%TAG ! tag:nuxi.nl,2015:\n---\n", fp);
   print_yaml(ad, fp, 0);
   fputc('\n', fp);
 }
