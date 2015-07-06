@@ -110,7 +110,7 @@ static inline size_t get_subfield_length(const argdata_t *ad) {
 
 // Encodes the length of a field and stores it in an output buffer.
 static inline void encode_subfield_length(const argdata_t *ad, uint8_t **buf) {
-  uint8_t digits[__howmany(sizeof(size_t) * CHAR_BIT, 7)];
+  uint8_t digits[sizeof(size_t) * CHAR_BIT / 7 + 1];
   uint8_t *start = digits + sizeof(digits);
   size_t len = ad->length;
   *--start = len | 0x80;
