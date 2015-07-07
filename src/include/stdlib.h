@@ -277,7 +277,7 @@ void *bsearch(const void *, const void *, size_t, size_t,
 void *calloc(size_t, size_t);
 div_t div(int, int) __pure2;
 double drand48(void);
-void exit(int);
+_Noreturn void exit(int);
 void free(void *);
 char *getenv(const char *);
 int getsubopt(char **, char *const *, char **);

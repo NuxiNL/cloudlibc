@@ -9,6 +9,7 @@
 #include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdnoreturn.h>
 
 #include "stdlib_impl.h"
 
