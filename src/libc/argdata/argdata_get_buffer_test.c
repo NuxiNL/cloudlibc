@@ -184,7 +184,7 @@ TEST(argdata_get_buffer, int) {
 #undef TEST_INT
 }
 
-TEST(argdata_print_yaml, map) {
+TEST(argdata_get_buffer, map) {
   {
     argdata_t *ad = argdata_create_map(NULL, NULL, 0);
     TEST_OBJECT(ad, "\x06", 0);
