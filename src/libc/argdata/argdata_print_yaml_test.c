@@ -9,19 +9,21 @@
 #include <stdio.h>
 #include <testing.h>
 
-#define TEST_OBJECT(obj, out)                                        \
-  do {                                                               \
-    /* Write YAML to output buffer. */                               \
-    char outbuf[sizeof(out) + 30];                                   \
-    FILE *fp = fmemopen(outbuf, sizeof(outbuf), "w");                \
-    ASSERT_NE(NULL, fp);                                             \
-    argdata_print_yaml(obj, fp);                                     \
-    ASSERT_EQ(sizeof(outbuf) - 1, ftello(fp));                       \
-    ASSERT_EQ(0, fclose(fp));                                        \
-                                                                     \
-    /* Compare against expected output. */                           \
-    ASSERT_ARREQ("%TAG ! tag:nuxi.nl,2015:\n---\n" out "\n", outbuf, \
-                 sizeof(outbuf) - 1);                                \
+#define TEST_OBJECT(obj, out)                         \
+  do {                                                \
+    /* Write YAML to output buffer. */                \
+    char outbuf[sizeof(out) + 39];                    \
+    FILE *fp = fmemopen(outbuf, sizeof(outbuf), "w"); \
+    ASSERT_NE(NULL, fp);                              \
+    argdata_print_yaml(obj, fp);                      \
+    ASSERT_EQ(sizeof(outbuf) - 1, ftello(fp));        \
+    ASSERT_EQ(0, fclose(fp));                         \
+                                                      \
+    /* Compare against expected output. */            \
+    ASSERT_ARREQ(                                     \
+        "%TAG ! tag:nuxi.nl,2015:cloudabi/\n"         \
+        "---\n" out "\n",                             \
+        outbuf, sizeof(outbuf) - 1);                  \
   } while (0)
 
 TEST(argdata_print_yaml, buffer) {

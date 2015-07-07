@@ -171,7 +171,10 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
 }
 
 void argdata_print_yaml(const argdata_t *ad, FILE *fp) {
-  fputs("%TAG ! tag:nuxi.nl,2015:\n---\n", fp);
+  fputs(
+      "%TAG ! tag:nuxi.nl,2015:cloudabi/\n"
+      "---\n",
+      fp);
   print_yaml(ad, fp, 0);
   fputc('\n', fp);
 }
