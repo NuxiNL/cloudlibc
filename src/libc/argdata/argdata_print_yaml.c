@@ -4,9 +4,14 @@
 // See the LICENSE file for details.
 
 #include <argdata.h>
+#include <inttypes.h>
+#include <locale.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+#include <wctype.h>
 
 struct iterate_data {
   bool first;
@@ -160,8 +165,59 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     const char *buf;
     size_t len;
     if (argdata_get_str(ad, &buf, &len) == 0) {
-      // TODO(ed): Add proper escaping.
-      fprintf(fp, "!!str \"%s\"", buf);
+      fputs("!!str \"", fp);
+      locale_t locale = LC_C_UNICODE_LOCALE;
+      mbstate_t mbs;
+      memset(&mbs, '\0', sizeof(mbs));
+      while (len > 0) {
+        wchar_t wc;
+        ssize_t clen = mbrtowc_l(&wc, buf, len, &mbs, locale);
+        if (clen <= 0) {
+          wc = L'\0';
+          clen = 1;
+        }
+
+        switch (wc) {
+#define MAP(c, ch)                   \
+  case (c): {                        \
+    char cb[3] = {'\\', (ch), '\0'}; \
+    fputs(cb, fp);                   \
+    break;                           \
+  }
+          // Characters that have a shorthand escape sequence. Forward
+          // slash has been omitted, as it is apparently optional.
+          MAP('\0', '0');
+          MAP('\a', 'a');
+          MAP('\b', 'b');
+          MAP('\t', 't');
+          MAP('\n', 'n');
+          MAP('\v', 'v');
+          MAP('\f', 'f');
+          MAP('\r', 'r');
+          MAP(0x1b, 'e');
+          MAP('"', '"');
+          MAP('\\', '\\');
+          MAP(0x85, 'N');
+          MAP(0xa0, '_');
+          MAP(0x2028, 'L');
+          MAP(0x2029, 'P');
+#undef MAP
+          default:
+            if (iswprint_l(wc, locale)) {
+              // Character is printable.
+              fwrite(buf, 1, clen, fp);
+            } else if (wc <= UINT8_MAX) {
+              fprintf(fp, "\\x%02" PRIx8, (uint8_t)wc);
+            } else if (wc <= UINT16_MAX) {
+              fprintf(fp, "\\u%04" PRIx16, (uint16_t)wc);
+            } else {
+              fprintf(fp, "\\U%08" PRIx32, (uint32_t)wc);
+            }
+        }
+        buf += clen;
+        len -= clen;
+      }
+      fputc('"', fp);
       return;
     }
   }

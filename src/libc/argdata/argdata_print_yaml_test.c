@@ -140,10 +140,12 @@ TEST(argdata_print_yaml, buffer) {
   TEST_BUFFER("\x05\x01\x00\x00\x00\x00\x00\x00\x00\x00", "!!null \"null\"");
 
   // Strings.
-  // TODO(ed): Add tests for special characters and bad encoding.
   TEST_BUFFER("\x08", "!!null \"null\"");
   TEST_BUFFER("\x08Hello", "!!null \"null\"");
   TEST_BUFFER("\x08Hello\x00", "!!str \"Hello\"");
+  TEST_BUFFER("\x08Invalid\xffUnicode\x00", "!!null \"null\"");
+  TEST_BUFFER("\x08\a\b\n\r\x1b\0\x03☃\x00",
+              "!!str \"\\a\\b\\n\\r\\e\\0\\x03☃\"");
 
   // Maps.
   // TODO(ed): Add tests for multi-byte lengths.
@@ -220,7 +222,6 @@ TEST(argdata_print_yaml, int) {
     TEST_OBJECT(ad, "!!int \"" out "\"");      \
     argdata_free(ad);                          \
   } while (0)
-  // TODO(ed): Add more tests.
   TEST_INT(0, "0");
   TEST_INT(0xdeadc0de, "3735929054");
   TEST_INT(INT64_MIN, "-9223372036854775808");
