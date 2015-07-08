@@ -6,12 +6,16 @@
 #ifndef COMMON_ARGDATA_H
 #define COMMON_ARGDATA_H
 
+#include <sys/types.h>
+
 #include <argdata.h>
 #include <errno.h>
 #include <limits.h>
+#include <locale.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <wchar.h>
 
 struct __argdata {
   enum { AD_BUFFER, AD_BINARY, AD_MAP, AD_SEQ, AD_STR } type;
@@ -155,8 +159,23 @@ static inline void encode_fd(int value, uint8_t **buf) {
   *(*buf)++ = value;
 }
 
+// Validates whether a string uses valid UTF-8.
 static inline int validate_string(const char *buf, size_t len) {
-  // TODO(ed): Implement.
+  // TODO(ed): Any way we can prevent pulling in the entire locale?
+  locale_t locale = LC_C_UNICODE_LOCALE;
+  mbstate_t mbs;
+  memset(&mbs, '\0', sizeof(mbs));
+  while (len > 0) {
+    ssize_t clen = mbrtowc_l(NULL, buf, len, &mbs, locale);
+    if (clen <= 0) {
+      if (clen < 0)
+        return EILSEQ;
+      // Skip null bytes.
+      clen = 1;
+    }
+    buf += clen;
+    len -= clen;
+  }
   return 0;
 }
 
