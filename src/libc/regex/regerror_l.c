@@ -6,7 +6,6 @@
 #include <common/locale.h>
 
 #include <regex.h>
-#include <string.h>
 
 size_t regerror_l(int errcode, const regex_t *restrict preg,
                   char *restrict errbuf, size_t errbuf_size, locale_t locale) {
@@ -14,10 +13,10 @@ size_t regerror_l(int errcode, const regex_t *restrict preg,
   size_t idx = errcode;
   if (idx < __arraycount(messages->regerror) &&
       messages->regerror[idx] != NULL) {
-    return __locale_translate_string(
-        locale, errbuf, locale->messages->regerror[idx], errbuf_size);
+    return __locale_translate_string(locale, errbuf, messages->regerror[idx],
+                                     errbuf_size);
   } else {
-    return __locale_translate_string(
-        locale, errbuf, locale->messages->unknown_error, errbuf_size);
+    return __locale_translate_string(locale, errbuf, messages->unknown_error,
+                                     errbuf_size);
   }
 }

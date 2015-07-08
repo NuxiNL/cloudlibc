@@ -3,9 +3,18 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <locale.h>
+#include <common/locale.h>
+
 #include <string.h>
 
 char *strerror(int errnum) {
-  return strerror_l(errnum, LC_GLOBAL_LOCALE);
+  // Fetch strings from the en_US locale directly.
+  const struct lc_messages *messages = &__messages_en_us;
+  size_t idx = errnum;
+  if (idx < __arraycount(messages->strerror) &&
+      messages->strerror[idx] != NULL) {
+    return (char *)messages->strerror[idx];
+  } else {
+    return (char *)messages->unknown_error;
+  }
 }

@@ -9,16 +9,14 @@
 #include <string.h>
 
 int strerror_r(int errnum, char *strerrbuf, size_t buflen) {
-  DEFAULT_LOCALE(locale, LC_CTYPE_MASK | LC_MESSAGES_MASK);
-  const struct lc_messages *messages = locale->messages;
+  // Fetch strings from the en_US locale directly.
+  const struct lc_messages *messages = &__messages_en_us;
   size_t idx = errnum;
   if (idx < __arraycount(messages->strerror) &&
       messages->strerror[idx] != NULL) {
-    __locale_translate_string(locale, strerrbuf,
-                              locale->messages->strerror[idx], buflen);
+    strlcpy(strerrbuf, messages->strerror[idx], buflen);
   } else {
-    __locale_translate_string(locale, strerrbuf,
-                              locale->messages->unknown_error, buflen);
+    strlcpy(strerrbuf, messages->unknown_error, buflen);
   }
   return 0;
 }

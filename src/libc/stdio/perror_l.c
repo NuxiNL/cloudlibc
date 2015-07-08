@@ -15,10 +15,10 @@ void perror_l(const char *s, locale_t locale) {
   char errstr[NL_TEXTMAX];
   if (idx < __arraycount(messages->strerror) &&
       messages->strerror[idx] != NULL) {
-    __locale_translate_string(locale, errstr, locale->messages->strerror[idx],
+    __locale_translate_string(locale, errstr, messages->strerror[idx],
                               sizeof(errstr));
   } else {
-    __locale_translate_string(locale, errstr, locale->messages->unknown_error,
+    __locale_translate_string(locale, errstr, messages->unknown_error,
                               sizeof(errstr));
   }
 

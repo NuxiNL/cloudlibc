@@ -16,7 +16,7 @@ void psignal_l(int signum, const char *message, locale_t locale) {
       messages->strsignal[idx] == NULL)
     idx = 0;
   char sigstr[NL_TEXTMAX];
-  __locale_translate_string(locale, sigstr, locale->messages->strsignal[idx],
+  __locale_translate_string(locale, sigstr, messages->strsignal[idx],
                             sizeof(sigstr));
 
   if (message == NULL || *message == '\0') {
