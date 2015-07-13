@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <testing.h>
+#include <time.h>
 
 #define TEST_OBJECT(obj, out, nfds, ...)                               \
   do {                                                                 \
@@ -254,4 +255,79 @@ TEST(argdata_get_buffer, str) {
   argdata_t *ad = argdata_create_str("Hello\x00world", 11);
   TEST_OBJECT(ad, "\x08Hello\x00world\x00", 0);
   argdata_free(ad);
+}
+
+TEST(argdata_get_buffer, timestamp) {
+#define TEST_TIMESTAMP(s, ns, out)                                \
+  do {                                                            \
+    struct timespec ts = {.tv_sec = INT64_C(s), .tv_nsec = (ns)}; \
+    argdata_t *ad = argdata_create_timestamp(&ts);                \
+    TEST_OBJECT(ad, "\x09" out, 0);                               \
+    argdata_free(ad);                                             \
+  } while (0)
+  // TODO(ed): Add more tests for negative timestamps.
+  TEST_TIMESTAMP(-1, 999999999, "\xff");
+  TEST_TIMESTAMP(0, 0, "");
+  TEST_TIMESTAMP(0, 1, "\x01");
+  TEST_TIMESTAMP(0, 127, "\x7f");
+  TEST_TIMESTAMP(0, 128, "\x00\x80");
+  TEST_TIMESTAMP(0, 255, "\x00\xff");
+  TEST_TIMESTAMP(0, 256, "\x01\x00");
+  TEST_TIMESTAMP(0, 32767, "\x7f\xff");
+  TEST_TIMESTAMP(0, 32768, "\x00\x80\x00");
+  TEST_TIMESTAMP(0, 65535, "\x00\xff\xff");
+  TEST_TIMESTAMP(0, 65536, "\x01\x00\x00");
+  TEST_TIMESTAMP(0, 8388607, "\x7f\xff\xff");
+  TEST_TIMESTAMP(0, 8388608, "\x00\x80\x00\x00");
+  TEST_TIMESTAMP(0, 16777215, "\x00\xff\xff\xff");
+  TEST_TIMESTAMP(0, 16777216, "\x01\x00\x00\x00");
+  TEST_TIMESTAMP(2, 147483647, "\x7f\xff\xff\xff");
+  TEST_TIMESTAMP(2, 147483648, "\x00\x80\x00\x00\x00");
+  TEST_TIMESTAMP(4, 294967295, "\x00\xff\xff\xff\xff");
+  TEST_TIMESTAMP(4, 294967296, "\x01\x00\x00\x00\x00");
+  TEST_TIMESTAMP(549, 755813887, "\x7f\xff\xff\xff\xff");
+  TEST_TIMESTAMP(549, 755813888, "\x00\x80\x00\x00\x00\x00");
+  TEST_TIMESTAMP(1099, 511627775, "\x00\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(1099, 511627776, "\x01\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(140737, 488355327, "\x7f\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(140737, 488355328, "\x00\x80\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(281474, 976710655, "\x00\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(281474, 976710656, "\x01\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(36028797, 18963967, "\x7f\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(36028797, 18963968, "\x00\x80\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(72057594, 37927935, "\x00\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(72057594, 37927936, "\x01\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(9223372036, 854775807, "\x7f\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(9223372036, 854775808, "\x00\x80\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(18446744073, 709551615,
+                 "\x00\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(18446744073, 709551616,
+                 "\x01\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(2361183241434, 822606847,
+                 "\x7f\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(2361183241434, 822606848,
+                 "\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(4722366482869, 645213695,
+                 "\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(4722366482869, 645213696,
+                 "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(604462909807314, 587353087,
+                 "\x7f\xff\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(604462909807314, 587353088,
+                 "\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(1208925819614629, 174706175,
+                 "\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(1208925819614629, 174706176,
+                 "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(154742504910672534, 362390527,
+                 "\x7f\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(154742504910672534, 362390528,
+                 "\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(309485009821345068, 724781055,
+                 "\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(309485009821345068, 724781056,
+                 "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(9223372036854775807, 999999999,
+                 "\x1d\xcd\x64\xff\xff\xff\xff\xff\xff\xff\xff\xff");
+#undef TEST_TIMESTAMP
 }
