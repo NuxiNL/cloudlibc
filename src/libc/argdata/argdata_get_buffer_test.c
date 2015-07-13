@@ -268,6 +268,22 @@ TEST(argdata_get_buffer, timestamp) {
   TEST_TIMESTAMP(INT64_MIN, 0,
                  "\xe2\x32\x9b\x00\x00\x00\x00\x00\x00\x00\x00\x00");
   // TODO(ed): Make negative tests more complete.
+  TEST_TIMESTAMP(INT64_C(-2361183241435), 177393152,
+                 "\x80\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(INT64_C(-18446744074), 290448383,
+                 "\xfe\xff\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(INT64_C(-18446744074), 290448384,
+                 "\xff\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(INT64_C(-9223372037), 145224191,
+                 "\xff\x7f\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(INT64_C(-9223372037), 145224192,
+                 "\x80\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(INT64_C(-72057595), 962072063,
+                 "\xfe\xff\xff\xff\xff\xff\xff\xff");
+  TEST_TIMESTAMP(INT64_C(-72057595), 962072064,
+                 "\xff\x00\x00\x00\x00\x00\x00\x00");
+  TEST_TIMESTAMP(INT64_C(-36028798), 981036031,
+                 "\xff\x7f\xff\xff\xff\xff\xff\xff");
   TEST_TIMESTAMP(INT64_C(-36028798), 981036032, "\x80\x00\x00\x00\x00\x00\x00");
   TEST_TIMESTAMP(INT64_C(-281475), 23289343, "\xfe\xff\xff\xff\xff\xff\xff");
   TEST_TIMESTAMP(INT64_C(-281475), 23289344, "\xff\x00\x00\x00\x00\x00\x00");
