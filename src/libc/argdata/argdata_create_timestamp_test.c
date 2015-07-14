@@ -9,7 +9,7 @@
 #include <testing.h>
 #include <time.h>
 
-TEST(argdata_create_int, bad) {
+TEST(argdata_create_timestamp, bad) {
   // Nanoseconds out of bounds.
   {
     struct timespec ts = {.tv_nsec = -1};
@@ -23,7 +23,7 @@ TEST(argdata_create_int, bad) {
   }
 }
 
-TEST(argdata_create_int, random) {
+TEST(argdata_create_timestamp, random) {
   for (size_t i = 0; i < 1000; ++i) {
     // Create timestamp object.
     struct timespec ts1;
