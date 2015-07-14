@@ -8,8 +8,8 @@ netdb.h		40%	nameinfo still missing
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
 wchar.h		50%	stdio bits still missing. Many tests missing.
-argdata.h	80%	Some datatypes still missing
 string.h	80%	strcoll() and strxfrm() still missing
+argdata.h	90%	Floating point support missing
 sys/socket.h	90%	File descriptor passing missing
 unistd.h	90%	fpathconf() and sysconf() still missing
 
