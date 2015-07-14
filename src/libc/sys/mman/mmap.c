@@ -20,6 +20,12 @@ static_assert(PROT_WRITE == CLOUDABI_PROT_WRITE, "Value mismatch");
 static_assert(PROT_READ == CLOUDABI_PROT_READ, "Value mismatch");
 
 void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off) {
+  // Only allow anonymous mappings on file descriptor -1.
+  if ((flags & MAP_ANON) != 0 && fildes != -1) {
+    errno = EINVAL;
+    return MAP_FAILED;
+  }
+
   void *mapping;
   cloudabi_errno_t error =
       cloudabi_sys_mem_map(addr, len, prot, flags, fildes, off, &mapping);
