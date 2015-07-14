@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <wchar.h>
 #include <wctype.h>
 
@@ -218,6 +219,19 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         len -= clen;
       }
       fputc('"', fp);
+      return;
+    }
+  }
+
+  // Timestamps.
+  {
+    struct timespec value;
+    struct tm tm;
+    if (argdata_get_timestamp(ad, &value) == 0 &&
+        gmtime_r(&value.tv_sec, &tm) != NULL) {
+      fprintf(fp, "!!timestamp \"%04d-%02d-%02dT%02d:%02d:%02d.%09ldZ\"",
+              tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour,
+              tm.tm_min, tm.tm_sec, value.tv_nsec);
       return;
     }
   }

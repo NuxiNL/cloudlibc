@@ -258,12 +258,17 @@ TEST(argdata_get_buffer, str) {
 }
 
 TEST(argdata_get_buffer, timestamp) {
-#define TEST_TIMESTAMP(s, ns, out)                         \
-  do {                                                     \
-    struct timespec ts = {.tv_sec = (s), .tv_nsec = (ns)}; \
-    argdata_t *ad = argdata_create_timestamp(&ts);         \
-    TEST_OBJECT(ad, "\x09" out, 0);                        \
-    argdata_free(ad);                                      \
+#define TEST_TIMESTAMP(s, ns, out)                          \
+  do {                                                      \
+    struct timespec ts1 = {.tv_sec = (s), .tv_nsec = (ns)}; \
+    argdata_t *ad = argdata_create_timestamp(&ts1);         \
+    TEST_OBJECT(ad, "\x09" out, 0);                         \
+                                                            \
+    struct timespec ts2;                                    \
+    ASSERT_EQ(0, argdata_get_timestamp(ad, &ts2));          \
+    ASSERT_EQ(ts1.tv_sec, ts2.tv_sec);                      \
+    ASSERT_EQ(ts1.tv_nsec, ts2.tv_nsec);                    \
+    argdata_free(ad);                                       \
   } while (0)
   TEST_TIMESTAMP(INT64_MIN, 0,
                  "\xe2\x32\x9b\x00\x00\x00\x00\x00\x00\x00\x00\x00");

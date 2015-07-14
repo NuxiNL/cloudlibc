@@ -188,6 +188,10 @@ TEST(argdata_print_yaml, buffer) {
       "  !!map {},\n"
       "  !!seq [],\n"
       "]");
+
+  // Timestamps.
+  TEST_BUFFER("\x09\x13\xf0\xbc\xeb\x1a\x26\x3c\x69",
+              "!!timestamp \"2015-07-14T06:39:59.073238121Z\"");
 #undef TEST_BUFFER
 }
 
