@@ -53,7 +53,8 @@ static void test_signal(int sig, int code) {
 }
 
 TEST(raise, allsigs) {
-  // Our raise() always behaves using the default signal actions.
+  // Our raise() always behaves using the default signal actions, except
+  // that SIGPIPE is ignored.
   test_signal(SIGABRT, CLD_KILLED);
   test_signal(SIGALRM, CLD_KILLED);
   test_signal(SIGBUS, CLD_KILLED);
@@ -64,7 +65,7 @@ TEST(raise, allsigs) {
   test_signal(SIGILL, CLD_KILLED);
   test_signal(SIGINT, CLD_KILLED);
   test_signal(SIGKILL, CLD_KILLED);
-  test_signal(SIGPIPE, CLD_KILLED);
+  test_signal(SIGPIPE, CLD_EXITED);
   test_signal(SIGQUIT, CLD_KILLED);
   test_signal(SIGSEGV, CLD_KILLED);
   test_signal(SIGTERM, CLD_KILLED);
