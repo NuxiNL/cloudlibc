@@ -14,15 +14,15 @@
 void *__dso_handle = NULL;
 
 // Stack smashing protection.
-unsigned long __stack_chk_guard;
+unsigned long __stack_chk_guard = 0xdeadc0de;
 
 // ELF program header.
-const ElfW(Phdr) * __elf_phdr;
-ElfW(Half) __elf_phnum;
+const ElfW(Phdr) *__elf_phdr = NULL;
+ElfW(Half) __elf_phnum = 0;
 
 // Machine properties.
-uint32_t __ncpus;
-uint32_t __pagesize;
+uint32_t __ncpus = 1;
+uint32_t __pagesize = 1;
 
 // Initial thread-local storage data.
 const void *__tls_init_data = NULL;
@@ -48,29 +48,54 @@ static void crt_memset(void *s, int c, size_t n) {
     *sb++ = c;
 }
 
-noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
-  cloudabi_startup_data_t sd;
-  if (sdplen < sizeof(sd)) {
-    // Kernel provided a smaller startup data structure. Add zero padding.
-    crt_memcpy(&sd, sdp, sdplen);
-    crt_memset((char *)&sd + sdplen, '\0', sizeof(sd) - sdplen);
-  } else {
-    // Kernel provided a larger startup data structure. Truncate.
-    crt_memcpy(&sd, sdp, sizeof(sd));
+noreturn void _start(const cloudabi_auxv_t *auxv) {
+  // Extract parameters from the auxiliary vector.
+  const void *arg = NULL;
+  size_t arglen = 0;
+  const void *canary = NULL;
+  size_t canarylen = 0;
+  cloudabi_tid_t tid = 1;
+  while (auxv->a_type != CLOUDABI_AT_NULL) {
+    switch (auxv->a_type) {
+      case CLOUDABI_AT_ARGDATA:
+        arg = auxv->a_ptr;
+        break;
+      case CLOUDABI_AT_ARGDATALEN:
+        arglen = auxv->a_val;
+        break;
+      case CLOUDABI_AT_CANARY:
+        canary = auxv->a_ptr;
+        break;
+      case CLOUDABI_AT_CANARYLEN:
+        canarylen = auxv->a_val;
+        break;
+      case CLOUDABI_AT_NCPUS:
+        __ncpus = auxv->a_val;
+        break;
+      case CLOUDABI_AT_PAGESZ:
+        __pagesize = auxv->a_val;
+        break;
+      case CLOUDABI_AT_PHDR:
+        __elf_phdr = auxv->a_ptr;
+        break;
+      case CLOUDABI_AT_PHNUM:
+        __elf_phnum = auxv->a_val;
+        break;
+      case CLOUDABI_AT_TID:
+        tid = auxv->a_val;
+        break;
+    }
+    ++auxv;
   }
 
   // Set stack smashing guard.
-  __stack_chk_guard = sd.sd_random_seed;
-
-  // Extract machine properties.
-  __ncpus = sd.sd_ncpus;
-  __pagesize = sd.sd_pagesize;
+  if (canarylen > sizeof(__stack_chk_guard))
+    canarylen = sizeof(__stack_chk_guard);
+  crt_memcpy(&__stack_chk_guard, canary, canarylen);
 
   // Iterate through the program header to obtain values of interest.
   // Also store the location of the program header, so it can be
   // returned in the future by dl_iterate_phdr().
-  __elf_phdr = sd.sd_elf_phdr;
-  __elf_phnum = sd.sd_elf_phdrlen;
   for (size_t i = 0; i < __elf_phnum; ++i) {
     const ElfW(Phdr) *phdr = &__elf_phdr[i];
     switch (phdr->p_type) {
@@ -101,10 +126,10 @@ noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
   // __pthread_thread_id to ensure that functions like
   // pthread_mutex_lock() write the proper thread ID into the lock.
   struct __pthread self_object = {
-      .join = ATOMIC_VAR_INIT(sd.sd_thread_id | CLOUDABI_LOCK_WRLOCKED),
+      .join = ATOMIC_VAR_INIT(tid | CLOUDABI_LOCK_WRLOCKED),
   };
   __pthread_self_object = &self_object;
-  __pthread_thread_id = sd.sd_thread_id;
+  __pthread_thread_id = tid;
 
   // Invoke global constructors.
   void (**ctor)(void) = __ctors_stop;
@@ -114,6 +139,6 @@ noreturn void _start(const cloudabi_startup_data_t *sdp, size_t sdplen) {
   // Invoke program_main(). If program_main() is not part of the
   // application, the C library provides a copy that calls main().
   argdata_t ad;
-  argdata_init_buffer(&ad, sd.sd_arg, sd.sd_arglen);
+  argdata_init_buffer(&ad, arg, arglen);
   program_main(&ad);
 }
