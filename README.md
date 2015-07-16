@@ -127,6 +127,11 @@ port can be installed to obtain a full cross compilation toolchain.
 There is no need to install Clang, cloudlibc or any of the LLVM
 libraries manually.
 
+### Linux
+
+Linux support is also being developed. A copy of the patchset
+[can also be found on GitHub](https://github.com/NuxiNL/linux).
+
 ### NetBSD
 
 A copy of NetBSD that supports CloudABI executables
