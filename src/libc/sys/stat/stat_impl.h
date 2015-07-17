@@ -43,6 +43,12 @@ static_assert(S_ISLNK(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_SYMBOLIC_LINK)),
 
 static inline void to_public_stat(const cloudabi_filestat_t *in,
                                   struct stat *out) {
+  // Ensure that we don't truncate any values.
+  static_assert(sizeof(in->st_dev) == sizeof(out->st_dev), "Size mismatch");
+  static_assert(sizeof(in->st_ino) == sizeof(out->st_ino), "Size mismatch");
+  static_assert(sizeof(in->st_nlink) == sizeof(out->st_nlink), "Size mismatch");
+  static_assert(sizeof(in->st_size) == sizeof(out->st_size), "Size mismatch");
+
   *out = (struct stat){
 #define COPY_FIELD(field) .field = in->field
 #define COPY_TIMESPEC(field) .field = timestamp_to_timespec(in->field)
