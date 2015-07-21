@@ -209,10 +209,12 @@ typedef __builtin_va_list __va_list;
 typedef struct {
   _Atomic(unsigned int) __waiters;
   __clockid_t __clock;
+  __uint8_t __pshared;
 } __pthread_cond_t;
 typedef struct __lockable __pthread_lock {
   _Atomic(__uint32_t) __state;  // Kernelspace futex.
   __int32_t __write_recursion;  // Userspace write recursion counter.
+  __uint8_t __pshared;
   struct {
     _Alignas(__uint64_t) struct __pthread_lock *__l_next;
     _Alignas(__uint64_t) struct __pthread_lock **__l_prev;
@@ -227,9 +229,9 @@ typedef struct {
 } __pthread_barrier_t;
 typedef struct { _Atomic(__uint32_t) __state; } __pthread_once_t;
 
-_Static_assert(sizeof(__pthread_barrier_t) == 48, "ABI broken");
-_Static_assert(sizeof(__pthread_cond_t) == 8, "ABI broken");
-_Static_assert(sizeof(__pthread_lock_t) == 24, "ABI broken");
+_Static_assert(sizeof(__pthread_barrier_t) == 56, "ABI broken");
+_Static_assert(sizeof(__pthread_cond_t) == 12, "ABI broken");
+_Static_assert(sizeof(__pthread_lock_t) == 32, "ABI broken");
 _Static_assert(sizeof(__pthread_once_t) == 4, "ABI broken");
 
 typedef struct {

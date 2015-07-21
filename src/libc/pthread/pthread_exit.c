@@ -78,5 +78,5 @@ noreturn void pthread_exit(void *value_ptr) {
 
   // Store the return value and terminate execution of the thread.
   self->return_value = value_ptr;
-  cloudabi_sys_thread_exit(&self->join);
+  cloudabi_sys_thread_exit(&self->join, CLOUDABI_FUTEXSCOPE_PROCESS_LOCAL);
 }

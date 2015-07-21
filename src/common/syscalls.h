@@ -197,6 +197,15 @@ typedef uint64_t register_t;
     }                                                                 \
   }
 
+#define SYSCALL_2_N(number, name, type1, type2)                    \
+  SYSCALL_2_0(number, _##name, type1, type2);                      \
+  static inline _Noreturn void cloudabi_sys_##name(type1 value1,   \
+                                                   type2 value2) { \
+    cloudabi_sys__##name(value1, value2);                          \
+    for (;;)                                                       \
+      ;                                                            \
+  }
+
 #define SYSCALL_3_0(number, name, type1, type2, type3)                \
   static inline cloudabi_errno_t cloudabi_sys_##name(                 \
       type1 value1, type2 value2, type3 value3) {                     \
@@ -390,6 +399,7 @@ typedef uint64_t register_t;
 #undef SYSCALL_1_N
 #undef SYSCALL_2_0
 #undef SYSCALL_2_1
+#undef SYSCALL_2_N
 #undef SYSCALL_3_0
 #undef SYSCALL_3_1
 #undef SYSCALL_4_1

@@ -27,7 +27,9 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
       {
           .type = CLOUDABI_EVENTTYPE_CONDVAR,
           .condvar.condvar = &cond->__waiters,
+          .condvar.condvar_scope = cond->__pshared,
           .condvar.lock = &lock->__state,
+          .condvar.lock_scope = lock->__pshared,
       },
       {
           .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = cond->__clock,

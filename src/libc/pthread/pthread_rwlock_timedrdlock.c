@@ -23,7 +23,9 @@ int pthread_rwlock_timedrdlock(pthread_rwlock_t *restrict rwlock,
   // Call into the kernel to acquire a read lock.
   cloudabi_subscription_t subscriptions[2] = {
       {
-          .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK, .lock.lock = &rwlock->__state,
+          .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK,
+          .lock.lock = &rwlock->__state,
+          .lock.lock_scope = rwlock->__pshared,
       },
       {
           .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,

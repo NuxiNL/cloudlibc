@@ -85,32 +85,32 @@
 #define PTHREAD_PRIO_INHERIT 1
 
 // For pthread_*_setpshared().
-#define PTHREAD_PROCESS_PRIVATE 1
-#define PTHREAD_PROCESS_SHARED 2
+#define PTHREAD_PROCESS_SHARED 1
+#define PTHREAD_PROCESS_PRIVATE 2
 
 // Compile-time initializers.
 #define _PTHREAD_FUTEX_INITIALIZER(v) _UINT32_C(v)
 #define PTHREAD_COND_INITIALIZER \
-  { _PTHREAD_FUTEX_INITIALIZER(0), 3 }
-#define PTHREAD_MUTEX_INITIALIZER        \
-  {                                      \
-    _PTHREAD_FUTEX_INITIALIZER(0), -1, { \
-      _NULL, _NULL                       \
-    }                                    \
+  { _PTHREAD_FUTEX_INITIALIZER(0), 3, 2 }
+#define PTHREAD_MUTEX_INITIALIZER           \
+  {                                         \
+    _PTHREAD_FUTEX_INITIALIZER(0), -1, 2, { \
+      _NULL, _NULL                          \
+    }                                       \
   }
 #define PTHREAD_ONCE_INIT \
   { _PTHREAD_FUTEX_INITIALIZER(0x80000000) }
 #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP \
   {                                            \
-    _PTHREAD_FUTEX_INITIALIZER(0), 0, {        \
+    _PTHREAD_FUTEX_INITIALIZER(0), 0, 2, {     \
       _NULL, _NULL                             \
     }                                          \
   }
-#define PTHREAD_RWLOCK_INITIALIZER       \
-  {                                      \
-    _PTHREAD_FUTEX_INITIALIZER(0), -1, { \
-      _NULL, _NULL                       \
-    }                                    \
+#define PTHREAD_RWLOCK_INITIALIZER          \
+  {                                         \
+    _PTHREAD_FUTEX_INITIALIZER(0), -1, 2, { \
+      _NULL, _NULL                          \
+    }                                       \
   }
 
 #ifndef _PTHREAD_ATTR_T_DECLARED

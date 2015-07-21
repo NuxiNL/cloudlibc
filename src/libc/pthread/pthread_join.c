@@ -27,7 +27,9 @@ int pthread_join(pthread_t thread, void **value_ptr) {
     // other thread. This allows the kernel to apply priority
     // inheritance.
     cloudabi_subscription_t subscription = {
-        .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK, .lock.lock = &thread->join,
+        .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK,
+        .lock.lock = &thread->join,
+        .lock.lock_scope = CLOUDABI_FUTEXSCOPE_PROCESS_LOCAL,
     };
     size_t triggered;
     cloudabi_event_t event;

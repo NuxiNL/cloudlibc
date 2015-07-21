@@ -20,7 +20,9 @@ int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
 
   // Call into the kernel to acquire a write lock.
   cloudabi_subscription_t subscription = {
-      .type = CLOUDABI_EVENTTYPE_LOCK_WRLOCK, .lock.lock = &rwlock->__state,
+      .type = CLOUDABI_EVENTTYPE_LOCK_WRLOCK,
+      .lock.lock = &rwlock->__state,
+      .lock.lock_scope = rwlock->__pshared,
   };
   size_t triggered;
   cloudabi_event_t event;

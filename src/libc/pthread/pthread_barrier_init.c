@@ -3,8 +3,11 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/syscalldefs.h>
+
 #include <errno.h>
 #include <pthread.h>
+#include <stdatomic.h>
 
 int pthread_barrier_init(pthread_barrier_t *restrict barrier,
                          const pthread_barrierattr_t *restrict attr,
@@ -13,9 +16,20 @@ int pthread_barrier_init(pthread_barrier_t *restrict barrier,
   if (count == 0)
     return EINVAL;
 
-  pthread_mutex_init(&barrier->__lock, NULL);
-  pthread_cond_init(&barrier->__cond, NULL);
-  barrier->__init = barrier->__remaining = count - 1;
+  // Initialize lock.
+  atomic_init(&barrier->__lock.__state, CLOUDABI_LOCK_UNLOCKED);
+  barrier->__lock.__write_recursion = -1;
+  barrier->__lock.__pshared =
+      attr != NULL ? attr->__pshared : PTHREAD_PROCESS_PRIVATE;
+
+  // Initialize condition variable.
+  atomic_init(&barrier->__cond.__waiters, CLOUDABI_CONDVAR_HAS_NO_WAITERS);
+  barrier->__cond.__pshared =
+      attr != NULL ? attr->__pshared : PTHREAD_PROCESS_PRIVATE;
+
+  // Initialize other fields.
+  barrier->__init = count - 1;
+  barrier->__remaining = count - 1;
   barrier->__generation = 0;
   return 0;
 }

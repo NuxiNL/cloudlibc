@@ -37,7 +37,8 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
             memory_order_relaxed)) {
       // Lock is managed by kernelspace. Call into the kernel to unblock
       // waiting threads.
-      cloudabi_errno_t error = cloudabi_sys_lock_unlock(state);
+      cloudabi_errno_t error =
+          cloudabi_sys_lock_unlock(state, rwlock->__pshared);
       if (error != 0)
         __pthread_terminate(error, "Failed to write unlock a rwlock");
     }
@@ -64,7 +65,8 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
                                  CLOUDABI_LOCK_KERNEL_MANAGED,
                 memory_order_release, memory_order_relaxed)) {
           // Call into the kernel to unlock.
-          cloudabi_errno_t error = cloudabi_sys_lock_unlock(state);
+          cloudabi_errno_t error =
+              cloudabi_sys_lock_unlock(state, rwlock->__pshared);
           if (error != 0)
             __pthread_terminate(error, "Failed to read unlock a rwlock");
           break;

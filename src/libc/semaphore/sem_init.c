@@ -3,12 +3,28 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/syscalldefs.h>
+
 #include <pthread.h>
 #include <semaphore.h>
+#include <stdatomic.h>
 
 int sem_init(sem_t *sem, int pshared, unsigned int value) {
-  pthread_mutex_init(&sem->__lock, NULL);
-  pthread_cond_init(&sem->__cond, NULL);
+  // Initialize lock.
+  atomic_init(&sem->__lock.__state, CLOUDABI_LOCK_UNLOCKED);
+  sem->__lock.__write_recursion = -1;
+  sem->__lock.__pshared =
+      pshared ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE;
+
+  // Initialize condition variable.
+  atomic_init(&sem->__cond.__waiters, CLOUDABI_CONDVAR_HAS_NO_WAITERS);
+  sem->__cond.__clock = CLOCK_REALTIME;
+  sem->__cond.__pshared =
+      pshared ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE;
+
+  // Initialize other fields.
   sem->__value = value;
+  sem->__lock.__pshared = sem->__cond.__pshared =
+      pshared ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE;
   return 0;
 }
