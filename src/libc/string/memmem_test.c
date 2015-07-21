@@ -37,7 +37,7 @@ static void fill_random(char *buf, size_t len) {
 // Performs a naïve memmem() operation.
 static char *naive_memmem(const char *haystack, size_t haystacklen,
                           const char *needle, size_t needlelen) {
-  if (needlelen == 0 || needlelen > haystacklen)
+  if (needlelen > haystacklen)
     return NULL;
   for (size_t i = 0; i + needlelen <= haystacklen; ++i) {
     bool match = true;
