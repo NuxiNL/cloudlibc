@@ -24,7 +24,5 @@ int sem_init(sem_t *sem, int pshared, unsigned int value) {
 
   // Initialize other fields.
   sem->__value = value;
-  sem->__lock.__pshared = sem->__cond.__pshared =
-      pshared ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE;
   return 0;
 }
