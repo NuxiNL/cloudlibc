@@ -93,11 +93,11 @@ static noreturn void print_test_footer(const char *file, int line) {
         "--\n"
         "Note:      ");
     switch (note->__kind) {
-#define PRINT_NOTE(type, stype)                 \
+#define PRINT_NOTE(type, stype, unused)         \
   case __test_note_kind_##stype:                \
     print_value_##stype(note->__value_##stype); \
     break;
-      _MACRO_FOREACH_TYPE(PRINT_NOTE)
+      _MACRO_FOREACH_TYPE(PRINT_NOTE, unused)
 #undef PRINT_NOTE
     }
     __testing_printf(
@@ -111,7 +111,7 @@ static noreturn void print_test_footer(const char *file, int line) {
   abort();
 }
 
-#define GENERATE_TEST_FAILED(type, stype)                                   \
+#define GENERATE_TEST_FAILED(type, stype, unused)                           \
   noreturn void __test_failed_##stype(                                      \
       const char *op, type expected, const char *expected_str, type actual, \
       const char *actual_str, const char *file, int line) {                 \
@@ -130,10 +130,10 @@ static noreturn void print_test_footer(const char *file, int line) {
     __testing_printf(" == (%s)\n", actual_str);                             \
     print_test_footer(file, line);                                          \
   }
-_MACRO_FOREACH_TYPE(GENERATE_TEST_FAILED)
+_MACRO_FOREACH_TYPE(GENERATE_TEST_FAILED, unused)
 #undef GENERATE_TEST_FAILED
 
-#define GENERATE_COMPARE_ARREQ(type, stype)                                \
+#define GENERATE_COMPARE_ARREQ(type, stype, unused)                        \
   void __test_compare_ARREQ_##stype(                                       \
       type const *expected, const char *expected_str, type const *actual,  \
       const char *actual_str, size_t length, const char *file, int line) { \
@@ -156,10 +156,10 @@ _MACRO_FOREACH_TYPE(GENERATE_TEST_FAILED)
       }                                                                    \
     }                                                                      \
   }
-_MACRO_FOREACH_TYPE(GENERATE_COMPARE_ARREQ)
+_MACRO_FOREACH_TYPE(GENERATE_COMPARE_ARREQ, unused)
 #undef GENERATE_COMPARE_ARREQ
 
-#define GENERATE_COMPARE_STREQ(type, stype)                               \
+#define GENERATE_COMPARE_STREQ(type, stype, unused)                       \
   void __test_compare_STREQ_##stype(                                      \
       type const *expected, const char *expected_str, type const *actual, \
       const char *actual_str, const char *file, int line) {               \
@@ -183,5 +183,5 @@ _MACRO_FOREACH_TYPE(GENERATE_COMPARE_ARREQ)
       }                                                                   \
     }                                                                     \
   }
-_MACRO_FOREACH_TYPE(GENERATE_COMPARE_STREQ)
+_MACRO_FOREACH_TYPE(GENERATE_COMPARE_STREQ, unused)
 #undef GENERATE_COMPARE_STREQ

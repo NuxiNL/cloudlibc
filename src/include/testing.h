@@ -32,27 +32,27 @@
 
 // Instantiate the same macro for all separate types.
 #define _MACRO_FOREACH_INEQUALITY_TYPE(macro, ...) \
-  macro(_Bool, bool, ##__VA_ARGS__)                \
-  macro(char, char, ##__VA_ARGS__)                 \
-  macro(signed char, schar, ##__VA_ARGS__)         \
-  macro(unsigned char, uchar, ##__VA_ARGS__)       \
-  macro(short, short, ##__VA_ARGS__)               \
-  macro(unsigned short, ushort, ##__VA_ARGS__)     \
-  macro(int, int, ##__VA_ARGS__)                   \
-  macro(unsigned int, uint, ##__VA_ARGS__)         \
-  macro(long, long, ##__VA_ARGS__)                 \
-  macro(unsigned long, ulong, ##__VA_ARGS__)       \
-  macro(long long, llong, ##__VA_ARGS__)           \
-  macro(unsigned long long, ullong, ##__VA_ARGS__) \
-  macro(float, float, ##__VA_ARGS__)               \
-  macro(double, double, ##__VA_ARGS__)             \
-  macro(long double, ldouble, ##__VA_ARGS__)       \
-  macro(const void *, ptr, ##__VA_ARGS__)
-#define _MACRO_FOREACH_TYPE(macro, ...)                \
-  macro(float _Complex, cfloat, ##__VA_ARGS__)         \
-  macro(double _Complex, cdouble, ##__VA_ARGS__)       \
-  macro(long double _Complex, cldouble, ##__VA_ARGS__) \
-  _MACRO_FOREACH_INEQUALITY_TYPE(macro, ##__VA_ARGS__)
+  macro(_Bool, bool, __VA_ARGS__)                  \
+  macro(char, char, __VA_ARGS__)                   \
+  macro(signed char, schar, __VA_ARGS__)           \
+  macro(unsigned char, uchar, __VA_ARGS__)         \
+  macro(short, short, __VA_ARGS__)                 \
+  macro(unsigned short, ushort, __VA_ARGS__)       \
+  macro(int, int, __VA_ARGS__)                     \
+  macro(unsigned int, uint, __VA_ARGS__)           \
+  macro(long, long, __VA_ARGS__)                   \
+  macro(unsigned long, ulong, __VA_ARGS__)         \
+  macro(long long, llong, __VA_ARGS__)             \
+  macro(unsigned long long, ullong, __VA_ARGS__)   \
+  macro(float, float, __VA_ARGS__)                 \
+  macro(double, double, __VA_ARGS__)               \
+  macro(long double, ldouble, __VA_ARGS__)         \
+  macro(const void *, ptr, __VA_ARGS__)
+#define _MACRO_FOREACH_TYPE(macro, ...)              \
+  macro(float _Complex, cfloat, __VA_ARGS__)         \
+  macro(double _Complex, cdouble, __VA_ARGS__)       \
+  macro(long double _Complex, cldouble, __VA_ARGS__) \
+  _MACRO_FOREACH_INEQUALITY_TYPE(macro, __VA_ARGS__)
 
 // Evaluate to a different identifier name based on the type.
 #define _EXPRESSION_FOREACH_CASE(type, stype, prefix) \
@@ -126,11 +126,11 @@ __END_DECLS
 //   ASSERT_LT(expected, actual);
 //   ASSERT_NE(expected, actual);
 
-#define _GENERATE_TEST_FAILED(type, stype)                                     \
+#define _GENERATE_TEST_FAILED(type, stype, unused)                             \
   _Noreturn void __test_failed_##stype(const char *, type, const char *, type, \
                                        const char *, const char *, int);
 __BEGIN_DECLS
-_MACRO_FOREACH_TYPE(_GENERATE_TEST_FAILED)
+_MACRO_FOREACH_TYPE(_GENERATE_TEST_FAILED, unused)
 __END_DECLS
 #undef _GENERATE_TEST_FAILED
 
@@ -187,12 +187,12 @@ _MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, LT, < )
 //
 //   ASSERT_ARREQ(expected, actual, length);
 
-#define _GENERATE_COMPARE_ARREQ(type, stype)                                  \
+#define _GENERATE_COMPARE_ARREQ(type, stype, unused)                          \
   void __test_compare_ARREQ_##stype(type const *, const char *, type const *, \
                                     const char *, __size_t, const char *,     \
                                     int);
 __BEGIN_DECLS
-_MACRO_FOREACH_TYPE(_GENERATE_COMPARE_ARREQ)
+_MACRO_FOREACH_TYPE(_GENERATE_COMPARE_ARREQ, unused)
 __END_DECLS
 #undef _GENERATE_COMPARE_ARREQ
 
@@ -206,11 +206,11 @@ __END_DECLS
 //
 //   ASSERT_STREQ(expected, actual);
 
-#define _GENERATE_COMPARE_STREQ(type, stype)                                  \
+#define _GENERATE_COMPARE_STREQ(type, stype, unused)                          \
   void __test_compare_STREQ_##stype(type const *, const char *, type const *, \
                                     const char *, const char *, int);
 __BEGIN_DECLS
-_MACRO_FOREACH_TYPE(_GENERATE_COMPARE_STREQ)
+_MACRO_FOREACH_TYPE(_GENERATE_COMPARE_STREQ, unused)
 __END_DECLS
 #undef _GENERATE_COMPARE_STREQ
 
@@ -231,16 +231,16 @@ __END_DECLS
 //   }
 
 enum __test_note_kind {
-#define _TEST_NOTE_KIND(type, stype) __test_note_kind_##stype,
-  _MACRO_FOREACH_TYPE(_TEST_NOTE_KIND)
+#define _TEST_NOTE_KIND(type, stype, unused) __test_note_kind_##stype,
+  _MACRO_FOREACH_TYPE(_TEST_NOTE_KIND, unused)
 #undef _TEST_NOTE_KIND
 };
 
 struct __test_note {
   enum __test_note_kind __kind;
   union {
-#define _TEST_NOTE_VALUE(type, stype) type __value_##stype;
-    _MACRO_FOREACH_TYPE(_TEST_NOTE_VALUE)
+#define _TEST_NOTE_VALUE(type, stype, unused) type __value_##stype;
+    _MACRO_FOREACH_TYPE(_TEST_NOTE_VALUE, unused)
 #undef _TEST_NOTE_VALUE
   };
 
@@ -253,13 +253,13 @@ struct __test_note {
 
 extern _Thread_local const struct __test_note *__test_note_stack;
 
-#define _GENERATE_NOTE_SET(type, stype)                               \
+#define _GENERATE_NOTE_SET(type, stype, unused)                       \
   static __inline void __note_set_##stype(struct __test_note *__note, \
                                           type __value) {             \
     __note->__kind = __test_note_kind_##stype;                        \
     __note->__value_##stype = __value;                                \
   }
-_MACRO_FOREACH_TYPE(_GENERATE_NOTE_SET)
+_MACRO_FOREACH_TYPE(_GENERATE_NOTE_SET, unused)
 #undef _GENERATE_NOTE_SET
 
 #define SCOPED_NOTE(exp, block) _SCOPED_NOTE(exp, block, __COUNTER__)
