@@ -28,10 +28,9 @@ int openat(int fd, const char *path, int oflag, ...) {
   cloudabi_rights_t min = 0;
   cloudabi_rights_t max =
       ~(CLOUDABI_RIGHT_FD_DATASYNC | CLOUDABI_RIGHT_FD_READ |
-        CLOUDABI_RIGHT_FD_SYNC | CLOUDABI_RIGHT_FD_WRITE |
-        CLOUDABI_RIGHT_FILE_ALLOCATE | CLOUDABI_RIGHT_FILE_READDIR |
-        CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE | CLOUDABI_RIGHT_MEM_MAP_EXEC |
-        CLOUDABI_RIGHT_PROC_EXEC);
+        CLOUDABI_RIGHT_FD_WRITE | CLOUDABI_RIGHT_FILE_ALLOCATE |
+        CLOUDABI_RIGHT_FILE_READDIR | CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE |
+        CLOUDABI_RIGHT_MEM_MAP_EXEC | CLOUDABI_RIGHT_PROC_EXEC);
   switch (oflag & O_ACCMODE) {
     case O_RDONLY:
     case O_RDWR:
@@ -46,8 +45,8 @@ int openat(int fd, const char *path, int oflag, ...) {
         min |= CLOUDABI_RIGHT_FD_WRITE;
         if ((oflag & O_APPEND) == 0)
           min |= CLOUDABI_RIGHT_FD_SEEK;
-        max |= CLOUDABI_RIGHT_FD_DATASYNC | CLOUDABI_RIGHT_FD_SYNC |
-               CLOUDABI_RIGHT_FD_WRITE | CLOUDABI_RIGHT_FILE_ALLOCATE |
+        max |= CLOUDABI_RIGHT_FD_DATASYNC | CLOUDABI_RIGHT_FD_WRITE |
+               CLOUDABI_RIGHT_FILE_ALLOCATE |
                CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE;
       }
       break;
