@@ -29,7 +29,7 @@ int pthread_join(pthread_t thread, void **value_ptr) {
     cloudabi_subscription_t subscription = {
         .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK,
         .lock.lock = &thread->join,
-        .lock.lock_scope = CLOUDABI_FUTEXSCOPE_PROCESS_LOCAL,
+        .lock.lock_scope = CLOUDABI_MAP_PRIVATE,
     };
     size_t triggered;
     cloudabi_event_t event;

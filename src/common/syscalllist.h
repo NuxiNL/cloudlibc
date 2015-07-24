@@ -24,8 +24,8 @@
 SYSCALL_1_1(0, clock_res_get, cloudabi_clockid_t, cloudabi_timestamp_t);
 SYSCALL_2_1(1, clock_time_get, cloudabi_clockid_t, cloudabi_timestamp_t,
             cloudabi_timestamp_t);
-SYSCALL_3_0(2, condvar_signal, _Atomic(cloudabi_condvar_t) *,
-            cloudabi_futexscope_t, cloudabi_nthreads_t);
+SYSCALL_3_0(2, condvar_signal, _Atomic(cloudabi_condvar_t) *, cloudabi_mflags_t,
+            cloudabi_nthreads_t);
 SYSCALL_1_0(3, fd_close, cloudabi_fd_t);
 SYSCALL_1_1(4, fd_create1, cloudabi_filetype_t, cloudabi_fd_t);
 SYSCALL_1_2(5, fd_create2, cloudabi_filetype_t, cloudabi_fd_t, cloudabi_fd_t);
@@ -73,7 +73,7 @@ SYSCALL_5_0(29, file_symlink, const char *, cloudabi_size_t, cloudabi_fd_t,
             const char *, cloudabi_size_t);
 SYSCALL_4_0(30, file_unlink, cloudabi_fd_t, const char *, cloudabi_size_t,
             cloudabi_ulflags_t);
-SYSCALL_2_0(31, lock_unlock, _Atomic(cloudabi_lock_t) *, cloudabi_futexscope_t);
+SYSCALL_2_0(31, lock_unlock, _Atomic(cloudabi_lock_t) *, cloudabi_mflags_t);
 SYSCALL_3_0(32, mem_advise, void *, cloudabi_size_t, cloudabi_advice_t);
 SYSCALL_2_0(33, mem_lock, const void *, cloudabi_size_t);
 SYSCALL_6_1(34, mem_map, void *, cloudabi_size_t, cloudabi_mprot_t,
@@ -106,6 +106,6 @@ SYSCALL_2_0(51, sock_shutdown, cloudabi_fd_t, cloudabi_sdflags_t);
 SYSCALL_3_0(52, sock_stat_get, cloudabi_fd_t, cloudabi_sockstat_t *,
             cloudabi_ssflags_t);
 SYSCALL_1_1(53, thread_create, cloudabi_threadattr_t *, cloudabi_tid_t);
-SYSCALL_2_N(54, thread_exit, _Atomic(cloudabi_lock_t) *, cloudabi_futexscope_t);
+SYSCALL_2_N(54, thread_exit, _Atomic(cloudabi_lock_t) *, cloudabi_mflags_t);
 SYSCALL_1_0(55, thread_tcb_set, void *);
 SYSCALL_0_0(56, thread_yield);

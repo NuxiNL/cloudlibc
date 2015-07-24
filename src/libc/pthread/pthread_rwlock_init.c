@@ -9,10 +9,9 @@
 #include <pthread.h>
 #include <stdatomic.h>
 
-static_assert(PTHREAD_PROCESS_SHARED == CLOUDABI_FUTEXSCOPE_GLOBAL,
+static_assert(PTHREAD_PROCESS_PRIVATE == CLOUDABI_MAP_PRIVATE,
               "Value mismatch");
-static_assert(PTHREAD_PROCESS_PRIVATE == CLOUDABI_FUTEXSCOPE_PROCESS_LOCAL,
-              "Value mismatch");
+static_assert(PTHREAD_PROCESS_SHARED == CLOUDABI_MAP_SHARED, "Value mismatch");
 
 int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,
                         const pthread_rwlockattr_t *restrict attr) {
