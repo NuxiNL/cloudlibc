@@ -39,6 +39,7 @@ TEST(openat, o_append) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(5, write(fd, "Hello", 5));
     ASSERT_EQ(0, close(fd));
   }
@@ -47,6 +48,7 @@ TEST(openat, o_append) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(5, write(fd, "Hello", 5));
     ASSERT_EQ(5, lseek(fd, 0, SEEK_CUR));
     ASSERT_EQ(0, close(fd));
@@ -56,6 +58,7 @@ TEST(openat, o_append) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_APPEND);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(5, write(fd, "Hello", 5));
     ASSERT_EQ(10, lseek(fd, 0, SEEK_CUR));
     ASSERT_EQ(0, close(fd));
@@ -71,6 +74,7 @@ TEST(openat, o_creat) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(0, close(fd));
   }
 }
@@ -80,6 +84,7 @@ TEST(openat, o_directory) {
   {
     int fd = openat(fd_tmp, "file", O_WRONLY | O_CREAT);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(0, close(fd));
     ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
     ASSERT_EQ(0, mkdirat(fd_tmp, "dir"));
@@ -100,6 +105,7 @@ TEST(openat, o_directory) {
   {
     int fd = openat(fd_tmp, "dir", O_RDONLY | O_DIRECTORY);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_RDONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(0, close(fd));
   }
 }
@@ -109,6 +115,7 @@ TEST(openat, o_excl) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT | O_EXCL);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(0, close(fd));
   }
 
@@ -120,6 +127,7 @@ TEST(openat, o_excl) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(0, close(fd));
   }
 }
@@ -129,8 +137,10 @@ TEST(openat, o_nonblock) {
   ASSERT_EQ(0, mkfifoat(fd_tmp, "test"));
   int fd1 = openat(fd_tmp, "test", O_RDONLY | O_NONBLOCK);
   ASSERT_LE(0, fd1);
+  ASSERT_EQ(O_RDONLY | O_NONBLOCK, fcntl(fd1, F_GETFL));
   int fd2 = openat(fd_tmp, "test", O_WRONLY);
   ASSERT_LE(0, fd2);
+  ASSERT_EQ(O_WRONLY | O_NONBLOCK, fcntl(fd2, F_GETFL));
 
   // Reading should fail.
   char buf[10];
@@ -151,6 +161,7 @@ TEST(openat, o_trunc) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(5, write(fd, "Hello", 5));
     ASSERT_EQ(0, close(fd));
   }
@@ -159,6 +170,7 @@ TEST(openat, o_trunc) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     struct stat sb;
     ASSERT_EQ(0, fstat(fd, &sb));
     ASSERT_EQ(5, sb.st_size);
@@ -169,6 +181,7 @@ TEST(openat, o_trunc) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT | O_TRUNC);
     ASSERT_LE(0, fd);
+    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     struct stat sb;
     ASSERT_EQ(0, fstat(fd, &sb));
     ASSERT_EQ(0, sb.st_size);
