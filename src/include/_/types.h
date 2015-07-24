@@ -207,7 +207,7 @@ typedef __builtin_va_list __va_list;
 // Process-shared threading objects with a fixed ABI.
 
 typedef struct {
-  _Atomic(unsigned int) __waiters;
+  _Atomic(__uint32_t) __waiters;
   __clockid_t __clock;
   __uint8_t __pshared;
 } __pthread_cond_t;
