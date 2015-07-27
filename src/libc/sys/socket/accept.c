@@ -16,7 +16,8 @@ int accept(int socket, struct sockaddr *restrict address,
   // Accept incoming connection.
   cloudabi_sockstat_t ss;
   cloudabi_fd_t fd;
-  cloudabi_errno_t error = cloudabi_sys_sock_accept(socket, &ss, &fd);
+  cloudabi_errno_t error =
+      cloudabi_sys_sock_accept(socket, address != NULL ? &ss : NULL, &fd);
   if (error != 0) {
     errno = error;
     return -1;
