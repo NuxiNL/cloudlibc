@@ -58,7 +58,7 @@ TEST(openat, o_append) {
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_APPEND);
     ASSERT_LE(0, fd);
-    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
+    ASSERT_EQ(O_WRONLY | O_APPEND, fcntl(fd, F_GETFL));
     ASSERT_EQ(5, write(fd, "Hello", 5));
     ASSERT_EQ(10, lseek(fd, 0, SEEK_CUR));
     ASSERT_EQ(0, close(fd));
@@ -140,7 +140,7 @@ TEST(openat, o_nonblock) {
   ASSERT_EQ(O_RDONLY | O_NONBLOCK, fcntl(fd1, F_GETFL));
   int fd2 = openat(fd_tmp, "test", O_WRONLY);
   ASSERT_LE(0, fd2);
-  ASSERT_EQ(O_WRONLY | O_NONBLOCK, fcntl(fd2, F_GETFL));
+  ASSERT_EQ(O_WRONLY, fcntl(fd2, F_GETFL));
 
   // Reading should fail.
   char buf[10];
