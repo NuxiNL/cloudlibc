@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/capsicum.h>
 #include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -106,6 +107,17 @@ TEST(openat, o_directory) {
     int fd = openat(fd_tmp, "dir", O_RDONLY | O_DIRECTORY);
     ASSERT_LE(0, fd);
     ASSERT_EQ(O_RDONLY, fcntl(fd, F_GETFL));
+    cap_rights_t base, inheriting;
+    ASSERT_EQ(0, cap_rights_get_explicit(fd, &base, &inheriting));
+    ASSERT_EQ(CAP_BINDAT | CAP_CONNECTAT | CAP_CREATE | CAP_EVENT | CAP_FCNTL |
+                  CAP_FSTAT | CAP_FSTATAT | CAP_FSYNC | CAP_FUTIMES |
+                  CAP_FUTIMESAT | CAP_LINKAT | CAP_LOOKUP | CAP_MKDIRAT |
+                  CAP_MKFIFOAT | CAP_POSIX_FADVISE | CAP_READDIR |
+                  CAP_READLINK | CAP_RENAMEAT | CAP_SYMLINKAT | CAP_UNLINKAT,
+              base.__value);
+    cap_rights_t all;
+    CAP_ALL(&all);
+    ASSERT_EQ(all.__value, inheriting.__value);
     ASSERT_EQ(0, close(fd));
   }
 }
