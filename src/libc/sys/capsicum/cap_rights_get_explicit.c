@@ -13,10 +13,9 @@
 static_assert(CAP_CREATE ==
                   (CLOUDABI_RIGHT_FILE_CREATE_FILE | CLOUDABI_RIGHT_FILE_OPEN),
               "Value mismatch");
+static_assert(CAP_FDATASYNC == CLOUDABI_RIGHT_FD_DATASYNC, "Value mismatch");
 static_assert(CAP_FEXECVE == CLOUDABI_RIGHT_PROC_EXEC, "Value mismatch");
-static_assert(CAP_FSYNC ==
-                  (CLOUDABI_RIGHT_FD_DATASYNC | CLOUDABI_RIGHT_FD_SYNC),
-              "Value mismatch");
+static_assert(CAP_FSYNC == CLOUDABI_RIGHT_FD_SYNC, "Value mismatch");
 static_assert(CAP_FTRUNCATE == CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE,
               "Value mismatch");
 static_assert(CAP_MMAP == CLOUDABI_RIGHT_MEM_MAP, "Value mismatch");

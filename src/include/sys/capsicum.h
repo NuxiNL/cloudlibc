@@ -24,9 +24,10 @@
 // <sys/capsicum.h> - file descriptor access controls
 //
 // Extensions:
-// - CAP_POSIX_FADVISE, CAP_POSIX_FALLOCATE, CAP_READDIR, CAP_READLINK:
-//   posix_fadvise(), posix_fallocate(), readdir() and readlink() can be
-//   controlled independently in this environment.
+// - CAP_FDATASYNC, CAP_POSIX_FADVISE, CAP_POSIX_FALLOCATE, CAP_READDIR,
+//   CAP_READLINK:
+//   fdatasync(), posix_fadvise(), posix_fallocate(), readdir() and
+//   readlink() can be controlled independently in this environment.
 // - cap_rights_get_explicit() and cap_rights_limit_explicit():
 //   Capabilities are expressed as a pair of base and inheriting rights
 //   in this environment.
@@ -82,8 +83,9 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 
 // General file I/O.
 #define CAP_CREATE (_CAP_BIT(10) | _CAP_BIT(14))
+#define CAP_FDATASYNC _CAP_BIT(0)
 #define CAP_FEXECVE _CAP_BIT(32)
-#define CAP_FSYNC (_CAP_BIT(0) | _CAP_BIT(4))
+#define CAP_FSYNC _CAP_BIT(4)
 #define CAP_FTRUNCATE _CAP_BIT(20)
 #define CAP_MMAP _CAP_BIT(26)
 #define CAP_MMAP_R (CAP_MMAP | CAP_READ)
