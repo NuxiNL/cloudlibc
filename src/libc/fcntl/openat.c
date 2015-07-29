@@ -30,7 +30,7 @@ int openat(int fd, const char *path, int oflag, ...) {
       ~(CLOUDABI_RIGHT_FD_DATASYNC | CLOUDABI_RIGHT_FD_READ |
         CLOUDABI_RIGHT_FD_WRITE | CLOUDABI_RIGHT_FILE_ALLOCATE |
         CLOUDABI_RIGHT_FILE_READDIR | CLOUDABI_RIGHT_FILE_STAT_FPUT_SIZE |
-        CLOUDABI_RIGHT_MEM_MAP_EXEC | CLOUDABI_RIGHT_PROC_EXEC);
+        CLOUDABI_RIGHT_MEM_MAP_EXEC);
   switch (oflag & O_ACCMODE) {
     case O_RDONLY:
     case O_RDWR:
@@ -52,7 +52,6 @@ int openat(int fd, const char *path, int oflag, ...) {
       break;
     case O_EXEC:
       min |= CLOUDABI_RIGHT_PROC_EXEC;
-      max |= CLOUDABI_RIGHT_PROC_EXEC;
       break;
     case O_SEARCH:
       break;

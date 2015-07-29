@@ -115,9 +115,15 @@ TEST(openat, o_directory) {
                   CAP_MKFIFOAT | CAP_POSIX_FADVISE | CAP_READDIR |
                   CAP_READLINK | CAP_RENAMEAT | CAP_SYMLINKAT | CAP_UNLINKAT,
               base.__value);
-    cap_rights_t all;
-    CAP_ALL(&all);
-    ASSERT_EQ(all.__value, inheriting.__value);
+    ASSERT_EQ(CAP_BINDAT | CAP_CONNECTAT | CAP_CREATE | CAP_EVENT | CAP_FCNTL |
+                  CAP_FDATASYNC | CAP_FEXECVE | CAP_FSTAT | CAP_FSTATAT |
+                  CAP_FSYNC | CAP_FTRUNCATE | CAP_FUTIMES | CAP_FUTIMESAT |
+                  CAP_LINKAT | CAP_LOOKUP | CAP_MKDIRAT | CAP_MKFIFOAT |
+                  CAP_MMAP_RWX | CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE |
+                  CAP_PREAD | CAP_PWRITE | CAP_READ | CAP_READDIR |
+                  CAP_READLINK | CAP_RENAMEAT | CAP_SEEK | CAP_SYMLINKAT |
+                  CAP_UNLINKAT | CAP_WRITE,
+              inheriting.__value);
     ASSERT_EQ(0, close(fd));
   }
 }
@@ -171,9 +177,17 @@ TEST(openat, o_nonblock) {
 TEST(openat, o_trunc) {
   // Create a small test file.
   {
-    int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT);
+    int fd = openat(fd_tmp, "test", O_RDWR | O_CREAT);
     ASSERT_LE(0, fd);
-    ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
+    ASSERT_EQ(O_RDWR, fcntl(fd, F_GETFL));
+    cap_rights_t base, inheriting;
+    ASSERT_EQ(0, cap_rights_get_explicit(fd, &base, &inheriting));
+    ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FDATASYNC | CAP_FEXECVE | CAP_FSTAT |
+                  CAP_FSYNC | CAP_FTRUNCATE | CAP_FUTIMES | CAP_MMAP_RWX |
+                  CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE | CAP_PREAD |
+                  CAP_PWRITE | CAP_READ | CAP_SEEK | CAP_WRITE,
+              base.__value);
+    ASSERT_EQ(0, inheriting.__value);
     ASSERT_EQ(5, write(fd, "Hello", 5));
     ASSERT_EQ(0, close(fd));
   }
