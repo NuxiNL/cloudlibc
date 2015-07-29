@@ -156,9 +156,17 @@ TEST(openat, o_nonblock) {
   int fd1 = openat(fd_tmp, "test", O_RDONLY | O_NONBLOCK);
   ASSERT_LE(0, fd1);
   ASSERT_EQ(O_RDONLY | O_NONBLOCK, fcntl(fd1, F_GETFL));
+  cap_rights_t base, inheriting;
+  ASSERT_EQ(0, cap_rights_get_explicit(fd1, &base, &inheriting));
+  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_READ, base.__value);
+  ASSERT_EQ(0, inheriting.__value);
+
   int fd2 = openat(fd_tmp, "test", O_WRONLY);
   ASSERT_LE(0, fd2);
   ASSERT_EQ(O_WRONLY, fcntl(fd2, F_GETFL));
+  ASSERT_EQ(0, cap_rights_get_explicit(fd2, &base, &inheriting));
+  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_WRITE, base.__value);
+  ASSERT_EQ(0, inheriting.__value);
 
   // Reading should fail.
   char buf[10];
