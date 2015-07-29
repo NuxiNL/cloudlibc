@@ -11,7 +11,9 @@
 #include <sys/types.h>
 
 #include <dirent.h>
-#include <limits.h>
+
+// TODO(ed): Implementation should support arbitrary length filenames.
+#define NAME_MAX 255
 
 struct _DIR {
   // Per-directory handle lock.
@@ -30,7 +32,10 @@ struct _DIR {
   cloudabi_dircookie_t cookie;
 
   // Object returned by readdir().
-  struct dirent dirent;
+  struct {
+    struct dirent dirent;
+    char path_buf[NAME_MAX];
+  };
 };
 
 #endif

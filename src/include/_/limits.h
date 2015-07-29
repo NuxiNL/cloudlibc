@@ -275,7 +275,6 @@
 
 // Machine-independent limits.
 
-#define _NAME_MAX 255
 #define _TZNAME_MAX 15
 
 #endif

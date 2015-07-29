@@ -101,8 +101,9 @@ static_assert(TZNAME_MAX >= _POSIX_TZNAME_MAX, "Limit too low");
 #ifdef MAX_INPUT
 #error "Test missing"
 #endif
-static_assert(NAME_MAX >= _POSIX_NAME_MAX, "Limit too low");
-static_assert(NAME_MAX >= _XOPEN_NAME_MAX, "Limit too low");
+#ifdef NAME_MAX
+#error "Test missing"
+#endif
 #ifdef PATH_MAX
 #error "Test missing"
 #endif

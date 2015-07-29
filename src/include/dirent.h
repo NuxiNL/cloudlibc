@@ -35,6 +35,10 @@
 // Features missing:
 // - alphasort(), opendir() and scandir():
 //   Requires global filesystem namespace.
+// - readdir_r():
+//   Unsafe to use, as NAME_MAX is not constant in this environment.
+//   This function is also not needed, as readdir() returns a per-handle
+//   object.
 
 #ifndef _DIRENT_H_
 #define _DIRENT_H_
@@ -49,9 +53,9 @@ typedef __ino_t ino_t;
 #endif
 
 struct dirent {
-  ino_t d_ino;                 // File serial number.
-  int d_type;                  // File type.
-  char d_name[_NAME_MAX + 1];  // Filename string of entry.
+  ino_t d_ino;     // File serial number.
+  int d_type;      // File type.
+  char d_name[1];  // Filename string of entry.
 };
 
 #define DT_UNKNOWN 0      // File type unknown.
@@ -69,8 +73,6 @@ int fdclosedir(DIR *);
 DIR *fdopendir(int);
 DIR *opendirat(int, const char *);
 struct dirent *readdir(DIR *);
-int readdir_r(DIR *__restrict, struct dirent *__restrict,
-              struct dirent **__restrict);
 void rewinddir(DIR *);
 void seekdir(DIR *, long);
 long telldir(DIR *);

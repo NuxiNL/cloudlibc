@@ -77,7 +77,7 @@
 // LINK_MAX: Indeterminate.
 // MAX_CANON: Terminal interaction is not supported.
 // MAX_INPUT: Terminal interaction is not supported.
-#define NAME_MAX _NAME_MAX
+// NAME_MAX: Indeterminate.
 // PATH_MAX: Indeterminate.
 // PIPE_BUF: Indeterminate.
 // POSIX_ALLOC_SIZE_MIN: Indeterminate.
