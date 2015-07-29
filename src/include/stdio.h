@@ -93,8 +93,8 @@ typedef struct {
 #define SEEK_END 2  // Seek relative to end-of-file.
 #define SEEK_SET 3  // Seek relative to start-of-file.
 
-#define FILENAME_MAX _PATH_MAX  // Longest pathname that can be opened.
-#define FOPEN_MAX _INT_MAX      // Not limited.
+#define FILENAME_MAX 1024   // Recommended filename size.
+#define FOPEN_MAX _INT_MAX  // Not limited.
 
 #define EOF (-1)  // End-of-file return value.
 

@@ -103,8 +103,9 @@ static_assert(TZNAME_MAX >= _POSIX_TZNAME_MAX, "Limit too low");
 #endif
 static_assert(NAME_MAX >= _POSIX_NAME_MAX, "Limit too low");
 static_assert(NAME_MAX >= _XOPEN_NAME_MAX, "Limit too low");
-static_assert(PATH_MAX >= _POSIX_PATH_MAX, "Limit too low");
-static_assert(PATH_MAX >= _XOPEN_PATH_MAX, "Limit too low");
+#ifdef PATH_MAX
+#error "Test missing"
+#endif
 #ifdef PIPE_BUF
 #error "Test missing"
 #endif
