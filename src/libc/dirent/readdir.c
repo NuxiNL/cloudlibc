@@ -32,6 +32,21 @@ static_assert(S_ISFIFO(DT_FIFO), "Value mismatch");
 static_assert(S_ISLNK(DT_LNK), "Value mismatch");
 static_assert(S_ISREG(DT_REG), "Value mismatch");
 
+// Grows a buffer to be large enough to hold a certain amount of data.
+#define GROW(buffer, buffer_size, target_size)      \
+  do {                                              \
+    if ((buffer_size) < (target_size)) {            \
+      size_t new_size = (buffer_size);              \
+      while (new_size < (target_size))              \
+        new_size *= 2;                              \
+      void *new_buffer = realloc(buffer, new_size); \
+      if (new_buffer == NULL)                       \
+        return NULL;                                \
+      (buffer) = new_buffer;                        \
+      (buffer_size) = new_size;                     \
+    }                                               \
+  } while (0)
+
 struct dirent *readdir(DIR *dirp) {
   for (;;) {
     // Extract the next dirent header.
@@ -52,20 +67,11 @@ struct dirent *readdir(DIR *dirp) {
       continue;
     }
 
-    // The entire entry must be present in buffer space. Discard the
-    // buffer contents in case the entry has only been read partially.
+    // The entire entry must be present in buffer space. If not, read
+    // the entry another time. Ensure that the read buffer is large
+    // enough to fit at least this single entry.
     if (buffer_left < entry_size) {
-      if (dirp->buffer_size < entry_size) {
-        // Grow the buffer space if we can't fit a single entry.
-        size_t new_size = dirp->buffer_size;
-        while (new_size < entry_size)
-          new_size *= 2;
-        char *new_buffer = realloc(dirp->buffer, new_size);
-        if (new_buffer == NULL)
-          return NULL;
-        dirp->buffer = new_buffer;
-        dirp->buffer_size = new_size;
-      }
+      GROW(dirp->buffer, dirp->buffer_size, entry_size);
       goto read_entries;
     }
 
@@ -76,20 +82,10 @@ struct dirent *readdir(DIR *dirp) {
       continue;
     }
 
-    // Ensure that the dirent size is large enough to fit the filename.
-    size_t dirent_size = offsetof(struct dirent, d_name) + entry.d_namlen + 1;
-    if (dirp->dirent_size < dirent_size) {
-      size_t new_size = dirp->dirent_size;
-      while (new_size < dirent_size)
-        new_size *= 2;
-      struct dirent *new_dirent = realloc(dirp->dirent, new_size);
-      if (new_dirent == NULL)
-        return NULL;
-      dirp->dirent = new_dirent;
-      dirp->dirent_size = new_size;
-    }
-
-    // Return the next directory entry.
+    // Return the next directory entry. Ensure that the dirent is large
+    // enough to fit the filename.
+    GROW(dirp->dirent, dirp->dirent_size,
+         offsetof(struct dirent, d_name) + entry.d_namlen + 1);
     struct dirent *dirent = dirp->dirent;
     dirent->d_ino = entry.d_ino;
     dirent->d_type = entry.d_type << 16;
