@@ -10,6 +10,8 @@
 
 int fdclosedir(DIR *dirp) {
   int fd = dirp->fd;
+  free(dirp->buffer);
+  free(dirp->dirent);
   free(dirp);
   return fd;
 }

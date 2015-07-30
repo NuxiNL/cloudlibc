@@ -13,5 +13,5 @@ void rewinddir(DIR *dirp) {
   // Update cookie.
   dirp->cookie = CLOUDABI_DIRCOOKIE_START;
   // Mark entire buffer as processed to force a read of new data.
-  dirp->buffer_length = dirp->buffer_processed = sizeof(dirp->buffer);
+  dirp->buffer_used = dirp->buffer_processed = dirp->buffer_size;
 }

@@ -11,26 +11,37 @@
 
 #include "dirent_impl.h"
 
+#define DEFAULT_BUFFER_SIZE 4096
+
 DIR *fdopendir(int fd) {
-  // Allocate new directory object.
+  // Allocate new directory object and read buffer.
   DIR *dirp = malloc(sizeof(*dirp));
   if (dirp == NULL)
     return NULL;
-
-  // Initialize members.
-  dirp->buffer_processed = 0;
-  dirp->fd = fd;
-  dirp->cookie = CLOUDABI_DIRCOOKIE_START;
+  dirp->buffer = malloc(DEFAULT_BUFFER_SIZE);
+  if (dirp->buffer == NULL) {
+    free(dirp);
+    return NULL;
+  }
 
   // Ensure that this is really a directory by already loading the first
   // chunk of data.
   cloudabi_errno_t error =
-      cloudabi_sys_file_readdir(dirp->fd, dirp->buffer, sizeof(dirp->buffer),
-                                dirp->cookie, &dirp->buffer_length);
+      cloudabi_sys_file_readdir(fd, dirp->buffer, DEFAULT_BUFFER_SIZE,
+                                CLOUDABI_DIRCOOKIE_START, &dirp->buffer_used);
   if (error != 0) {
+    free(dirp->buffer);
     free(dirp);
     errno = error;
     return NULL;
   }
+
+  // Initialize other members.
+  dirp->fd = fd;
+  dirp->cookie = CLOUDABI_DIRCOOKIE_START;
+  dirp->buffer_processed = 0;
+  dirp->buffer_size = DEFAULT_BUFFER_SIZE;
+  dirp->dirent = NULL;
+  dirp->dirent_size = 1;
   return dirp;
 }

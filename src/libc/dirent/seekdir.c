@@ -11,5 +11,5 @@ void seekdir(DIR *dirp, long loc) {
   // Update cookie.
   dirp->cookie = (unsigned long)loc;
   // Mark entire buffer as processed to force a read of new data.
-  dirp->buffer_length = dirp->buffer_processed = sizeof(dirp->buffer);
+  dirp->buffer_used = dirp->buffer_processed = dirp->buffer_size;
 }

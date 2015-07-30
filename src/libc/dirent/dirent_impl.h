@@ -8,30 +8,24 @@
 
 #include <common/syscalldefs.h>
 
-#include <dirent.h>
 #include <stddef.h>
 
-// TODO(ed): Implementation should support arbitrary length filenames.
-#define NAME_MAX 255
+struct dirent;
 
 struct _DIR {
-  // Read buffer.
-  union {
-    char buffer[NAME_MAX * 20];
-    cloudabi_dirent_t first_dirent;
-  };
-  size_t buffer_length;
-  size_t buffer_processed;
-
   // Directory file descriptor and cookie.
   int fd;
   cloudabi_dircookie_t cookie;
 
+  // Read buffer.
+  char *buffer;
+  size_t buffer_processed;
+  size_t buffer_size;
+  size_t buffer_used;
+
   // Object returned by readdir().
-  struct {
-    struct dirent dirent;
-    char path_buf[NAME_MAX];
-  };
+  struct dirent *dirent;
+  size_t dirent_size;
 };
 
 #endif

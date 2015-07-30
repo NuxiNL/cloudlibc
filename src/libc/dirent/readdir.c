@@ -9,7 +9,8 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "dirent_impl.h"
@@ -31,60 +32,80 @@ static_assert(S_ISFIFO(DT_FIFO), "Value mismatch");
 static_assert(S_ISLNK(DT_LNK), "Value mismatch");
 static_assert(S_ISREG(DT_REG), "Value mismatch");
 
-static bool fetch_first_entry(DIR *dirp) {
-  // Extract the next dirent header.
-  size_t buffer_left = dirp->buffer_length - dirp->buffer_processed;
-  if (buffer_left <= sizeof(cloudabi_dirent_t))
-    return false;
-  cloudabi_dirent_t dirent;
-  memcpy(&dirent, dirp->buffer + dirp->buffer_processed, sizeof(dirent));
-
-  // Bounds checking on the length of the filename.
-  if (dirent.d_namlen == 0 || dirent.d_namlen > NAME_MAX)
-    return false;
-
-  // Ensure that the entire filename is present in the buffer space.
-  size_t dirent_length = sizeof(cloudabi_dirent_t) + dirent.d_namlen;
-  if (buffer_left < dirent_length)
-    return false;
-
-  // Filename cannot contain a null byte.
-  const char *name = dirp->buffer + dirp->buffer_processed + sizeof(dirent);
-  if (memchr(name, '\0', dirent.d_namlen) != NULL)
-    return false;
-
-  dirp->dirent.d_ino = dirent.d_ino;
-  dirp->dirent.d_type = dirent.d_type << 16;
-  strlcpy(dirp->dirent.d_name, name, dirent.d_namlen + 1);
-
-  dirp->cookie = dirent.d_next;
-  dirp->buffer_processed += dirent_length;
-  return true;
-}
-
 struct dirent *readdir(DIR *dirp) {
   for (;;) {
-    // See if we can extract an entry from internal buffer space.
-    if (fetch_first_entry(dirp))
-      return &dirp->dirent;
+    // Extract the next dirent header.
+    size_t buffer_left = dirp->buffer_used - dirp->buffer_processed;
+    if (buffer_left <= sizeof(cloudabi_dirent_t)) {
+      // End-of-file.
+      if (dirp->buffer_used < dirp->buffer_size)
+        return NULL;
+      goto read_entries;
+    }
+    cloudabi_dirent_t entry;
+    memcpy(&entry, dirp->buffer + dirp->buffer_processed, sizeof(entry));
 
-    // Don't attempt to fetch new entries if we've already reached
-    // end-of-file.
-    if (dirp->buffer_length < sizeof(dirp->buffer))
-      return NULL;
+    // Invalid pathname length. Skip the entry.
+    size_t entry_size = sizeof(cloudabi_dirent_t) + entry.d_namlen;
+    if (entry.d_namlen == 0) {
+      dirp->buffer_processed += entry_size;
+      continue;
+    }
 
-    // Corner case: if we've failed to fetch an entry from the internal
-    // buffer space, even though the entry was placed at the start, it
-    // means that the entry is invalid (e.g., empty pathname, pathname
-    // too long for this implementation to support). Skip this file and
-    // continue processing the next.
-    if (dirp->buffer_processed == 0)
-      dirp->cookie = dirp->first_dirent.d_next;
+    // The entire entry must be present in buffer space. Discard the
+    // buffer contents in case the entry has only been read partially.
+    if (buffer_left < entry_size) {
+      if (dirp->buffer_size < entry_size) {
+        // Grow the buffer space if we can't fit a single entry.
+        size_t new_size = dirp->buffer_size;
+        while (new_size < entry_size)
+          new_size *= 2;
+        char *new_buffer = realloc(dirp->buffer, new_size);
+        if (new_buffer == NULL)
+          return NULL;
+        dirp->buffer = new_buffer;
+        dirp->buffer_size = new_size;
+      }
+      goto read_entries;
+    }
 
-    // Load next directory entries.
+    // Skip entries having null bytes in the filename.
+    const char *name = dirp->buffer + dirp->buffer_processed + sizeof(entry);
+    if (memchr(name, '\0', entry.d_namlen) != NULL) {
+      dirp->buffer_processed += entry_size;
+      continue;
+    }
+
+    // Ensure that the dirent size is large enough to fit the filename.
+    size_t dirent_size = offsetof(struct dirent, d_name) + entry.d_namlen + 1;
+    if (dirp->dirent_size < dirent_size) {
+      size_t new_size = dirp->dirent_size;
+      while (new_size < dirent_size)
+        new_size *= 2;
+      struct dirent *dirent = realloc(dirp->dirent, new_size);
+      if (dirent == NULL)
+        return NULL;
+      dirp->dirent = dirent;
+      dirp->dirent_size = new_size;
+    }
+
+    // Return the next directory entry.
+    struct dirent *dirent = dirp->dirent;
+    dirent->d_ino = entry.d_ino;
+    dirent->d_type = entry.d_type << 16;
+    strlcpy(dirent->d_name, name, entry.d_namlen + 1);
+    dirp->cookie = entry.d_next;
+    dirp->buffer_processed += entry_size;
+    return dirent;
+
+  read_entries:
+    // Discard data currently stored in the input buffer.
+    dirp->buffer_used = dirp->buffer_processed = dirp->buffer_size;
+
+    // Load more directory entries and continue.
     cloudabi_errno_t error =
-        cloudabi_sys_file_readdir(dirp->fd, dirp->buffer, sizeof(dirp->buffer),
-                                  dirp->cookie, &dirp->buffer_length);
+        cloudabi_sys_file_readdir(dirp->fd, dirp->buffer, dirp->buffer_size,
+                                  dirp->cookie, &dirp->buffer_used);
     if (error != 0) {
       errno = error;
       return NULL;
