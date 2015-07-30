@@ -9,7 +9,6 @@
 
 #include <dirent.h>
 #include <errno.h>
-#include <pthread.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -32,7 +31,7 @@ static_assert(S_ISFIFO(DT_FIFO), "Value mismatch");
 static_assert(S_ISLNK(DT_LNK), "Value mismatch");
 static_assert(S_ISREG(DT_REG), "Value mismatch");
 
-static bool fetch_first_entry(DIR *dirp) __requires_exclusive(dirp->lock) {
+static bool fetch_first_entry(DIR *dirp) {
   // Extract the next dirent header.
   size_t buffer_left = dirp->buffer_length - dirp->buffer_processed;
   if (buffer_left <= sizeof(cloudabi_dirent_t))
@@ -64,20 +63,15 @@ static bool fetch_first_entry(DIR *dirp) __requires_exclusive(dirp->lock) {
 }
 
 struct dirent *readdir(DIR *dirp) {
-  pthread_mutex_lock(&dirp->lock);
   for (;;) {
     // See if we can extract an entry from internal buffer space.
-    if (fetch_first_entry(dirp)) {
-      pthread_mutex_unlock(&dirp->lock);
+    if (fetch_first_entry(dirp))
       return &dirp->dirent;
-    }
 
     // Don't attempt to fetch new entries if we've already reached
     // end-of-file.
-    if (dirp->buffer_length < sizeof(dirp->buffer)) {
-      pthread_mutex_unlock(&dirp->lock);
+    if (dirp->buffer_length < sizeof(dirp->buffer))
       return NULL;
-    }
 
     // Corner case: if we've failed to fetch an entry from the internal
     // buffer space, even though the entry was placed at the start, it
@@ -92,7 +86,6 @@ struct dirent *readdir(DIR *dirp) {
         cloudabi_sys_file_readdir(dirp->fd, dirp->buffer, sizeof(dirp->buffer),
                                   dirp->cookie, &dirp->buffer_length);
     if (error != 0) {
-      pthread_mutex_unlock(&dirp->lock);
       errno = error;
       return NULL;
     }

@@ -8,7 +8,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <pthread.h>
 
 #include "dirent_impl.h"
 
@@ -19,7 +18,6 @@ DIR *fdopendir(int fd) {
     return NULL;
 
   // Initialize members.
-  pthread_mutex_init(&dirp->lock, NULL);
   dirp->buffer_processed = 0;
   dirp->fd = fd;
   dirp->cookie = CLOUDABI_DIRCOOKIE_START;
@@ -30,7 +28,6 @@ DIR *fdopendir(int fd) {
       cloudabi_sys_file_readdir(dirp->fd, dirp->buffer, sizeof(dirp->buffer),
                                 dirp->cookie, &dirp->buffer_length);
   if (error != 0) {
-    pthread_mutex_destroy(&dirp->lock);
     free(dirp);
     errno = error;
     return NULL;

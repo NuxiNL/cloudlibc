@@ -8,17 +8,13 @@
 
 #include <common/syscalldefs.h>
 
-#include <sys/types.h>
-
 #include <dirent.h>
+#include <stddef.h>
 
 // TODO(ed): Implementation should support arbitrary length filenames.
 #define NAME_MAX 255
 
 struct _DIR {
-  // Per-directory handle lock.
-  pthread_mutex_t lock;
-
   // Read buffer.
   union {
     char buffer[NAME_MAX * 20];
