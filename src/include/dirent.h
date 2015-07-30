@@ -43,7 +43,6 @@
 #ifndef _DIRENT_H_
 #define _DIRENT_H_
 
-#include <_/limits.h>
 #include <_/types.h>
 
 typedef struct _DIR DIR;
