@@ -82,10 +82,10 @@ struct dirent *readdir(DIR *dirp) {
       size_t new_size = dirp->dirent_size;
       while (new_size < dirent_size)
         new_size *= 2;
-      struct dirent *dirent = realloc(dirp->dirent, new_size);
-      if (dirent == NULL)
+      struct dirent *new_dirent = realloc(dirp->dirent, new_size);
+      if (new_dirent == NULL)
         return NULL;
-      dirp->dirent = dirent;
+      dirp->dirent = new_dirent;
       dirp->dirent_size = new_size;
     }
 
