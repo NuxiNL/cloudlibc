@@ -93,7 +93,8 @@ struct dirent *readdir(DIR *dirp) {
     struct dirent *dirent = dirp->dirent;
     dirent->d_ino = entry.d_ino;
     dirent->d_type = entry.d_type << 16;
-    strlcpy(dirent->d_name, name, entry.d_namlen + 1);
+    memcpy(dirent->d_name, name, entry.d_namlen);
+    dirent->d_name[entry.d_namlen] = '\0';
     dirp->cookie = entry.d_next;
     dirp->buffer_processed += entry_size;
     return dirent;
