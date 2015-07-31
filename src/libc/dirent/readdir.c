@@ -51,7 +51,7 @@ struct dirent *readdir(DIR *dirp) {
   for (;;) {
     // Extract the next dirent header.
     size_t buffer_left = dirp->buffer_used - dirp->buffer_processed;
-    if (buffer_left <= sizeof(cloudabi_dirent_t)) {
+    if (buffer_left < sizeof(cloudabi_dirent_t)) {
       // End-of-file.
       if (dirp->buffer_used < dirp->buffer_size)
         return NULL;
