@@ -52,9 +52,9 @@ typedef __ino_t ino_t;
 #endif
 
 struct dirent {
-  ino_t d_ino;     // File serial number.
-  int d_type;      // File type.
-  char d_name[1];  // Filename string of entry.
+  ino_t d_ino;      // File serial number.
+  __mode_t d_type;  // File type.
+  char d_name[1];   // Filename string of entry.
 };
 
 #define DT_UNKNOWN 0      // File type unknown.
