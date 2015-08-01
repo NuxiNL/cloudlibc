@@ -61,5 +61,5 @@ TEST(qsort, example) {
 
 TEST(qsort, empty) {
   // Both the list and the compare function should not be accessed.
-  qsort(NULL, 0, 123, NULL);
+  qsort_r(NULL, 0, 123, NULL, NULL);
 }
