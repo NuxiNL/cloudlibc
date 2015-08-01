@@ -34,7 +34,7 @@ static bool fetch_fds(const argdata_t *key, const argdata_t *value,
 
 void program_main(const argdata_t *ad) {
   // Fetch file descriptor numbers from arguments.
-  argdata_iterate_map(ad, NULL, fetch_fds);
+  argdata_iterate_map(ad, fetch_fds, NULL);
 
   // Set up stderr.
   FILE *f = fdopen(logfile, "w");

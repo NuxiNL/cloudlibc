@@ -132,7 +132,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
   // Maps.
   {
     struct iterate_data id = {.first = true, .fp = fp, .depth = depth + 2};
-    if (argdata_iterate_map(ad, &id, iterate_map) == 0 || !id.first) {
+    if (argdata_iterate_map(ad, iterate_map, &id) == 0 || !id.first) {
       if (id.first) {
         // Empty map.
         fputs("!!map {}", fp);
@@ -148,7 +148,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
   // Sequences.
   {
     struct iterate_data id = {.first = true, .fp = fp, .depth = depth + 2};
-    if (argdata_iterate_seq(ad, &id, iterate_seq) == 0 || !id.first) {
+    if (argdata_iterate_seq(ad, iterate_seq, &id) == 0 || !id.first) {
       if (id.first) {
         // Empty sequence.
         fputs("!!seq []", fp);

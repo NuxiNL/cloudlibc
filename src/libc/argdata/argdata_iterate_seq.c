@@ -10,8 +10,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int argdata_iterate_seq(const argdata_t *ad, void *thunk,
-                        bool (*iterator)(const argdata_t *, void *)) {
+int argdata_iterate_seq(const argdata_t *ad,
+                        bool (*iterator)(const argdata_t *, void *),
+                        void *thunk) {
   switch (ad->type) {
     case AD_BUFFER: {
       const uint8_t *buf = ad->buffer;
