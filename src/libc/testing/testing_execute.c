@@ -106,7 +106,7 @@ static void *run_tests(void *arg) {
   }
 }
 
-void testing_execute(int tmpdir, int logfile) {
+void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
   // Shuffle all the tests on startup.
   static pthread_once_t shuffle_once = PTHREAD_ONCE_INIT;
   pthread_once(&shuffle_once, shuffle_tests);
@@ -120,13 +120,17 @@ void testing_execute(int tmpdir, int logfile) {
       .tmpdir = tmpdir, .test_start = __start___tests,
   };
 
-  // Spawn a number of threads to execute the tests in parallel.
-  // TODO(ed): Make number of threads configurable.
-  pthread_t threads[8];
-  for (size_t i = 0; i < __arraycount(threads); ++i)
-    ASSERT_EQ(0, pthread_create(&threads[i], NULL, run_tests, &state));
-  for (size_t i = 0; i < __arraycount(threads); ++i)
-    ASSERT_EQ(0, pthread_join(threads[i], NULL));
+  if (nthreads <= 1) {
+    // Run tests sequentially.
+    run_tests(&state);
+  } else {
+    // Spawn a number of threads to execute the tests in parallel.
+    pthread_t threads[nthreads];
+    for (size_t i = 0; i < nthreads; ++i)
+      ASSERT_EQ(0, pthread_create(&threads[i], NULL, run_tests, &state));
+    for (size_t i = 0; i < nthreads; ++i)
+      ASSERT_EQ(0, pthread_join(threads[i], NULL));
+  }
 
   __testing_printf("=> Successfully executed %zu tests\n",
                    __stop___tests - __start___tests);

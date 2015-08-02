@@ -13,6 +13,8 @@
 
 static int tmpdir = -1;
 static int logfile = -1;
+// TODO(ed): Don't use threads by default.
+static unsigned int nthreads = 8;
 
 static bool fetch_fds(const argdata_t *key, const argdata_t *value,
                       void *thunk) {
@@ -20,15 +22,14 @@ static bool fetch_fds(const argdata_t *key, const argdata_t *value,
   const char *keystr;
   if (argdata_get_str_c(key, &keystr) != 0)
     return true;
-  int valuefd;
-  if (argdata_get_fd(value, &valuefd) != 0)
-    return true;
 
   // Set file descriptors.
   if (strcmp(keystr, "tmpdir") == 0)
-    tmpdir = valuefd;
+    argdata_get_fd(value, &tmpdir);
   else if (strcmp(keystr, "logfile") == 0)
-    logfile = valuefd;
+    argdata_get_fd(value, &logfile);
+  else if (strcmp(keystr, "nthreads") == 0)
+    argdata_get_int(value, &nthreads);
   return true;
 }
 
@@ -42,6 +43,6 @@ void program_main(const argdata_t *ad) {
     fswap(stderr, f);
 
   // Invoke test suite.
-  testing_execute(tmpdir, logfile);
+  testing_execute(tmpdir, logfile, nthreads);
   exit(0);
 }

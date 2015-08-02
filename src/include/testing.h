@@ -107,12 +107,12 @@ struct __test {
 //   int main(void) {
 //     int logfile = openat(...);
 //     int tmpdir = openat(...);
-//     testing_execute(tmpdir, logfile);
+//     testing_execute(tmpdir, logfile, nthreads);
 //     return 0;
 //   }
 
 __BEGIN_DECLS
-void testing_execute(int, int);
+void testing_execute(int, int, unsigned int);
 __END_DECLS
 
 // Numerical comparison.
