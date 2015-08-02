@@ -278,7 +278,7 @@ static __inline int __qsort_cmp(const void *__a, const void *__b,
 
 static __inline void __qsort(void *__base, size_t __nel, size_t __width,
                              int (*__cmp)(const void *, const void *)) {
-  __qsort_r(__base, __nel, __width, __qsort_cmp, &__cmp);
+  __qsort_r(__base, __nel, __width, __qsort_cmp, (void *)__cmp);
 }
 
 __BEGIN_DECLS
