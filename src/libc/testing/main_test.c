@@ -13,8 +13,7 @@
 
 static int tmpdir = -1;
 static int logfile = -1;
-// TODO(ed): Don't use threads by default.
-static unsigned int nthreads = 8;
+static unsigned int nthreads = 1;
 
 static bool fetch_fds(const argdata_t *key, const argdata_t *value,
                       void *thunk) {
