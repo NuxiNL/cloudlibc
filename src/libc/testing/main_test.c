@@ -17,12 +17,12 @@ static unsigned int nthreads = 1;
 
 static bool fetch_fds(const argdata_t *key, const argdata_t *value,
                       void *thunk) {
-  // Fetch key and value.
+  // Fetch key.
   const char *keystr;
   if (argdata_get_str_c(key, &keystr) != 0)
     return true;
 
-  // Set file descriptors.
+  // Set value depending on key.
   if (strcmp(keystr, "tmpdir") == 0)
     argdata_get_fd(value, &tmpdir);
   else if (strcmp(keystr, "logfile") == 0)
