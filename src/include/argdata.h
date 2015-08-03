@@ -86,7 +86,7 @@ __END_DECLS
     __error = __argdata_get_int_s(__ad, &__v, min, max);               \
     if (__error != 0)                                                  \
       return __error;                                                  \
-    *__value = __v;                                                    \
+    *__value = (type)__v;                                              \
     return 0;                                                          \
   }
 #define _ARGDATA_INT_U(type, stype, max)                               \
@@ -98,20 +98,20 @@ __END_DECLS
     __error = __argdata_get_int_u(__ad, &__v, max);                    \
     if (__error != 0)                                                  \
       return __error;                                                  \
-    *__value = __v;                                                    \
+    *__value = (type)__v;                                              \
     return 0;                                                          \
   }
-_ARGDATA_INT_S(char, char, _CHAR_MIN, _CHAR_MAX);
-_ARGDATA_INT_S(signed char, schar, _SCHAR_MIN, _SCHAR_MAX);
-_ARGDATA_INT_U(unsigned char, uchar, _UCHAR_MAX);
-_ARGDATA_INT_S(short, short, _SHRT_MIN, _SHRT_MAX);
-_ARGDATA_INT_U(unsigned short, ushort, _USHRT_MAX);
-_ARGDATA_INT_S(int, int, _INT_MIN, _INT_MAX);
-_ARGDATA_INT_U(unsigned int, uint, _UINT_MAX);
-_ARGDATA_INT_S(long, long, _LONG_MIN, _LONG_MAX);
-_ARGDATA_INT_U(unsigned long, ulong, _ULONG_MAX);
-_ARGDATA_INT_S(long long, llong, _LLONG_MIN, _LLONG_MAX);
-_ARGDATA_INT_U(unsigned long long, ullong, _ULONG_MAX);
+_ARGDATA_INT_S(char, char, _CHAR_MIN, _CHAR_MAX)
+_ARGDATA_INT_S(signed char, schar, _SCHAR_MIN, _SCHAR_MAX)
+_ARGDATA_INT_U(unsigned char, uchar, _UCHAR_MAX)
+_ARGDATA_INT_S(short, short, _SHRT_MIN, _SHRT_MAX)
+_ARGDATA_INT_U(unsigned short, ushort, _USHRT_MAX)
+_ARGDATA_INT_S(int, int, _INT_MIN, _INT_MAX)
+_ARGDATA_INT_U(unsigned int, uint, _UINT_MAX)
+_ARGDATA_INT_S(long, long, _LONG_MIN, _LONG_MAX)
+_ARGDATA_INT_U(unsigned long, ulong, _ULONG_MAX)
+_ARGDATA_INT_S(long long, llong, _LLONG_MIN, _LLONG_MAX)
+_ARGDATA_INT_U(unsigned long long, ullong, _ULONG_MAX)
 #undef _ARGDATA_INT_S
 #undef _ARGDATA_INT_U
 

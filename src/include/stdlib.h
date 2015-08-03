@@ -254,16 +254,16 @@ static __inline void __qsort_r(void *__base, size_t __nel, size_t __width,
     __pc -= __width;
   }
   __pn = __a + __nel * __width;
-  __s = __qsort_min(__pa - __a, __pb - __pa);
+  __s = __qsort_min((size_t)(__pa - __a), (size_t)(__pb - __pa));
   if (__s > 0)
     __qsort_swap(__a, __pb - __s, __s);
-  __s = __qsort_min(__pd - __pc, __pn - __pd - __width);
+  __s = __qsort_min((size_t)(__pd - __pc), (size_t)(__pn - __pd) - __width);
   if (__s > 0)
     __qsort_swap(__pb, __pn - __s, __s);
-  __s = __pb - __pa;
+  __s = (size_t)(__pb - __pa);
   if (__s > __width)
     __qsort_r(__a, __s / __width, __width, __cmp, __thunk);
-  __s = __pd - __pc;
+  __s = (size_t)(__pd - __pc);
   if (__s > __width)
     __qsort_r(__pn - __s, __s / __width, __width, __cmp, __thunk);
 }
