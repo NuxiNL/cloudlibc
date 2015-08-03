@@ -28,7 +28,7 @@
 //   Analogous to asprintf().
 // - dwprintf(), dwprintf_l(), vdwprintf() and vdwprintf_l():
 //   Analogous to dprintf().
-// - wcsfmon(), wcsfmon_l(), vwcsfmon() and vwcfsmon_l():
+// - wcsfmon(), wcsfmon_l(), vwcsfmon() and vwcsfmon_l():
 //   Analogous to strfmon(), strfmon_l(), vstrfmon() and vstrftmon_l().
 // - wcslcat() and wcslcpy():
 //   Analogous to strlcat() and strlcpy().
