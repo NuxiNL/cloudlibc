@@ -28,9 +28,11 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
   for (size_t i = 0; i < nin; ++i) {
     const struct kevent *ke = &in[i];
     cloudabi_subscription_t *sub = &subscriptions[i];
-    sub->userdata = (uintptr_t)ke->udata;
-    sub->flags = ke->flags;
-    sub->type = ke->filter;
+    *sub = (cloudabi_subscription_t){
+        .userdata = (uintptr_t)ke->udata,
+        .flags = ke->flags,
+        .type = ke->filter,
+    };
 
     // Filter specific data.
     switch (ke->filter) {
@@ -83,16 +85,22 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
       case CLOUDABI_EVENTTYPE_FD_READ:
       case CLOUDABI_EVENTTYPE_FD_WRITE:
         ke->ident = ev->fd_readwrite.fd;
-        ke->data = ev->fd_readwrite.nbytes;
-        if ((ev->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP) != 0)
-          ke->flags |= EV_EOF;
         break;
     }
 
     if (ev->error == 0) {
-      // TODO(ed): Implement.
+      // Set additional properties.
+      switch (ev->type) {
+        case CLOUDABI_EVENTTYPE_FD_READ:
+        case CLOUDABI_EVENTTYPE_FD_WRITE:
+          ke->data = ev->fd_readwrite.nbytes;
+          if ((ev->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP) !=
+              0)
+            ke->flags |= EV_EOF;
+          break;
+      }
     } else {
-      // An error occurred.
+      // An error occurred. Only fill the data field with the error code.
       ke->flags |= EV_ERROR;
       ke->data = ev->error;
     }
