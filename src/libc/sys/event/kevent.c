@@ -24,7 +24,7 @@ static_assert(EVFILT_WRITE == CLOUDABI_EVENTTYPE_FD_WRITE, "Value mismatch");
 ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
                size_t nout, const struct timespec *timeout) {
   // Convert input events.
-  cloudabi_subscription_t subscriptions[nin + 1];
+  cloudabi_subscription_t subscriptions[nin];
   for (size_t i = 0; i < nin; ++i) {
     const struct kevent *ke = &in[i];
     cloudabi_subscription_t *sub = &subscriptions[i];
@@ -45,23 +45,22 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
   }
 
   // Add timeout event.
+  cloudabi_subscription_t timosub = {
+      .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,
+  };
   if (timeout != NULL) {
-    cloudabi_subscription_t *sub = &subscriptions[nin++];
-    sub->flags = CLOUDABI_SUBSCRIPTION_TEMPORARY;
-    sub->type = CLOUDABI_EVENTTYPE_CLOCK;
-    sub->clock.identifier = (uintptr_t)timeout;
-    sub->clock.clock_id = CLOCK_REALTIME;
-    // TODO(ed): We need some kind of marker that this is not an
-    // absolute timestamp.
-    timespec_to_timestamp_clamp(timeout, &sub->clock.timeout);
-    sub->clock.precision = 0;
+    if (!timespec_to_timestamp_clamp(timeout, &timosub.clock.timeout)) {
+      errno = EINVAL;
+      return -1;
+    }
   }
 
   // Invoke poll system call.
   size_t ntriggered;
   cloudabi_event_t events[nout];
   cloudabi_errno_t error =
-      cloudabi_sys_poll(fd, subscriptions, nin, events, nout, &ntriggered);
+      cloudabi_sys_poll_fd(fd, subscriptions, nin, events, nout,
+                           timeout != NULL ? &timosub : NULL, &ntriggered);
   if (error != 0) {
     errno = error;
     return -1;
@@ -81,10 +80,13 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
         .udata = (void *)ev->userdata, .filter = ev->type,
     };
     switch (ev->type) {
-    case CLOUDABI_EVENTTYPE_FD_READ:
-    case CLOUDABI_EVENTTYPE_FD_WRITE:
-      ke->ident = ev->fd_readwrite.fd;
-      break;
+      case CLOUDABI_EVENTTYPE_FD_READ:
+      case CLOUDABI_EVENTTYPE_FD_WRITE:
+        ke->ident = ev->fd_readwrite.fd;
+        ke->data = ev->fd_readwrite.nbytes;
+        if ((ev->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP) != 0)
+          ke->flags |= EV_EOF;
+        break;
     }
 
     if (ev->error == 0) {

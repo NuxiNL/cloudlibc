@@ -37,19 +37,15 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     cloudabi_subscription_t *subscription = &subscriptions[nevents++];
     subscription->type = CLOUDABI_EVENTTYPE_CLOCK;
     subscription->clock.clock_id = CLOUDABI_CLOCK_REALTIME;
-    subscription->clock.timeout = 0;
-    if (timeout > 0) {
-      cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_REALTIME, 0,
-                                  &subscription->clock.timeout);
-      subscription->clock.timeout += (cloudabi_timestamp_t)timeout * 1000000;
-    }
+    subscription->clock.timeout = (cloudabi_timestamp_t)timeout * 1000000;
     subscription->clock.precision = 0;
+    subscription->clock.flags = CLOUDABI_SUBSCRIPTION_CLOCK_ABSTIME;
   }
 
   // Execute poll().
   cloudabi_event_t events[nevents];
-  cloudabi_errno_t error = cloudabi_sys_poll(
-      CLOUDABI_POLL_ONCE, subscriptions, nevents, events, nevents, &nevents);
+  cloudabi_errno_t error =
+      cloudabi_sys_poll(subscriptions, nevents, events, nevents, &nevents);
   if (error != 0) {
     errno = error;
     return -1;

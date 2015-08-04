@@ -28,7 +28,9 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock,
           .lock.lock_scope = rwlock->__pshared,
       },
       {
-          .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,
+          .type = CLOUDABI_EVENTTYPE_CLOCK,
+          .clock.clock_id = CLOCK_REALTIME,
+          .clock.flags = CLOUDABI_SUBSCRIPTION_CLOCK_ABSTIME,
       },
   };
   if (!timespec_to_timestamp_clamp(abstime, &subscriptions[1].clock.timeout))
@@ -36,9 +38,9 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock,
 
   size_t triggered;
   cloudabi_event_t events[2];
-  cloudabi_errno_t error = cloudabi_sys_poll(
-      CLOUDABI_POLL_ONCE, subscriptions, __arraycount(subscriptions), events,
-      __arraycount(events), &triggered);
+  cloudabi_errno_t error =
+      cloudabi_sys_poll(subscriptions, __arraycount(subscriptions), events,
+                        __arraycount(events), &triggered);
   if (error != 0)
     __pthread_terminate(error, "Failed to acquire write lock");
   for (size_t i = 0; i < triggered; ++i) {

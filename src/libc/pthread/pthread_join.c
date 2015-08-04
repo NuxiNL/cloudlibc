@@ -33,8 +33,8 @@ int pthread_join(pthread_t thread, void **value_ptr) {
     };
     size_t triggered;
     cloudabi_event_t event;
-    cloudabi_errno_t error = cloudabi_sys_poll(
-        CLOUDABI_POLL_ONCE, &subscription, 1, &event, 1, &triggered);
+    cloudabi_errno_t error =
+        cloudabi_sys_poll(&subscription, 1, &event, 1, &triggered);
     if (error != 0)
       __pthread_terminate(error, "Failed to join on thread");
     if (event.error != 0)

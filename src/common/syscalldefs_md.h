@@ -186,6 +186,7 @@ typedef struct {
       MEMBER(cloudabi_clockid_t) clock_id;
       MEMBER(cloudabi_timestamp_t) timeout;
       MEMBER(cloudabi_timestamp_t) precision;
+      MEMBER(uint16_t) flags;
     } clock;
 
     // CLOUDABI_EVENTTYPE_CONDVAR: Release a lock and wait on a
@@ -224,6 +225,7 @@ ASSERT_OFFSET(subscription_t, clock.identifier, 16, 16);
 ASSERT_OFFSET(subscription_t, clock.clock_id, 24, 24);
 ASSERT_OFFSET(subscription_t, clock.timeout, 32, 32);
 ASSERT_OFFSET(subscription_t, clock.precision, 40, 40);
+ASSERT_OFFSET(subscription_t, clock.flags, 48, 48);
 ASSERT_OFFSET(subscription_t, condvar.condvar, 16, 16);
 ASSERT_OFFSET(subscription_t, condvar.lock, 20, 24);
 ASSERT_OFFSET(subscription_t, condvar.condvar_scope, 24, 32);
@@ -232,7 +234,7 @@ ASSERT_OFFSET(subscription_t, fd_readwrite.fd, 16, 16);
 ASSERT_OFFSET(subscription_t, lock.lock, 16, 16);
 ASSERT_OFFSET(subscription_t, lock.lock_scope, 20, 24);
 ASSERT_OFFSET(subscription_t, proc_terminate.fd, 16, 16);
-ASSERT_SIZE(subscription_t, 48, 48);
+ASSERT_SIZE(subscription_t, 56, 56);
 
 typedef struct {
   MEMBER(PTR(IDENT(threadentry_t))) entry_point;  // Entry point.

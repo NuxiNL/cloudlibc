@@ -32,7 +32,9 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
           .condvar.lock_scope = lock->__pshared,
       },
       {
-          .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = cond->__clock,
+          .type = CLOUDABI_EVENTTYPE_CLOCK,
+          .clock.clock_id = cond->__clock,
+          .clock.flags = CLOUDABI_SUBSCRIPTION_CLOCK_ABSTIME,
       },
   };
   if (!timespec_to_timestamp_clamp(abstime, &subscriptions[1].clock.timeout))
@@ -42,9 +44,9 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
   // Remove lock from lock list while blocking.
   LIST_REMOVE(lock, __write_locks);
   cloudabi_event_t events[2];
-  cloudabi_errno_t error = cloudabi_sys_poll(
-      CLOUDABI_POLL_ONCE, subscriptions, __arraycount(subscriptions), events,
-      __arraycount(events), &triggered);
+  cloudabi_errno_t error =
+      cloudabi_sys_poll(subscriptions, __arraycount(subscriptions), events,
+                        __arraycount(events), &triggered);
   LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)
