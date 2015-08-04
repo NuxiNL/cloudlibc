@@ -7,6 +7,7 @@
 
 #include <errno.h>
 #include <testing.h>
+#include <time.h>
 #include <unistd.h>
 
 TEST(kevent, ebadf) {
@@ -60,12 +61,18 @@ TEST(kevent, evfilt_read_pipe) {
     ASSERT_EQ(&ke, ke.udata);
   }
 
+  // Poll on the reading side. This shouldn't trigger initially.
+  {
+    struct kevent ke;
+    EV_SET(&ke, fdp[0], EVFILT_READ, EV_ADD, 0, 0xdeadc0de, (void *)0x42);
+    ASSERT_EQ(0, kevent(fdq, &ke, 1, NULL, 1, &(struct timespec){}));
+  }
+
   // Write data into the pipe. We should now be able to observe this data.
   ASSERT_EQ(5, write(fdp[1], "Hello", 5));
   {
     struct kevent ke;
-    EV_SET(&ke, fdp[0], EVFILT_READ, EV_ADD, 0, 0xdeadc0de, (void *)0x42);
-    ASSERT_EQ(1, kevent(fdq, &ke, 1, &ke, 1, NULL));
+    ASSERT_EQ(1, kevent(fdq, NULL, 0, &ke, 1, NULL));
     ASSERT_EQ(fdp[0], (int)ke.ident);
     ASSERT_EQ(EVFILT_READ, ke.filter);
     ASSERT_EQ(0, ke.flags);
