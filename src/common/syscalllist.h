@@ -108,6 +108,6 @@ SYSCALL_1_1(53, thread_create, cloudabi_threadattr_t *, cloudabi_tid_t);
 SYSCALL_2_N(54, thread_exit, _Atomic(cloudabi_lock_t) *, cloudabi_mflags_t);
 SYSCALL_1_0(55, thread_tcb_set, void *);
 SYSCALL_0_0(56, thread_yield);
-SYSCALL_6_1(57, poll_fd, cloudabi_fd_t, const cloudabi_subscription_t *,
+SYSCALL_6_1(57, fd_poll, cloudabi_fd_t, const cloudabi_subscription_t *,
             cloudabi_size_t, cloudabi_event_t *, cloudabi_size_t,
             const cloudabi_subscription_t *, cloudabi_size_t);
