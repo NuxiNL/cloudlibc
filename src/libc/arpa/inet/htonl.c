@@ -5,12 +5,11 @@
 
 #include <arpa/inet.h>
 
-#include <stdint.h>
+#ifndef htonl
+#error "htonl is supposed to be a macro as well"
+#endif
 
-uint32_t htonl(uint32_t hostlong) {
-  union {
-    uint8_t host[4];
-    uint32_t net;
-  } v = {.host = {hostlong >> 24, hostlong >> 16, hostlong >> 8, hostlong}};
-  return v.net;
+// clang-format off
+uint32_t (htonl)(uint32_t i) {
+  return htonl(i);
 }

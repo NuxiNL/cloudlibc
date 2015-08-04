@@ -5,13 +5,11 @@
 
 #include <arpa/inet.h>
 
-#include <stdint.h>
+#ifndef ntohl
+#error "ntohl is supposed to be a macro as well"
+#endif
 
-uint32_t ntohl(uint32_t netlong) {
-  union {
-    uint32_t net;
-    uint8_t host[4];
-  } v = {.net = netlong};
-  return (uint32_t)v.host[0] << 24 | (uint32_t)v.host[1] << 16 |
-         (uint32_t)v.host[2] << 8 | v.host[3];
+// clang-format off
+uint32_t (ntohl)(uint32_t i) {
+  return ntohl(i);
 }

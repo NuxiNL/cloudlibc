@@ -36,6 +36,7 @@
 #ifndef _NETINET_IN_H_
 #define _NETINET_IN_H_
 
+#include <_/endian.h>
 #include <_/struct/in_addr.h>
 #include <_/types.h>
 
@@ -166,12 +167,5 @@ _Static_assert(INET6_ADDRSTRLEN ==
   (IN6_IS_ADDR_MULTICAST(a) && ((a)->s6_addr[1] & 0xf) == 0x8)
 #define IN6_IS_ADDR_MC_GLOBAL(a) \
   (IN6_IS_ADDR_MULTICAST(a) && ((a)->s6_addr[1] & 0xf) == 0xe)
-
-__BEGIN_DECLS
-uint32_t htonl(uint32_t);
-__uint16_t htons(__uint16_t);
-uint32_t ntohl(uint32_t);
-__uint16_t ntohs(__uint16_t);
-__END_DECLS
 
 #endif

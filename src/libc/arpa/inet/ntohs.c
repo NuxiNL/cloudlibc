@@ -5,12 +5,11 @@
 
 #include <arpa/inet.h>
 
-#include <stdint.h>
+#ifndef ntohs
+#error "ntohs is supposed to be a macro as well"
+#endif
 
-uint16_t ntohs(uint16_t netshort) {
-  union {
-    uint16_t net;
-    uint8_t host[2];
-  } v = {.net = netshort};
-  return (uint16_t)v.host[0] << 8 | v.host[1];
+// clang-format off
+uint16_t (ntohs)(uint16_t i) {
+  return ntohs(i);
 }

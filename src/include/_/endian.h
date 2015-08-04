@@ -21,44 +21,58 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <arpa/inet.h> - definitions for internet operations
-//
-// Features missing:
-// - inet_ntoa():
-//   Not thread-safe.
-// - inet_addr():
-//   No IPv6 support. Use inet_pton() instead.
+#ifndef ___ENDIAN_H_
+#define ___ENDIAN_H_
 
-#ifndef _ARPA_INET_H_
-#define _ARPA_INET_H_
-
-#include <_/endian.h>
-#include <_/struct/in_addr.h>
 #include <_/types.h>
 
-#ifndef _IN_ADDR_T_DECLARED
-typedef __in_addr_t in_addr_t;
-#define _IN_ADDR_T_DECLARED
-#endif
-#ifndef _IN_PORT_T_DECLARED
-typedef __in_port_t in_port_t;
-#define _IN_PORT_T_DECLARED
-#endif
-#ifndef _UINT16_T_DECLARED
-typedef __uint16_t uint16_t;
-#define _UINT16_T_DECLARED
-#endif
-#ifndef _UINT32_T_DECLARED
-typedef __uint32_t uint32_t;
-#define _UINT32_T_DECLARED
-#endif
+// Inline implementations of hton*() and ntoh*().
 
-#define INET_ADDRSTRLEN 16
-#define INET6_ADDRSTRLEN 46
+static __inline __uint32_t __htonl(__uint32_t __i) {
+  union {
+    __uint8_t __host[4];
+    __uint32_t __net;
+  } __v = {.__host = {(__uint8_t)(__i >> 24), (__uint8_t)(__i >> 16),
+                      (__uint8_t)(__i >> 8), (__uint8_t)__i}};
+  return __v.__net;
+}
+
+static __inline __uint16_t __htons(__uint16_t __i) {
+  union {
+    __uint8_t __host[2];
+    __uint16_t __net;
+  } __v = {.__host = {(__uint8_t)(__i >> 8), (__uint8_t)__i}};
+  return __v.__net;
+}
+
+static __inline __uint32_t __ntohl(__uint32_t __i) {
+  union {
+    __uint32_t __net;
+    __uint8_t __host[4];
+  } __v = {.__net = __i};
+  return (__uint32_t)((__uint32_t)__v.__host[0] << 24 |
+                      (__uint32_t)__v.__host[1] << 16 |
+                      (__uint32_t)__v.__host[2] << 8 | __v.__host[3]);
+}
+
+static __inline __uint16_t __ntohs(__uint16_t __i) {
+  union {
+    __uint16_t __net;
+    __uint8_t __host[2];
+  } __v = {.__net = __i};
+  return (__uint16_t)((__uint16_t)__v.__host[0] << 8 | __v.__host[1]);
+}
 
 __BEGIN_DECLS
-const char *inet_ntop(int, const void *__restrict, char *__restrict, __size_t);
-int inet_pton(int, const char *__restrict, void *__restrict);
+__uint32_t htonl(__uint32_t);
+__uint16_t htons(__uint16_t);
+__uint32_t ntohl(__uint32_t);
+__uint16_t ntohs(__uint16_t);
 __END_DECLS
+
+#define htonl(i) __htonl(i)
+#define htons(i) __htons(i)
+#define ntohl(i) __ntohl(i)
+#define ntohs(i) __ntohs(i)
 
 #endif

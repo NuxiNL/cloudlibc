@@ -5,12 +5,11 @@
 
 #include <arpa/inet.h>
 
-#include <stdint.h>
+#ifndef htons
+#error "htons is supposed to be a macro as well"
+#endif
 
-uint16_t htons(uint16_t hostshort) {
-  union {
-    uint8_t host[2];
-    uint16_t net;
-  } v = {.host = {hostshort >> 8, hostshort}};
-  return v.net;
+// clang-format off
+uint16_t (htons)(uint16_t i) {
+  return htons(i);
 }
