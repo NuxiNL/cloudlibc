@@ -39,7 +39,6 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     subscription->clock.clock_id = CLOUDABI_CLOCK_REALTIME;
     subscription->clock.timeout = (cloudabi_timestamp_t)timeout * 1000000;
     subscription->clock.precision = 0;
-    subscription->clock.flags = CLOUDABI_SUBSCRIPTION_CLOCK_ABSTIME;
   }
 
   // Execute poll().

@@ -10,7 +10,10 @@
 TEST(clock_nanosleep, bad) {
   ASSERT_EQ(EINVAL, clock_nanosleep(CLOCK_REALTIME, 0,
                                     &(struct timespec){.tv_nsec = -7}));
-  ASSERT_EQ(ENOTSUP, clock_nanosleep(0xdeadc0de, 0, &(struct timespec){}));
+  ASSERT_EQ(EINVAL,
+            clock_nanosleep(CLOCK_REALTIME, 0xdeadc0de, &(struct timespec){}));
+  ASSERT_EQ(ENOTSUP, clock_nanosleep(0xdeadc0de, TIMER_ABSTIME,
+                                     &(struct timespec){.tv_sec = 1438708721}));
 }
 
 TEST(clock_nanosleep, monotonic_relative) {
