@@ -29,6 +29,6 @@ int clock_nanosleep(clockid_t clock_id, int flags, const struct timespec *rqtp,
   // Block until polling event is triggered.
   size_t nevents;
   cloudabi_event_t ev;
-  cloudabi_errno_t error = cloudabi_sys_poll(&sub, 1, &ev, 1, &nevents);
+  cloudabi_errno_t error = cloudabi_sys_poll(&sub, &ev, 1, &nevents);
   return error == 0 && ev.error == 0 ? 0 : ENOTSUP;
 }

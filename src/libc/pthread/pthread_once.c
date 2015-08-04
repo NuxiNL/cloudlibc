@@ -62,7 +62,7 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
     size_t triggered;
     cloudabi_event_t event;
     cloudabi_errno_t error =
-        cloudabi_sys_poll(&subscription, 1, &event, 1, &triggered);
+        cloudabi_sys_poll(&subscription, &event, 1, &triggered);
     if (error != 0)
       __pthread_terminate(error, "Failed to wait on once object");
     if (event.error != 0)

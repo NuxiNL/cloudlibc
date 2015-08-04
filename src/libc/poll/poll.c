@@ -45,7 +45,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
   // Execute poll().
   cloudabi_event_t events[nevents];
   cloudabi_errno_t error =
-      cloudabi_sys_poll(subscriptions, nevents, events, nevents, &nevents);
+      cloudabi_sys_poll(subscriptions, events, nevents, &nevents);
   if (error != 0) {
     errno = error;
     return -1;

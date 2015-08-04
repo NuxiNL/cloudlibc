@@ -37,10 +37,9 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock,
     return EINVAL;
 
   size_t triggered;
-  cloudabi_event_t events[2];
-  cloudabi_errno_t error =
-      cloudabi_sys_poll(subscriptions, __arraycount(subscriptions), events,
-                        __arraycount(events), &triggered);
+  cloudabi_event_t events[__arraycount(subscriptions)];
+  cloudabi_errno_t error = cloudabi_sys_poll(
+      subscriptions, events, __arraycount(subscriptions), &triggered);
   if (error != 0)
     __pthread_terminate(error, "Failed to acquire write lock");
   for (size_t i = 0; i < triggered; ++i) {

@@ -43,10 +43,9 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
 
   // Remove lock from lock list while blocking.
   LIST_REMOVE(lock, __write_locks);
-  cloudabi_event_t events[2];
-  cloudabi_errno_t error =
-      cloudabi_sys_poll(subscriptions, __arraycount(subscriptions), events,
-                        __arraycount(events), &triggered);
+  cloudabi_event_t events[__arraycount(subscriptions)];
+  cloudabi_errno_t error = cloudabi_sys_poll(
+      subscriptions, events, __arraycount(subscriptions), &triggered);
   LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)

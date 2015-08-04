@@ -30,10 +30,9 @@ int pdwait(int fd, siginfo_t *infop, int options) {
 
   // Wait for process termination.
   size_t triggered;
-  cloudabi_event_t events[2];
-  cloudabi_errno_t error =
-      cloudabi_sys_poll(subscriptions, (options & WNOHANG) != 0 ? 2 : 1, events,
-                        __arraycount(events), &triggered);
+  cloudabi_event_t events[__arraycount(subscriptions)];
+  cloudabi_errno_t error = cloudabi_sys_poll(
+      subscriptions, events, (options & WNOHANG) != 0 ? 2 : 1, &triggered);
   if (error != 0)
     return (error);
 

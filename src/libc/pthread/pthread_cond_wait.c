@@ -34,7 +34,7 @@ int pthread_cond_wait(pthread_cond_t *restrict cond,
   LIST_REMOVE(lock, __write_locks);
   cloudabi_event_t event;
   cloudabi_errno_t error =
-      cloudabi_sys_poll(&subscription, 1, &event, 1, &triggered);
+      cloudabi_sys_poll(&subscription, &event, 1, &triggered);
   LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)
