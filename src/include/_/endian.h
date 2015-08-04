@@ -64,10 +64,10 @@ static __inline __uint16_t __ntohs(__uint16_t __i) {
 }
 
 __BEGIN_DECLS
-__uint32_t htonl(__uint32_t);
-__uint16_t htons(__uint16_t);
-__uint32_t ntohl(__uint32_t);
-__uint16_t ntohs(__uint16_t);
+__uint32_t htonl(__uint32_t) __pure2;
+__uint16_t htons(__uint16_t) __pure2;
+__uint32_t ntohl(__uint32_t) __pure2;
+__uint16_t ntohs(__uint16_t) __pure2;
 __END_DECLS
 
 #define htonl(i) __htonl(i)
