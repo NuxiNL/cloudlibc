@@ -59,7 +59,7 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
   size_t ntriggered;
   cloudabi_event_t events[nout];
   cloudabi_errno_t error =
-      cloudabi_sys_fd_poll(fd, subscriptions, nin, events, nout,
+      cloudabi_sys_poll_fd(fd, subscriptions, nin, events, nout,
                            timeout != NULL ? &timosub : NULL, &ntriggered);
   if (error != 0) {
     errno = error;
