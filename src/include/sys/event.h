@@ -56,15 +56,15 @@ struct kevent {
 #define EV_ENABLE 0x10   // Enable reporting through kqueue().
 #define EV_ONESHOT 0x20  // Only report first occurrence.
 
-#define EV_EOF 0x20    // Filter-specific end-of-file condition.
-#define EV_ERROR 0x40  // Error has occurred.
+#define EV_EOF 0x4000    // Filter-specific end-of-file condition.
+#define EV_ERROR 0x8000  // Error has occurred.
 
-#define EVFILT_READ 1   // Data available to read from descriptor.
-#define EVFILT_WRITE 2  // Possibility to write to descriptor.
+#define EVFILT_READ 3   // Data available to read from descriptor.
+#define EVFILT_WRITE 4  // Possibility to write to descriptor.
 
 __BEGIN_DECLS
-int kevent(int, const struct kevent *, int, struct kevent *, int,
-           const struct timespec *);
+__ssize_t kevent(int, const struct kevent *, __size_t, struct kevent *,
+                 __size_t, const struct timespec *);
 int kqueue(void);
 __END_DECLS
 

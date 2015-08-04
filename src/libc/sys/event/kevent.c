@@ -4,8 +4,10 @@
 // See the LICENSE file for details.
 
 #include <common/syscalls.h>
+#include <common/time.h>
 
 #include <sys/event.h>
+#include <sys/types.h>
 
 #include <errno.h>
 
@@ -16,26 +18,24 @@ static_assert(EV_DISABLE == CLOUDABI_SUBSCRIPTION_DISABLE, "Value mismatch");
 static_assert(EV_ENABLE == CLOUDABI_SUBSCRIPTION_ENABLE, "Value mismatch");
 static_assert(EV_ONESHOT == CLOUDABI_SUBSCRIPTION_ONESHOT, "Value mismatch");
 
-int kevent(int fd, const struct kevent *in, int nin, struct kevent *out,
-           int nout, const struct timespec *timeout) {
-  if (nin < 0 || nout < 0) {
-    errno = EINVAL;
-    return -1;
-  }
+static_assert(EVFILT_READ == CLOUDABI_EVENTTYPE_FD_READ, "Value mismatch");
+static_assert(EVFILT_WRITE == CLOUDABI_EVENTTYPE_FD_WRITE, "Value mismatch");
 
-  cloudabi_subscription_t subscriptions[nin];
-  for (int i = 0; i < nin; ++i) {
+ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
+               size_t nout, const struct timespec *timeout) {
+  // Convert input events.
+  cloudabi_subscription_t subscriptions[nin + 1];
+  for (size_t i = 0; i < nin; ++i) {
     const struct kevent *ke = &in[i];
     cloudabi_subscription_t *sub = &subscriptions[i];
     sub->userdata = (uintptr_t)ke->udata;
-    // TODO(ed): Translate flags and fflags.
+    sub->flags = ke->flags;
+    sub->type = ke->filter;
+
+    // Filter specific data.
     switch (ke->filter) {
       case EVFILT_READ:
-        sub->type = CLOUDABI_EVENTTYPE_FD_READ;
-        sub->fd_readwrite.fd = ke->ident;
-        break;
       case EVFILT_WRITE:
-        sub->type = CLOUDABI_EVENTTYPE_FD_WRITE;
         sub->fd_readwrite.fd = ke->ident;
         break;
       default:
@@ -44,8 +44,20 @@ int kevent(int fd, const struct kevent *in, int nin, struct kevent *out,
     }
   }
 
-  // TODO(ed): Add timeout.
+  // Add timeout event.
+  if (timeout != NULL) {
+    cloudabi_subscription_t *sub = &subscriptions[nin++];
+    sub->flags = CLOUDABI_SUBSCRIPTION_TEMPORARY;
+    sub->type = CLOUDABI_EVENTTYPE_CLOCK;
+    sub->clock.identifier = (uintptr_t)timeout;
+    sub->clock.clock_id = CLOCK_REALTIME;
+    // TODO(ed): We need some kind of marker that this is not an
+    // absolute timestamp.
+    timespec_to_timestamp_clamp(timeout, &sub->clock.timeout);
+    sub->clock.precision = 0;
+  }
 
+  // Invoke poll system call.
   size_t ntriggered;
   cloudabi_event_t events[nout];
   cloudabi_errno_t error =
@@ -55,7 +67,33 @@ int kevent(int fd, const struct kevent *in, int nin, struct kevent *out,
     return -1;
   }
 
-  // TODO(ed): Convert results back to struct kevent.
-  errno = ENOSYS;
-  return -1;
+  // Convert output events.
+  size_t n = 0;
+  for (size_t i = 0; i < ntriggered; ++i) {
+    // Skip the timeout event.
+    const cloudabi_event_t *ev = &events[i];
+    if (ev->type == CLOUDABI_EVENTTYPE_CLOCK &&
+        ev->clock.identifier == (uintptr_t)timeout)
+      continue;
+
+    struct kevent *ke = &out[n++];
+    *ke = (struct kevent){
+        .udata = (void *)ev->userdata, .filter = ev->type,
+    };
+    switch (ev->type) {
+    case CLOUDABI_EVENTTYPE_FD_READ:
+    case CLOUDABI_EVENTTYPE_FD_WRITE:
+      ke->ident = ev->fd_readwrite.fd;
+      break;
+    }
+
+    if (ev->error == 0) {
+      // TODO(ed): Implement.
+    } else {
+      // An error occurred.
+      ke->flags |= EV_ERROR;
+      ke->data = ev->error;
+    }
+  }
+  return n;
 }
