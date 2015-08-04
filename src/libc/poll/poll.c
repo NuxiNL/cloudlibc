@@ -20,25 +20,30 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
       continue;
     if ((pollfd->events & POLLRDNORM) != 0) {
       cloudabi_subscription_t *subscription = &subscriptions[nevents++];
-      subscription->userdata = (uintptr_t)pollfd;
-      subscription->type = CLOUDABI_EVENTTYPE_FD_READ;
-      subscription->fd_readwrite.fd = pollfd->fd;
+      *subscription = (cloudabi_subscription_t){
+          .userdata = (uintptr_t)pollfd,
+          .type = CLOUDABI_EVENTTYPE_FD_READ,
+          .fd_readwrite.fd = pollfd->fd,
+      };
     }
     if ((pollfd->events & POLLWRNORM) != 0) {
       cloudabi_subscription_t *subscription = &subscriptions[nevents++];
-      subscription->userdata = (uintptr_t)pollfd;
-      subscription->type = CLOUDABI_EVENTTYPE_FD_WRITE;
-      subscription->fd_readwrite.fd = pollfd->fd;
+      *subscription = (cloudabi_subscription_t){
+          .userdata = (uintptr_t)pollfd,
+          .type = CLOUDABI_EVENTTYPE_FD_WRITE,
+          .fd_readwrite.fd = pollfd->fd,
+      };
     }
   }
 
   // Create extra event for the timeout.
   if (timeout >= 0) {
     cloudabi_subscription_t *subscription = &subscriptions[nevents++];
-    subscription->type = CLOUDABI_EVENTTYPE_CLOCK;
-    subscription->clock.clock_id = CLOUDABI_CLOCK_REALTIME;
-    subscription->clock.timeout = (cloudabi_timestamp_t)timeout * 1000000;
-    subscription->clock.precision = 0;
+    *subscription = (cloudabi_subscription_t){
+        .type = CLOUDABI_EVENTTYPE_CLOCK,
+        .clock.clock_id = CLOUDABI_CLOCK_REALTIME,
+        .clock.timeout = (cloudabi_timestamp_t)timeout * 1000000,
+    };
   }
 
   // Execute poll().
