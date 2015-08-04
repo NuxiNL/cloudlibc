@@ -38,13 +38,13 @@ if [ "$1" != "fast" ]; then
   # Pass all source files through clang-format.
   find src tools -name '*.[ch]' -o -name '*.cc' | sort | while read srcfile; do
     clang-format -style='{
-  BasedOnStyle: Google,
-  AllowShortIfStatementsOnASingleLine: false,
-  AllowShortLoopsOnASingleLine: false,
-  AllowShortFunctionsOnASingleLine: None,
-  DerivePointerBinding: false,
-  PointerAlignment: Right,
-  }' "${srcfile}" > _obj/clang-format
+      BasedOnStyle: Google,
+      AllowShortIfStatementsOnASingleLine: false,
+      AllowShortLoopsOnASingleLine: false,
+      AllowShortFunctionsOnASingleLine: None,
+      DerivePointerBinding: false,
+      PointerAlignment: Right,
+    }' "${srcfile}" > _obj/clang-format
     if ! cmp -s _obj/clang-format "${srcfile}"; then
       echo "=> Style fixing ${srcfile}"
       mv _obj/clang-format "${srcfile}"
