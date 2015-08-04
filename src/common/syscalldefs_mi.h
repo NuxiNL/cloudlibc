@@ -323,7 +323,11 @@
 #define CLOUDABI_SUBSCRIPTION_ENABLE 0x10
 #define CLOUDABI_SUBSCRIPTION_ONESHOT 0x20
 
+// cloudabi_subscription_t::clock.flags.
 #define CLOUDABI_SUBSCRIPTION_CLOCK_ABSTIME 0x1
+
+// cloudabi_subscription_t::fd_readwrite.flags.
+#define CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL 0x1
 
 // unlinkat().
 #define CLOUDABI_UNLINK_REMOVEDIR 0x1

@@ -24,6 +24,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
           .userdata = (uintptr_t)pollfd,
           .type = CLOUDABI_EVENTTYPE_FD_READ,
           .fd_readwrite.fd = pollfd->fd,
+          .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
       };
     }
     if ((pollfd->events & POLLWRNORM) != 0) {
@@ -32,6 +33,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
           .userdata = (uintptr_t)pollfd,
           .type = CLOUDABI_EVENTTYPE_FD_WRITE,
           .fd_readwrite.fd = pollfd->fd,
+          .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
       };
     }
   }
@@ -71,24 +73,19 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
              "File descriptor mismatch");
       if (event->error == CLOUDABI_EBADF) {
         // Invalid file descriptor.
-        pollfd->revents = POLLNVAL;
+        pollfd->revents |= POLLNVAL;
       } else if (event->error == CLOUDABI_EPIPE) {
         // Hangup on write side of pipe.
         pollfd->revents |= POLLHUP;
       } else if (event->error != 0) {
         // Another error occurred.
-        pollfd->revents = POLLERR;
-      } else if (event->type == CLOUDABI_EVENTTYPE_FD_READ) {
-        // Data can be read.
-        pollfd->revents |= POLLRDNORM;
-        if (event->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP)
-          pollfd->revents |= POLLHUP;
+        pollfd->revents |= POLLERR;
       } else {
-        // Data can be written.
+        // Data can be read or written.
+        pollfd->revents |=
+            event->type == CLOUDABI_EVENTTYPE_FD_READ ? POLLRDNORM : POLLWRNORM;
         if (event->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP)
           pollfd->revents |= POLLHUP;
-        else
-          pollfd->revents |= POLLWRNORM;
       }
     }
   }
@@ -97,6 +94,9 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
   int retval = 0;
   for (size_t i = 0; i < nfds; ++i) {
     struct pollfd *pollfd = &fds[i];
+    // POLLHUP contradicts with POLLWRNORM.
+    if ((pollfd->revents & POLLHUP) != 0)
+      pollfd->revents &= ~POLLWRNORM;
     if (pollfd->revents != 0)
       ++retval;
   }

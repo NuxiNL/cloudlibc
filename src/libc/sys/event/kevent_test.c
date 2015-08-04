@@ -94,8 +94,6 @@ TEST(kevent, evfilt_read_pipe) {
     ASSERT_EQ((void *)0x42, ke.udata);
   }
 
-  // TODO(ed): Add more tests.
-
   ASSERT_EQ(0, close(fdq));
   ASSERT_EQ(0, close(fdp[0]));
 }

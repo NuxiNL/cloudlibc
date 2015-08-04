@@ -203,6 +203,7 @@ typedef struct {
     // called without blocking.
     struct {
       MEMBER(cloudabi_fd_t) fd;
+      MEMBER(uint16_t) flags;
     } fd_readwrite;
 
     // CLOUDABI_EVENT_LOCK_RDLOCK and CLOUDABI_EVENT_LOCK_WRLOCK: Wait
@@ -231,6 +232,7 @@ ASSERT_OFFSET(subscription_t, condvar.lock, 20, 24);
 ASSERT_OFFSET(subscription_t, condvar.condvar_scope, 24, 32);
 ASSERT_OFFSET(subscription_t, condvar.lock_scope, 25, 33);
 ASSERT_OFFSET(subscription_t, fd_readwrite.fd, 16, 16);
+ASSERT_OFFSET(subscription_t, fd_readwrite.flags, 20, 20);
 ASSERT_OFFSET(subscription_t, lock.lock, 16, 16);
 ASSERT_OFFSET(subscription_t, lock.lock_scope, 20, 24);
 ASSERT_OFFSET(subscription_t, proc_terminate.fd, 16, 16);
