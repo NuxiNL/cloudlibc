@@ -42,12 +42,12 @@ struct kevent {
 #define EV_SET(ke, v_ident, v_filter, v_flags, v_fflags, v_data, v_udata) \
   do {                                                                    \
     struct kevent *__ke = (ke);                                           \
-    (__ke)->ident = (v_ident);                                            \
-    (__ke)->filter = (v_filter);                                          \
-    (__ke)->flags = (v_flags);                                            \
-    (__ke)->fflags = (v_fflags);                                          \
-    (__ke)->data = (v_data);                                              \
-    (__ke)->udata = (v_udata);                                            \
+    __ke->ident = (v_ident);                                              \
+    __ke->filter = (v_filter);                                            \
+    __ke->flags = (v_flags);                                              \
+    __ke->fflags = (v_fflags);                                            \
+    __ke->data = (v_data);                                                \
+    __ke->udata = (v_udata);                                              \
   } while (0)
 
 #define EV_ADD 0x1       // Add the event to the kqueue.
