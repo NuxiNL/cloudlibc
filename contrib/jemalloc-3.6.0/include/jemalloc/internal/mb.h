@@ -34,7 +34,7 @@ mb_write(void)
 
 #  if 0
 	/* This is a true memory barrier. */
-	__asm__ volatile ("pusha;"
+	asm volatile ("pusha;"
 	    "xor  %%eax,%%eax;"
 	    "cpuid;"
 	    "popa;"
@@ -47,7 +47,7 @@ mb_write(void)
 	 * This is hopefully enough to keep the compiler from reordering
 	 * instructions around this one.
 	 */
-	__asm__ volatile ("nop;"
+	asm volatile ("nop;"
 	    : /* Outputs. */
 	    : /* Inputs. */
 	    : "memory" /* Clobbers. */
@@ -59,7 +59,7 @@ JEMALLOC_INLINE void
 mb_write(void)
 {
 
-	__asm__ volatile ("sfence"
+	asm volatile ("sfence"
 	    : /* Outputs. */
 	    : /* Inputs. */
 	    : "memory" /* Clobbers. */
@@ -70,7 +70,7 @@ JEMALLOC_INLINE void
 mb_write(void)
 {
 
-	__asm__ volatile ("eieio"
+	asm volatile ("eieio"
 	    : /* Outputs. */
 	    : /* Inputs. */
 	    : "memory" /* Clobbers. */
@@ -81,7 +81,7 @@ JEMALLOC_INLINE void
 mb_write(void)
 {
 
-	__asm__ volatile ("membar #StoreStore"
+	asm volatile ("membar #StoreStore"
 	    : /* Outputs. */
 	    : /* Inputs. */
 	    : "memory" /* Clobbers. */

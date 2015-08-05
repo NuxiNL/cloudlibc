@@ -80,7 +80,7 @@ JEMALLOC_INLINE uint64_t
 atomic_add_uint64(uint64_t *p, uint64_t x)
 {
 
-	__asm__ volatile (
+	asm volatile (
 	    "lock; xaddq %0, %1;"
 	    : "+r" (x), "=m" (*p) /* Outputs. */
 	    : "m" (*p) /* Inputs. */
@@ -94,7 +94,7 @@ atomic_sub_uint64(uint64_t *p, uint64_t x)
 {
 
 	x = (uint64_t)(-(int64_t)x);
-	__asm__ volatile (
+	asm volatile (
 	    "lock; xaddq %0, %1;"
 	    : "+r" (x), "=m" (*p) /* Outputs. */
 	    : "m" (*p) /* Inputs. */
@@ -192,7 +192,7 @@ JEMALLOC_INLINE uint32_t
 atomic_add_uint32(uint32_t *p, uint32_t x)
 {
 
-	__asm__ volatile (
+	asm volatile (
 	    "lock; xaddl %0, %1;"
 	    : "+r" (x), "=m" (*p) /* Outputs. */
 	    : "m" (*p) /* Inputs. */
@@ -206,7 +206,7 @@ atomic_sub_uint32(uint32_t *p, uint32_t x)
 {
 
 	x = (uint32_t)(-(int32_t)x);
-	__asm__ volatile (
+	asm volatile (
 	    "lock; xaddl %0, %1;"
 	    : "+r" (x), "=m" (*p) /* Outputs. */
 	    : "m" (*p) /* Inputs. */

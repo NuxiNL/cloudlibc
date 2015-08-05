@@ -437,13 +437,7 @@ malloc_conf_init(void)
 			 * Try to use the contents of the "/etc/malloc.conf"
 			 * symbolic link's name.
 			 */
-			linklen = -1;
-			if (linklen == -1) {
-				/* No configuration specified. */
-				linklen = 0;
-				/* restore errno */
-				set_errno(saved_errno);
-			}
+			linklen = 0;
 #endif
 			buf[linklen] = '\0';
 			opts = buf;
@@ -457,7 +451,7 @@ malloc_conf_init(void)
 #endif
 			    ;
 
-			if ((opts = NULL) != NULL) {
+			if ((opts = getenv(envname)) != NULL) {
 				/*
 				 * Do nothing; opts is already initialized to
 				 * the value of the MALLOC_CONF environment
@@ -680,6 +674,15 @@ malloc_init_hard(void)
 		prof_boot0();
 
 	malloc_conf_init();
+
+	if (opt_stats_print) {
+		/* Print statistics at exit. */
+		if (atexit(stats_print_atexit) != 0) {
+			malloc_write("<jemalloc>: Error in atexit()\n");
+			if (opt_abort)
+				abort();
+		}
+	}
 
 	if (base_boot()) {
 		malloc_mutex_unlock(&init_lock);
