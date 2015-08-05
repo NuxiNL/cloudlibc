@@ -153,15 +153,15 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 // Process descriptors.
 #define CAP_PDWAIT _CAP_BIT(30)
 
-// Fills sets with all/none of the capabilities.
-#define CAP_ALL(rights)                   \
-  do {                                    \
-    (rights)->__value = _CAP_BIT(41) - 1; \
-  } while (0)
-#define CAP_NONE(rights)   \
-  do {                     \
-    (rights)->__value = 0; \
-  } while (0)
+// Fills sets with all of the capabilities.
+static __inline void _CAP_ALL(cap_rights_t *__rights) {
+  __rights->__value = _CAP_BIT(41) - 1;
+}
+
+// Fills sets with none of the capabilities.
+static __inline void _CAP_NONE(cap_rights_t *__rights) {
+  __rights->__value = 0;
+}
 
 #define cap_rights_clear(...) __cap_rights_clear(__VA_ARGS__, _CAP_SENTINEL)
 #define cap_rights_init(...) __cap_rights_init(__VA_ARGS__, _CAP_SENTINEL)
@@ -169,6 +169,8 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define cap_rights_set(...) __cap_rights_set(__VA_ARGS__, _CAP_SENTINEL)
 
 __BEGIN_DECLS
+void CAP_ALL(cap_rights_t *);
+void CAP_NONE(cap_rights_t *);
 cap_rights_t *__cap_rights_clear(cap_rights_t *, ...);
 cap_rights_t *__cap_rights_init(cap_rights_t *, ...);
 _Bool __cap_rights_is_set(const cap_rights_t *, ...);
@@ -184,5 +186,8 @@ cap_rights_t *cap_rights_merge(cap_rights_t *, const cap_rights_t *);
 cap_rights_t *cap_rights_remove(cap_rights_t *, const cap_rights_t *);
 _Bool cap_sandboxed(void);
 __END_DECLS
+
+#define CAP_ALL(rights) _CAP_ALL(rights)
+#define CAP_NONE(rights) _CAP_NONE(rights)
 
 #endif

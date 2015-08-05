@@ -39,17 +39,6 @@ struct kevent {
   void *udata;           // Opaque user data identifier.
 };
 
-#define EV_SET(ke, v_ident, v_filter, v_flags, v_fflags, v_data, v_udata) \
-  do {                                                                    \
-    struct kevent *__ke = (ke);                                           \
-    __ke->ident = (v_ident);                                              \
-    __ke->filter = (v_filter);                                            \
-    __ke->flags = (v_flags);                                              \
-    __ke->fflags = (v_fflags);                                            \
-    __ke->data = (v_data);                                                \
-    __ke->udata = (v_udata);                                              \
-  } while (0)
-
 #define EV_ADD 0x1       // Add the event to the kqueue.
 #define EV_CLEAR 0x2     // Reset event to initial state.
 #define EV_DELETE 0x4    // Removes the event from the kqueue.
@@ -63,10 +52,27 @@ struct kevent {
 #define EVFILT_READ 3   // Data available to read from descriptor.
 #define EVFILT_WRITE 4  // Possibility to write to descriptor.
 
+static __inline void _EV_SET(struct kevent *__ke, __uintptr_t __ident,
+                             short __filter, unsigned short __flags,
+                             unsigned int __fflags, __intptr_t __data,
+                             void *__udata) {
+  __ke->ident = __ident;
+  __ke->filter = __filter;
+  __ke->flags = __flags;
+  __ke->fflags = __fflags;
+  __ke->data = __data;
+  __ke->udata = __udata;
+}
+
 __BEGIN_DECLS
+void EV_SET(struct kevent *, __uintptr_t, short, unsigned short, unsigned int,
+            __intptr_t, void *);
 __ssize_t kevent(int, const struct kevent *, __size_t, struct kevent *,
                  __size_t, const struct timespec *);
 int kqueue(void);
 __END_DECLS
+
+#define EV_SET(ke, ident, filter, flags, fflags, data, udata) \
+  _EV_SET(ke, ident, filter, flags, fflags, data, udata)
 
 #endif
