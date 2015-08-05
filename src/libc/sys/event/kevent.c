@@ -69,15 +69,9 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
   }
 
   // Convert output events.
-  size_t n = 0;
   for (size_t i = 0; i < ntriggered; ++i) {
-    // Skip the timeout event.
     const cloudabi_event_t *ev = &events[i];
-    if (ev->type == CLOUDABI_EVENTTYPE_CLOCK &&
-        ev->clock.identifier == (uintptr_t)timeout)
-      continue;
-
-    struct kevent *ke = &out[n++];
+    struct kevent *ke = &out[i];
     *ke = (struct kevent){
         .udata = (void *)ev->userdata, .filter = ev->type,
     };
@@ -89,7 +83,7 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
     }
 
     if (ev->error == 0) {
-      // Set additional properties.
+      // Set filter specific properties.
       switch (ev->type) {
         case CLOUDABI_EVENTTYPE_FD_READ:
         case CLOUDABI_EVENTTYPE_FD_WRITE:
@@ -100,10 +94,10 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
           break;
       }
     } else {
-      // An error occurred. Only fill the data field with the error code.
+      // An error occurred. Fill the data field with the error code.
       ke->flags |= EV_ERROR;
       ke->data = ev->error;
     }
   }
-  return n;
+  return ntriggered;
 }
