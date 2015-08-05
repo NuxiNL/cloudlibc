@@ -5,7 +5,6 @@
 
 #include <common/syscalls.h>
 
-#include <assert.h>
 #include <errno.h>
 #include <poll.h>
 
@@ -69,8 +68,6 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     if (event->type == CLOUDABI_EVENTTYPE_FD_READ ||
         event->type == CLOUDABI_EVENTTYPE_FD_WRITE) {
       struct pollfd *pollfd = (struct pollfd *)(uintptr_t)event->userdata;
-      assert((int)event->fd_readwrite.fd == pollfd->fd &&
-             "File descriptor mismatch");
       if (event->error == CLOUDABI_EBADF) {
         // Invalid file descriptor.
         pollfd->revents |= POLLNVAL;
