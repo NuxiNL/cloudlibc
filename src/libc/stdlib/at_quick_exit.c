@@ -19,8 +19,8 @@ int at_quick_exit(void (*func)(void)) {
   entry->previous =
       atomic_load_explicit(&__at_quick_exit_last, memory_order_relaxed);
   while (!atomic_compare_exchange_weak_explicit(
-             &__at_quick_exit_last, &entry->previous, entry,
-             memory_order_release, memory_order_relaxed))
+      &__at_quick_exit_last, &entry->previous, entry, memory_order_release,
+      memory_order_relaxed))
     ;
   return 0;
 }

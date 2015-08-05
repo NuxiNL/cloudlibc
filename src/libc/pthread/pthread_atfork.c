@@ -28,8 +28,8 @@ int pthread_atfork(void (*prepare)(void), void (*parent)(void),
   entry->previous =
       atomic_load_explicit(&__pthread_atfork_last, memory_order_relaxed);
   while (!atomic_compare_exchange_weak_explicit(
-             &__pthread_atfork_last, &entry->previous, entry,
-             memory_order_release, memory_order_relaxed))
+      &__pthread_atfork_last, &entry->previous, entry, memory_order_release,
+      memory_order_relaxed))
     ;
   return 0;
 }

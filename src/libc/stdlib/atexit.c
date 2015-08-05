@@ -18,8 +18,8 @@ int atexit(void (*func)(void)) {
   // Store it in the global list of atexit functions.
   entry->previous = atomic_load_explicit(&__atexit_last, memory_order_relaxed);
   while (!atomic_compare_exchange_weak_explicit(
-             &__atexit_last, &entry->previous, entry, memory_order_release,
-             memory_order_relaxed))
+      &__atexit_last, &entry->previous, entry, memory_order_release,
+      memory_order_relaxed))
     ;
   return 0;
 }
