@@ -22,17 +22,8 @@ int program_spawn(int fd, const argdata_t *ad) {
   }
 
   if (ret == CLOUDABI_PROCESS_CHILD) {
-    // Child process. Convert argument data to binary format.
-    size_t datalen;
-    size_t fdslen;
-    argdata_get_buffer_length(ad, &datalen, &fdslen);
-    char data[datalen];
-    int fds[fdslen];
-    fdslen = argdata_get_buffer(ad, data, fds);
-
-    // Start the executable.
-    cloudabi_sys_proc_exec(fd, data, datalen, (const cloudabi_fd_t *)fds,
-                           fdslen);
+    // Child process. Start the executable.
+    program_exec(fd, ad);
     cloudabi_sys_proc_exit(127);
   } else {
     // Parent process. Return the file descriptor.
