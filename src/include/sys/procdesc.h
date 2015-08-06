@@ -24,8 +24,6 @@
 // <sys/procdesc.h> - process descriptors
 //
 // Extensions:
-// - pdexec():
-//   Replacement for posix_spawn().
 // - pdfork():
 //   Flags can be omitted.
 // - pdwait():
@@ -47,7 +45,6 @@
 #include <_/types.h>
 
 __BEGIN_DECLS
-int pdexec(int, const __argdata_t *);
 int pdfork(int *, ...);
 int pdwait(int, __siginfo_t *, int);
 __END_DECLS

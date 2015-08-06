@@ -5,12 +5,11 @@
 
 #include <common/syscalls.h>
 
-#include <sys/procdesc.h>
-
 #include <argdata.h>
 #include <errno.h>
+#include <program.h>
 
-int pdexec(int fd, const argdata_t *ad) {
+int program_spawn(int fd, const argdata_t *ad) {
   // Fork the current process. There is no need to deal with
   // pthread_atfork handlers, as we are going to execute a new program
   // directly after forking.

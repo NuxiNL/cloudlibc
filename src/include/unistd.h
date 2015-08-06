@@ -26,9 +26,6 @@
 // Extensions:
 // - _SC_NPROCESSORS_ONLN:
 //   Present on most systems and used by many pieces of software.
-// - exec():
-//   Replacement for fexecve(). Allows passing structured data
-//   referencing file descriptors to the executable.
 //
 // Features missing:
 // - _POSIX_VERSION, _POSIX2_VERSION, _XOPEN_VERSION, _SC_VERSION,
@@ -63,7 +60,7 @@
 // - crypt() and encrypt():
 //   Password database and encryption schemes not available.
 // - fexecve():
-//   Use exec() instead.
+//   Use <program.h>'s program_exec() instead.
 // - gethostid() and gethostname():
 //   System-specific information not available.
 // - getopt(), optarg, opterr, optind and optopt:
@@ -313,7 +310,6 @@ __BEGIN_DECLS
 int close(int);
 int dup(int);
 int dup2(int, int);
-int exec(int, const __argdata_t *);
 _Noreturn void _exit(int);
 int fdatasync(int);
 long fpathconf(int, int);

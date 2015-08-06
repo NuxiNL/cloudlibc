@@ -6,9 +6,9 @@
 #include <common/syscalls.h>
 
 #include <argdata.h>
-#include <unistd.h>
+#include <program.h>
 
-int exec(int fd, const argdata_t *ad) {
+int program_exec(int fd, const argdata_t *ad) {
   // Convert argument data to binary format.
   size_t datalen;
   size_t fdslen;
