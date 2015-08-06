@@ -21,7 +21,7 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <program.h> - entry point for programs
+// <program.h> - execution of programs
 
 #ifndef _PROGRAM_H_
 #define _PROGRAM_H_
