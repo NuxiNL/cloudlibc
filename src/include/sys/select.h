@@ -21,23 +21,25 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <sys/time.h> - time types
+// <sys/select.h> - select types
 //
 // Extensions:
-// - gettimeofday():
+// - pselect():
 //   Last parameter may be omitted entirely.
 //
 // Features missing:
-// - utimes():
-//   Requires global filesystem namespace.
+// - sigset_t:
+//   Requires signal handling support.
 
-#ifndef _SYS_TIME_H_
-#define _SYS_TIME_H_
+#ifndef _SYS_SELECT_H_
+#define _SYS_SELECT_H_
 
+#include <_/struct/timespec.h>
 #include <_/time_select.h>
 
 __BEGIN_DECLS
-int gettimeofday(struct timeval *__restrict, ...);
+int pselect(int, fd_set *__restrict, fd_set *__restrict, fd_set *__restrict,
+            const struct timespec *__restrict, ...);
 __END_DECLS
 
 #endif
