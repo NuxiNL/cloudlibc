@@ -19,42 +19,44 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     return -1;
   }
 
+  // Replace NULL pointers by the empty set.
+  fd_set empty;
+  FD_ZERO(&empty);
+  if (readfds == NULL)
+    readfds = &empty;
+  if (writefds == NULL)
+    writefds = &empty;
+  if (errorfds == NULL)
+    errorfds = &empty;
+
   // Determine the maximum number of events.
-  size_t maxevents = 1;
-  if (readfds != NULL)
-    maxevents += readfds->__nfds;
-  if (writefds != NULL)
-    maxevents += writefds->__nfds;
+  size_t maxevents = readfds->__nfds + writefds->__nfds + 1;
   cloudabi_subscription_t subscriptions[maxevents];
+  size_t nevents = 0;
 
   // Convert the readfds set.
-  size_t nevents = 0;
-  if (readfds != NULL) {
-    for (size_t i = 0; i < readfds->__nfds; ++i) {
-      int fd = readfds->__fds[i];
-      if (fd < nfds) {
-        cloudabi_subscription_t *subscription = &subscriptions[nevents++];
-        *subscription = (cloudabi_subscription_t){
-            .type = CLOUDABI_EVENTTYPE_FD_READ,
-            .fd_readwrite.fd = fd,
-            .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
-        };
-      }
+  for (size_t i = 0; i < readfds->__nfds; ++i) {
+    int fd = readfds->__fds[i];
+    if (fd < nfds) {
+      cloudabi_subscription_t *subscription = &subscriptions[nevents++];
+      *subscription = (cloudabi_subscription_t){
+          .type = CLOUDABI_EVENTTYPE_FD_READ,
+          .fd_readwrite.fd = fd,
+          .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
+      };
     }
   }
 
   // Convert the writefds set.
-  if (writefds != NULL) {
-    for (size_t i = 0; i < writefds->__nfds; ++i) {
-      int fd = writefds->__fds[i];
-      if (fd < nfds) {
-        cloudabi_subscription_t *subscription = &subscriptions[nevents++];
-        *subscription = (cloudabi_subscription_t){
-            .type = CLOUDABI_EVENTTYPE_FD_WRITE,
-            .fd_readwrite.fd = fd,
-            .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
-        };
-      }
+  for (size_t i = 0; i < writefds->__nfds; ++i) {
+    int fd = writefds->__fds[i];
+    if (fd < nfds) {
+      cloudabi_subscription_t *subscription = &subscriptions[nevents++];
+      *subscription = (cloudabi_subscription_t){
+          .type = CLOUDABI_EVENTTYPE_FD_WRITE,
+          .fd_readwrite.fd = fd,
+          .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
+      };
     }
   }
 
@@ -91,21 +93,15 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     }
   }
 
-  // Update sets to contain the file descriptors that triggered.
-  if (readfds != NULL)
-    FD_ZERO(readfds);
-  if (writefds != NULL)
-    FD_ZERO(writefds);
+  // Clear result sets. Save a copy of the error set.
+  FD_ZERO(readfds);
+  FD_ZERO(writefds);
   fd_set oerrorfds;
-  if (errorfds != NULL) {
-    FD_COPY(errorfds, &oerrorfds);
-    FD_ZERO(errorfds);
-  } else {
-    FD_ZERO(&oerrorfds);
-  }
-  int retval = 0;
+  FD_COPY(errorfds, &oerrorfds);
+  FD_ZERO(errorfds);
+
+  // Set entries in the result sets.
   for (size_t i = 0; i < nevents; ++i) {
-    // Set entries in the read and write sets.
     const cloudabi_event_t *event = &events[i];
     int fd = event->fd_readwrite.fd;
     if (event->type == CLOUDABI_EVENTTYPE_FD_READ) {
@@ -115,13 +111,9 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     } else {
       continue;
     }
-    ++retval;
 
-    // Set entries in the error set.
-    if (event->error != 0 && FD_ISSET(fd, &oerrorfds)) {
+    if (event->error != 0 && FD_ISSET(fd, &oerrorfds))
       FD_SET(fd, errorfds);
-      ++retval;
-    }
   }
-  return retval;
+  return readfds->__nfds + writefds->__nfds + errorfds->__nfds;
 }
