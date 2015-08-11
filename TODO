@@ -1,7 +1,7 @@
 Work in progress:
 -----------------
 dlfcn.h		 0%	Not started
-sys/select.h	 0%	In progress
+sys/select.h	 0%	Needs tests
 aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 netdb.h		40%	nameinfo still missing
