@@ -73,6 +73,7 @@ static __inline void _FD_CLR(int __fd, fd_set *__fd_set) {
 }
 
 static __inline void _FD_COPY(const fd_set *__from, fd_set *__to) {
+  // Only copy over the part of the set that is used.
   __to->__nfds = __from->__nfds;
   for (__size_t __i = 0; __i < __from->__nfds; ++__i)
     __to->__fds[__i] = __from->__fds[__i];
