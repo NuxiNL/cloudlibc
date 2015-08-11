@@ -52,8 +52,9 @@ struct timeval {
 //
 // It is expected that the additional overhead of FD_CLR(), FD_ISSET()
 // and FD_SET() is compensated by the fact that FD_ZERO() runs in
-// constant time and that select() does not need to scan potentially
-// sparse bitmasks.
+// constant time, FD_COPY() only has to copy the part of the set that is
+// used, and that select() does not need to scan potentially sparse
+// bitmasks.
 
 #define FD_SETSIZE 1024
 
