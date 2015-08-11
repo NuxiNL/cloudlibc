@@ -10,6 +10,6 @@
 #endif
 
 // clang-format off
-void (FD_COPY)(const fd_set *from, fd_set *to) {
+void (FD_COPY)(const fd_set *restrict from, fd_set *restrict to) {
   FD_COPY(from, to);
 }

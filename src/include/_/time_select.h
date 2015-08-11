@@ -73,7 +73,8 @@ static __inline void _FD_CLR(int __fd, fd_set *__fd_set) {
   }
 }
 
-static __inline void _FD_COPY(const fd_set *__from, fd_set *__to) {
+static __inline void _FD_COPY(const fd_set *__restrict __from,
+                              fd_set *__restrict __to) {
   // Only copy over the part of the set that is used.
   __to->__nfds = __from->__nfds;
   for (__size_t __i = 0; __i < __from->__nfds; ++__i)
@@ -104,7 +105,7 @@ static __inline void _FD_ZERO(fd_set *__fd_set) {
 
 __BEGIN_DECLS
 void FD_CLR(int, fd_set *);
-void FD_COPY(const fd_set *, fd_set *);
+void FD_COPY(const fd_set *__restrict, fd_set *__restrict);
 int FD_ISSET(int, fd_set *);
 void FD_SET(int, fd_set *);
 void FD_ZERO(fd_set *);
