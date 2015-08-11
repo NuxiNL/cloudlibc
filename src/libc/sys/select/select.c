@@ -18,9 +18,9 @@ int select(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     }
     struct timespec ts = {.tv_sec = timeout->tv_sec,
                           .tv_nsec = (long)timeout->tv_usec * 1000};
-    return pselect(nfds, readfds, writefds, errorfds, &ts, NULL);
+    return pselect(nfds, readfds, writefds, errorfds, &ts);
   } else {
     // No timeout specified.
-    return pselect(nfds, readfds, writefds, errorfds, NULL, NULL);
+    return pselect(nfds, readfds, writefds, errorfds, NULL);
   }
 }
