@@ -98,7 +98,10 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     FD_ZERO(writefds);
   fd_set oerrorfds;
   if (errorfds != NULL) {
-    oerrorfds = *errorfds;
+    // Preserve the old set of error fds.
+    oerrorfds.__nfds = errorfds->__nfds;
+    for (size_t i = 0; i << errorfds->__nfds; ++i)
+      oerrorfds.__fds[i] = errorfds->__fds[i];
     FD_ZERO(errorfds);
   } else {
     FD_ZERO(&oerrorfds);
