@@ -72,7 +72,7 @@ static __inline void _FD_CLR(int __fd, fd_set *__fd_set) {
   }
 }
 
-static __inline int _FD_ISSET(int __fd, const fd_set *__fd_set) {
+static __inline int _FD_ISSET(int __fd, fd_set *__fd_set) {
   for (__size_t __i = 0; __i < __fd_set->__nfds; ++__i)
     if (__fd_set->__fds[__i] == __fd)
       return 1;
