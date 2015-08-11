@@ -24,6 +24,8 @@
 // <sys/select.h> - select types
 //
 // Extensions:
+// - FD_COPY():
+//   Present on most BSD-derived systems.
 // - pselect():
 //   Last parameter may be omitted entirely.
 //

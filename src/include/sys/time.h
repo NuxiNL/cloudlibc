@@ -24,6 +24,8 @@
 // <sys/time.h> - time types
 //
 // Extensions:
+// - FD_COPY():
+//   Present on most BSD-derived systems.
 // - gettimeofday():
 //   Last parameter may be omitted entirely.
 //

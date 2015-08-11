@@ -72,6 +72,12 @@ static __inline void _FD_CLR(int __fd, fd_set *__fd_set) {
   }
 }
 
+static __inline void _FD_COPY(const fd_set *__from, fd_set *__to) {
+  __to->__nfds = __from->__nfds;
+  for (__size_t __i = 0; __i < __from->__nfds; ++__i)
+    __to->__fds[__i] = __from->__fds[__i];
+}
+
 static __inline int _FD_ISSET(int __fd, fd_set *__fd_set) {
   for (__size_t __i = 0; __i < __fd_set->__nfds; ++__i)
     if (__fd_set->__fds[__i] == __fd)
@@ -96,6 +102,7 @@ static __inline void _FD_ZERO(fd_set *__fd_set) {
 
 __BEGIN_DECLS
 void FD_CLR(int, fd_set *);
+void FD_COPY(const fd_set *, fd_set *);
 int FD_ISSET(int, fd_set *);
 void FD_SET(int, fd_set *);
 void FD_ZERO(fd_set *);
@@ -104,6 +111,7 @@ int select(int, fd_set *__restrict, fd_set *__restrict, fd_set *__restrict,
 __END_DECLS
 
 #define FD_CLR(fd, fds) _FD_CLR(fd, fds)
+#define FD_COPY(from, to) _FD_COPY(from, to)
 #define FD_ISSET(fd, fds) _FD_ISSET(fd, fds)
 #define FD_SET(fd, fds) _FD_SET(fd, fds)
 #define FD_ZERO(fds) _FD_ZERO(fds)
