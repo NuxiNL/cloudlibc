@@ -23,18 +23,6 @@
 
 // <assert.h> - verify program assertion
 
-#undef assert
-#ifdef NDEBUG
-#define assert(e) ((void)0)
-#else
-#define assert(e)                                           \
-  do {                                                      \
-    if (!(e)) {                                             \
-      __assertion_failed(__func__, __FILE__, __LINE__, #e); \
-    }                                                       \
-  } while (0)
-#endif
-
 #ifndef _ASSERT_H_
 #define _ASSERT_H_
 
@@ -49,4 +37,22 @@ _Noreturn void __assertion_failed(const char *, const char *, int,
                                   const char *);
 __END_DECLS
 
+static __inline void __assert_disabled(void) {
+}
+
+static __inline void __assert_enabled(const char *__func, const char *__file,
+                                      int __line, _Bool __expression,
+                                      const char *__expression_string) {
+  if (!__expression)
+    __assertion_failed(__func, __file, __line, __expression_string);
+}
+
+#endif
+
+#undef assert
+#ifdef NDEBUG
+#define assert(expression) __assert_disabled()
+#else
+#define assert(expression) \
+  __assert_enabled(__func__, __FILE__, __LINE__, expression, #expression)
 #endif
