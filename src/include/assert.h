@@ -26,7 +26,7 @@
 #ifndef _ASSERT_H_
 #define _ASSERT_H_
 
-#include <_/cdefs.h>
+#include <_/types.h>
 
 #ifndef __cplusplus
 #define static_assert _Static_assert
