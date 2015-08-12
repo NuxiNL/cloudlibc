@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <dirent.h>
@@ -32,7 +33,7 @@ DIR *fdopendir(int fd) {
   if (error != 0) {
     free(dirp->buffer);
     free(dirp);
-    errno = error;
+    errno = errno_fixup_directory(fd, error);
     return NULL;
   }
 

@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <sys/stat.h>
@@ -14,7 +15,7 @@ int mkfifoat(int fd, const char *path, ...) {
   cloudabi_errno_t error =
       cloudabi_sys_file_create(fd, path, strlen(path), CLOUDABI_FILETYPE_FIFO);
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_directory(fd, error);
     return -1;
   }
   return 0;

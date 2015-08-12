@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <assert.h>
@@ -93,7 +94,7 @@ int openat(int fd, const char *path, int oflag, ...) {
   error = cloudabi_sys_file_open(lookup, path, strlen(path),
                                  (oflag >> 12) & 0xfff, &fsb_new, &newfd);
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_directory(lookup, error);
     return -1;
   }
   return newfd;

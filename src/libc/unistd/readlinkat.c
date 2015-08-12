@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <errno.h>
@@ -15,7 +16,7 @@ ssize_t readlinkat(int fd, const char *restrict path, char *restrict buf,
   cloudabi_errno_t error = cloudabi_sys_file_readlink(fd, path, strlen(path),
                                                       buf, bufsize, &bufused);
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_directory(fd, error);
     return -1;
   }
   return bufused;

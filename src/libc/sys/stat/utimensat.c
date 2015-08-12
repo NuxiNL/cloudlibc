@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <sys/stat.h>
@@ -32,7 +33,7 @@ int utimensat(int fd, const char *path, const struct timespec times[2],
   cloudabi_errno_t error =
       cloudabi_sys_file_stat_put(lookup, path, strlen(path), &fs, flags);
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_directory(fd, error);
     return -1;
   }
   return 0;

@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <errno.h>
@@ -13,7 +14,7 @@ int renameat(int oldfd, const char *old, int newfd, const char *new) {
   cloudabi_errno_t error = cloudabi_sys_file_rename(oldfd, old, strlen(old),
                                                     newfd, new, strlen(new));
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_directory(oldfd, errno_fixup_directory(newfd, error));
     return -1;
   }
   return 0;
