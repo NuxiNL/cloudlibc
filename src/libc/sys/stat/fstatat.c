@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <sys/stat.h>
@@ -25,7 +26,7 @@ int fstatat(int fd, const char *restrict path, struct stat *restrict buf,
   cloudabi_errno_t error =
       cloudabi_sys_file_stat_get(lookup, path, strlen(path), &internal_stat);
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_directory(fd, error);
     return -1;
   }
   to_public_stat(&internal_stat, buf);

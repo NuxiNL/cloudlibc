@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <sys/socket.h>
@@ -25,7 +26,7 @@ int getsockopt(int socket, int level, int option_name,
       cloudabi_sockstat_t ss;
       cloudabi_errno_t error = cloudabi_sys_sock_stat_get(socket, &ss, 0);
       if (error != 0) {
-        errno = error;
+        errno = errno_fixup_socket(socket, error);
         return -1;
       }
       value = (ss.ss_state & CLOUDABI_SOCKSTAT_ACCEPTCONN) != 0;
@@ -37,7 +38,7 @@ int getsockopt(int socket, int level, int option_name,
       cloudabi_errno_t error = cloudabi_sys_sock_stat_get(
           socket, &ss, CLOUDABI_SOCKSTAT_CLEAR_ERROR);
       if (error != 0) {
-        errno = error;
+        errno = errno_fixup_socket(socket, error);
         return -1;
       }
       value = ss.ss_error;

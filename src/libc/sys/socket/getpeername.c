@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <sys/socket.h>
@@ -17,7 +18,7 @@ int getpeername(int socket, struct sockaddr *restrict address,
   cloudabi_sockstat_t ss;
   cloudabi_errno_t error = cloudabi_sys_sock_stat_get(socket, &ss, 0);
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_socket(socket, error);
     return -1;
   }
 

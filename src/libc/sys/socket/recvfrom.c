@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <sys/socket.h>
@@ -34,7 +35,7 @@ ssize_t recvfrom(int socket, void *restrict buffer, size_t length, int flags,
   cloudabi_recv_out_t ro;
   cloudabi_errno_t error = cloudabi_sys_sock_recv(socket, &ri, &ro);
   if (error != 0) {
-    errno = error;
+    errno = errno_fixup_socket(socket, error);
     return -1;
   }
 

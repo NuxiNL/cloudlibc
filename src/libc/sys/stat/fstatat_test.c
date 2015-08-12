@@ -7,6 +7,18 @@
 
 #include <errno.h>
 #include <testing.h>
+#include <unistd.h>
+
+TEST(fstatat, bad) {
+  // Not a directory.
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  struct stat sb;
+  ASSERT_EQ(-1, fstatat(fds[0], "hello", &sb, 0));
+  ASSERT_EQ(ENOTDIR, errno);
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
+}
 
 TEST(fstatat, escape) {
   // Statting the test directory is allowed.
@@ -15,9 +27,9 @@ TEST(fstatat, escape) {
 
   // Escaping to the parent directory is not.
   ASSERT_EQ(-1, fstatat(fd_tmp, "..", &sb, 0));
-  ASSERT_EQ(EPERM, errno);
+  ASSERT_EQ(ENOTCAPABLE, errno);
 
   // There are no absolute paths.
   ASSERT_EQ(-1, fstatat(fd_tmp, "/dev/null", &sb, 0));
-  ASSERT_EQ(EPERM, errno);
+  ASSERT_EQ(ENOTCAPABLE, errno);
 }

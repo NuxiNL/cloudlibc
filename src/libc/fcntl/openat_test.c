@@ -22,9 +22,9 @@ TEST(openat, bad) {
 
   // Extension: access is confined to the directory.
   ASSERT_EQ(-1, openat(fd_tmp, "../foo", O_WRONLY | O_CREAT));
-  ASSERT_EQ(EPERM, errno);
+  ASSERT_EQ(ENOTCAPABLE, errno);
   ASSERT_EQ(-1, openat(fd_tmp, "/etc/passwd", O_WRONLY | O_CREAT));
-  ASSERT_EQ(EPERM, errno);
+  ASSERT_EQ(ENOTCAPABLE, errno);
 
   // Opening a socket should return EOPNOTSUPP.
   fd = socket(AF_UNIX, SOCK_STREAM, 0);

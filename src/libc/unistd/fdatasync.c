@@ -11,7 +11,7 @@
 int fdatasync(int fildes) {
   cloudabi_errno_t error = cloudabi_sys_fd_datasync(fildes);
   if (error != 0) {
-    errno = error;
+    errno = error == ENOTCAPABLE ? EBADF : error;
     return -1;
   }
   return 0;

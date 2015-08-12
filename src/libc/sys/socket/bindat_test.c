@@ -20,12 +20,16 @@ TEST(bindat, failure) {
   ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
   ASSERT_EQ(EADDRINUSE, bindat(fd, fd_tmp, "fifo"));
 
+  // Not a directory/socket.
+  ASSERT_EQ(ENOTDIR, bindat(fd, fd, "example"));
+  ASSERT_EQ(ENOTSOCK, bindat(fd_tmp, fd_tmp, "example"));
+
   // Empty filename.
   ASSERT_EQ(ENOENT, bindat(fd, fd_tmp, ""));
 
   // Bad pathname.
-  ASSERT_EQ(EPERM, bindat(fd, fd_tmp, "../sock"));
-  ASSERT_EQ(EPERM, bindat(fd, fd_tmp, "/sock"));
+  ASSERT_EQ(ENOTCAPABLE, bindat(fd, fd_tmp, "../sock"));
+  ASSERT_EQ(ENOTCAPABLE, bindat(fd, fd_tmp, "/sock"));
   ASSERT_EQ(0, close(fd));
 }
 
