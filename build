@@ -20,30 +20,32 @@ CFLAGS="${CFLAGS} -nostdinc -Isrc -Isrc/include \
 SRCS=$(find src contrib/double-conversion-1f0b845 contrib/jemalloc-3.6.0 \
     contrib/openlibm-ef29d06 \( -name '*.[cS]' -o -name '*.cc' \) | sort)
 
-echo "=> Computing dependencies"
-rm -Rf _obj/dep
-mkdir -p _obj/dep
-for srcfile in ${SRCS}; do
-  safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
-  echo "-MT _obj/${safename}.o -MF _obj/dep/${safename}.d ${srcfile}"
-done | xargs -P 8 -n 5 ${CC} ${CFLAGS} -MM
-for srcfile in ${SRCS}; do
-  safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
-  case "${srcfile}" in
-  contrib/*) extraflags="" ;;
-  src/crt/*) extraflags="${WARNFLAGS} -ffreestanding -fno-stack-protector" ;;
-  *_test.c) extraflags="${WARNFLAGS} -fno-builtin -O0" ;;
-  *) extraflags="${WARNFLAGS}" ;;
-  esac
-  case "${srcfile}" in
-  *.cc) extraflags="${extraflags} -std=c++11" ;;
-  esac
-  cat >> "_obj/dep/${safename}.d" << EOF
+if [ "$1" != "fast" ]; then
+  echo "=> Computing dependencies"
+  rm -Rf _obj/dep
+  mkdir -p _obj/dep
+  for srcfile in ${SRCS}; do
+    safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
+    echo "-MT _obj/${safename}.o -MF _obj/dep/${safename}.d ${srcfile}"
+  done | xargs -P 8 -n 5 ${CC} ${CFLAGS} -MM
+  for srcfile in ${SRCS}; do
+    safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
+    case "${srcfile}" in
+    contrib/*) extraflags="" ;;
+    src/crt/*) extraflags="${WARNFLAGS} -ffreestanding -fno-stack-protector" ;;
+    *_test.c) extraflags="${WARNFLAGS} -fno-builtin -O0" ;;
+    *) extraflags="${WARNFLAGS}" ;;
+    esac
+    case "${srcfile}" in
+    *.cc) extraflags="${extraflags} -std=c++11" ;;
+    esac
+    cat >> "_obj/dep/${safename}.d" << EOF
 	${CC} ${CFLAGS} ${extraflags} -c -o _obj/${safename}.o ${srcfile}
 all: _obj/${safename}.o
 EOF
-done
-cat _obj/dep/*.d > _obj/Makefile
+  done
+  cat _obj/dep/*.d > _obj/Makefile
+fi
 
 echo "=> Compiling sources"
 make -k -j8 -f _obj/Makefile all
