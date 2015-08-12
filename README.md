@@ -127,6 +127,11 @@ port can be installed to obtain a full cross compilation toolchain.
 There is no need to install Clang, cloudlibc or any of the LLVM
 libraries manually.
 
+The
+[sysutils/cloudabi-utils](http://www.freshports.org/sysutils/cloudabi-utils)
+port contains the `cloudabi-run` utility that can be used to more easily
+start up CloudABI processes.
+
 ### Linux
 
 Linux support is also being developed. A copy of the patchset
