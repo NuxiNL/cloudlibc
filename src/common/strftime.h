@@ -202,9 +202,9 @@ size_t NAME(char_t *restrict s, size_t maxsize, const char_t *restrict format,
         }
         case L'g': {
           // Last two digits of the week-based year number.
-          number = iso_8601_year(timeptr) % 100;
+          number = (iso_8601_year(timeptr) + 1900) % 100;
           if (number < 0)
-            number += 100;
+            number = -number;
           number_precision = 2;
           break;
         }
