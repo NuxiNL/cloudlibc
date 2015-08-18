@@ -15,7 +15,7 @@
  * from being exported, but for static libraries, naming collisions are a real
  * possibility.
  */
-#define JEMALLOC_PRIVATE_NAMESPACE je_
+#define JEMALLOC_PRIVATE_NAMESPACE __je_
 
 /*
  * Hyper-threaded CPUs may need a special instruction inside spin loops in
@@ -24,7 +24,7 @@
 #define CPU_SPINWAIT __asm__ volatile("pause")
 
 /* Defined if C11 atomics are available. */
-/* #undef JEMALLOC_C11ATOMICS */
+#define JEMALLOC_C11ATOMICS
 
 /* Defined if the equivalent of FreeBSD's atomic(9) functions are available. */
 /* #undef JEMALLOC_ATOMIC9 */
