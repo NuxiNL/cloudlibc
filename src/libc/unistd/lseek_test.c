@@ -47,4 +47,5 @@ TEST(lseek, example) {
   ASSERT_EQ(990, lseek(fd, -10, SEEK_END));
   ASSERT_EQ(1000, lseek(fd, 0, SEEK_END));
   ASSERT_EQ(1010, lseek(fd, 10, SEEK_END));
+  ASSERT_EQ(0, close(fd));
 }
