@@ -106,7 +106,7 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_SEEK_TELL _CAP_BIT(5)
 #define CAP_WRITE _CAP_BIT(6)
 
-#define CAP_LOOKUP (_CAP_BIT(12) | _CAP_BIT(14))
+#define CAP_LOOKUP _CAP_BIT(14)
 
 #define CAP_FCNTL _CAP_BIT(3)
 
@@ -117,10 +117,12 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_FSTATAT _CAP_BIT(22)
 #define CAP_FUTIMES _CAP_BIT(21)
 #define CAP_FUTIMESAT _CAP_BIT(23)
-#define CAP_LINKAT (_CAP_BIT(13) | _CAP_BIT(18))
+#define CAP_LINKAT_SOURCE _CAP_BIT(12)
+#define CAP_LINKAT_TARGET _CAP_BIT(13)
 #define CAP_MKDIRAT _CAP_BIT(9)
 #define CAP_MKFIFOAT _CAP_BIT(11)
-#define CAP_RENAMEAT _CAP_BIT(17)
+#define CAP_RENAMEAT_SOURCE _CAP_BIT(17)
+#define CAP_RENAMEAT_TARGET _CAP_BIT(18)
 #define CAP_SYMLINKAT _CAP_BIT(24)
 #define CAP_UNLINKAT _CAP_BIT(25)
 
