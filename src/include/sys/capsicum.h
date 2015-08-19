@@ -83,6 +83,7 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 
 // General file I/O.
 #define CAP_CREATE (_CAP_BIT(10) | _CAP_BIT(14))
+#define CAP_FCNTL _CAP_BIT(3)
 #define CAP_FDATASYNC _CAP_BIT(0)
 #define CAP_FEXECVE _CAP_BIT(32)
 #define CAP_FSYNC _CAP_BIT(4)
@@ -106,10 +107,6 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_SEEK_TELL _CAP_BIT(5)
 #define CAP_WRITE _CAP_BIT(6)
 
-#define CAP_LOOKUP _CAP_BIT(14)
-
-#define CAP_FCNTL _CAP_BIT(3)
-
 // VFS methods.
 #define CAP_BINDAT _CAP_BIT(34)
 #define CAP_CONNECTAT _CAP_BIT(36)
@@ -119,6 +116,7 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_FUTIMESAT _CAP_BIT(23)
 #define CAP_LINKAT_SOURCE _CAP_BIT(12)
 #define CAP_LINKAT_TARGET _CAP_BIT(13)
+#define CAP_LOOKUP _CAP_BIT(14)
 #define CAP_MKDIRAT _CAP_BIT(9)
 #define CAP_MKFIFOAT _CAP_BIT(11)
 #define CAP_RENAMEAT_SOURCE _CAP_BIT(17)
