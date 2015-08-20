@@ -38,8 +38,8 @@
 //   Not thread-safe.
 // - AI_ADDRCONFIG:
 //   System-wide network configuration is not available.
-// - NI_NOFQDN:
-//   System-wide hostname/domainname is not available.
+// - NI_NAMEREQD and NI_NOFQDN:
+//   Hostname resolution is not available.
 // - IPPORT_RESERVED:
 //   Not applicable to sandboxed environment.
 
@@ -48,6 +48,14 @@
 
 #include <_/types.h>
 
+#ifndef _IN_ADDR_T_DECLARED
+typedef __in_addr_t in_addr_t;
+#define _IN_ADDR_T_DECLARED
+#endif
+#ifndef _IN_PORT_T_DECLARED
+typedef __in_port_t in_port_t;
+#define _IN_PORT_T_DECLARED
+#endif
 #ifndef _SOCKLEN_T_DECLARED
 typedef __size_t socklen_t;
 #define _SOCKLEN_T_DECLARED
@@ -88,11 +96,12 @@ struct addrinfo {
 #define AI_V4MAPPED 0x10    // Return IPv4-mapped IPv6 addresses.
 #define AI_ALL 0x20         // Query for both IPv4 and IPv6 addresses.
 
-#define NI_NUMERICHOST 0x1   // The numeric host is returned instead.
-#define NI_NAMEREQD 0x2      // Return an error if the node cannot be found.
-#define NI_NUMERICSERV 0x4   // The numeric port is returned instead.
-#define NI_NUMERICSCOPE 0x8  // The numeric scope is returned instead.
-#define NI_DGRAM 0x10        // Service is a datagram service.
+#define NI_NUMERICSERV 0x1  // The numeric port is returned instead.
+#define NI_DGRAM 0x2        // Service is a datagram service.
+
+// Flags that are enabled unconditionally.
+#define NI_NUMERICHOST 0   // The numeric host is returned instead.
+#define NI_NUMERICSCOPE 0  // The numeric scope is returned instead.
 
 #define EAI_AGAIN 1      // Future attempts may succeed.
 #define EAI_BADFLAGS 2   // The flags had an invalid value.
@@ -105,8 +114,8 @@ struct addrinfo {
 #define EAI_SYSTEM 9     // A system error occurred.
 #define EAI_OVERFLOW 10  // An argument buffer overflowed.
 
-#define NI_MAXHOST 1025  // Largest hostname returned by getnameinfo().
-#define NI_MAXSERV 32    // Largest service name returned by getnameinfo().
+#define NI_MAXHOST 57  // Largest hostname returned by getnameinfo().
+#define NI_MAXSERV 64  // Largest service name returned by getnameinfo().
 
 __BEGIN_DECLS
 void endprotoent(void);
