@@ -39,6 +39,7 @@ for record in dom.getroot().iter(NAMESPACE + 'record'):
 print 'static const char entries[] ='
 for port, names in sorted(entries.iteritems()):
   for name in names:
+    assert len(name) < 64
     print '"\\%03o\\%03o\\%03o%s\\000"' % (
         port / 256, port % 256, protocols[port][name], name)
 print '"\\000\\000";'
