@@ -37,7 +37,11 @@ TEST(getnameinfo, bad) {
     ASSERT_STREQ(node, nodebuf);                                               \
     ASSERT_STREQ(service, servicebuf);                                         \
                                                                                \
-    /* Test what happens if the output buffer is too small. */                 \
+    /* Test what happens if the buffers are too small. */                      \
+    ASSERT_EQ(EAI_FAMILY,                                                      \
+              getnameinfo((struct sockaddr *) & (sa), sizeof(sa) - 1, nodebuf, \
+                          sizeof(nodebuf), servicebuf, sizeof(servicebuf),     \
+                          NI_NUMERICHOST | (flags)));                          \
     ASSERT_EQ(EAI_OVERFLOW,                                                    \
               getnameinfo((struct sockaddr *) & (sa), sizeof(sa), nodebuf,     \
                           sizeof(nodebuf) - 1, servicebuf, sizeof(servicebuf), \
