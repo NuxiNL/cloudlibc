@@ -3,7 +3,9 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-static const char entries[] =
+#include "netdb_impl.h"
+
+const char __iana_port_numbers[] =
     "\000\001\003tcpmux\000"
     "\000\002\003compressnet\000"
     "\000\003\003compressnet\000"

@@ -36,7 +36,7 @@ for record in dom.getroot().iter(NAMESPACE + 'record'):
     entries[port].append(name)
   protocols[port][name] |= {'tcp': 1, 'udp': 2, 'sctp': 4, 'dccp': 8}[protocol]
 
-print 'static const char entries[] ='
+print 'const char __iana_port_numbers[] ='
 for port, names in sorted(entries.iteritems()):
   for name in names:
     assert len(name) < 64

@@ -6,13 +6,11 @@
 #include <assert.h>
 #include <netdb.h>
 #include <pthread.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 #include <strings.h>
 
-#include "iana_port_numbers.h"
+#include "netdb_impl.h"
 
 // Conversion between protocol names and numbers.
 
@@ -43,42 +41,15 @@ static const char *proto_get_name(uint8_t protoid) {
   return NULL;
 }
 
-// Routines for parsing entries stored in iana_port_numbers.h.
-
-// Returns the port number in network byte order.
-static int entry_get_port(const char *entry) {
-  union {
-    uint8_t bytes[2];
-    uint16_t number;
-  } v = {.bytes = {entry[0], entry[1]}};
-  return v.number;
-}
-
-// Tests whether the entry applies to the protocol used.
-static bool entry_match_protoid(const char *entry, uint8_t protoid) {
-  return (entry[2] & protoid) != 0;
-}
-
-// Returns the name stored in the entry.
-static const char *entry_get_name(const char *entry) {
-  return entry + 3;
-}
-
-// Returns a reference to the next entry.
-static const char *entry_get_next(const char *entry) {
-  const char *name = entry_get_name(entry);
-  return name + strlen(name) + 1;
-}
-
 // Allocates a new struct servent object based on an entry from the IANA
 // port number registry.
 static struct servent *create_servent(const char *entry, uint8_t protoid) {
   // Compute the number of aliases this entry has.
   size_t aliases_count = 1;
-  for (const char *alias = entry_get_next(entry);
-       entry_get_port(alias) == entry_get_port(entry);
-       alias = entry_get_next(alias)) {
-    if (entry_match_protoid(alias, protoid))
+  for (const char *alias = portstr_get_next(entry);
+       portstr_get_port(alias) == portstr_get_port(entry);
+       alias = portstr_get_next(alias)) {
+    if (portstr_match_protoid(alias, protoid))
       ++aliases_count;
   }
 
@@ -88,19 +59,19 @@ static struct servent *create_servent(const char *entry, uint8_t protoid) {
   if (se == NULL)
     return NULL;
   *se = (struct servent){
-      .s_name = (char *)entry_get_name(entry),
+      .s_name = (char *)portstr_get_name(entry),
       .s_aliases = (char **)(se + 1),
-      .s_port = entry_get_port(entry),
+      .s_port = portstr_get_port(entry),
       .s_proto = (char *)proto_get_name(protoid),
   };
 
   // Fill the array with aliases.
   const char **aliases = (const char **)(se + 1);
-  for (const char *alias = entry_get_next(entry);
-       entry_get_port(alias) == entry_get_port(entry);
-       alias = entry_get_next(alias)) {
-    if (entry_match_protoid(alias, protoid))
-      *aliases++ = entry_get_name(alias);
+  for (const char *alias = portstr_get_next(entry);
+       portstr_get_port(alias) == portstr_get_port(entry);
+       alias = portstr_get_next(alias)) {
+    if (portstr_match_protoid(alias, protoid))
+      *aliases++ = portstr_get_name(alias);
   }
   *aliases = NULL;
 
@@ -169,17 +140,17 @@ static struct servent *get_servent(const char *entry, uint8_t protoid) {
 // aliases) and the protocol.
 struct servent *getservbyname(const char *name, const char *proto) {
   uint8_t protoid = proto_get_id(proto);
-  const char *first_entry = entries;
-  for (const char *entry = entries; entry_get_port(entry) != 0;
-       entry = entry_get_next(entry)) {
-    if (entry_match_protoid(entry, protoid)) {
+  const char *first_entry = __iana_port_numbers;
+  for (const char *entry = __iana_port_numbers; portstr_get_port(entry) != 0;
+       entry = portstr_get_next(entry)) {
+    if (portstr_match_protoid(entry, protoid)) {
       // Keep track of the first entry that has the same port number and
       // matches the protocol, as this data is used by create_servent().
-      if (entry_get_port(first_entry) != entry_get_port(entry))
+      if (portstr_get_port(first_entry) != portstr_get_port(entry))
         first_entry = entry;
 
       // Match against the name.
-      if (strcasecmp(entry_get_name(entry), name) == 0)
+      if (strcasecmp(portstr_get_name(entry), name) == 0)
         return get_servent(first_entry, protoid);
     }
   }
@@ -190,9 +161,10 @@ struct servent *getservbyname(const char *name, const char *proto) {
 // protocol.
 struct servent *getservbyport(int port, const char *proto) {
   uint8_t protoid = proto_get_id(proto);
-  for (const char *entry = entries; entry_get_port(entry) != 0;
-       entry = entry_get_next(entry)) {
-    if (entry_get_port(entry) == port && entry_match_protoid(entry, protoid))
+  for (const char *entry = __iana_port_numbers; portstr_get_port(entry) != 0;
+       entry = portstr_get_next(entry)) {
+    if (portstr_get_port(entry) == port &&
+        portstr_match_protoid(entry, protoid))
       return get_servent(entry, protoid);
   }
   return NULL;
