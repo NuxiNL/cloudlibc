@@ -33,7 +33,7 @@ TEST(getnameinfo, bad) {
     char servicebuf[sizeof(service)];                                          \
     ASSERT_EQ(0, getnameinfo((struct sockaddr *) & (sa), sizeof(sa), nodebuf,  \
                              sizeof(nodebuf), servicebuf, sizeof(servicebuf),  \
-                             NI_NUMERICHOST | (flags)));                       \
+                             NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));     \
     ASSERT_STREQ(node, nodebuf);                                               \
     ASSERT_STREQ(service, servicebuf);                                         \
                                                                                \
@@ -41,15 +41,15 @@ TEST(getnameinfo, bad) {
     ASSERT_EQ(EAI_FAMILY,                                                      \
               getnameinfo((struct sockaddr *) & (sa), sizeof(sa) - 1, nodebuf, \
                           sizeof(nodebuf), servicebuf, sizeof(servicebuf),     \
-                          NI_NUMERICHOST | (flags)));                          \
+                          NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));        \
     ASSERT_EQ(EAI_OVERFLOW,                                                    \
               getnameinfo((struct sockaddr *) & (sa), sizeof(sa), nodebuf,     \
                           sizeof(nodebuf) - 1, servicebuf, sizeof(servicebuf), \
-                          NI_NUMERICHOST | (flags)));                          \
+                          NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));        \
     ASSERT_EQ(EAI_OVERFLOW,                                                    \
               getnameinfo((struct sockaddr *) & (sa), sizeof(sa), nodebuf,     \
                           sizeof(nodebuf), servicebuf, sizeof(servicebuf) - 1, \
-                          NI_NUMERICHOST | (flags)));                          \
+                          NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));        \
   } while (0)
 
 TEST(getnameinfo, inet) {
