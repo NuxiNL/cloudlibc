@@ -51,7 +51,7 @@ if [ "$1" != "fast" ]; then
     fi
   done
   # Invoke the build again if we had to fix up one or more sources files.
-  ./build "$@"
+  ./build fast
 fi
 
 sudo ./install
