@@ -13,6 +13,8 @@
 #include <netdb.h>
 #include <string.h>
 
+#include "netdb_impl.h"
+
 static_assert(NI_MAXHOST >= INET_ADDRSTRLEN,
               "NI_MAXHOST too small to fit an IPv4 address");
 static_assert(NI_MAXHOST >= INET6_ADDRSTRLEN + 11,
@@ -38,7 +40,7 @@ int getnameinfo(const struct sockaddr *restrict sa, size_t salen,
         if (inet_ntop(AF_INET, &sin->sin_addr, node, nodelen) == NULL)
           return EAI_OVERFLOW;
       }
-      port = ntohs(sin->sin_port);
+      port = sin->sin_port;
       break;
     }
     case AF_INET6: {
@@ -50,7 +52,7 @@ int getnameinfo(const struct sockaddr *restrict sa, size_t salen,
           return EAI_OVERFLOW;
         // TODO(ed): Scope!
       }
-      port = ntohs(sin6->sin6_port);
+      port = sin6->sin6_port;
       break;
     }
     default:
@@ -59,23 +61,36 @@ int getnameinfo(const struct sockaddr *restrict sa, size_t salen,
 
   if (service != NULL) {
     if ((flags & NI_NUMERICSERV) == 0) {
-      // Textual service name representation.
-      // TODO(ed): Implement this!
-      return EAI_SYSTEM;
-    } else {
-      // Numerical service name representation.
-      char portbuf[6];
-      char *portstr = portbuf + sizeof(portbuf);
-      *--portstr = '\0';
-      do {
-        *--portstr = port % 10 + '0';
-        port /= 10;
-      } while (port != 0);
-      size_t portstrlen = portbuf + sizeof(portbuf) - portstr;
-      if (portstrlen > servicelen)
-        return EAI_OVERFLOW;
-      memcpy(service, portstr, portstrlen);
+      // Try to obtain the textual service name from the IANA port
+      // number database.
+      uint8_t protoid = (flags & NI_DGRAM) != 0 ? 2 : 1;
+      for (const char *entry = __iana_port_numbers;
+           portstr_get_port(entry) != 0; entry = portstr_get_next(entry)) {
+        if (portstr_get_port(entry) == port &&
+            portstr_match_protoid(entry, protoid)) {
+          const char *str = portstr_get_name(entry);
+          size_t len = strlen(str) + 1;
+          if (len > servicelen)
+            return EAI_OVERFLOW;
+          memcpy(service, str, len);
+          return 0;
+        }
+      }
     }
+
+    // Fall back to returning the port number.
+    char portbuf[6];
+    char *portstr = portbuf + sizeof(portbuf);
+    *--portstr = '\0';
+    port = ntohs(port);
+    do {
+      *--portstr = port % 10 + '0';
+      port /= 10;
+    } while (port != 0);
+    size_t portstrlen = portbuf + sizeof(portbuf) - portstr;
+    if (portstrlen > servicelen)
+      return EAI_OVERFLOW;
+    memcpy(service, portstr, portstrlen);
   }
   return 0;
 }
