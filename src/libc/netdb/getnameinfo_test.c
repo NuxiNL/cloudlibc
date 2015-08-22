@@ -61,6 +61,9 @@ TEST(getnameinfo, inet) {
                               .sin_port = htons(port)};       \
     TEST_SOCKADDR(sin, flags, node, service);                 \
   } while (0)
+  TEST_INET(0x00000000, 0, NI_NUMERICSERV, "0.0.0.0", "0");
+  TEST_INET(0x00000000, 0, 0, "0.0.0.0", "0");
+
   TEST_INET(0x00000000, 80, NI_NUMERICSERV, "0.0.0.0", "80");
   TEST_INET(0x00000000, 80, 0, "0.0.0.0", "http");
 
