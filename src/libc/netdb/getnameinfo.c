@@ -50,7 +50,27 @@ int getnameinfo(const struct sockaddr *restrict sa, size_t salen,
       if (node != NULL) {
         if (inet_ntop(AF_INET6, &sin6->sin6_addr, node, nodelen) == NULL)
           return EAI_OVERFLOW;
-        // TODO(ed): Scope!
+
+        // Append decimal scope identifier.
+        uint32_t scope = sin6->sin6_scope_id;
+        if (scope != 0) {
+          char scopebuf[12];
+          char *scopestr = scopebuf + sizeof(scopebuf);
+          *--scopestr = '\0';
+          do {
+            *--scopestr = scope % 10 + '0';
+            scope /= 10;
+          } while (scope != 0);
+          *--scopestr = '%';
+          size_t scopestrlen = scopebuf + sizeof(scopebuf) - scopestr;
+
+          size_t used = strlen(node);
+          node += used;
+          nodelen -= used;
+          if (scopestrlen > nodelen)
+            return EAI_OVERFLOW;
+          memcpy(node, scopestr, scopestrlen);
+        }
       }
       port = sin6->sin6_port;
       break;

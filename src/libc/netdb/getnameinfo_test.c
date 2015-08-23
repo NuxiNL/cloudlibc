@@ -9,6 +9,7 @@
 
 #include <netdb.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <testing.h>
 
 TEST(getnameinfo, bad) {
@@ -93,4 +94,28 @@ TEST(getnameinfo, inet) {
 #undef TEST_INET
 }
 
-// TODO(ed): Test IPv6.
+TEST(getnameinfo, inet6) {
+#define TEST_INET6(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, \
+                   a14, a15, scope_id, port, flags, node, service)             \
+  do {                                                                         \
+    /* Perform conversion. */                                                  \
+    struct sockaddr_in6 sin6 = {.sin6_family = AF_INET6,                       \
+                                .sin6_addr.s6_addr =                           \
+                                    {                                          \
+                                        a0, a1, a2, a3, a4, a5, a6, a7, a8,    \
+                                        a9, a10, a11, a12, a13, a14, a15,      \
+                                    },                                         \
+                                .sin6_scope_id = scope_id,                     \
+                                .sin6_port = htons(port)};                     \
+    TEST_SOCKADDR(sin6, flags, node, service);                                 \
+  } while (0)
+  TEST_INET6(0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x92, 0x2b, 0x34,
+             0xff, 0xfe, 0x6c, 0x9b, 0x4b, 0, 21, 0,
+             "fe80::922b:34ff:fe6c:9b4b", "ftp");
+  TEST_INET6(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+             0x00, 0x00, 0x00, 0x00, 0x01, 1, 53, NI_DGRAM, "::1%1", "domain");
+  TEST_INET6(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+             0x00, 0x00, 0x00, 0x00, 0x00, UINT32_MAX, 25, 0, "::%4294967295",
+             "smtp");
+#undef TEST_INET6
+}
