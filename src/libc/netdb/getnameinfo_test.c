@@ -53,13 +53,27 @@ TEST(getnameinfo, bad) {
   } while (0)
 
 TEST(getnameinfo, inet) {
-#define TEST_INET(addr, port, flags, node, service)           \
-  do {                                                        \
-    /* Perform conversion. */                                 \
-    struct sockaddr_in sin = {.sin_family = AF_INET,          \
-                              .sin_addr.s_addr = htonl(addr), \
-                              .sin_port = htons(port)};       \
-    TEST_SOCKADDR(sin, flags, node, service);                 \
+#define TEST_INET(addr, port, flags, node, service)                         \
+  do {                                                                      \
+    /* Perform conversion. */                                               \
+    struct sockaddr_in sin = {                                              \
+        .sin_family = AF_INET,                                              \
+        .sin_addr.s_addr = htonl(addr),                                     \
+        .sin_port = htons(port),                                            \
+    };                                                                      \
+    TEST_SOCKADDR(sin, flags, node, service);                               \
+                                                                            \
+    /* Also test IPv4-mapped IPv6 address representation. */                \
+    struct sockaddr_in6 sin6 = {                                            \
+        .sin6_family = AF_INET6,                                            \
+        .sin6_addr.s6_addr =                                                \
+            {                                                               \
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                0xff, 0xff, (addr >> 24) & 0xff, (addr >> 16) & 0xff,       \
+                (addr >> 8) & 0xff, addr & 0xff,                            \
+            },                                                              \
+        .sin6_port = htons(port)};                                          \
+    TEST_SOCKADDR(sin6, flags, "::ffff:" node, service);                    \
   } while (0)
   TEST_INET(0x00000000, 0, NI_NUMERICSERV, "0.0.0.0", "0");
   TEST_INET(0x00000000, 0, 0, "0.0.0.0", "0");
