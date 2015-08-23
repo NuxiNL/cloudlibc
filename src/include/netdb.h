@@ -89,6 +89,7 @@ struct addrinfo {
   struct addrinfo *ai_next;  // Pointer to next in list.
 };
 
+// Flags for getaddrinfo().
 #define AI_PASSIVE 0x1      // Socket address is intended for bind().
 #define AI_CANONNAME 0x2    // Request for canonical name.
 #define AI_NUMERICHOST 0x4  // Return numeric host address as name.
@@ -96,13 +97,15 @@ struct addrinfo {
 #define AI_V4MAPPED 0x10    // Return IPv4-mapped IPv6 addresses.
 #define AI_ALL 0x20         // Query for both IPv4 and IPv6 addresses.
 
+// Flags for getnameinfo().
 #define NI_NUMERICSERV 0x1  // The numeric port is returned instead.
 #define NI_DGRAM 0x2        // Service is a datagram service.
 
-// Flags that are enabled unconditionally.
+// Flags for getnameinfo() that are enabled unconditionally.
 #define NI_NUMERICHOST 0   // The numeric host is returned instead.
 #define NI_NUMERICSCOPE 0  // The numeric scope is returned instead.
 
+// Error codes returned by getaddrinfo() and getnameinfo().
 #define EAI_AGAIN 1      // Future attempts may succeed.
 #define EAI_BADFLAGS 2   // The flags had an invalid value.
 #define EAI_FAIL 3       // A non-recoverable error occurred.
@@ -114,6 +117,7 @@ struct addrinfo {
 #define EAI_SYSTEM 9     // A system error occurred.
 #define EAI_OVERFLOW 10  // An argument buffer overflowed.
 
+// Size limits.
 #define NI_MAXHOST 57  // Largest hostname returned by getnameinfo().
 #define NI_MAXSERV 64  // Largest service name returned by getnameinfo().
 
