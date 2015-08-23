@@ -13,7 +13,7 @@
 
 int pdwait(int fd, siginfo_t *infop, int options) {
   if ((options & ~WNOHANG) != 0)
-    return (EINVAL);
+    return EINVAL;
 
   // Prepare set of events on which we should wait. If WNOHANG is
   // specified, add an additional zero-value clock to force poll() to
@@ -34,14 +34,14 @@ int pdwait(int fd, siginfo_t *infop, int options) {
   cloudabi_errno_t error = cloudabi_sys_poll(
       subscriptions, events, (options & WNOHANG) != 0 ? 2 : 1, &triggered);
   if (error != 0)
-    return (error);
+    return error;
 
   for (size_t i = 0; i < triggered; ++i) {
     const cloudabi_event_t *ev = &events[i];
     if (ev->type == CLOUDABI_EVENTTYPE_PROC_TERMINATE) {
       if (ev->error != 0) {
         // Invalid file descriptor.
-        return (ev->error);
+        return ev->error;
       }
 
       if (ev->proc_terminate.signal != 0) {
