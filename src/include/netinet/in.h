@@ -76,7 +76,7 @@ struct sockaddr_in6 {
   in_port_t sin6_port;                              // Port number.
   uint32_t sin6_flowinfo;                           // Flow information.
   struct in6_addr sin6_addr;                        // IPv6 address.
-  uint32_t sin6_scopeid;                            // Scope ID.
+  uint32_t sin6_scope_id;                           // Scope ID.
 };
 
 #define IN6ADDR_ANY_INIT                                                      \
