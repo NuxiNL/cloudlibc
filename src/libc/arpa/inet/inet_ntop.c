@@ -79,14 +79,15 @@ static const char *inet_ntop_inet6(const struct in6_addr *restrict src,
       strip_colon = 0;
     }
   } while (i < __arraycount(groups));
+  *bufend++ = '\0';
 
   // Copy it back.
   size_t len = bufend - buf;
-  if (len >= size) {
+  if (len > size) {
     errno = ENOSPC;
     return NULL;
   }
-  strlcpy(dst, buf, size);
+  memcpy(dst, buf, len);
   return dst;
 }
 
