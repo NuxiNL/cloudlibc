@@ -92,10 +92,12 @@ struct addrinfo {
 // Flags for getaddrinfo().
 #define AI_PASSIVE 0x1      // Socket address is intended for bind().
 #define AI_CANONNAME 0x2    // Request for canonical name.
-#define AI_NUMERICHOST 0x4  // Return numeric host address as name.
-#define AI_NUMERICSERV 0x8  // Inhibit service name resolution.
-#define AI_V4MAPPED 0x10    // Return IPv4-mapped IPv6 addresses.
-#define AI_ALL 0x20         // Query for both IPv4 and IPv6 addresses.
+#define AI_NUMERICSERV 0x4  // Inhibit service name resolution.
+#define AI_V4MAPPED 0x8     // Return IPv4-mapped IPv6 addresses.
+#define AI_ALL 0x10         // Query for both IPv4 and IPv6 addresses.
+
+// Flags for getaddrinfo() that are enabled unconditionally.
+#define AI_NUMERICHOST 0  // Return numeric host address as name.
 
 // Flags for getnameinfo().
 #define NI_NUMERICSERV 0x1  // The numeric port is returned instead.
