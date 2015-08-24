@@ -3,6 +3,8 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/overflow.h>
+
 #include <sys/socket.h>
 
 #include <arpa/inet.h>
@@ -42,6 +44,41 @@ struct alias {
 // safe side, pick a larger limit.
 #define NALIASES_MAX 16
 
+// Parses an IPv6 address using inet_pton(), but also extracts a
+// trailing decimal scope identifier having the format "%n".
+static int inet6_pton(const char *nodename, struct in6_addr *addr,
+                      uint32_t *scope) {
+  // The general case: no scope present.
+  if (inet_pton(AF_INET6, nodename, addr) != 0) {
+    *scope = 0;
+    return 1;
+  }
+
+  // A trailing scope number may be present.
+  const char *s = strchr(nodename, '%');
+  if (s++ == NULL)
+    return 0;
+
+  // Call inet_pton() on the address.
+  size_t addrlen = s - nodename;
+  if (addrlen > INET6_ADDRSTRLEN)
+    return 0;
+  char nodeaddr[INET6_ADDRSTRLEN];
+  memcpy(nodeaddr, nodename, addrlen - 1);
+  nodeaddr[addrlen - 1] = '\0';
+  if (inet_pton(AF_INET6, nodeaddr, addr) == 0)
+    return 0;
+
+  // Parse the scope number.
+  *scope = 0;
+  do {
+    if (*s < '0' || *s > '9' || mul_overflow(*scope, 10, scope) ||
+        add_overflow(*scope, *s - '0', scope))
+      return 0;
+  } while (*++s != '\0');
+  return 1;
+}
+
 int getaddrinfo(const char *restrict nodename, const char *restrict servname,
                 const struct addrinfo *restrict hints,
                 struct addrinfo **restrict res) {
@@ -78,7 +115,6 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
   }
 
   // Attempt to parse as an IPv4 address.
-  // TODO(ed): Support full IPv4 dotted decimal notation.
   struct in_addr addr_inet;
   if (have_inet) {
     if (nodename == NULL) {
@@ -90,14 +126,14 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
   }
 
   // Attempt to parse as an IPv6 address.
-  // TODO(ed): Support scopes.
   struct in6_addr addr_inet6;
+  uint32_t scope_inet6 = 0;
   if (have_inet6) {
     if (nodename == NULL) {
       addr_inet6 = (hints->ai_flags & AI_PASSIVE) != 0
                        ? (struct in6_addr)IN6ADDR_ANY_INIT
                        : (struct in6_addr)IN6ADDR_LOOPBACK_INIT;
-    } else if (inet_pton(AF_INET6, nodename, &addr_inet6) == 0) {
+    } else if (inet6_pton(nodename, &addr_inet6, &scope_inet6) == 0) {
       have_inet6 = false;
     }
   }
@@ -216,7 +252,7 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
       sin6->sin6_family = AF_INET6;
       sin6->sin6_port = alias->port;
       sin6->sin6_addr = addr_inet6;
-      // sin6->sin6_scope_id = ...;
+      sin6->sin6_scope_id = scope_inet6;
       ++entry;
     }
   }
