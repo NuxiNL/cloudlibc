@@ -4,7 +4,10 @@
 // See the LICENSE file for details.
 
 #include <netdb.h>
+#include <stdlib.h>
 
 void freeaddrinfo(struct addrinfo *ai) {
-  // TODO(ed): Implement.
+  // All entries are stored contiguously and can be freed by calling
+  // free() on the first entry.
+  free(ai);
 }
