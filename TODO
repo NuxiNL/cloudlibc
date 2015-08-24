@@ -7,10 +7,10 @@ regex.h		 5%	Not started
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
 wchar.h		50%	stdio bits still missing. Many tests missing.
-netdb.h		70%	getaddrinfo() still missing
 sys/event.h	70%	Needs more tests
 string.h	80%	strcoll() and strxfrm() still missing
 argdata.h	90%	Floating point support missing
+netdb.h		90%	getaddrinfo() needs more polishing
 sys/socket.h	90%	File descriptor passing missing
 unistd.h	90%	fpathconf() and sysconf() still missing
 
