@@ -13,6 +13,12 @@
 // Port number entries.
 extern const char __iana_port_numbers[];
 
+// Protocol types.
+#define PORTSTR_TCP 0x1
+#define PORTSTR_UDP 0x2
+#define PORTSTR_SCTP 0x4
+#define PORTSTR_DCCP 0x8
+
 // Routines for parsing port number entries.
 
 // Returns the port number in network byte order.

@@ -16,25 +16,25 @@
 
 static uint8_t proto_get_id(const char *name) {
   if (strcasecmp(name, "tcp") == 0)
-    return 1;
+    return PORTSTR_TCP;
   if (strcasecmp(name, "udp") == 0)
-    return 2;
+    return PORTSTR_UDP;
   if (strcasecmp(name, "sctp") == 0)
-    return 4;
+    return PORTSTR_SCTP;
   if (strcasecmp(name, "dccp") == 0)
-    return 8;
+    return PORTSTR_DCCP;
   return 0;
 }
 
 static const char *proto_get_name(uint8_t protoid) {
   switch (protoid) {
-    case 1:
+    case PORTSTR_TCP:
       return "tcp";
-    case 2:
+    case PORTSTR_UDP:
       return "udp";
-    case 4:
+    case PORTSTR_SCTP:
       return "sctp";
-    case 8:
+    case PORTSTR_DCCP:
       return "dccp";
   }
   assert(0 && "Invalid protocol ID");

@@ -83,7 +83,7 @@ int getnameinfo(const struct sockaddr *restrict sa, size_t salen,
     if ((flags & NI_NUMERICSERV) == 0) {
       // Try to obtain the textual service name from the IANA port
       // number database.
-      uint8_t protoid = (flags & NI_DGRAM) != 0 ? 2 : 1;
+      uint8_t protoid = (flags & NI_DGRAM) != 0 ? PORTSTR_UDP : PORTSTR_TCP;
       for (const char *entry = __iana_port_numbers;
            portstr_get_port(entry) != 0; entry = portstr_get_next(entry)) {
         if (portstr_get_port(entry) == port &&
