@@ -233,6 +233,7 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
   for (size_t i = 0; i < nentries; ++i) {
     struct addrinfo *ai = &entries[i].ai;
     ai->ai_addr = &entries[i].addr.sa;
+    ai->ai_canonname = (char *)nodename;
     if (i < nentries - 1)
       ai->ai_next = &entries[i + 1].ai;
   }

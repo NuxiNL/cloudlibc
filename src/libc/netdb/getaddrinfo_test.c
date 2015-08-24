@@ -14,13 +14,14 @@
 // Macros for testing calls to getaddrinfo() that return entries.
 #define TEST_AI_BEGIN(nodename, servname, flags, family, socktype, protocol) \
   do {                                                                       \
+    const char *onodename = nodename;                                        \
     struct addrinfo *res;                                                    \
     {                                                                        \
       struct addrinfo hints = {.ai_flags = AI_NUMERICHOST | (flags),         \
                                .ai_family = (family),                        \
                                .ai_socktype = (socktype),                    \
                                .ai_protocol = (protocol)};                   \
-      ASSERT_EQ(0, getaddrinfo(nodename, servname, &hints, &res));           \
+      ASSERT_EQ(0, getaddrinfo(onodename, servname, &hints, &res));          \
     }                                                                        \
     struct addrinfo *ai = res;
 #define TEST_AI_ENTRY(node, service, socktype, protocol)                      \
@@ -30,6 +31,7 @@
     ASSERT_EQ(ai->ai_addr->sa_family, ai->ai_family);                         \
     ASSERT_EQ(socktype, ai->ai_socktype);                                     \
     ASSERT_EQ(protocol, ai->ai_protocol);                                     \
+    ASSERT_EQ(onodename, ai->ai_canonname);                                   \
                                                                               \
     char nodebuf[sizeof(node)];                                               \
     char servicebuf[sizeof(#service)];                                        \

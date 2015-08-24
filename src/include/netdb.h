@@ -38,8 +38,7 @@
 //   Not thread-safe.
 // - AI_ADDRCONFIG:
 //   System-wide network configuration is not available.
-// - AI_CANONNAME, AI_V4MAPPED, AI_ALL, NI_NAMEREQD, NI_NOFDQN and
-//   struct addrinfo::ai_canonname:
+// - AI_V4MAPPED, AI_ALL, NI_NAMEREQD and NI_NOFDQN:
 //   Hostname resolution is not available.
 // - IPPORT_RESERVED:
 //   Not applicable to sandboxed environment.
@@ -86,6 +85,7 @@ struct addrinfo {
   int ai_protocol;           // Protocol of socket.
   __size_t ai_addrlen;       // Length of socket address.
   struct sockaddr *ai_addr;  // Socket address of socket.
+  char *ai_canonname;        // Canonical name of service location.
   struct addrinfo *ai_next;  // Pointer to next in list.
 };
 
@@ -94,6 +94,7 @@ struct addrinfo {
 #define AI_NUMERICSERV 0x2  // Inhibit service name resolution.
 
 // Flags for getaddrinfo() that are enabled unconditionally.
+#define AI_CANONNAME 0    // Request for canonical name.
 #define AI_NUMERICHOST 0  // Return numeric host address as name.
 
 // Flags for getnameinfo().
