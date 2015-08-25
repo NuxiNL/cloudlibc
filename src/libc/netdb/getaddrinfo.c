@@ -158,14 +158,10 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
     // Parse a decimal port number.
     bool have_port = true;
     const char *s = servname;
-    uint32_t port = 0;
+    in_port_t port = 0;
     do {
-      if (*s < '0' || *s > '9') {
-        have_port = false;
-        break;
-      }
-      port = port * 10 + *s - '0';
-      if (port > UINT16_MAX) {
+      if (*s < '0' || *s > '9' || mul_overflow(port, 10, &port) ||
+          add_overflow(port, *s - '0', &port)) {
         have_port = false;
         break;
       }
