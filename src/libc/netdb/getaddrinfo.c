@@ -266,7 +266,7 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
       ai->ai_family = AF_INET;
       ai->ai_socktype = alias->socktype;
       ai->ai_protocol = alias->protocol;
-      ai->ai_addrlen = sizeof(struct sockaddr_in6);
+      ai->ai_addrlen = sizeof(struct sockaddr_in);
 
       struct sockaddr_in *sin = &entry->addr.sin;
       sin->sin_family = AF_INET;
