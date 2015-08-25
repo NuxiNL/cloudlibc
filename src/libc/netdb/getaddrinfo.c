@@ -138,10 +138,6 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
     }
   }
 
-  // Bail out if we don't have an address.
-  if (!have_inet && !have_inet6)
-    return EAI_NONAME;
-
   // Attempt to parse the service name.
   struct alias aliases[NALIASES_MAX];
   size_t naliases = 0;
@@ -217,12 +213,12 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
     }
   }
 #undef ADD_ALIAS
-  if (naliases == 0)
-    return EAI_NONAME;
 
   // Allocate space for the return value. Initialize the entries by
   // linking them together.
   size_t nentries = ((size_t)have_inet + (size_t)have_inet6) * naliases;
+  if (nentries == 0)
+    return EAI_NONAME;
   struct entry *entries = calloc(nentries, sizeof(struct entry));
   if (entries == NULL)
     return EAI_MEMORY;
