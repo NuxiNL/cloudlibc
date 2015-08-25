@@ -153,44 +153,43 @@ int NAME(const char_t *restrict s, locale_t locale,
         // TODO(ed): Implement.
         continue;
       }
-    }
 
-    // TODO(ed): Add support for numbered arguments.
+      // TODO(ed): Add support for numbered arguments.
 
-    // Suppress assignment.
-    bool suppress = false;
-    if (*format == '*') {
-      suppress = true;
-      ++format;
-    }
+      // Suppress assignment.
+      bool suppress = false;
+      if (*format == '*') {
+        suppress = true;
+        ++format;
+      }
 
-    // Maximum field width.
-    size_t field_width = get_number(&format);
+      // Maximum field width.
+      size_t field_width = get_number(&format);
 
-    // Allocate assignment.
-    bool allocate = false;
-    if (*format == 'm') {
-      allocate = true;
-      ++format;
-    }
+      // Allocate assignment.
+      bool allocate = false;
+      if (*format == 'm') {
+        allocate = true;
+        ++format;
+      }
 
-    // Length modifier.
-    enum length_modifier length = get_length_modifier(&format);
+      // Length modifier.
+      enum length_modifier length = get_length_modifier(&format);
 
-    // Conversion specifiers.
-    int base;
-    switch (*format++) {
-      case 'd':
-        // Signed decimal integer.
-        base = 10;
-        goto signed_number;
-      case 'i':
-        // Signed integer.
-        base = 0;
-        goto signed_number;
-      signed_number : {
-        // Skip leading whitespace.
-        size_t idx = 0;
+      // Conversion specifiers.
+      int base;
+      switch (*format++) {
+        case 'd':
+          // Signed decimal integer.
+          base = 10;
+          goto signed_number;
+        case 'i':
+          // Signed integer.
+          base = 0;
+          goto signed_number;
+        signed_number : {
+          // Skip leading whitespace.
+          size_t idx = 0;
 #define SKIP(n) \
   do {          \
     idx += (n); \
@@ -199,46 +198,46 @@ int NAME(const char_t *restrict s, locale_t locale,
 #include "parser_whitespace.h"
 #undef PEEK
 
-        // Determine up to where we can parse.
-        size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
+          // Determine up to where we can parse.
+          size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
 #define PEEK(n)                                                              \
   (idx + (n) < end && INPUT_REMAINING(idx + (n) + 1) ? INPUT_PEEK(idx + (n)) \
                                                      : '\0')
-        typedef intmax_t int_t;
-        intmax_t min = LM_SINT_MIN(length);
-        intmax_t max = LM_SINT_MAX(length);
+          typedef intmax_t int_t;
+          intmax_t min = LM_SINT_MIN(length);
+          intmax_t max = LM_SINT_MAX(length);
 #include "parser_strtoint.h"
 #undef PEEK
 #undef SKIP
 
-        if (!have_number)
-          return conversions_performed;
-        INPUT_SKIP(idx);
-        ARGUMENT_SET_INT(number);
-        ++conversions_performed;
-        break;
-      }
+          if (!have_number)
+            return conversions_performed;
+          INPUT_SKIP(idx);
+          ARGUMENT_SET_INT(number);
+          ++conversions_performed;
+          break;
+        }
 
-      case 'o':
-        // Octal integer.
-        base = 8;
-        goto unsigned_number;
-      case 'u':
-        // Unsigned decimal integer.
-        base = 10;
-        goto unsigned_number;
-      case 'x':
-        // Hexadecimal integer.
-        base = 16;
-        goto unsigned_number;
-      case 'p':
-        // Pointer.
-        base = 16;
-        length = LM_INFERRED(uintptr_t);
-        goto unsigned_number;
-      unsigned_number : {
-        // Skip leading whitespace.
-        size_t idx = 0;
+        case 'o':
+          // Octal integer.
+          base = 8;
+          goto unsigned_number;
+        case 'u':
+          // Unsigned decimal integer.
+          base = 10;
+          goto unsigned_number;
+        case 'x':
+          // Hexadecimal integer.
+          base = 16;
+          goto unsigned_number;
+        case 'p':
+          // Pointer.
+          base = 16;
+          length = LM_INFERRED(uintptr_t);
+          goto unsigned_number;
+        unsigned_number : {
+          // Skip leading whitespace.
+          size_t idx = 0;
 #define SKIP(n) \
   do {          \
     idx += (n); \
@@ -247,34 +246,34 @@ int NAME(const char_t *restrict s, locale_t locale,
 #include "parser_whitespace.h"
 #undef PEEK
 
-        // Determine up to where we can parse.
-        size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
+          // Determine up to where we can parse.
+          size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
 #define PEEK(n)                                                              \
   (idx + (n) < end && INPUT_REMAINING(idx + (n) + 1) ? INPUT_PEEK(idx + (n)) \
                                                      : '\0')
-        typedef uintmax_t int_t;
-        uintmax_t min = 0;
-        uintmax_t max = LM_UINT_MAX(length);
+          typedef uintmax_t int_t;
+          uintmax_t min = 0;
+          uintmax_t max = LM_UINT_MAX(length);
 #include "parser_strtoint.h"
 #undef PEEK
 #undef SKIP
 
-        if (!have_number)
-          return conversions_performed;
-        INPUT_SKIP(idx);
-        ARGUMENT_SET_INT(number);
-        ++conversions_performed;
-        break;
-      }
+          if (!have_number)
+            return conversions_performed;
+          INPUT_SKIP(idx);
+          ARGUMENT_SET_INT(number);
+          ++conversions_performed;
+          break;
+        }
 
-      case 'a':
-      case 'e':
-      case 'f':
-      case 'g': {
-        // Floating point.
+        case 'a':
+        case 'e':
+        case 'f':
+        case 'g': {
+          // Floating point.
 
-        // Skip leading whitespace.
-        size_t idx = 0;
+          // Skip leading whitespace.
+          size_t idx = 0;
 #define SKIP(n) \
   do {          \
     idx += (n); \
@@ -283,9 +282,9 @@ int NAME(const char_t *restrict s, locale_t locale,
 #include "parser_whitespace.h"
 #undef PEEK
 
-        // Determine up to where we can parse.
-        size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
-        typedef long double flt_t;
+          // Determine up to where we can parse.
+          size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
+          typedef long double flt_t;
 #define PEEK(n)                                                              \
   (idx + (n) < end && INPUT_REMAINING(idx + (n) + 1) ? INPUT_PEEK(idx + (n)) \
                                                      : '\0')
@@ -293,64 +292,70 @@ int NAME(const char_t *restrict s, locale_t locale,
 #undef PEEK
 #undef SKIP
 
-        if (!have_number)
-          return conversions_performed;
-        INPUT_SKIP(idx);
-        // TODO(ed): Store value.
-        ++conversions_performed;
-        break;
-      }
-
-      case 'S':
-        // Wide string.
-        length = LM_LONG;
-      case 's': {
-        // String.
-        // TODO(ed): Implement.
-        break;
-      }
-
-      case '[': {
-        // Set of characters.
-        // TODO(ed): Implement.
-        break;
-      }
-
-      case 'C':
-        // Fixed-size string of wide characters.
-        length = LM_LONG;
-      case 'c': {
-        // Fixed-size string of characters.
-        // TODO(ed): Add support for %lc.
-        if (field_width == 0)
-          field_width = 1;
-        if (!INPUT_REMAINING(field_width))
-          return conversions_performed;
-        if (!suppress) {
-          char_t *out;
-          if (allocate) {
-            // Allocate buffer for characters.
-            out = malloc(field_width);
-            if (out == NULL)
-              return EOF;
-            ARGUMENT_SET_POINTER(out);
-          } else {
-            // Store data directly.
-            out = ARGUMENT_GET;
-          }
-          for (size_t i = 0; i < field_width; ++i)
-            out[i] = INPUT_PEEK(i);
+          if (!have_number)
+            return conversions_performed;
+          INPUT_SKIP(idx);
+          // TODO(ed): Store value.
+          ++conversions_performed;
+          break;
         }
-        INPUT_SKIP(field_width);
-        ++conversions_performed;
-        break;
-      }
 
-      case 'n': {
-        // Number of characters parsed.
-        ARGUMENT_SET_INT(input_read);
-        break;
+        case 'S':
+          // Wide string.
+          length = LM_LONG;
+        case 's': {
+          // String.
+          // TODO(ed): Implement.
+          break;
+        }
+
+        case '[': {
+          // Set of characters.
+          // TODO(ed): Implement.
+          break;
+        }
+
+        case 'C':
+          // Fixed-size string of wide characters.
+          length = LM_LONG;
+        case 'c': {
+          // Fixed-size string of characters.
+          // TODO(ed): Add support for %lc.
+          if (field_width == 0)
+            field_width = 1;
+          if (!INPUT_REMAINING(field_width))
+            return conversions_performed;
+          if (!suppress) {
+            char_t *out;
+            if (allocate) {
+              // Allocate buffer for characters.
+              out = malloc(field_width);
+              if (out == NULL)
+                return EOF;
+              ARGUMENT_SET_POINTER(out);
+            } else {
+              // Store data directly.
+              out = ARGUMENT_GET;
+            }
+            for (size_t i = 0; i < field_width; ++i)
+              out[i] = INPUT_PEEK(i);
+          }
+          INPUT_SKIP(field_width);
+          ++conversions_performed;
+          break;
+        }
+
+        case 'n': {
+          // Number of characters parsed.
+          ARGUMENT_SET_INT(input_read);
+          break;
+        }
       }
+    } else {
+      // Perform exact match against character in format string.
+      if (!INPUT_REMAINING(1) || INPUT_PEEK(0) != *format++)
+        return conversions_performed;
+      INPUT_SKIP(1);
     }
   }
   return conversions_performed;
