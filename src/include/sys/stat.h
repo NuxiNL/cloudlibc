@@ -30,8 +30,8 @@
 //   Make mode_t parameter optional, as file permissions do not exist.
 //
 // Features missing:
-// - uid_t, gid_t, struct stat::st_uid, struct stat::st_gid, S_I[RWX]*,
-//   S_ISUID, S_ISGID, S_ISVTX, fchmod(), fchmodat():
+// - uid_t, gid_t, struct stat::st_uid, struct stat::st_gid, fchmod(),
+//   fchmodat():
 //   Filesystem access control management not available.
 // - chmod(), lstat(), mkdir(), mkfifo() and stat():
 //   Requires global filesystem namespace.
@@ -83,6 +83,26 @@ struct stat {
 #define st_mtime st_mtim.tv_sec
 
 #define S_IFMT 0xff0000
+
+// File mode bits. These flags have no effect in this environment, but
+// are purely provided to keep standards conformant code compile.
+// Normally such flags would be defined as zero, but POSIX requires that
+// these flags have a fixed value.
+#define S_IXOTH 0x1
+#define S_IWOTH 0x2
+#define S_IROTH 0x4
+#define S_IRWXO (S_IXOTH | S_IWOTH | S_IROTH)
+#define S_IXGRP 0x8
+#define S_IWGRP 0x10
+#define S_IRGRP 0x20
+#define S_IRWXG (S_IXGRP | S_IWGRP | S_IRGRP)
+#define S_IXUSR 0x40
+#define S_IWUSR 0x80
+#define S_IRUSR 0x100
+#define S_IRWXU (S_IXUSR | S_IWUSR | S_IRUSR)
+#define S_ISVTX 0x200
+#define S_ISGID 0x400
+#define S_ISUID 0x800
 
 // File descriptor types supported by this implementation.
 #define S_ISBLK(m) (((m)&S_IFMT) == 0x100000)
