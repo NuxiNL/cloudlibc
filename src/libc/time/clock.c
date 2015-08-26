@@ -6,12 +6,14 @@
 #include <common/syscalls.h>
 #include <common/time.h>
 
+#include <assert.h>
 #include <time.h>
 
-#define PRECISION (NSEC_PER_SEC / CLOCKS_PER_SEC)
+static_assert(CLOCKS_PER_SEC == NSEC_PER_SEC,
+              "Timestamp should need no conversion");
 
 clock_t clock(void) {
   cloudabi_timestamp_t ts = 0;
-  cloudabi_sys_clock_time_get(CLOCK_PROCESS_CPUTIME_ID, PRECISION, &ts);
-  return ts / PRECISION;
+  cloudabi_sys_clock_time_get(CLOCK_PROCESS_CPUTIME_ID, 0, &ts);
+  return ts;
 }

@@ -97,7 +97,7 @@ struct tm {
 
 #define NULL _NULL
 
-#define CLOCKS_PER_SEC 1000000
+#define CLOCKS_PER_SEC 1000000000
 
 #define CLOCK_MONOTONIC 1
 #define CLOCK_PROCESS_CPUTIME_ID 2
