@@ -56,8 +56,6 @@
 //   Environment variables are not available.
 // - grantpt(), posix_openpt(), ptsname() and unlockpt():
 //   Pseudo-terminals are not available.
-// - mblen(), mbtowc(), wctomb():
-//   Not thread-safe. Use mbrlen(), mbrtowc() and wcrtomb() instead.
 // - mkdtemp(), mkstemp() and realpath():
 //   Requires global filesystem namespace.
 // - setkey():
@@ -311,9 +309,11 @@ long long llabs(long long) __pure2;
 lldiv_t lldiv(long long, long long) __pure2;
 long lrand48(void);
 void *malloc(size_t);
+int mblen(const char *, size_t);
 size_t mbstowcs(wchar_t *__restrict, const char *__restrict, size_t);
 size_t mbstowcs_l(wchar_t *__restrict, const char *__restrict, size_t,
                   __locale_t);
+int mbtowc(wchar_t *__restrict, const char *__restrict, size_t);
 long mrand48(void);
 int posix_memalign(void **, size_t, size_t);
 void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
@@ -344,6 +344,7 @@ int system(const char *);
 size_t wcstombs(char *__restrict, const wchar_t *__restrict, size_t);
 size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
                   __locale_t);
+int wctomb(char *, wchar_t);
 __END_DECLS
 
 #define alloca(size) __builtin_alloca(size)
