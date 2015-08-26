@@ -6,6 +6,7 @@ aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
+sys/times.h	50%	Needs tests
 wchar.h		50%	stdio bits still missing. Many tests missing.
 sys/event.h	70%	Needs more tests
 string.h	80%	strcoll() and strxfrm() still missing
@@ -28,6 +29,5 @@ Will not be implemented:
 ------------------------
 fmtmsg.h ftw.h glob.h grp.h mqueue.h ndbm.h net/if.h netinet/tcp.h
 nl_types.h pwd.h search.h spawn.h stropts.h sys/ipc.h sys/msg.h
-sys/resource.h sys/sem.h sys/shm.h sys/statvfs.h sys/times.h
-sys/utsname.h sys/wait.h termios.h trace.h ulimit.h utime.h utmpx.h
-wordexp.h
+sys/resource.h sys/sem.h sys/shm.h sys/statvfs.h sys/utsname.h
+sys/wait.h termios.h trace.h ulimit.h utime.h utmpx.h wordexp.h
