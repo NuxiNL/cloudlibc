@@ -27,7 +27,7 @@ threads.h time.h uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
-fmtmsg.h ftw.h glob.h grp.h mqueue.h ndbm.h h netinet/tcp.h nl_types.h
+fmtmsg.h ftw.h glob.h grp.h mqueue.h ndbm.h netinet/tcp.h nl_types.h
 pwd.h search.h spawn.h stropts.h sys/ipc.h sys/msg.h sys/resource.h
 sys/sem.h sys/shm.h sys/statvfs.h sys/utsname.h sys/wait.h termios.h
 trace.h ulimit.h utime.h utmpx.h wordexp.h
