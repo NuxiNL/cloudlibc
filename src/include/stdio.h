@@ -46,8 +46,6 @@
 //   putchar_unlocked(), puts(), scanf(), vprintf(), vscanf(), stdin and
 //   stdout:
 //   Standard descriptors stdin and stdout are not available.
-// - ungetc():
-//   Bad design practice.
 // - popen() and pclose():
 //   Requires a command shell.
 
@@ -171,6 +169,7 @@ int sscanf(const char *__restrict, const char *__restrict, ...);
 int sscanf_l(const char *__restrict, __locale_t, const char *__restrict, ...);
 FILE *tmpfile(void);
 FILE *tmpfile_l(__locale_t);
+int ungetc(int, FILE *);
 int vasprintf(char **, const char *, va_list);
 int vasprintf_l(char **, __locale_t, const char *, va_list);
 int vdprintf(int, const char *__restrict, va_list);
