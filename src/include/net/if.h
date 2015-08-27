@@ -30,9 +30,9 @@
 #ifndef _NET_IF_H_
 #define _NET_IF_H_
 
-#define IF_NAMESIZE 32
-
 #include <_/cdefs.h>
+
+#define IF_NAMESIZE 32
 
 __BEGIN_DECLS
 char *if_indextoname(unsigned int, char *);
