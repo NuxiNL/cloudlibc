@@ -18,16 +18,16 @@ Done:
 -----
 arpa/inet.h assert.h complex.h cpio.h ctype.h dirent.h elf.h errno.h
 fcntl.h fenv.h float.h iconv.h inttypes.h iso646.h langinfo.h libgen.h
-limits.h link.h locale.h math.h monetary.h netdb.h netinet/in.h poll.h
-pthread.h sched.h semaphore.h setjmp.h signal.h stdalign.h stdarg.h
-stdatomic.h stdbool.h stddef.h stdint.h stdlib.h stdnoreturn.h strings.h
-sys/capsicum.h sys/mman.h sys/procdesc.h sys/stat.h sys/time.h
+limits.h link.h locale.h math.h monetary.h net/if.h netdb.h netinet/in.h
+poll.h pthread.h sched.h semaphore.h setjmp.h signal.h stdalign.h
+stdarg.h stdatomic.h stdbool.h stddef.h stdint.h stdlib.h stdnoreturn.h
+strings.h sys/capsicum.h sys/mman.h sys/procdesc.h sys/stat.h sys/time.h
 sys/types.h sys/uio.h sys/un.h syslog.h tar.h testing.h tgmath.h
 threads.h time.h uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
-fmtmsg.h ftw.h glob.h grp.h mqueue.h ndbm.h net/if.h netinet/tcp.h
-nl_types.h pwd.h search.h spawn.h stropts.h sys/ipc.h sys/msg.h
-sys/resource.h sys/sem.h sys/shm.h sys/statvfs.h sys/utsname.h
-sys/wait.h termios.h trace.h ulimit.h utime.h utmpx.h wordexp.h
+fmtmsg.h ftw.h glob.h grp.h mqueue.h ndbm.h h netinet/tcp.h nl_types.h
+pwd.h search.h spawn.h stropts.h sys/ipc.h sys/msg.h sys/resource.h
+sys/sem.h sys/shm.h sys/statvfs.h sys/utsname.h sys/wait.h termios.h
+trace.h ulimit.h utime.h utmpx.h wordexp.h
