@@ -24,7 +24,7 @@ TEST(ioctl, bad) {
   ASSERT_EQ(0, close(fds[1]));
 }
 
-TEST_SEPARATE_PROCESS(ioctl, example) {
+TEST(ioctl, example) {
   // Bad command.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
