@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <stdarg.h>
 
-int ioctl(int fildes, unsigned long request, ...) {
+int ioctl(int fildes, int request, ...) {
   switch (request) {
     case FIONREAD: {
       // Poll the file descriptor to determine how many bytes can be read.
