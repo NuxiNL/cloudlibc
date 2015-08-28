@@ -44,7 +44,8 @@
 // Features missing:
 // - erand48(), jrand48() and nrand48():
 //   Quality of random numbers is too weak. Use arc4random*() instead.
-// - initstate(), lcong48(), setstate(), srand(), srand48() and srandom():
+// - initstate(), lcong48(), seed48(), setstate(), srand(), srand48()
+//   and srandom():
 //   Randomizer is seeded securely by default. There is no need to seed
 //   manually.
 // - WEXITSTATUS(), WIFEXITED(), WIFSIGNALED(), WIFSTOPPED(),
