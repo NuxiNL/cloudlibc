@@ -111,6 +111,29 @@ possible to
 such as LLVM's compiler-rt, libc++ and libc++abi. These libraries are
 required for full C and C++ language support.
 
+## Testing cloudlibc
+
+cloudlibc ships with a large collection of unit tests. These unit tests
+can be built by running the build script used for development:
+
+    ./devel
+
+The resulting unit tests binary is called `_obj/unittest`. This binary
+can be executed using
+[cloudabi-run](https://github.com/NuxiNL/cloudabi-utils):
+
+
+    rm -Rf tmpdir
+    mkdir tmpdir
+    cloudabi-run _obj/unittest << EOF
+    %TAG ! tag:nuxi.nl,2015:cloudabi/
+    ---
+    tmpdir: !file
+      path: tmpdir
+    logfile: !fd stdout
+    nthreads: !!int 8
+    EOF
+
 ## Operating system support
 
 ### FreeBSD
