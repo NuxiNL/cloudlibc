@@ -48,8 +48,6 @@
 //   Assumes encoding and decoding state share the same layout.
 // - wcpcpy(), wcscat(), wcscpy() and wcsncat():
 //   Prone to buffer overflows. Not safe to use.
-// - ungetwc():
-//   Bad design practice.
 // - fwide() and open_wmemstream():
 //   Streams are currently byte-oriented.
 
@@ -135,6 +133,7 @@ int swprintf_l(wchar_t *__restrict, size_t, locale_t, const wchar_t *__restrict,
 int swscanf(const wchar_t *__restrict, const wchar_t *__restrict, ...);
 int swscanf_l(const wchar_t *__restrict, locale_t, const wchar_t *__restrict,
               ...);
+wint_t ungetwc(wint_t, FILE *);
 int vaswprintf(wchar_t **__restrict, const wchar_t *__restrict, va_list);
 int vaswprintf_l(wchar_t **__restrict, locale_t, const wchar_t *__restrict,
                  va_list);
