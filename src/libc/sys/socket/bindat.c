@@ -8,9 +8,14 @@
 
 #include <sys/socket.h>
 
+#include <errno.h>
 #include <string.h>
 
 int bindat(int s, int fd, const char *path) {
   cloudabi_errno_t error = cloudabi_sys_sock_bind(s, fd, path, strlen(path));
-  return errno_fixup_directory(fd, errno_fixup_socket(s, error));
+  if (error != 0) {
+    errno = errno_fixup_directory(fd, errno_fixup_socket(s, error));
+    return -1;
+  }
+  return 0;
 }
