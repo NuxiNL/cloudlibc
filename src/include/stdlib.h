@@ -347,10 +347,14 @@ size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
                   __locale_t);
 __END_DECLS
 
+static __inline int __atoi(const char *__str) {
+  return strtol(__str, NULL, 10);
+}
+
 #define alloca(size) __builtin_alloca(size)
 
 #define atof(str) strtod(str, NULL)
-#define atoi(str) ((int)strtol(str, NULL, 10))
+#define atoi(str) __atoi(str)
 #define atol(str) strtol(str, NULL, 10)
 #define atoll(str) strtoll(str, NULL, 10)
 
