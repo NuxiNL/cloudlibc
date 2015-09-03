@@ -348,7 +348,7 @@ size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
 __END_DECLS
 
 static __inline int __atoi(const char *__str) {
-  return strtol(__str, NULL, 10);
+  return (int)strtol(__str, NULL, 10);
 }
 
 #define alloca(size) __builtin_alloca(size)
