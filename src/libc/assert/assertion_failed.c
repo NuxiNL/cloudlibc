@@ -8,9 +8,8 @@
 #include <stdlib.h>
 #include <stdnoreturn.h>
 
-noreturn void __assertion_failed(const char *func, const char *file, int line,
+noreturn void __assertion_failed(const char *func, int line,
                                  const char *expression) {
-  fprintf(stderr, "%s:%d: assertion failed in %s(): %s\n", file, line, func,
-          expression);
+  fprintf(stderr, "%s():%d: assertion failed: %s\n", func, line, expression);
   abort();
 }
