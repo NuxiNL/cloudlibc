@@ -41,7 +41,7 @@
 //   Requires global process namespace.
 // - clock_settime():
 //   Requires administrative privileges.
-// - gmtime() and localtime():
+// - asctime(), ctime(), gmtime() and localtime():
 //   Not thread-safe.
 // - struct itimerspec, timer_create(), timer_delete(), timer_getoverrun(),
 //   timer_gettime(), timer_settime():
@@ -109,10 +109,12 @@ struct tm {
 #define TIME_UTC CLOCK_REALTIME
 
 __BEGIN_DECLS
+char *asctime_r(const struct tm *__restrict, char *__restrict);
 clock_t clock(void);
 int clock_getres(clockid_t, struct timespec *);
 int clock_gettime(clockid_t, struct timespec *);
 int clock_nanosleep(clockid_t, int, const struct timespec *, ...);
+char *ctime_r(const time_t *, char *);
 double difftime(time_t, time_t);
 struct tm *gmtime_r(const time_t *__restrict, struct tm *__restrict);
 int localtime_l(const struct timespec *__restrict, struct tm *__restrict,
