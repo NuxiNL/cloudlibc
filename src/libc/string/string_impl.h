@@ -27,14 +27,8 @@ static inline bool is_long_aligned_equally(const void *a, const void *b) {
 // Constructs a long consisting solely of bytes with a certain value.
 static inline unsigned long construct_chars(unsigned char c) {
   unsigned long cl = c;
-  cl |= cl << 8;
-  cl |= cl << 16;
-#if LONG_BIT > 32
-  cl |= cl << 32;
-#endif
-#if LONG_BIT > 64
-#error "Not implemented"
-#endif
+  for (int s = CHAR_BIT; s < LONG_BIT; s *= 2)
+    cl |= cl << s;
   return cl;
 }
 
@@ -46,13 +40,7 @@ static inline unsigned long construct_chars(unsigned char c) {
 // In other words, only for '\0' it holds that the top bit is clear,
 // but set after decrementing.
 static inline bool contains_nullbyte(unsigned long v) {
-#if LONG_BIT == 32
-  return ((v - 0x01010101) & ~v & 0x80808080) != 0;
-#elif LONG_BIT == 64
-  return ((v - 0x0101010101010101) & ~v & 0x8080808080808080) != 0;
-#else
-#error "Not implemented"
-#endif
+  return ((v - construct_chars(0x01)) & ~v & construct_chars(0x80)) != 0;
 }
 
 #endif
