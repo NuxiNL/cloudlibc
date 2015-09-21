@@ -36,6 +36,8 @@
 //   Analogous to strndup().
 // - wcsptime() and wcsptime_l():
 //   Analogous to strptime() and strptime_l().
+// - wcsverscmp():
+//   Analogous to strverscmp().
 // - wmemmem():
 //   Analogous to memmem().
 // - *_l():
@@ -210,6 +212,7 @@ long long wcstoll(const wchar_t *__restrict, wchar_t **__restrict, int);
 unsigned long wcstoul(const wchar_t *__restrict, wchar_t **__restrict, int);
 unsigned long long wcstoull(const wchar_t *__restrict, wchar_t **__restrict,
                             int);
+int wcsverscmp(const wchar_t *, const wchar_t *) __pure;
 int wcswidth(const wchar_t *, size_t) __pure;
 size_t wcsxfrm(wchar_t *__restrict, const wchar_t *__restrict, size_t);
 size_t wcsxfrm_l(wchar_t *__restrict, const wchar_t *__restrict, size_t,

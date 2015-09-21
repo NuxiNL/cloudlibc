@@ -28,6 +28,8 @@
 //   Available on many commonly used operating systems.
 // - strsignal_l():
 //   strsignal() always uses the C locale.
+// - strverscmp():
+//   Can be used to compare strings with numbers in them.
 //
 // Features missing:
 // - stpcpy(), strcat(), strcpy() and strncat():
@@ -85,6 +87,7 @@ char *strsignal_l(int, locale_t) __pure;
 size_t strspn(const char *, const char *) __pure;
 char *strstr(const char *, const char *) __pure;
 char *strtok_r(char *__restrict, const char *__restrict, char **__restrict);
+int strverscmp(const char *, const char *) __pure;
 size_t strxfrm(char *__restrict, const char *__restrict, size_t);
 size_t strxfrm_l(char *__restrict, const char *__restrict, size_t, locale_t);
 __END_DECLS
