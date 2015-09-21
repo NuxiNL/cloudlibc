@@ -100,7 +100,8 @@ typedef struct {
 
 // Standard error output stream.
 extern FILE __stderr;
-#define stderr (&__stderr)
+static FILE *const stderr = &__stderr;
+#define stderr stderr
 
 __BEGIN_DECLS
 int asprintf(char **, const char *, ...) __printflike(2, 3);
