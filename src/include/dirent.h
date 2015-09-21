@@ -31,9 +31,11 @@
 //   present on FreeBSD.
 // - opendirat():
 //   Replacement for opendir().
+// - versionsort():
+//   Also present on Linux.
 //
 // Features missing:
-// - alphasort(), opendir() and scandir():
+// - opendir() and scandir():
 //   Requires global filesystem namespace.
 // - readdir_r():
 //   Unsafe to use, as NAME_MAX is not constant in this environment.
@@ -66,6 +68,7 @@ struct dirent {
 #define DT_REG 0x600000   // Regular file.
 
 __BEGIN_DECLS
+int alphasort(const struct dirent **, const struct dirent **);
 int closedir(DIR *);
 int dirfd(DIR *);
 int fdclosedir(DIR *);
@@ -75,6 +78,7 @@ struct dirent *readdir(DIR *);
 void rewinddir(DIR *);
 void seekdir(DIR *, long);
 long telldir(DIR *);
+int versionsort(const struct dirent **, const struct dirent **);
 __END_DECLS
 
 #endif
