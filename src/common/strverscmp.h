@@ -21,7 +21,7 @@ enum chartype {
 enum state {
   S_TEXT,   // Currently in non-numerical text.
   S_FRAC,   // Currently in a fractional version number.
-  S_FRAC0,  // Currently in a fractional version number with value.
+  S_FRAC0,  // Currently in a fractional version number with value zero.
   S_INT,    // Currently in an integer version number.
 };
 
