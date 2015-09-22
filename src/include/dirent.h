@@ -31,6 +31,8 @@
 //   present on FreeBSD.
 // - opendirat():
 //   Replacement for opendir().
+// - scandirat():
+//   Replacement for scandir(). Also present on Linux.
 // - versionsort():
 //   Also present on Linux.
 //
@@ -76,6 +78,9 @@ DIR *fdopendir(int);
 DIR *opendirat(int, const char *);
 struct dirent *readdir(DIR *);
 void rewinddir(DIR *);
+int scandirat(int, const char *, struct dirent ***,
+              int (*)(const struct dirent *),
+              int (*)(const struct dirent **, const struct dirent **));
 void seekdir(DIR *, long);
 long telldir(DIR *);
 int versionsort(const struct dirent **, const struct dirent **);

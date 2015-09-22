@@ -12,6 +12,8 @@
 
 struct dirent;
 
+#define DIRENT_DEFAULT_BUFFER_SIZE 4096
+
 struct _DIR {
   // Directory file descriptor and cookie.
   int fd;

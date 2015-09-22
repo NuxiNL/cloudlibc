@@ -60,9 +60,9 @@ struct dirent *readdir(DIR *dirp) {
     cloudabi_dirent_t entry;
     memcpy(&entry, dirp->buffer + dirp->buffer_processed, sizeof(entry));
 
-    // Invalid pathname length. Skip the entry.
     size_t entry_size = sizeof(cloudabi_dirent_t) + entry.d_namlen;
     if (entry.d_namlen == 0) {
+      // Invalid pathname length. Skip the entry.
       dirp->buffer_processed += entry_size;
       continue;
     }
