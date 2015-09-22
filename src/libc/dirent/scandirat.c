@@ -113,10 +113,7 @@ int scandirat(int dirfd, const char *dir, struct dirent ***namelist,
     }
     continue;
 
-  read_entries:
-    // Discard data currently stored in the input buffer.
-    buffer_used = buffer_processed = buffer_size;
-
+  read_entries:;
     // Load more directory entries and continue.
     cloudabi_errno_t error = cloudabi_sys_file_readdir(fd, buffer, buffer_size,
                                                        cookie, &buffer_used);
