@@ -29,7 +29,8 @@
 // - strsignal_l():
 //   strsignal() always uses the C locale.
 // - strverscmp():
-//   Can be used to compare strings with numbers in them.
+//   Can be used to compare strings with numbers in them. Also present
+//   on Linux.
 //
 // Features missing:
 // - stpcpy(), strcat(), strcpy() and strncat():
