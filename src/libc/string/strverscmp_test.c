@@ -8,6 +8,8 @@
 
 TEST(strverscmp, order) {
   const char *strings[] = {
+      "",
+
       "000", "00", "01", "010", "09", "0", "1", "2.6.20", "2.6.21", "9", "10",
 
       // From https://sourceware.org/bugzilla/show_bug.cgi?id=9913.

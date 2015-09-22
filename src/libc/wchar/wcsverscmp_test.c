@@ -8,6 +8,8 @@
 
 TEST(wcsverscmp, order) {
   const wchar_t *strings[] = {
+      L"",
+
       L"000", L"00", L"01", L"010", L"09", L"0", L"1", L"2.6.20", L"2.6.21",
       L"9", L"10",
 
