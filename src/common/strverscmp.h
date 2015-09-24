@@ -49,7 +49,7 @@ int NAME(const char_t *s1, const char_t *s2) {
     if (*s1 == '\0')
       return 0;
 #define I(s, ct) (((s) + (ct)*4))
-    char next[] = {
+    static const char next[] = {
             [I(S_TEXT, T_ZERO)] = S_FRAC0,  [I(S_TEXT, T_DIGIT)] = S_INT,
             [I(S_TEXT, T_OTHER)] = S_TEXT,
 
@@ -73,7 +73,7 @@ int NAME(const char_t *s1, const char_t *s2) {
   // two characters, a positive value, or a negative value.
   int diff = *s1 < *s2 ? -1 : 1;
 #define I(s, ct1, ct2) ((s) + (ct1)*4 + (ct2)*12)
-  char mode[4 * 3 * 3] = {
+  static const char mode[4 * 3 * 3] = {
           [I(S_TEXT, T_DIGIT, T_DIGIT)] = R_LENGTH,
 
           [I(S_FRAC, T_ZERO, T_OTHER)] = R_GT,
