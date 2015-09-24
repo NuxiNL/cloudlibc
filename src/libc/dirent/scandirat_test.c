@@ -70,7 +70,7 @@ TEST(scandirat, even_files) {
 
   // Fetch only evenly numbered entries from the directory.
   struct dirent **namelist;
-  ASSERT_EQ(502, scandirat(fd_tmp, ".", &namelist, sel_even, alphasort));
+  ASSERT_EQ(502, scandirat(fd_tmp, ".", &namelist, sel_even, versionsort));
 
   // Validate results.
   ASSERT_TRUE(S_ISDIR(namelist[0]->d_type));
