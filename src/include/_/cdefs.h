@@ -47,6 +47,7 @@
 #define __pure2 __attribute__((__const__))
 #define __pure __attribute__((__pure__))
 #define __section(x) __attribute__((__section__(x)))
+#define __unused __attribute__((__unused__))
 #define __used __attribute__((__used__))
 
 #define __printflike(format, va) \

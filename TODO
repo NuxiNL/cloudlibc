@@ -4,6 +4,7 @@ dlfcn.h		 0%	Not started
 sys/select.h	 0%	Needs tests
 aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
+libintl.h	10%	Add something like gettext_l()
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
 sys/times.h	50%	Needs tests
