@@ -34,7 +34,7 @@
 #ifndef _LIBINTL_H_
 #define _LIBINTL_H_
 
-#include <_/types.h>
+#include <_/cdefs.h>
 
 // As there is no process wide locale in this environment, the standard
 // Gettext interface should always return the input strings literally.
