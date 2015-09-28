@@ -52,6 +52,15 @@ struct kevent {
 #define EVFILT_READ 3   // Data available to read from descriptor.
 #define EVFILT_WRITE 4  // Possibility to write to descriptor.
 
+__BEGIN_DECLS
+void EV_SET(struct kevent *, __uintptr_t, short, unsigned short, unsigned int,
+            __intptr_t, void *);
+__ssize_t kevent(int, const struct kevent *, __size_t, struct kevent *,
+                 __size_t, const struct timespec *);
+int kqueue(void);
+__END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
 static __inline void _EV_SET(struct kevent *__ke, __uintptr_t __ident,
                              short __filter, unsigned short __flags,
                              unsigned int __fflags, __intptr_t __data,
@@ -63,16 +72,8 @@ static __inline void _EV_SET(struct kevent *__ke, __uintptr_t __ident,
   __ke->data = __data;
   __ke->udata = __udata;
 }
-
-__BEGIN_DECLS
-void EV_SET(struct kevent *, __uintptr_t, short, unsigned short, unsigned int,
-            __intptr_t, void *);
-__ssize_t kevent(int, const struct kevent *, __size_t, struct kevent *,
-                 __size_t, const struct timespec *);
-int kqueue(void);
-__END_DECLS
-
 #define EV_SET(ke, ident, filter, flags, fflags, data, udata) \
   _EV_SET(ke, ident, filter, flags, fflags, data, udata)
+#endif
 
 #endif

@@ -63,6 +63,17 @@ typedef struct {
   int __fds[FD_SETSIZE];
 } fd_set;
 
+__BEGIN_DECLS
+void FD_CLR(int, fd_set *);
+void FD_COPY(const fd_set *__restrict, fd_set *__restrict);
+int FD_ISSET(int, fd_set *);
+void FD_SET(int, fd_set *);
+void FD_ZERO(fd_set *);
+int select(int, fd_set *__restrict, fd_set *__restrict, fd_set *__restrict,
+           struct timeval *__restrict);
+__END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
 static __inline void _FD_CLR(int __fd, fd_set *__fd_set) {
   for (__size_t __i = 0; __i < __fd_set->__nfds; ++__i) {
     if (__fd_set->__fds[__i] == __fd) {
@@ -72,6 +83,7 @@ static __inline void _FD_CLR(int __fd, fd_set *__fd_set) {
     }
   }
 }
+#define FD_CLR(fd, fds) _FD_CLR(fd, fds)
 
 static __inline void _FD_COPY(const fd_set *__restrict __from,
                               fd_set *__restrict __to) {
@@ -80,6 +92,7 @@ static __inline void _FD_COPY(const fd_set *__restrict __from,
   for (__size_t __i = 0; __i < __from->__nfds; ++__i)
     __to->__fds[__i] = __from->__fds[__i];
 }
+#define FD_COPY(from, to) _FD_COPY(from, to)
 
 static __inline int _FD_ISSET(int __fd, fd_set *__fd_set) {
   for (__size_t __i = 0; __i < __fd_set->__nfds; ++__i)
@@ -87,6 +100,7 @@ static __inline int _FD_ISSET(int __fd, fd_set *__fd_set) {
       return 1;
   return 0;
 }
+#define FD_ISSET(fd, fds) _FD_ISSET(fd, fds)
 
 static __inline void _FD_SET(int __fd, fd_set *__fd_set) {
   // Prevent set overflows.
@@ -98,25 +112,12 @@ static __inline void _FD_SET(int __fd, fd_set *__fd_set) {
       return;
   __fd_set->__fds[__fd_set->__nfds++] = __fd;
 }
+#define FD_SET(fd, fds) _FD_SET(fd, fds)
 
 static __inline void _FD_ZERO(fd_set *__fd_set) {
   __fd_set->__nfds = 0;
 }
-
-__BEGIN_DECLS
-void FD_CLR(int, fd_set *);
-void FD_COPY(const fd_set *__restrict, fd_set *__restrict);
-int FD_ISSET(int, fd_set *);
-void FD_SET(int, fd_set *);
-void FD_ZERO(fd_set *);
-int select(int, fd_set *__restrict, fd_set *__restrict, fd_set *__restrict,
-           struct timeval *__restrict);
-__END_DECLS
-
-#define FD_CLR(fd, fds) _FD_CLR(fd, fds)
-#define FD_COPY(from, to) _FD_COPY(from, to)
-#define FD_ISSET(fd, fds) _FD_ISSET(fd, fds)
-#define FD_SET(fd, fds) _FD_SET(fd, fds)
 #define FD_ZERO(fds) _FD_ZERO(fds)
+#endif
 
 #endif

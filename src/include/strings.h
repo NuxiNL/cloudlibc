@@ -51,8 +51,21 @@ int strncasecmp(const char *, const char *, size_t) __pure;
 int strncasecmp_l(const char *, const char *, size_t, locale_t) __pure;
 __END_DECLS
 
-#define ffs(x) __builtin_ffs(x)
-#define ffsl(x) __builtin_ffsl(x)
-#define ffsll(x) __builtin_ffsll(x)
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline int __ffs(int __i) {
+  return __builtin_ffs(__i);
+}
+#define ffs(i) __ffs(i)
+
+static __inline int __ffsl(long __i) {
+  return __builtin_ffsl(__i);
+}
+#define ffsl(i) __ffsl(i)
+
+static __inline int __ffsll(long long __i) {
+  return __builtin_ffsll(__i);
+}
+#define ffsll(i) __ffsll(i)
+#endif
 
 #endif

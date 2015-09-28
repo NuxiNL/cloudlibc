@@ -110,34 +110,126 @@ typedef __wchar_t wchar_t;
 // Flags for pdwait().
 #define WNOHANG 0x1
 
-// Inline versions of trivial routines.
+#define alloca(size) __builtin_alloca(size)
+
+__BEGIN_DECLS
+_Noreturn void _Exit(int);
+size_t MB_CUR_MAX_L(__locale_t);
+_Noreturn void abort(void);
+int abs(int) __pure2;
+int at_quick_exit(void (*)(void));
+int atexit(void (*)(void));
+void *aligned_alloc(size_t, size_t);
+__uint32_t arc4random(void);
+void arc4random_buf(void *, size_t);
+__uint32_t arc4random_uniform(__uint32_t);
+double atof(const char *);
+int atoi(const char *);
+long atol(const char *);
+long long atoll(const char *);
+void *bsearch(const void *, const void *, size_t, size_t,
+              int (*)(const void *, const void *));
+void *calloc(size_t, size_t);
+div_t div(int, int) __pure2;
+double drand48(void);
+_Noreturn void exit(int);
+void free(void *);
+char *getenv(const char *);
+int getsubopt(char **, char *const *, char **);
+long labs(long) __pure2;
+ldiv_t ldiv(long, long) __pure2;
+long long llabs(long long) __pure2;
+lldiv_t lldiv(long long, long long) __pure2;
+long lrand48(void);
+void *malloc(size_t);
+size_t mbstowcs(wchar_t *__restrict, const char *__restrict, size_t);
+size_t mbstowcs_l(wchar_t *__restrict, const char *__restrict, size_t,
+                  __locale_t);
+long mrand48(void);
+int posix_memalign(void **, size_t, size_t);
+void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
+void qsort_r(void *, size_t, size_t,
+             int (*)(const void *, const void *, void *), void *);
+_Noreturn void quick_exit(int);
+int rand(void);
+long random(void);
+void *realloc(void *, size_t);
+void *reallocarray(void *, size_t, size_t);
+double strtod(const char *__restrict, char **__restrict);
+double strtod_l(const char *__restrict, char **__restrict, __locale_t);
+float strtof(const char *__restrict, char **__restrict);
+float strtof_l(const char *__restrict, char **__restrict, __locale_t);
+long strtol(const char *__restrict, char **__restrict, int);
+long strtol_l(const char *__restrict, char **__restrict, int, __locale_t);
+long double strtold(const char *__restrict, char **__restrict);
+long double strtold_l(const char *__restrict, char **__restrict, __locale_t);
+long long strtoll(const char *__restrict, char **__restrict, int);
+long long strtoll_l(const char *__restrict, char **__restrict, int, __locale_t);
+unsigned long strtoul(const char *__restrict, char **__restrict, int);
+unsigned long strtoul_l(const char *__restrict, char **__restrict, int,
+                        __locale_t);
+unsigned long long strtoull(const char *__restrict, char **__restrict, int);
+unsigned long long strtoull_l(const char *__restrict, char **__restrict, int,
+                              __locale_t);
+int system(const char *);
+size_t wcstombs(char *__restrict, const wchar_t *__restrict, size_t);
+size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
+                  __locale_t);
+__END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline double __atof(const char *__str) {
+  return strtod(__str, NULL);
+}
+#define atof(str) __atof(str)
+
+static __inline int __atoi(const char *__str) {
+  return (int)strtol(__str, NULL, 10);
+}
+#define atoi(str) __atoi(str)
+
+static __inline long __atol(const char *__str) {
+  return strtol(__str, NULL, 10);
+}
+#define atol(str) __atol(str)
+
+static __inline long long __atoll(const char *__str) {
+  return strtoll(__str, NULL, 10);
+}
+#define atoll(str) __atoll(str)
 
 static __inline int __abs(int __i) {
   return __i < 0 ? -__i : __i;
 }
+#define abs(i) __abs(i)
 
 static __inline long __labs(long __i) {
   return __i < 0 ? -__i : __i;
 }
+#define labs(i) __labs(i)
 
 static __inline long long __llabs(long long __i) {
   return __i < 0 ? -__i : __i;
 }
+#define llabs(i) __llabs(i)
 
 static __inline div_t __div(int __numer, int __denom) {
   div_t __res = {__numer / __denom, __numer % __denom};
   return __res;
 }
+#define div(numer, denom) __div(numer, denom)
 
 static __inline ldiv_t __ldiv(long __numer, long __denom) {
   ldiv_t __res = {__numer / __denom, __numer % __denom};
   return __res;
 }
+#define ldiv(numer, denom) __ldiv(numer, denom)
 
 static __inline lldiv_t __lldiv(long long __numer, long long __denom) {
   lldiv_t __res = {__numer / __denom, __numer % __denom};
   return __res;
 }
+#define lldiv(numer, denom) __lldiv(numer, denom)
 
 static __inline void *__bsearch(const void *__key, const void *__base,
                                 size_t __nel, size_t __width,
@@ -166,6 +258,8 @@ static __inline void *__bsearch(const void *__key, const void *__base,
   }
   return NULL;
 }
+#define bsearch(key, base, nel, width, compar) \
+  __bsearch(key, base, nel, width, compar)
 
 // qsort_r() implementation from Bentley and McIlroy's
 // "Engineering a Sort Function".
@@ -268,6 +362,8 @@ static __inline void __qsort_r(void *__base, size_t __nel, size_t __width,
   if (__s > __width)
     __qsort_r(__pn - __s, __s / __width, __width, __cmp, __thunk);
 }
+#define qsort_r(base, nel, width, compar, thunk) \
+  __qsort_r(base, nel, width, compar, thunk)
 
 // qsort(): Call into qsort_r(), providing the callback as the thunk.
 // We assume that the optimizer is smart enough to simplify.
@@ -279,97 +375,9 @@ static __inline int __qsort_cmp(const void *__a, const void *__b,
 
 static __inline void __qsort(void *__base, size_t __nel, size_t __width,
                              int (*__cmp)(const void *, const void *)) {
-  __qsort_r(__base, __nel, __width, __qsort_cmp, (void *)__cmp);
+  qsort_r(__base, __nel, __width, __qsort_cmp, (void *)__cmp);
 }
-
-__BEGIN_DECLS
-_Noreturn void _Exit(int);
-size_t MB_CUR_MAX_L(__locale_t);
-_Noreturn void abort(void);
-int abs(int) __pure2;
-int at_quick_exit(void (*)(void));
-int atexit(void (*)(void));
-void *aligned_alloc(size_t, size_t);
-__uint32_t arc4random(void);
-void arc4random_buf(void *, size_t);
-__uint32_t arc4random_uniform(__uint32_t);
-double atof(const char *);
-int atoi(const char *);
-long atol(const char *);
-long long atoll(const char *);
-void *bsearch(const void *, const void *, size_t, size_t,
-              int (*)(const void *, const void *));
-void *calloc(size_t, size_t);
-div_t div(int, int) __pure2;
-double drand48(void);
-_Noreturn void exit(int);
-void free(void *);
-char *getenv(const char *);
-int getsubopt(char **, char *const *, char **);
-long labs(long) __pure2;
-ldiv_t ldiv(long, long) __pure2;
-long long llabs(long long) __pure2;
-lldiv_t lldiv(long long, long long) __pure2;
-long lrand48(void);
-void *malloc(size_t);
-size_t mbstowcs(wchar_t *__restrict, const char *__restrict, size_t);
-size_t mbstowcs_l(wchar_t *__restrict, const char *__restrict, size_t,
-                  __locale_t);
-long mrand48(void);
-int posix_memalign(void **, size_t, size_t);
-void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
-void qsort_r(void *, size_t, size_t,
-             int (*)(const void *, const void *, void *), void *);
-_Noreturn void quick_exit(int);
-int rand(void);
-long random(void);
-void *realloc(void *, size_t);
-void *reallocarray(void *, size_t, size_t);
-double strtod(const char *__restrict, char **__restrict);
-double strtod_l(const char *__restrict, char **__restrict, __locale_t);
-float strtof(const char *__restrict, char **__restrict);
-float strtof_l(const char *__restrict, char **__restrict, __locale_t);
-long strtol(const char *__restrict, char **__restrict, int);
-long strtol_l(const char *__restrict, char **__restrict, int, __locale_t);
-long double strtold(const char *__restrict, char **__restrict);
-long double strtold_l(const char *__restrict, char **__restrict, __locale_t);
-long long strtoll(const char *__restrict, char **__restrict, int);
-long long strtoll_l(const char *__restrict, char **__restrict, int, __locale_t);
-unsigned long strtoul(const char *__restrict, char **__restrict, int);
-unsigned long strtoul_l(const char *__restrict, char **__restrict, int,
-                        __locale_t);
-unsigned long long strtoull(const char *__restrict, char **__restrict, int);
-unsigned long long strtoull_l(const char *__restrict, char **__restrict, int,
-                              __locale_t);
-int system(const char *);
-size_t wcstombs(char *__restrict, const wchar_t *__restrict, size_t);
-size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
-                  __locale_t);
-__END_DECLS
-
-static __inline int __atoi(const char *__str) {
-  return (int)strtol(__str, NULL, 10);
-}
-
-#define alloca(size) __builtin_alloca(size)
-
-#define atof(str) strtod(str, NULL)
-#define atoi(str) __atoi(str)
-#define atol(str) strtol(str, NULL, 10)
-#define atoll(str) strtoll(str, NULL, 10)
-
-#define abs(i) __abs(i)
-#define labs(i) __labs(i)
-#define llabs(i) __llabs(i)
-
-#define div(numer, denom) __div(numer, denom)
-#define ldiv(numer, denom) __ldiv(numer, denom)
-#define lldiv(numer, denom) __lldiv(numer, denom)
-
-#define bsearch(key, base, nel, width, compar) \
-  __bsearch(key, base, nel, width, compar)
 #define qsort(base, nel, width, compar) __qsort(base, nel, width, compar)
-#define qsort_r(base, nel, width, compar, thunk) \
-  __qsort_r(base, nel, width, compar, thunk)
+#endif
 
 #endif

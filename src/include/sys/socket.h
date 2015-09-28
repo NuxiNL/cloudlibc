@@ -167,7 +167,13 @@ int socket(int, int, int);
 int socketpair(int, int, int, int *);
 __END_DECLS
 
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline ssize_t __recv(int __socket, void *__buffer, size_t __length,
+                               int __flags) {
+  return recvfrom(__socket, __buffer, __length, __flags, _NULL, _NULL);
+}
 #define recv(socket, buffer, length, flags) \
-  recvfrom(socket, buffer, length, flags, _NULL, _NULL)
+  __recv(socket, buffer, length, flags)
+#endif
 
 #endif

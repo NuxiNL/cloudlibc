@@ -426,15 +426,6 @@ typedef struct {
 #define SCNuPTR __UINTPTR_FMTu__
 #define SCNxPTR __UINTPTR_FMTx__
 
-static __inline intmax_t __imaxabs(intmax_t __i) {
-  return __i < 0 ? -__i : __i;
-}
-
-static __inline imaxdiv_t __imaxdiv(intmax_t __numer, intmax_t __denom) {
-  imaxdiv_t __res = {__numer / __denom, __numer % __denom};
-  return __res;
-}
-
 __BEGIN_DECLS
 intmax_t imaxabs(intmax_t) __pure2;
 imaxdiv_t imaxdiv(intmax_t, intmax_t) __pure2;
@@ -448,7 +439,17 @@ intmax_t wcstoimax(const wchar_t *__restrict, wchar_t **__restrict, int);
 uintmax_t wcstoumax(const wchar_t *__restrict, wchar_t **__restrict, int);
 __END_DECLS
 
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline intmax_t __imaxabs(intmax_t __i) {
+  return __i < 0 ? -__i : __i;
+}
 #define imaxabs(i) __imaxabs(i)
+
+static __inline imaxdiv_t __imaxdiv(intmax_t __numer, intmax_t __denom) {
+  imaxdiv_t __res = {__numer / __denom, __numer % __denom};
+  return __res;
+}
 #define imaxdiv(numer, denom) __imaxdiv(numer, denom)
+#endif
 
 #endif

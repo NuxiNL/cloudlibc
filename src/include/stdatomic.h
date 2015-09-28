@@ -199,14 +199,31 @@ _Bool atomic_flag_test_and_set_explicit(volatile atomic_flag *, memory_order);
 _Bool atomic_flag_test_and_set(volatile atomic_flag *);
 __END_DECLS
 
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline void __atomic_flag_clear_explicit(
+    volatile atomic_flag *__object, memory_order __order) {
+  atomic_store_explicit(&__object->__value, 0, __order);
+}
 #define atomic_flag_clear_explicit(object, order) \
-  atomic_store_explicit(&(object)->__value, 0, order)
-#define atomic_flag_clear(object) \
-  atomic_flag_clear_explicit(object, memory_order_seq_cst)
+  __atomic_flag_clear_explicit(object, order)
 
+static __inline void __atomic_flag_clear(volatile atomic_flag *__object) {
+  atomic_flag_clear_explicit(__object, memory_order_seq_cst);
+}
+#define atomic_flag_clear(object) __atomic_flag_clear(object)
+
+static __inline _Bool __atomic_flag_test_and_set_explicit(
+    volatile atomic_flag *__object, memory_order __order) {
+  return atomic_exchange_explicit(&__object->__value, 1, __order);
+}
 #define atomic_flag_test_and_set_explicit(object, order) \
-  atomic_exchange_explicit(&(object)->__value, 1, order)
-#define atomic_flag_test_and_set(object) \
-  atomic_flag_test_and_set_explicit(object, memory_order_seq_cst)
+  __atomic_flag_test_and_set_explicit(object, order)
+
+static __inline _Bool __atomic_flag_test_and_set(
+    volatile atomic_flag *__object) {
+  return atomic_flag_test_and_set(__object);
+}
+#define atomic_flag_test_and_set(object) __atomic_flag_test_and_set(object)
+#endif
 
 #endif

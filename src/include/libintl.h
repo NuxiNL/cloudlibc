@@ -39,17 +39,6 @@
 // As there is no process wide locale in this environment, the standard
 // Gettext interface should always return the input strings literally.
 
-static __inline char *__dgettext(const char *__domain __unused,
-                                 const char *__msgid) {
-  return (char *)__msgid;
-}
-
-static __inline char *__dngettext(const char *__domain __unused,
-                                  const char *__msgid1, const char *__msgid2,
-                                  unsigned long __n) {
-  return (char *)(__n == 1 ? __msgid1 : __msgid2);
-}
-
 __BEGIN_DECLS
 char *dgettext(const char *, const char *);
 char *dngettext(const char *, const char *, const char *, unsigned long);
@@ -57,10 +46,31 @@ char *gettext(const char *);
 char *ngettext(const char *, const char *, unsigned long);
 __END_DECLS
 
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline char *__dgettext(const char *__domain __unused,
+                                 const char *__msgid) {
+  return (char *)__msgid;
+}
 #define dgettext(domain, msgid) __dgettext(domain, msgid)
+
+static __inline char *__dngettext(const char *__domain __unused,
+                                  const char *__msgid1, const char *__msgid2,
+                                  unsigned long __n) {
+  return (char *)(__n == 1 ? __msgid1 : __msgid2);
+}
 #define dngettext(domain, msgid1, msgid2, n) \
   __dngettext(domain, msgid1, msgid2, n)
-#define gettext(msgid) dgettext(_NULL, msgid)
-#define ngettext(msgid1, msgid2, n) dngettext(_NULL, msgid1, msgid2, n)
+
+static __inline char *__gettext(const char *__msgid) {
+  return dgettext(_NULL, __msgid);
+}
+#define gettext(msgid) __gettext(msgid)
+
+static __inline char *__ngettext(const char *__msgid1, const char *__msgid2,
+                                 unsigned long __n) {
+  return dngettext(_NULL, __msgid1, __msgid2, __n);
+}
+#define ngettext(msgid1, msgid2, n) __ngettext(msgid1, msgid2, n)
+#endif
 
 #endif

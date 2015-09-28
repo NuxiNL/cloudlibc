@@ -26,8 +26,14 @@
 
 #include <_/types.h>
 
-// Inline implementations of hton*() and ntoh*().
+__BEGIN_DECLS
+__uint32_t htonl(__uint32_t) __pure2;
+__uint16_t htons(__uint16_t) __pure2;
+__uint32_t ntohl(__uint32_t) __pure2;
+__uint16_t ntohs(__uint16_t) __pure2;
+__END_DECLS
 
+#if _CLOUDLIBC_INLINE_FUNCTIONS
 static __inline __uint32_t __htonl(__uint32_t __i) {
   union {
     __uint8_t __host[4];
@@ -36,6 +42,7 @@ static __inline __uint32_t __htonl(__uint32_t __i) {
                       (__uint8_t)(__i >> 8), (__uint8_t)__i}};
   return __v.__net;
 }
+#define htonl(i) __htonl(i)
 
 static __inline __uint16_t __htons(__uint16_t __i) {
   union {
@@ -44,6 +51,7 @@ static __inline __uint16_t __htons(__uint16_t __i) {
   } __v = {.__host = {(__uint8_t)(__i >> 8), (__uint8_t)__i}};
   return __v.__net;
 }
+#define htons(i) __htons(i)
 
 static __inline __uint32_t __ntohl(__uint32_t __i) {
   union {
@@ -54,6 +62,7 @@ static __inline __uint32_t __ntohl(__uint32_t __i) {
                       (__uint32_t)__v.__host[1] << 16 |
                       (__uint32_t)__v.__host[2] << 8 | __v.__host[3]);
 }
+#define ntohl(i) __ntohl(i)
 
 static __inline __uint16_t __ntohs(__uint16_t __i) {
   union {
@@ -62,17 +71,7 @@ static __inline __uint16_t __ntohs(__uint16_t __i) {
   } __v = {.__net = __i};
   return (__uint16_t)((__uint16_t)__v.__host[0] << 8 | __v.__host[1]);
 }
-
-__BEGIN_DECLS
-__uint32_t htonl(__uint32_t) __pure2;
-__uint16_t htons(__uint16_t) __pure2;
-__uint32_t ntohl(__uint32_t) __pure2;
-__uint16_t ntohs(__uint16_t) __pure2;
-__END_DECLS
-
-#define htonl(i) __htonl(i)
-#define htons(i) __htons(i)
-#define ntohl(i) __ntohl(i)
 #define ntohs(i) __ntohs(i)
+#endif
 
 #endif

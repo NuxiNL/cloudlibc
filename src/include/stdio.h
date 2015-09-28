@@ -187,11 +187,12 @@ int vsscanf_l(const char *__restrict, __locale_t, const char *__restrict,
               va_list);
 __END_DECLS
 
+#if _CLOUDLIBC_INLINE_FUNCTIONS
 static __inline void __setbuf(FILE *__restrict __stream,
                               char *__restrict __buf) {
   setvbuf(__stream, __buf, __buf != NULL ? _IOFBF : _IONBF, BUFSIZ);
 }
-
 #define setbuf(stream, buf) __setbuf(stream, buf)
+#endif
 
 #endif

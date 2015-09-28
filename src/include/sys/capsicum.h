@@ -153,16 +153,6 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 // Process descriptors.
 #define CAP_PDWAIT _CAP_BIT(30)
 
-// Fills sets with all of the capabilities.
-static __inline void _CAP_ALL(cap_rights_t *__rights) {
-  __rights->__value = _CAP_BIT(41) - 1;
-}
-
-// Fills sets with none of the capabilities.
-static __inline void _CAP_NONE(cap_rights_t *__rights) {
-  __rights->__value = 0;
-}
-
 #define cap_rights_clear(...) __cap_rights_clear(__VA_ARGS__, _CAP_SENTINEL)
 #define cap_rights_init(...) __cap_rights_init(__VA_ARGS__, _CAP_SENTINEL)
 #define cap_rights_is_set(...) __cap_rights_is_set(__VA_ARGS__, _CAP_SENTINEL)
@@ -187,7 +177,16 @@ cap_rights_t *cap_rights_remove(cap_rights_t *, const cap_rights_t *);
 _Bool cap_sandboxed(void);
 __END_DECLS
 
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline void _CAP_ALL(cap_rights_t *__rights) {
+  __rights->__value = _CAP_BIT(41) - 1;
+}
 #define CAP_ALL(rights) _CAP_ALL(rights)
+
+static __inline void _CAP_NONE(cap_rights_t *__rights) {
+  __rights->__value = 0;
+}
 #define CAP_NONE(rights) _CAP_NONE(rights)
+#endif
 
 #endif

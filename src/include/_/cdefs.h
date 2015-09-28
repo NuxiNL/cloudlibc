@@ -32,6 +32,15 @@
 #define __END_DECLS
 #endif
 
+// Whether we should provide inline versions of functions. Due to C++'s
+// support for namespaces, it is generally a bad idea to declare
+// function macros.
+#ifdef __cplusplus
+#define _CLOUDLIBC_INLINE_FUNCTIONS 0
+#else
+#define _CLOUDLIBC_INLINE_FUNCTIONS 1
+#endif
+
 // Compiler-independent annotations.
 
 #ifndef __has_extension
