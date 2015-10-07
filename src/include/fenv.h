@@ -37,7 +37,8 @@
 
 // Default floating-point environment.
 extern const fenv_t __fe_dfl_env;
-#define FE_DFL_ENV (&__fe_dfl_env)
+static const fenv_t *const FE_DFL_ENV = &__fe_dfl_env;
+#define FE_DFL_ENV FE_DFL_ENV
 
 __BEGIN_DECLS
 int feclearexcept(int);
