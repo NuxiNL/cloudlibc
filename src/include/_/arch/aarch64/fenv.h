@@ -26,7 +26,10 @@
 
 #include <_/types.h>
 
-typedef struct { __uint32_t __state; } fenv_t;
+typedef struct {
+  __uint32_t __fpsr;
+  __uint32_t __fpcr;
+} fenv_t;
 typedef struct { __uint32_t __exceptions; } fexcept_t;
 
 // Exception flags stored in the fpsr register.
@@ -37,8 +40,9 @@ typedef struct { __uint32_t __exceptions; } fexcept_t;
 #define FE_INEXACT 0x10
 #define FE_DENORMAL 0x80  // Extension. Name also used on other systems.
 
-#define FE_ALL_EXCEPT                                                     \
-  (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT | FE_DENORMAL)
+#define FE_ALL_EXCEPT                                                    \
+  (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT | \
+   FE_DENORMAL)
 
 // Rounding modes stored in the fpcr register.
 #define FE_TONEAREST 0x000000
