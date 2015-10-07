@@ -27,7 +27,7 @@
 #define _SETJMP_H_
 
 #ifdef __x86_64__
-#include <_/arch/x86-64/setjmp.h>
+#include <_/arch/x86_64/setjmp.h>
 #else
 #error "Unknown architecture"
 #endif
