@@ -221,7 +221,7 @@ static __inline _Bool __atomic_flag_test_and_set_explicit(
 
 static __inline _Bool __atomic_flag_test_and_set(
     volatile atomic_flag *__object) {
-  return atomic_flag_test_and_set(__object);
+  return atomic_flag_test_and_set_explicit(__object, memory_order_seq_cst);
 }
 #define atomic_flag_test_and_set(object) __atomic_flag_test_and_set(object)
 #endif
