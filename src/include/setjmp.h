@@ -26,7 +26,9 @@
 #ifndef _SETJMP_H_
 #define _SETJMP_H_
 
-#ifdef __x86_64__
+#if defined(__aarch64__)
+#include <_/arch/aarch64/setjmp.h>
+#elif defined(__x86_64__)
 #include <_/arch/x86_64/setjmp.h>
 #else
 #error "Unknown architecture"

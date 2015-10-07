@@ -26,7 +26,9 @@
 #ifndef _FENV_H_
 #define _FENV_H_
 
-#ifdef __x86_64__
+#if defined(__aarch64__)
+#include <_/arch/aarch64/fenv.h>
+#elif defined(__x86_64__)
 #include <_/arch/x86_64/fenv.h>
 #else
 #error "Unknown architecture"
