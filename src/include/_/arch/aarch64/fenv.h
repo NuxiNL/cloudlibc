@@ -27,8 +27,8 @@
 #include <_/types.h>
 
 typedef struct {
-  __uint32_t __fpsr;
   __uint32_t __fpcr;
+  __uint32_t __fpsr;
 } fenv_t;
 typedef struct { __uint32_t __exceptions; } fexcept_t;
 
