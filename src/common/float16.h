@@ -38,67 +38,86 @@
 // The encoder does not support the concept of a radix character, as it
 // can simply be emulated by adjusting the exponent.
 
-typedef uint64_t f16_significand_t;
-#define F16_SIGNIFICAND_BITS 64
+// Always provide 64 bits for storing the significand.
+typedef uint64_t f16_head_t;
+#define F16_HEAD_BITS 64
+
+#if LDBL_MANT_DIG <= 64
+// This implementation supports no floating point types with a
+// significand larger than 64 bits. It is sufficient to keep track of 8
+// bits of trailing data to get the rounding right.
+typedef uint8_t f16_tail_t;
+#define F16_TAIL_BITS 8
+#else
+// This implementation supports a floating point type with a significand
+// larger than 64 bits. Keep track of 64 bits of trailing data, which
+// should be enough for "binary128" floating point types.
+typedef uint64_t f16_tail_t;
+#define F16_TAIL_BITS 64
+#endif
 
 struct f16enc {
-  f16_significand_t significand;  // Significand bits.
-  uint8_t trailing;               // Trailing significand bits for rounding.
-  int bits;                       // Total number of bits inserted.
-  int shift;                      // Shift state for significand.
+  f16_head_t head;  // Leading bits of the significand.
+  f16_tail_t tail;  // Trailing significand bits (for rounding).
+  int bits;         // Total number of bits inserted.
+  int shift;        // Shift state for significand.
 };
 
 static inline void f16enc_init(struct f16enc *f16) {
-  f16->significand = 0;
-  f16->trailing = 0;
+  f16->head = 0;
+  f16->tail = 0;
   f16->bits = -1;
-  f16->shift = F16_SIGNIFICAND_BITS - 4;
+  f16->shift = F16_HEAD_BITS - 4;
 }
 
 static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
   assert(xdigit < 16 && "Digit out of bounds");
   if (f16->shift >= 0) {
-    // Add digit to the significand.
-    f16->significand |= (f16_significand_t)xdigit << f16->shift;
+    // Add digit to the leading part of the significand.
+    f16->head |= (f16_head_t)xdigit << f16->shift;
 
     // First digit needs to be aligned so that the top bit of the
     // significand is set.
-    while (f16->significand >> (F16_SIGNIFICAND_BITS - 1) == 0) {
+    while (f16->head >> (F16_HEAD_BITS - 1) == 0) {
       // Leading zero digit. Leave conversion in initial state.
-      if (f16->significand == 0)
+      if (f16->head == 0)
         return;
-      f16->significand <<= 1;
+      f16->head <<= 1;
       --f16->bits;
       ++f16->shift;
     }
     f16->shift -= 4;
   } else if (f16->shift >= -4) {
-    // Set the last couple of bits of the significand. Also store the
-    // other bits that don't fit anymore, as they will be used for the
-    // rounding.
-    f16->significand |= xdigit >> -f16->shift;
-    f16->trailing |= xdigit << (8 + f16->shift);
+    // Set the last couple of bits of the leading part of the
+    // significand. Store the bits that don't fit anymore in the
+    // trailing part, as they will be used for the rounding.
+    f16->head |= xdigit >> -f16->shift;
+    f16->tail |= xdigit << (F16_TAIL_BITS + f16->shift);
+    f16->shift -= 4;
+  } else if (f16->shift >= -F16_TAIL_BITS + 4) {
+    // Digit in the trailing part of the significand.
+    f16->tail |= xdigit << (F16_TAIL_BITS + f16->shift);
     f16->shift -= 4;
   } else {
     // Garbage bits at the very end. If we try to parse a very long
     // number like 0x1.000.....0001 and have to round up, we must
     // not discard any input.
-    f16->trailing |= xdigit << (8 + f16->shift);
+    f16->tail |= xdigit;
   }
   f16->bits += 4;
 }
 
 // Returns floating zero in case the converter stores value zero.
-#define RETURN_ZERO_IF_ZERO()                                     \
-  do {                                                            \
-    if (f16->significand == 0) {                                  \
-      assert(f16->bits == -1 && "Invalid bit count");             \
-      assert(f16->trailing == 0 && "Invalid trailing bits");      \
-      *have_range_error = false;                                  \
-      return 0.0;                                                 \
-    }                                                             \
-    assert(f16->significand >> (F16_SIGNIFICAND_BITS - 1) != 0 && \
-           "Floating point value not normalized");                \
+#define RETURN_ZERO_IF_ZERO()                         \
+  do {                                                \
+    if (f16->head == 0) {                             \
+      assert(f16->bits == -1 && "Invalid bit count"); \
+      assert(f16->tail == 0 && "Invalid tail bits");  \
+      *have_range_error = false;                      \
+      return 0.0;                                     \
+    }                                                 \
+    assert(f16->head >> (F16_HEAD_BITS - 1) != 0 &&   \
+           "Floating point value not normalized");    \
   } while (0)
 
 // Adjusts the exponent for the number of bits of data we read. Adds the
@@ -126,7 +145,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
     }                                                          \
   } while (0)
 
-// IEEE 754-2008 "bin32": Single-precision floating-point.
+// IEEE 754-2008 "binary32": Single-precision floating-point.
 
 #define F16_BIN32_MANT_DIG 24
 
@@ -152,11 +171,10 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
   // Apply rounding. For rounding to the nearest, we should only inspect
   // the first bit after the significand. When rounding upward, any bits
   // will do.
-  uint32_t significand =
-      f16->significand >> (F16_SIGNIFICAND_BITS - F16_BIN32_MANT_DIG);
-  f16_significand_t remainder =
-      f16->significand << F16_BIN32_MANT_DIG | f16->trailing;
-  if ((round == FE_TONEAREST && remainder >> (F16_SIGNIFICAND_BITS - 1) != 0) ||
+  uint32_t significand = f16->head >> (F16_HEAD_BITS - F16_BIN32_MANT_DIG);
+  f16_head_t remainder =
+      f16->head << F16_BIN32_MANT_DIG | (f16->tail != 0 ? 1 : 0);
+  if ((round == FE_TONEAREST && remainder >> (F16_HEAD_BITS - 1) != 0) ||
       (round == FE_UPWARD && remainder != 0)) {
     ++significand;
     if (significand >> F16_BIN32_MANT_DIG != 0) {
@@ -180,7 +198,7 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
 }
 #endif
 
-// IEEE 754-2008 "bin64": Double-precision floating-point.
+// IEEE 754-2008 "binary64": Double-precision floating-point.
 
 #define F16_BIN64_MANT_DIG 53
 
@@ -206,11 +224,10 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
   // Apply rounding. For rounding to the nearest, we should only inspect
   // the first bit after the significand. When rounding upward, any bits
   // will do.
-  uint64_t significand =
-      f16->significand >> (F16_SIGNIFICAND_BITS - F16_BIN64_MANT_DIG);
-  f16_significand_t remainder =
-      f16->significand << F16_BIN64_MANT_DIG | f16->trailing;
-  if ((round == FE_TONEAREST && remainder >> (F16_SIGNIFICAND_BITS - 1) != 0) ||
+  uint64_t significand = f16->head >> (F16_HEAD_BITS - F16_BIN64_MANT_DIG);
+  f16_head_t remainder =
+      f16->head << F16_BIN64_MANT_DIG | (f16->tail != 0 ? 1 : 0);
+  if ((round == FE_TONEAREST && remainder >> (F16_HEAD_BITS - 1) != 0) ||
       (round == FE_UPWARD && remainder != 0)) {
     ++significand;
     if (significand >> F16_BIN64_MANT_DIG != 0) {
@@ -260,9 +277,9 @@ static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
   // Apply rounding. For rounding to the nearest, we should only inspect
   // the first bit after the significand. When rounding upward, any bits
   // will do.
-  uint64_t significand = f16->significand;
-  if ((round == FE_TONEAREST && f16->trailing >> 7 != 0) ||
-      (round == FE_UPWARD && f16->trailing != 0)) {
+  uint64_t significand = f16->head;
+  if ((round == FE_TONEAREST && f16->tail >> (F16_TAIL_BITS - 1) != 0) ||
+      (round == FE_UPWARD && f16->tail != 0)) {
     if (significand == UINT64_MAX) {
       significand = UINT64_C(1) << 63;
       ++exponent;
@@ -284,6 +301,32 @@ static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
 }
 #endif
 
+// IEEE 754-2008 "binary128": Quadruple-precision floating-point.
+
+#define F16_BIN128_MANT_DIG 113
+
+#if FLT_MANT_DIG == F16_BIN128_MANT_DIG
+typedef float f16_bin128_t;
+#define F16_BIN128_HAS_SUBNORM FLT_HAS_SUBNORM
+#elif DBL_MANT_DIG == F16_BIN128_MANT_DIG
+typedef double f16_bin128_t;
+#define F16_BIN128_HAS_SUBNORM DBL_HAS_SUBNORM
+#elif LDBL_MANT_DIG == F16_BIN128_MANT_DIG
+typedef long double f16_bin128_t;
+#define F16_BIN128_HAS_SUBNORM LDBL_HAS_SUBNORM
+#else
+#define F16_NO_BIN128
+#endif
+
+#ifndef F16_NO_BIN128
+static inline f16_bin80_t f16enc_get_bin128(const struct f16enc *f16,
+                                            int exponent, int round,
+                                            bool *have_range_error) {
+  RETURN_ZERO_IF_ZERO();
+#error "128-bits floating point numbers not yet supported"
+}
+#endif
+
 #undef RETURN_ZERO_IF_ZERO
 #undef APPLY_BIAS_TO_EXPONENT
 
@@ -295,6 +338,8 @@ static inline float f16enc_get_float(const struct f16enc *f16, int exponent,
   return f16enc_get_bin64(f16, exponent, round, have_range_error);
 #elif FLT_MANT_DIG == F16_BIN80_MANT_DIG
   return f16enc_get_bin80(f16, exponent, round, have_range_error);
+#elif FLT_MANT_DIG == F16_BIN128_MANT_DIG
+  return f16enc_get_bin128(f16, exponent, round, have_range_error);
 #else
 #error "Unsupported format"
 #endif
@@ -308,6 +353,8 @@ static inline double f16enc_get_double(const struct f16enc *f16, int exponent,
   return f16enc_get_bin64(f16, exponent, round, have_range_error);
 #elif DBL_MANT_DIG == F16_BIN80_MANT_DIG
   return f16enc_get_bin80(f16, exponent, round, have_range_error);
+#elif DBL_MANT_DIG == F16_BIN128_MANT_DIG
+  return f16enc_get_bin128(f16, exponent, round, have_range_error);
 #else
 #error "Unsupported format"
 #endif
@@ -322,6 +369,8 @@ static inline long double f16enc_get_long_double(const struct f16enc *f16,
   return f16enc_get_bin64(f16, exponent, round, have_range_error);
 #elif LDBL_MANT_DIG == F16_BIN80_MANT_DIG
   return f16enc_get_bin80(f16, exponent, round, have_range_error);
+#elif LDBL_MANT_DIG == F16_BIN128_MANT_DIG
+  return f16enc_get_bin128(f16, exponent, round, have_range_error);
 #else
 #error "Unsupported format"
 #endif
@@ -410,6 +459,8 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
     digits[i] = significand >> 60;
     significand <<= 4;
   }
+#elif LDBL_MANT_DIG == 113
+#error "128-bits floating point numbers not yet supported"
 #else
 #error "Unsupported format"
 #endif
