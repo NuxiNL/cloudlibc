@@ -43,8 +43,11 @@
 typedef uint64_t f16_part_t;
 #define F16_PART_BITS 64
 #define F16_NPARTS 2
-#define F16_BIT(n) \
-  ((f16_part_t)1 << (F16_PART_BITS - 1) >> ((n) % F16_PART_BITS))
+
+// Creats a bitmask with the n'th bit set.
+static __inline f16_part_t f16_bit(unsigned int n) {
+  return (f16_part_t)1 << (F16_PART_BITS - 1) >> (n % F16_PART_BITS);
+}
 
 // Returns whether one of the 'amount' last bits of the significand is
 // non-zero.
@@ -60,6 +63,7 @@ static __inline bool f16_has_trailing_bits(const f16_part_t *parts,
           (((f16_part_t)1 << (amount % F16_PART_BITS)) - 1)) != 0;
 }
 
+// Determines whether the significand is all zero.
 static __inline bool f16_is_zero(const f16_part_t *parts) {
   for (unsigned int i = 0; i < F16_NPARTS; i++)
     if (parts[i] != 0)
@@ -123,18 +127,18 @@ static __inline void f16_apply_rounding(f16_part_t *parts, int *exponent,
   // truncated part of the significand is set, or when performing upward
   // rounding and any of the bits in the truncated part is set.
   if ((round == FE_TONEAREST &&
-       (parts[mant_dig / F16_PART_BITS] & (F16_BIT(mant_dig))) != 0) ||
+       (parts[mant_dig / F16_PART_BITS] & (f16_bit(mant_dig))) != 0) ||
       (round == FE_UPWARD &&
        f16_has_trailing_bits(parts, F16_PART_BITS * F16_NPARTS - mant_dig))) {
     // Increment the retained part of the significand by one.
     unsigned int i = --mant_dig / F16_PART_BITS;
-    f16_part_t inc = F16_BIT(mant_dig);
+    f16_part_t inc = f16_bit(mant_dig);
     for (;;) {
       if (!add_overflow(parts[i], inc, &parts[i]))
         return;
       if (i-- == 0) {
         // Increment overflowed the significand. Increment the exponent.
-        parts[0] = F16_BIT(0);
+        parts[0] = f16_bit(0);
         ++*exponent;
         return;
       }
@@ -167,7 +171,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
     // Shift character until the top bit is set. This ensures that the
     // resulting floating point value is normalized.
     f16->parts[0] |= (f16_part_t)xdigit << (F16_PART_BITS - 4);
-    while ((f16->parts[0] & F16_BIT(0)) == 0) {
+    while ((f16->parts[0] & f16_bit(0)) == 0) {
       f16->parts[0] <<= 1;
       --f16->bits;
     }
@@ -202,7 +206,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
       *have_range_error = false;                                      \
       return 0.0;                                                     \
     }                                                                 \
-    assert((parts[0] & F16_BIT(0)) != 0 &&                            \
+    assert((parts[0] & f16_bit(0)) != 0 &&                            \
            "Floating point value not normalized");                    \
                                                                       \
     /* Add correction for input length and bias to the exponent. */   \
@@ -233,7 +237,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
     }                                                                 \
                                                                       \
     /* Quirk: subnormals use an exponent of zero instead of 1. */     \
-    if (has_subnorm && exponent == 1 && (parts[0] & F16_BIT(0)) == 0) \
+    if (has_subnorm && exponent == 1 && (parts[0] & f16_bit(0)) == 0) \
       exponent = 0;                                                   \
                                                                       \
     /* Going to return a valid floating point value. */               \
@@ -466,13 +470,13 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
     // Subnormal floating point value. Normalize it.
     assert(!f16_is_zero(parts) && "Floating point has value zero");
     *exponent = LDBL_MIN_EXP - 1;
-    while ((parts[0] & F16_BIT(0)) == 0) {
+    while ((parts[0] & f16_bit(0)) == 0) {
       f16_shift_left(parts, 1);
       --*exponent;
     }
   } else {
     // Normal floating point value.
-    parts[0] |= F16_BIT(0);
+    parts[0] |= f16_bit(0);
     *exponent = exp + LDBL_MIN_EXP - 2;
   }
 
