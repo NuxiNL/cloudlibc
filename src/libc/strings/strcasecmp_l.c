@@ -30,7 +30,7 @@ int strcasecmp_l(const char *s1, const char *s2, locale_t locale) {
       return -1;
     if (c1 > c2)
       return 1;
-    if (c1 <= L'\0')
+    if (c1 <= 0)
       return 0;
   }
 }
