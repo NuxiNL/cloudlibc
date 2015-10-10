@@ -6,7 +6,17 @@
 #ifndef COMMON_ASSEMBLY_H
 #define COMMON_ASSEMBLY_H
 
-#ifdef __x86_64__
+#if defined(__aarch64__)
+
+#define ENTRY(name) \
+  .text;            \
+  .align 2;         \
+  .global name;     \
+  name:
+
+#define END(name) .size name, .- name
+
+#elif defined(__x86_64__)
 
 #define ENTRY(name)      \
   .text;                 \
