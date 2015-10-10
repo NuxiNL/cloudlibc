@@ -62,6 +62,7 @@ TEST(strtod, hex2) {
   double high = 0x1.ffffffffffffep-1023;
   const char *lowest_subnormal = "0x1p-1074";
   const char *underflow = "0x1p-1075";
+  const char *above_subnormal = "0x1.ffffffffffffe000001p-1023";
 #else
 #error "Unknown floating point type"
 #endif
@@ -75,5 +76,15 @@ TEST(strtod, hex2) {
   ASSERT_EQ(0, errno);
   ASSERT_EQ(0.0, strtod(underflow, NULL));
   ASSERT_EQ(ERANGE, errno);
+
+  // Test value between normal and subnormal.
+  ASSERT_EQ(0, fesetround(FE_DOWNWARD));
+  ASSERT_EQ(high, strtod(above_subnormal, NULL));
+  ASSERT_EQ(0, fesetround(FE_TONEAREST));
+  ASSERT_EQ(high, strtod(above_subnormal, NULL));
+  ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+  ASSERT_EQ(high, strtod(above_subnormal, NULL));
+  ASSERT_EQ(0, fesetround(FE_UPWARD));
+  ASSERT_EQ(DBL_MIN, strtod(above_subnormal, NULL));
 }
 #endif
