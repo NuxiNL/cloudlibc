@@ -46,6 +46,105 @@ typedef uint64_t f16_part_t;
 #define F16_BIT(n) \
   ((f16_part_t)1 << (F16_PART_BITS - 1) >> ((n) % F16_PART_BITS))
 
+// Returns whether one of the 'amount' last bits of the significand is
+// non-zero.
+static __inline bool f16_has_trailing_bits(const f16_part_t *parts,
+                                           unsigned int amount) {
+  // Test complete parts.
+  for (unsigned int i = F16_NPARTS - amount / F16_PART_BITS; i < F16_NPARTS;
+       ++i)
+    if (parts[i] != 0)
+      return true;
+  // Test bits within a part.
+  return (parts[F16_NPARTS - amount / F16_PART_BITS - 1] &
+          (((f16_part_t)1 << (amount % F16_PART_BITS)) - 1)) != 0;
+}
+
+static __inline bool f16_is_zero(const f16_part_t *parts) {
+  for (unsigned int i = 0; i < F16_NPARTS; i++)
+    if (parts[i] != 0)
+      return false;
+  return true;
+}
+
+// Shifts a significand to the left.
+static __inline void f16_shift_left(f16_part_t *parts, unsigned int amount) {
+  assert(amount < F16_PART_BITS && "Shifting more than one part");
+  unsigned int i = 0;
+  for (;;) {
+    parts[i] <<= amount;
+    if (i == F16_NPARTS - 1)
+      return;
+    parts[i] |= parts[i + 1] >> (F16_PART_BITS - amount);
+    ++i;
+  }
+}
+
+// Shifts a significand to the right, while preserving the final bits
+// for rounding.
+static __inline void f16_shift_right(f16_part_t *parts, unsigned int amount) {
+  // Keep track of whether one of the bits we're going to discard is
+  // non-zero. If that's the case, we set the very last bit to 1, so
+  // that rounding works all right.
+  bool trailing_bits = f16_has_trailing_bits(parts, amount);
+
+  // Shift entire significand right by the specified number of bits.
+  unsigned int idx = amount / F16_PART_BITS;
+  unsigned int shift = amount % F16_PART_BITS;
+  unsigned int i = F16_NPARTS - 1;
+  for (;;) {
+    f16_part_t right = i >= idx ? parts[i - idx] : 0;
+    if (shift == 0) {
+      // Shift by an exact number of parts.
+      parts[i] = right;
+    } else {
+      // Shift by a number of bits that is not a multiple of the parts
+      // width. Merge successive parts together.
+      f16_part_t left = i >= idx + 1 ? parts[i - idx - 1] : 0;
+      left <<= 64 - shift;
+      right >>= shift;
+      parts[i] = left | right;
+    }
+    if (i-- == 0)
+      break;
+  }
+
+  // Set trailing bit to make rounding work.
+  if (trailing_bits)
+    parts[F16_NPARTS - 1] |= 0x1;
+}
+
+// Rounds a significand to the width of the resulting floating point
+// type. The rounding mode is provided in the form of a <fenv.h> mode.
+static __inline void f16_apply_rounding(f16_part_t *parts, int *exponent,
+                                        int round, unsigned int mant_dig) {
+  // We should round the number upwards in two cases, namely when
+  // performing nearest neighbour rounding and the bit after the
+  // truncated part of the significand is set, or when performing upward
+  // rounding and any of the bits in the truncated part is set.
+  if ((round == FE_TONEAREST &&
+       (parts[mant_dig / F16_PART_BITS] & (F16_BIT(mant_dig))) != 0) ||
+      (round == FE_UPWARD &&
+       f16_has_trailing_bits(parts, F16_PART_BITS * F16_NPARTS - mant_dig))) {
+    // Increment the retained part of the significand by one.
+    unsigned int i = --mant_dig / F16_PART_BITS;
+    f16_part_t inc = F16_BIT(mant_dig);
+    for (;;) {
+      if (!add_overflow(parts[i], inc, &parts[i]))
+        return;
+      if (i-- == 0) {
+        // Increment overflowed the significand. Increment the exponent.
+        parts[0] = F16_BIT(0);
+        ++*exponent;
+        return;
+      }
+      // Increment overflowed a part of the significand. Continue
+      // incrementing the parts that lead up to it.
+      inc = 1;
+    }
+  }
+}
+
 struct f16enc {
   f16_part_t parts[F16_NPARTS];  // Parts of the significand.
   unsigned int bits;             // Total number of bits inserted.
@@ -91,87 +190,6 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
   f16->bits += 4;
 }
 
-// Returns whether one of the 'amount' last bits of the significand is
-// non-zero.
-static __inline bool f16enc_has_trailing_bits(const f16_part_t *parts,
-                                              unsigned int amount) {
-  // Test complete parts.
-  for (unsigned int i = F16_NPARTS - amount / F16_PART_BITS; i < F16_NPARTS;
-       ++i)
-    if (parts[i] != 0)
-      return true;
-  // Test bits within a part.
-  return (parts[F16_NPARTS - amount / F16_PART_BITS - 1] &
-          (((f16_part_t)1 << (amount % F16_PART_BITS)) - 1)) != 0;
-}
-
-// Shifts a significand to the right, while preserving the final bits
-// for rounding.
-static __inline void f16enc_shift_right(f16_part_t *parts,
-                                        unsigned int amount) {
-  // Keep track of whether one of the bits we're going to discard is
-  // non-zero. If that's the case, we set the very last bit to 1, so
-  // that rounding works all right.
-  bool trailing_bits = f16enc_has_trailing_bits(parts, amount);
-
-  // Shift entire significand right by the specified number of bits.
-  unsigned int idx = amount / F16_PART_BITS;
-  unsigned int shift = amount % F16_PART_BITS;
-  unsigned int i = F16_NPARTS - 1;
-  for (;;) {
-    f16_part_t right = i >= idx ? parts[i - idx] : 0;
-    if (shift == 0) {
-      // Shift by an exact number of parts.
-      parts[i] = right;
-    } else {
-      // Shift by a number of bits that is not a multiple of the parts
-      // width. Merge successive parts together.
-      f16_part_t left = i >= idx + 1 ? parts[i - idx - 1] : 0;
-      left <<= 64 - shift;
-      right >>= shift;
-      parts[i] = left | right;
-    }
-    if (i-- == 0)
-      break;
-  }
-
-  // Set trailing bit to make rounding work.
-  if (trailing_bits)
-    parts[F16_NPARTS - 1] |= 0x1;
-}
-
-// Rounds a significand to the width of the resulting floating point
-// type. The rounding mode is provided in the form of a <fenv.h> mode.
-static __inline void f16enc_apply_rounding(f16_part_t *parts, int *exponent,
-                                           int round, unsigned int mant_dig) {
-  // We should round the number upwards in two cases, namely when
-  // performing nearest neighbour rounding and the bit after the
-  // truncated part of the significand is set, or when performing upward
-  // rounding and any of the bits in the truncated part is set.
-  if ((round == FE_TONEAREST &&
-       (parts[mant_dig / F16_PART_BITS] & (F16_BIT(mant_dig))) != 0) ||
-      (round == FE_UPWARD &&
-       f16enc_has_trailing_bits(parts,
-                                F16_PART_BITS * F16_NPARTS - mant_dig))) {
-    // Increment the retained part of the significand by one.
-    unsigned int i = --mant_dig / F16_PART_BITS;
-    f16_part_t inc = F16_BIT(mant_dig);
-    for (;;) {
-      if (!add_overflow(parts[i], inc, &parts[i]))
-        return;
-      if (i-- == 0) {
-        // Increment overflowed the significand. Increment the exponent.
-        parts[0] = F16_BIT(0);
-        ++*exponent;
-        return;
-      }
-      // Increment overflowed a part of the significand. Continue
-      // incrementing the parts that lead up to it.
-      inc = 1;
-    }
-  }
-}
-
 // Common code for f16enc_get_bin*().
 #define F16ENC_GET_BIN(exp_dig, mant_dig, has_subnorm)                \
   f16_part_t parts[F16_NPARTS];                                       \
@@ -197,7 +215,7 @@ static __inline void f16enc_apply_rounding(f16_part_t *parts, int *exponent,
     } else if (exponent <= 0) {                                       \
       if (has_subnorm == 1 && exponent > 1 - mant_dig) {              \
         /* Number is in subnormal range. */                           \
-        f16enc_shift_right(parts, 1 - exponent);                      \
+        f16_shift_right(parts, 1 - exponent);                         \
         exponent = 1;                                                 \
       } else {                                                        \
         /* Smaller than subnormal. */                                 \
@@ -207,7 +225,7 @@ static __inline void f16enc_apply_rounding(f16_part_t *parts, int *exponent,
     }                                                                 \
                                                                       \
     /* Apply rounding. This may cause an overflow once more. */       \
-    f16enc_apply_rounding(parts, &exponent, round, mant_dig);         \
+    f16_apply_rounding(parts, &exponent, round, mant_dig);            \
     if (exponent > max_exp) {                                         \
       /* Overflow. */                                                 \
       *have_range_error = true;                                       \
@@ -435,61 +453,44 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
     long double f;
     uint64_t i[2];
   } value = {.f = f};
-  uint64_t significand;
+  f16_part_t parts[F16_NPARTS] = {value.i[0]};
   int exp = value.i[1] & 0x7fff;
-  if (exp == 0) {
-    // Subnormal floating point value. Normalize it.
-    significand = value.i[0];
-    assert(significand != 0 && "Floating point has value zero");
-    *exponent = -16382;
-    while ((significand >> 63) == 0) {
-      significand <<= 1;
-      --*exponent;
-    }
-  } else {
-    // Normal floating point value.
-    significand = value.i[0];
-    *exponent = exp - 16383;
-  }
-  // Discard the one digit before the radix character.
-  significand <<= 1;
-
-  // Apply rounding if the number of digits requested is less than the
-  // size of the significand.
-  if (*ndigits < 16) {
-    uint64_t increment;
-    switch (round) {
-      case FE_TONEAREST:
-        // Add half an epsilon.
-        increment = UINT64_C(1) << (62 - *ndigits * 4);
-        goto round;
-      case FE_UPWARD:
-        // Add slightly less than one epsilon.
-        increment = (UINT64_C(1) << (63 - *ndigits * 4)) - 1;
-        goto round;
-      round:
-        // Add our increment to the significand. If it overflows, increment
-        // the exponent.
-        significand = (significand >> 1) + increment;
-        *exponent += significand >> 63;
-        significand <<= 1;
-    }
-  }
-
-  // Convert bits in the significand to hexadecimal digits.
-  for (size_t i = 0; i < *ndigits; ++i) {
-    if (significand == 0) {
-      *ndigits = i;
-      break;
-    }
-    digits[i] = significand >> 60;
-    significand <<= 4;
-  }
-#elif LDBL_MANT_DIG == 113
+#elif LDBL_MANT_DIG = 113
 #error "128-bits floating point numbers not yet supported"
 #else
 #error "Unsupported format"
 #endif
+
+  if (exp == 0) {
+    // Subnormal floating point value. Normalize it.
+    assert(!f16_is_zero(parts) && "Floating point has value zero");
+    *exponent = LDBL_MIN_EXP - 1;
+    while ((parts[0] & F16_BIT(0)) == 0) {
+      f16_shift_left(parts, 1);
+      --*exponent;
+    }
+  } else {
+    // Normal floating point value.
+    parts[0] |= F16_BIT(0);
+    *exponent = exp + LDBL_MIN_EXP - 2;
+  }
+
+  // Apply rounding if the number of digits requested is less than the
+  // size of the significand.
+  size_t nbits = *ndigits * 4 + 1;
+  if (nbits < F16_PART_BITS * F16_NPARTS)
+    f16_apply_rounding(parts, exponent, round, nbits);
+
+  // Convert bits after the radix to hexadecimal digits.
+  f16_shift_left(parts, 1);
+  for (size_t i = 0; i < *ndigits; ++i) {
+    if (f16_is_zero(parts)) {
+      *ndigits = i;
+      break;
+    }
+    digits[i] = parts[0] >> (F16_PART_BITS - 4);
+    f16_shift_left(parts, 4);
+  }
 }
 
 #endif
