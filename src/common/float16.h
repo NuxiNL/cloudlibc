@@ -6,6 +6,8 @@
 #ifndef COMMON_FLOAT16_H
 #define COMMON_FLOAT16_H
 
+#include <common/overflow.h>
+
 #include <assert.h>
 #include <fenv.h>
 #include <float.h>
@@ -38,111 +40,186 @@
 // The encoder does not support the concept of a radix character, as it
 // can simply be emulated by adjusting the exponent.
 
-// Always provide 64 bits for storing the significand.
-typedef uint64_t f16_head_t;
-#define F16_HEAD_BITS 64
-
-#if LDBL_MANT_DIG <= 64
-// This implementation supports no floating point types with a
-// significand larger than 64 bits. It is sufficient to keep track of 8
-// bits of trailing data to get the rounding right.
-typedef uint8_t f16_tail_t;
-#define F16_TAIL_BITS 8
-#else
-// This implementation supports a floating point type with a significand
-// larger than 64 bits. Keep track of 64 bits of trailing data, which
-// should be enough for "binary128" floating point types.
-typedef uint64_t f16_tail_t;
-#define F16_TAIL_BITS 64
-#endif
+typedef uint64_t f16_part_t;
+#define F16_PART_BITS 64
+#define F16_NPARTS 2
+#define F16_BIT(n) \
+  ((f16_part_t)1 << (F16_PART_BITS - 1) >> ((n) % F16_PART_BITS))
 
 struct f16enc {
-  f16_head_t head;  // Leading bits of the significand.
-  f16_tail_t tail;  // Trailing significand bits (for rounding).
-  int bits;         // Total number of bits inserted.
-  int shift;        // Shift state for significand.
+  f16_part_t parts[F16_NPARTS];  // Parts of the significand.
+  unsigned int bits;             // Total number of bits inserted.
 };
 
+// Initializes an encoder object.
 static inline void f16enc_init(struct f16enc *f16) {
-  f16->head = 0;
-  f16->tail = 0;
-  f16->bits = -1;
-  f16->shift = F16_HEAD_BITS - 4;
+  for (size_t i = 0; i < F16_NPARTS; ++i)
+    f16->parts[i] = 0;
+  f16->bits = 0;
 }
 
+// Pushes a hexadecimal digit into the encoder state.
 static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
   assert(xdigit < 16 && "Digit out of bounds");
-  if (f16->shift >= 0) {
-    // Add digit to the leading part of the significand.
-    f16->head |= (f16_head_t)xdigit << f16->shift;
-
-    // First digit needs to be aligned so that the top bit of the
-    // significand is set.
-    while (f16->head >> (F16_HEAD_BITS - 1) == 0) {
-      // Leading zero digit. Leave conversion in initial state.
-      if (f16->head == 0)
-        return;
-      f16->head <<= 1;
+  if (f16->bits == 0) {
+    // First digit. Discard leading zeroes.
+    if (xdigit == 0)
+      return;
+    // Shift character until the top bit is set. This ensures that the
+    // resulting floating point value is normalized.
+    f16->parts[0] |= (f16_part_t)xdigit << (F16_PART_BITS - 4);
+    while ((f16->parts[0] & F16_BIT(0)) == 0) {
+      f16->parts[0] <<= 1;
       --f16->bits;
-      ++f16->shift;
     }
-    f16->shift -= 4;
-  } else if (f16->shift >= -4) {
-    // Set the last couple of bits of the leading part of the
-    // significand. Store the bits that don't fit anymore in the
-    // trailing part, as they will be used for the rounding.
-    f16->head |= xdigit >> -f16->shift;
-    f16->tail |= xdigit << (F16_TAIL_BITS + f16->shift);
-    f16->shift -= 4;
-  } else if (f16->shift >= -F16_TAIL_BITS + 4) {
-    // Digit in the trailing part of the significand.
-    f16->tail |= xdigit << (F16_TAIL_BITS + f16->shift);
-    f16->shift -= 4;
+  } else if (f16->bits >= F16_PART_BITS * F16_NPARTS - 4) {
+    // We're pushing more digits than we can store internally. If we try
+    // to parse a very long number like 0x1.000.....0001 and have to
+    // round up, we must not discard any input.
+    f16->parts[F16_NPARTS - 1] |= xdigit;
   } else {
-    // Garbage bits at the very end. If we try to parse a very long
-    // number like 0x1.000.....0001 and have to round up, we must
-    // not discard any input.
-    f16->tail |= xdigit;
+    // Digit somewhere in the middle. Store the bits in the right place.
+    unsigned int idx = f16->bits / F16_PART_BITS;
+    unsigned int shift = f16->bits % F16_PART_BITS;
+    f16->parts[idx] |= (f16_part_t)xdigit << (F16_PART_BITS - 4) >> shift;
+    // Digit is stored at the very end of the part. Let bits that don't
+    // fit trickle into the next part.
+    if (shift > F16_PART_BITS - 4)
+      f16->parts[idx + 1] = (f16_part_t)xdigit
+                            << (F16_PART_BITS * 2 - 4 - shift);
   }
   f16->bits += 4;
 }
 
-// Returns floating zero in case the converter stores value zero.
-#define RETURN_ZERO_IF_ZERO()                         \
-  do {                                                \
-    if (f16->head == 0) {                             \
-      assert(f16->bits == -1 && "Invalid bit count"); \
-      assert(f16->tail == 0 && "Invalid tail bits");  \
-      *have_range_error = false;                      \
-      return 0.0;                                     \
-    }                                                 \
-    assert(f16->head >> (F16_HEAD_BITS - 1) != 0 &&   \
-           "Floating point value not normalized");    \
-  } while (0)
+// Returns whether one of the 'amount' last bits of the significand is
+// non-zero.
+static __inline bool f16enc_has_trailing_bits(const f16_part_t *parts,
+                                              unsigned int amount) {
+  // Test complete parts.
+  for (unsigned int i = F16_NPARTS - amount / F16_PART_BITS; i < F16_NPARTS;
+       ++i)
+    if (parts[i] != 0)
+      return true;
+  // Test bits within a part.
+  return (parts[F16_NPARTS - amount / F16_PART_BITS - 1] &
+          (((f16_part_t)1 << (amount % F16_PART_BITS)) - 1)) != 0;
+}
 
-// Adjusts the exponent for the number of bits of data we read. Adds the
-// exponent bias as well. The exponent shall then lie between
-// [1, 2^k - 2], where k is the number of exponent bits.
-#define APPLY_BIAS_TO_EXPONENT(exp_dig, mant_dig, has_subnorm) \
-  do {                                                         \
-    int bias = (1 << (exp_dig - 1)) - 1;                       \
-    exponent += f16->bits + bias;                              \
-    if (exponent > (1 << exp_dig) - 2) {                       \
-      /* Overflow. */                                          \
-      *have_range_error = true;                                \
-      return INFINITY;                                         \
-    } else if (exponent <= 0) {                                \
-      if (has_subnorm == 1 && exponent > 1 - mant_dig) {       \
-        /* Number is still in subnormal range. */              \
-        /* TODO(ed): Implement rounding! */                    \
-        significand >>= 1 - exponent;                          \
-        exponent = 0;                                          \
-      } else {                                                 \
-        /* Smaller than subnormal. */                          \
-        *have_range_error = true;                              \
-        return 0.0;                                            \
-      }                                                        \
-    }                                                          \
+// Shifts a significand to the right, while preserving the final bits
+// for rounding.
+static __inline void f16enc_shift_right(f16_part_t *parts,
+                                        unsigned int amount) {
+  // Keep track of whether one of the bits we're going to discard is
+  // non-zero. If that's the case, we set the very last bit to 1, so
+  // that rounding works all right.
+  bool trailing_bits = f16enc_has_trailing_bits(parts, amount);
+
+  // Shift entire significand right by the specified number of bits.
+  unsigned int idx = amount / F16_PART_BITS;
+  unsigned int shift = amount % F16_PART_BITS;
+  unsigned int i = F16_NPARTS - 1;
+  for (;;) {
+    f16_part_t right = i >= idx ? parts[i - idx] : 0;
+    if (shift == 0) {
+      // Shift by an exact number of parts.
+      parts[i] = right;
+    } else {
+      // Shift by a number of bits that is not a multiple of the parts
+      // width. Merge successive parts together.
+      f16_part_t left = i >= idx + 1 ? parts[i - idx - 1] : 0;
+      left <<= 64 - shift;
+      right >>= shift;
+      parts[i] = left | right;
+    }
+    if (i-- == 0)
+      break;
+  }
+
+  // Set trailing bit to make rounding work.
+  if (trailing_bits)
+    parts[F16_NPARTS - 1] |= 0x1;
+}
+
+// Rounds a significand to the width of the resulting floating point
+// type. The rounding mode is provided in the form of a <fenv.h> mode.
+static __inline void f16enc_apply_rounding(f16_part_t *parts, int *exponent,
+                                           int round, unsigned int mant_dig) {
+  // We should round the number upwards in two cases, namely when
+  // performing nearest neighbour rounding and the bit after the
+  // truncated part of the significand is set, or when performing upward
+  // rounding and any of the bits in the truncated part is set.
+  if ((round == FE_TONEAREST &&
+       (parts[mant_dig / F16_PART_BITS] & (F16_BIT(mant_dig))) != 0) ||
+      (round == FE_UPWARD &&
+       f16enc_has_trailing_bits(parts,
+                                F16_PART_BITS * F16_NPARTS - mant_dig))) {
+    // Increment the retained part of the significand by one.
+    unsigned int i = --mant_dig / F16_PART_BITS;
+    f16_part_t inc = F16_BIT(mant_dig);
+    for (;;) {
+      if (!add_overflow(parts[i], inc, &parts[i]))
+        return;
+      if (i-- == 0) {
+        // Increment overflowed the significand. Increment the exponent.
+        parts[0] = F16_BIT(0);
+        ++*exponent;
+        return;
+      }
+      // Increment overflowed a part of the significand. Continue
+      // incrementing the parts that lead up to it.
+      inc = 1;
+    }
+  }
+}
+
+// Common code for f16enc_get_bin*().
+#define F16ENC_GET_BIN(exp_dig, mant_dig, has_subnorm)                \
+  f16_part_t parts[F16_NPARTS];                                       \
+  do {                                                                \
+    for (size_t i = 0; i < F16_NPARTS; ++i)                           \
+      parts[i] = f16->parts[i];                                       \
+    if (parts[0] == 0) {                                              \
+      /* Floating point value zero. */                                \
+      assert(f16->bits == 0 && "Invalid bit count");                  \
+      *have_range_error = false;                                      \
+      return 0.0;                                                     \
+    }                                                                 \
+    assert((parts[0] & F16_BIT(0)) != 0 &&                            \
+           "Floating point value not normalized");                    \
+                                                                      \
+    /* Add correction for input length and bias to the exponent. */   \
+    exponent += f16->bits + (1 << (exp_dig - 1)) - 2;                 \
+    static const int max_exp = (1 << exp_dig) - 2;                    \
+    if (exponent > max_exp) {                                         \
+      /* Overflow. */                                                 \
+      *have_range_error = true;                                       \
+      return INFINITY;                                                \
+    } else if (exponent <= 0) {                                       \
+      if (has_subnorm == 1 && exponent > 1 - mant_dig) {              \
+        /* Number is in subnormal range. */                           \
+        f16enc_shift_right(parts, 1 - exponent);                      \
+        exponent = 1;                                                 \
+      } else {                                                        \
+        /* Smaller than subnormal. */                                 \
+        *have_range_error = true;                                     \
+        return 0.0;                                                   \
+      }                                                               \
+    }                                                                 \
+                                                                      \
+    /* Apply rounding. This may cause an overflow once more. */       \
+    f16enc_apply_rounding(parts, &exponent, round, mant_dig);         \
+    if (exponent > max_exp) {                                         \
+      /* Overflow. */                                                 \
+      *have_range_error = true;                                       \
+      return INFINITY;                                                \
+    }                                                                 \
+                                                                      \
+    /* Quirk: subnormals use an exponent of zero instead of 1. */     \
+    if (has_subnorm && exponent == 1 && (parts[0] & F16_BIT(0)) == 0) \
+      exponent = 0;                                                   \
+                                                                      \
+    /* Going to return a valid floating point value. */               \
+    *have_range_error = false;                                        \
   } while (0)
 
 // IEEE 754-2008 "binary32": Single-precision floating-point.
@@ -166,34 +243,15 @@ typedef long double f16_bin32_t;
 static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  RETURN_ZERO_IF_ZERO();
-
-  // Apply rounding. For rounding to the nearest, we should only inspect
-  // the first bit after the significand. When rounding upward, any bits
-  // will do.
-  uint32_t significand = f16->head >> (F16_HEAD_BITS - F16_BIN32_MANT_DIG);
-  f16_head_t remainder =
-      f16->head << F16_BIN32_MANT_DIG | (f16->tail != 0 ? 1 : 0);
-  if ((round == FE_TONEAREST && remainder >> (F16_HEAD_BITS - 1) != 0) ||
-      (round == FE_UPWARD && remainder != 0)) {
-    ++significand;
-    if (significand >> F16_BIN32_MANT_DIG != 0) {
-      significand >>= 1;
-      ++exponent;
-    }
-  }
-
-  APPLY_BIAS_TO_EXPONENT(8, F16_BIN32_MANT_DIG, F16_BIN32_HAS_SUBNORM);
+  F16ENC_GET_BIN(8, F16_BIN32_MANT_DIG, F16_BIN32_HAS_SUBNORM);
 
   // Convert significand and exponent to native floating point type.
   union {
     uint32_t i;
     f16_bin32_t f;
-  } result = {
-      .i = (significand & ((UINT32_C(1) << (F16_BIN32_MANT_DIG - 1)) - 1)) |
-           ((uint32_t)exponent << (F16_BIN32_MANT_DIG - 1))};
+  } result = {.i = ((uint32_t)exponent << (F16_BIN32_MANT_DIG - 1)) |
+                   parts[0] << 1 >> (1 + F16_PART_BITS - F16_BIN32_MANT_DIG)};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
-  *have_range_error = false;
   return result.f;
 }
 #endif
@@ -219,34 +277,15 @@ typedef long double f16_bin64_t;
 static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  RETURN_ZERO_IF_ZERO();
-
-  // Apply rounding. For rounding to the nearest, we should only inspect
-  // the first bit after the significand. When rounding upward, any bits
-  // will do.
-  uint64_t significand = f16->head >> (F16_HEAD_BITS - F16_BIN64_MANT_DIG);
-  f16_head_t remainder =
-      f16->head << F16_BIN64_MANT_DIG | (f16->tail != 0 ? 1 : 0);
-  if ((round == FE_TONEAREST && remainder >> (F16_HEAD_BITS - 1) != 0) ||
-      (round == FE_UPWARD && remainder != 0)) {
-    ++significand;
-    if (significand >> F16_BIN64_MANT_DIG != 0) {
-      significand >>= 1;
-      ++exponent;
-    }
-  }
-
-  APPLY_BIAS_TO_EXPONENT(11, F16_BIN64_MANT_DIG, F16_BIN64_HAS_SUBNORM);
+  F16ENC_GET_BIN(11, F16_BIN64_MANT_DIG, F16_BIN64_HAS_SUBNORM);
 
   // Convert significand and exponent to native floating point type.
   union {
     uint64_t i;
     f16_bin64_t f;
-  } result = {
-      .i = (significand & ((UINT64_C(1) << (F16_BIN64_MANT_DIG - 1)) - 1)) |
-           ((uint64_t)exponent << (F16_BIN64_MANT_DIG - 1))};
+  } result = {.i = ((uint64_t)exponent << (F16_BIN64_MANT_DIG - 1)) |
+                   parts[0] << 1 >> (1 + F16_PART_BITS - F16_BIN64_MANT_DIG)};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
-  *have_range_error = false;
   return result.f;
 }
 #endif
@@ -272,31 +311,14 @@ typedef long double f16_bin80_t;
 static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
                                            int exponent, int round,
                                            bool *have_range_error) {
-  RETURN_ZERO_IF_ZERO();
-
-  // Apply rounding. For rounding to the nearest, we should only inspect
-  // the first bit after the significand. When rounding upward, any bits
-  // will do.
-  uint64_t significand = f16->head;
-  if ((round == FE_TONEAREST && f16->tail >> (F16_TAIL_BITS - 1) != 0) ||
-      (round == FE_UPWARD && f16->tail != 0)) {
-    if (significand == UINT64_MAX) {
-      significand = UINT64_C(1) << 63;
-      ++exponent;
-    } else {
-      ++significand;
-    }
-  }
-
-  APPLY_BIAS_TO_EXPONENT(15, F16_BIN80_MANT_DIG, F16_BIN80_HAS_SUBNORM);
+  F16ENC_GET_BIN(15, F16_BIN80_MANT_DIG, F16_BIN80_HAS_SUBNORM);
 
   // Convert significand and exponent to native floating point type.
   union {
     uint64_t i[2];
     f16_bin80_t f;
-  } result = {.i = {significand, exponent}};
+  } result = {.i = {parts[0], exponent}};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
-  *have_range_error = false;
   return result.f;
 }
 #endif
@@ -319,16 +341,20 @@ typedef long double f16_bin128_t;
 #endif
 
 #ifndef F16_NO_BIN128
-static inline f16_bin80_t f16enc_get_bin128(const struct f16enc *f16,
-                                            int exponent, int round,
-                                            bool *have_range_error) {
-  RETURN_ZERO_IF_ZERO();
-#error "128-bits floating point numbers not yet supported"
+static inline f16_bin128_t f16enc_get_bin128(const struct f16enc *f16,
+                                             int exponent, int round,
+                                             bool *have_range_error) {
+  F16ENC_GET_BIN(15, F16_BIN128_MANT_DIG, F16_BIN128_HAS_SUBNORM);
+
+  // Convert significand and exponent to native floating point type.
+  union {
+    uint64_t i[2];
+    f16_bin128_t f;
+  } result = {.i = {NOT IMPLEMENTED}};
+  static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
+  return result.f;
 }
 #endif
-
-#undef RETURN_ZERO_IF_ZERO
-#undef APPLY_BIAS_TO_EXPONENT
 
 static inline float f16enc_get_float(const struct f16enc *f16, int exponent,
                                      int round, bool *have_range_error) {
