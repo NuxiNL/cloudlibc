@@ -161,7 +161,7 @@ typedef __intn_t(__PTRDIFF_WIDTH__) __ptrdiff_t;
 typedef __intn_t(__SIZE_WIDTH__) __ssize_t;
 typedef __uintn_t(__SIZE_WIDTH__) __size_t;
 
-#if __WCHAR_UNSIGNED__
+#ifdef __WCHAR_UNSIGNED__
 typedef __uintn_t(__WCHAR_WIDTH__) __wchar_t;
 #else
 typedef __intn_t(__WCHAR_WIDTH__) __wchar_t;
