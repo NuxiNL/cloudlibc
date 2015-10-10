@@ -45,14 +45,14 @@ typedef uint64_t f16_part_t;
 #define F16_NPARTS 2
 
 // Creats a bitmask with the n'th bit set.
-static __inline f16_part_t f16_bit(unsigned int n) {
+static inline f16_part_t f16_bit(unsigned int n) {
   return (f16_part_t)1 << (F16_PART_BITS - 1) >> (n % F16_PART_BITS);
 }
 
 // Returns whether one of the 'amount' last bits of the significand is
 // non-zero.
-static __inline bool f16_has_trailing_bits(const f16_part_t *parts,
-                                           unsigned int amount) {
+static inline bool f16_has_trailing_bits(const f16_part_t *parts,
+                                         unsigned int amount) {
   // Test complete parts.
   for (unsigned int i = F16_NPARTS - amount / F16_PART_BITS; i < F16_NPARTS;
        ++i)
@@ -64,7 +64,7 @@ static __inline bool f16_has_trailing_bits(const f16_part_t *parts,
 }
 
 // Determines whether the significand is all zero.
-static __inline bool f16_is_zero(const f16_part_t *parts) {
+static inline bool f16_is_zero(const f16_part_t *parts) {
   for (unsigned int i = 0; i < F16_NPARTS; i++)
     if (parts[i] != 0)
       return false;
@@ -72,7 +72,7 @@ static __inline bool f16_is_zero(const f16_part_t *parts) {
 }
 
 // Shifts a significand to the left.
-static __inline void f16_shift_left(f16_part_t *parts, unsigned int amount) {
+static inline void f16_shift_left(f16_part_t *parts, unsigned int amount) {
   assert(amount < F16_PART_BITS && "Shifting more than one part");
   unsigned int i = 0;
   for (;;) {
@@ -86,7 +86,7 @@ static __inline void f16_shift_left(f16_part_t *parts, unsigned int amount) {
 
 // Shifts a significand to the right, while preserving the final bits
 // for rounding.
-static __inline void f16_shift_right(f16_part_t *parts, unsigned int amount) {
+static inline void f16_shift_right(f16_part_t *parts, unsigned int amount) {
   // Keep track of whether one of the bits we're going to discard is
   // non-zero. If that's the case, we set the very last bit to 1, so
   // that rounding works all right.
@@ -120,8 +120,8 @@ static __inline void f16_shift_right(f16_part_t *parts, unsigned int amount) {
 
 // Rounds a significand to the width of the resulting floating point
 // type. The rounding mode is provided in the form of a <fenv.h> mode.
-static __inline void f16_apply_rounding(f16_part_t *parts, int *exponent,
-                                        int round, unsigned int mant_dig) {
+static inline void f16_apply_rounding(f16_part_t *parts, int *exponent,
+                                      int round, unsigned int mant_dig) {
   // We should round the number upwards in two cases, namely when
   // performing nearest neighbour rounding and the bit after the
   // truncated part of the significand is set, or when performing upward
