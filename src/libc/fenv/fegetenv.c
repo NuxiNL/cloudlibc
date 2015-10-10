@@ -8,6 +8,7 @@
 #include "fenv_impl.h"
 
 int fegetenv(fenv_t *envp) {
+#ifdef __x86_64__
   // Save x87 state. As fnstenv also has the side-effect of masking all
   // future exceptions, we need to restore the control word manually.
   fnstenv(&envp->__x87);
@@ -17,4 +18,7 @@ int fegetenv(fenv_t *envp) {
   envp->__mxcsr = stmxcsr();
 
   return 0;
+#else
+#error "Unsupported platform"
+#endif
 }

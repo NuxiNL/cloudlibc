@@ -3,11 +3,13 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#ifndef FENV_X86_64_FENV_IMPL_H
-#define FENV_X86_64_FENV_IMPL_H
+#ifndef FENV_FENV_IMPL_H
+#define FENV_FENV_IMPL_H
 
 #include <fenv.h>
 #include <stdint.h>
+
+#ifdef __x86_64__
 
 // Bits 13 and 14 that determine the rounding.
 #define ROUNDING_MASK 0x6000
@@ -65,5 +67,7 @@ static inline uint32_t stmxcsr(void) {
   asm volatile("stmxcsr %0" : "=m"(mxcsr));
   return mxcsr;
 }
+
+#endif
 
 #endif

@@ -6,6 +6,7 @@
 #include <fenv.h>
 
 const fenv_t __fe_dfl_env = {
+#ifdef __x86_64__
     // Initial x87 state as set by the finit instruction.
     .__x87 =
         {
@@ -20,4 +21,7 @@ const fenv_t __fe_dfl_env = {
 
     // Initial SSE state.
     .__mxcsr = 0x1f80,
+#else
+#error "Unsupported platform"
+#endif
 };

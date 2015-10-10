@@ -8,6 +8,7 @@
 #include "fenv_impl.h"
 
 int fesetround(int round) {
+#ifdef __x86_64__
   // Disallow invalid rounding modes.
   if ((round & ~ROUNDING_MASK) != 0)
     return -1;
@@ -22,4 +23,7 @@ int fesetround(int round) {
   ldmxcsr((mxcsr & ~ROUNDING_MASK) | round);
 
   return 0;
+#else
+#error "Unsupported platform"
+#endif
 }

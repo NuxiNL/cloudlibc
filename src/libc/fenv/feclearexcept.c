@@ -7,17 +7,20 @@
 
 #include "fenv_impl.h"
 
-int fesetexceptflag(const fexcept_t *flagp, int excepts) {
-  // Set x87 exceptions.
+int feclearexcept(int excepts) {
+#ifdef __x86_64__
+  // Clear x87 exceptions.
   struct __x87_state x87_state;
   fnstenv(&x87_state);
   x87_state.__status &= ~excepts;
-  x87_state.__status |= flagp->__exceptions & excepts;
   fldenv(&x87_state);
 
-  // Set SSE exceptions.
+  // Clear SSE exceptions.
   uint32_t mxcsr = stmxcsr();
-  ldmxcsr((mxcsr & ~excepts) | (flagp->__exceptions & excepts));
+  ldmxcsr(mxcsr & ~excepts);
 
   return 0;
+#else
+#error "Unsupported platform"
+#endif
 }

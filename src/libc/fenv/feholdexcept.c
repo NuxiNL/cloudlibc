@@ -8,6 +8,7 @@
 #include "fenv_impl.h"
 
 int feholdexcept(fenv_t *envp) {
+#ifdef __x86_64__
   // Save x87 and SSE state.
   fnstenv(&envp->__x87);
   envp->__mxcsr = stmxcsr();
@@ -23,4 +24,7 @@ int feholdexcept(fenv_t *envp) {
   ldmxcsr(mxcsr);
 
   return 0;
+#else
+#error "Unsupported platform"
+#endif
 }

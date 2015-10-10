@@ -7,7 +7,11 @@
 
 #include "fenv_impl.h"
 
-int fegetround(void) {
-  // Obtain rounding mode from SSE.
-  return stmxcsr() & ROUNDING_MASK;
+int fetestexcept(int excepts) {
+#ifdef __x86_64__
+  // Combine the x87 and SSE exception flags.
+  return (fnstsw() | stmxcsr()) & excepts;
+#else
+#error "Unsupported platform"
+#endif
 }

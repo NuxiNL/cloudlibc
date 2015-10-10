@@ -7,7 +7,12 @@
 
 #include "fenv_impl.h"
 
-int fetestexcept(int excepts) {
+int fegetexceptflag(fexcept_t *flagp, int excepts) {
+#ifdef __x86_64__
   // Combine the x87 and SSE exception flags.
-  return (fnstsw() | stmxcsr()) & excepts;
+  flagp->__exceptions = (fnstsw() | stmxcsr()) & excepts;
+  return 0;
+#else
+#error "Unsupported platform"
+#endif
 }

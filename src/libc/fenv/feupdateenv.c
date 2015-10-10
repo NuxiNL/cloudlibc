@@ -8,6 +8,7 @@
 #include "fenv_impl.h"
 
 int feupdateenv(const fenv_t *envp) {
+#ifdef __x86_64__
   // Save currently raised exceptions.
   int exceptions = (fnstsw() | stmxcsr()) & FE_ALL_EXCEPT;
 
@@ -17,4 +18,7 @@ int feupdateenv(const fenv_t *envp) {
 
   // Raise saved exceptions.
   return feraiseexcept(exceptions);
+#else
+#error "Unsupported platform"
+#endif
 }

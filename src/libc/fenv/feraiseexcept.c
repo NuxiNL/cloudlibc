@@ -8,6 +8,7 @@
 #include "fenv_impl.h"
 
 int feraiseexcept(int excepts) {
+#ifdef __x86_64__
   // Set x87 exceptions.
   struct __x87_state x87_state;
   fnstenv(&x87_state);
@@ -21,4 +22,7 @@ int feraiseexcept(int excepts) {
   // Wait for floating-point unit changes to be applied.
   fwait();
   return 0;
+#else
+#error "Unsupported platform"
+#endif
 }
