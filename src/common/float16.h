@@ -123,7 +123,7 @@ static inline void f16_shift_right(f16_part_t *parts, unsigned int amount) {
 static inline void f16_apply_rounding(f16_part_t *parts, int *exponent,
                                       int round, unsigned int mant_dig) {
   // We should round the number upwards in two cases, namely when
-  // performing nearest neighbour rounding and the bit after the
+  // performing nearest neighbour rounding and the top bit of the
   // truncated part of the significand is set, or when performing upward
   // rounding and any of the bits in the truncated part is set.
   if ((round == FE_TONEAREST &&
