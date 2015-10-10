@@ -210,15 +210,22 @@ TEST(snprintf, float16_align) {
   ASSERT_STREQ(" 0x0000001.2abc00000000000p+16", buf);
 }
 
+#if LDBL_HAS_SUBNORM == 1
 TEST(snprintf, float16_subnormal) {
-#if LDBL_MANT_DIG == 64
   // Print subnormal values.
-  char buf[29];
+  char buf[43];
   ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%La", LDBL_TRUE_MIN));
   ASSERT_STREQ("0x1p-16445", buf);
-  long double high = 0x1.fffffffffffffffcp-16383L;
+  long double high = nexttowardl(LDBL_MIN, 0.0L);
+#if LDBL_MANT_DIG == 64
   ASSERT_EQ(27, snprintf(buf, sizeof(buf), "%La", high));
   ASSERT_STREQ("0x1.fffffffffffffffcp-16383", buf);
+#elif LDBL_MANT_DIG == 113
+  ASSERT_EQ(42, snprintf(buf, sizeof(buf), "%La", high));
+  ASSERT_STREQ("0x1.ffffffffffffffffffffffffffffff8p-16383", buf);
+#else
+#error "Unknown floating point type"
+#endif
 
   // Test rounding behaviour of subnormal values.
   ASSERT_EQ(0, fesetround(FE_DOWNWARD));
@@ -233,7 +240,5 @@ TEST(snprintf, float16_subnormal) {
   ASSERT_EQ(0, fesetround(FE_UPWARD));
   ASSERT_EQ(28, snprintf(buf, sizeof(buf), "%.2La %.2La", high, -high));
   ASSERT_STREQ("0x1.00p-16382 -0x1.ffp-16383", buf);
-#else
-#error "Unknown floating point type"
-#endif
 }
+#endif
