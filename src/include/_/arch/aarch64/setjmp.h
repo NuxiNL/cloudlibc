@@ -30,8 +30,6 @@
 // Procedure Call Standard for the ARM 64-bit Architecture, section
 // 5.1.1, table 2, and section 5.1.2.
 struct __jmp_buf {
-  __uint64_t __sp;  // The Stack Pointer.
-
   __uint64_t __x19;  // Callee-saved register.
   __uint64_t __x20;  // Callee-saved register.
   __uint64_t __x21;  // Callee-saved register.
@@ -44,6 +42,7 @@ struct __jmp_buf {
   __uint64_t __x28;  // Callee-saved register.
   __uint64_t __x29;  // The Frame Pointer.
   __uint64_t __x30;  // The Link Register.
+  __uint64_t __sp;   // The Stack Pointer.
 
   __uint64_t __d8;   // Callee-saved VFP register.
   __uint64_t __d9;   // Callee-saved VFP register.
