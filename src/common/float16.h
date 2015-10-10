@@ -460,7 +460,7 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
   static_assert(sizeof(value.f) == sizeof(value.i), "Size mismatch");
   f16_part_t parts[F16_NPARTS] = {value.i[0]};
   int exp = value.i[1] & 0x7fff;
-#elif LDBL_MANT_DIG = 113
+#elif LDBL_MANT_DIG == 113
 #error "128-bits floating point numbers not yet supported"
 #else
 #error "Unsupported format"
