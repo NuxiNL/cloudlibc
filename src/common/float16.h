@@ -217,7 +217,7 @@ static inline void f16enc_push_xdigit(struct f16enc *f16, uint8_t xdigit) {
       *have_range_error = true;                                       \
       return INFINITY;                                                \
     } else if (exponent <= 0) {                                       \
-      if (has_subnorm == 1 && exponent > 1 - mant_dig) {              \
+      if (has_subnorm && exponent > 1 - mant_dig) {                   \
         /* Number is in subnormal range. */                           \
         f16_shift_right(parts, 1 - exponent);                         \
         exponent = 1;                                                 \
