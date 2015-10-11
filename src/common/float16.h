@@ -459,14 +459,14 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
   } value = {.f = f};
   static_assert(sizeof(value.f) == sizeof(value.i), "Size mismatch");
   f16_part_t parts[F16_NPARTS] = {value.i[0]};
-  int exp = value.i[1] & 0x7fff;
+  *exponent = value.i[1] & 0x7fff;
 #elif LDBL_MANT_DIG == 113
 #error "128-bits floating point numbers not yet supported"
 #else
 #error "Unsupported format"
 #endif
 
-  if (exp == 0) {
+  if (*exponent == 0) {
     // Subnormal floating point value. Normalize it.
     assert(!f16_is_zero(parts) && "Floating point has value zero");
     *exponent = LDBL_MIN_EXP - 1;
@@ -477,7 +477,7 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
   } else {
     // Normal floating point value.
     parts[0] |= f16_bit(0);
-    *exponent = exp + LDBL_MIN_EXP - 2;
+    *exponent += LDBL_MIN_EXP - 2;
   }
 
   // Apply rounding if the number of digits requested is less than the
