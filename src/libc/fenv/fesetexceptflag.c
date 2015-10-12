@@ -21,8 +21,7 @@ int fesetexceptflag(const fexcept_t *flagp, int excepts) {
   fldenv(&x87_state);
 
   // Set SSE exceptions.
-  uint32_t mxcsr = stmxcsr();
-  ldmxcsr((mxcsr & ~excepts) | (flagp->__exceptions & excepts));
+  ldmxcsr((stmxcsr() & ~excepts) | (flagp->__exceptions & excepts));
 
   return 0;
 #else

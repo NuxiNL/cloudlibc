@@ -23,12 +23,10 @@ int fesetround(int round) {
 
   // Update x87 rounding mode. Rounding mode is shifted by three bits
   // compared to how the SSE rouding mode is stored.
-  uint16_t cw = fnstcw();
-  fldcw((cw & ~(ROUNDING_MASK >> 3)) | (round >> 3));
+  fldcw((fnstcw() & ~(ROUNDING_MASK >> 3)) | (round >> 3));
 
   // Update SSE rounding mode.
-  uint32_t mxcsr = stmxcsr();
-  ldmxcsr((mxcsr & ~ROUNDING_MASK) | round);
+  ldmxcsr((stmxcsr() & ~ROUNDING_MASK) | round);
 
   return 0;
 #else
