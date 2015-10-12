@@ -271,7 +271,7 @@ static inline f16_bin32_t f16enc_get_bin32(const struct f16enc *f16,
   union {
     uint32_t i;
     f16_bin32_t f;
-  } result = {.i = ((uint32_t)exponent << (F16_BIN32_MANT_DIG - 1)) |
+  } result = {.i = (uint32_t)exponent << (F16_BIN32_MANT_DIG - 1) |
                    parts[0] << 1 >> (1 + F16_PART_BITS - F16_BIN32_MANT_DIG)};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
   return result.f;
@@ -305,7 +305,7 @@ static inline f16_bin64_t f16enc_get_bin64(const struct f16enc *f16,
   union {
     uint64_t i;
     f16_bin64_t f;
-  } result = {.i = ((uint64_t)exponent << (F16_BIN64_MANT_DIG - 1)) |
+  } result = {.i = (uint64_t)exponent << (F16_BIN64_MANT_DIG - 1) |
                    parts[0] << 1 >> (1 + F16_PART_BITS - F16_BIN64_MANT_DIG)};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
   return result.f;
@@ -374,7 +374,7 @@ static inline f16_bin128_t f16enc_get_bin128(const struct f16enc *f16,
     f16_bin128_t f;
   } result = {.i = {
                   value[0] << 49 | value[1] >> 15,
-                  exponent << 48 | (value[0] & ~f16_bit(0)) >> 15,
+                  (uint64_t)exponent << 48 | (value[0] & ~f16_bit(0)) >> 15,
               }};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
   return result.f;
