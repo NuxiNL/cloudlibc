@@ -373,8 +373,8 @@ static inline f16_bin128_t f16enc_get_bin128(const struct f16enc *f16,
     uint64_t i[2];
     f16_bin128_t f;
   } result = {.i = {
-                  value[0] << 49 | value[1] >> 15,
-                  (uint64_t)exponent << 48 | (value[0] & ~f16_bit(0)) >> 15,
+                  parts[0] << 49 | parts[1] >> 15,
+                  (uint64_t)exponent << 48 | (parts[0] & ~f16_bit(0)) >> 15,
               }};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
   return result.f;
@@ -470,7 +470,7 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
   } value = {.f = f};
   static_assert(sizeof(value.f) == sizeof(value.i), "Size mismatch");
   f16_part_t parts[F16_NPARTS] = {
-      value.i[1] << 15 | value[0] >> 49, value[0] >> 49,
+      value.i[1] << 15 | value.i[0] >> 49, value.i[0] >> 49,
   };
   *exponent = (value.i[1] >> 48) & 0x7fff;
 #else
