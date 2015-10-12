@@ -64,6 +64,7 @@ TEST(nl_langinfo, posix) {
   ASSERT_STREQ("^[yY]", nl_langinfo(YESEXPR));
   ASSERT_STREQ("^[nN]", nl_langinfo(NOEXPR));
   ASSERT_STREQ("", nl_langinfo(CRNCYSTR));
+  ASSERT_STREQ("", nl_langinfo(0xdeadc0de));
 
   ASSERT_STREQ("US-ASCII", nl_langinfo_l(CODESET, LC_C_LOCALE));
   ASSERT_STREQ("%a %b %e %H:%M:%S %Y", nl_langinfo_l(D_T_FMT, LC_C_LOCALE));
@@ -120,6 +121,7 @@ TEST(nl_langinfo, posix) {
   ASSERT_STREQ("^[yY]", nl_langinfo_l(YESEXPR, LC_C_LOCALE));
   ASSERT_STREQ("^[nN]", nl_langinfo_l(NOEXPR, LC_C_LOCALE));
   ASSERT_STREQ("", nl_langinfo_l(CRNCYSTR, LC_C_LOCALE));
+  ASSERT_STREQ("", nl_langinfo_l(0xdeadc0de, LC_C_LOCALE));
 }
 
 TEST(nl_langinfo, en_us) {
@@ -182,6 +184,7 @@ TEST(nl_langinfo, en_us) {
   // ASSERT_STREQ("^[yYsS].*", nl_langinfo_l(YESEXPR, locale));
   // ASSERT_STREQ("^[nN].*", nl_langinfo_l(NOEXPR, locale));
   ASSERT_STREQ("-$", nl_langinfo_l(CRNCYSTR, locale));
+  ASSERT_STREQ("", nl_langinfo_l(0xdeadc0de, locale));
   freelocale(locale);
 }
 
@@ -243,6 +246,7 @@ TEST(nl_langinfo, nl_nl) {
   ASSERT_STREQ("^[jJyY]", nl_langinfo_l(YESEXPR, locale));
   ASSERT_STREQ("^[nN]", nl_langinfo_l(NOEXPR, locale));
   ASSERT_STREQ("-€", nl_langinfo_l(CRNCYSTR, locale));
+  ASSERT_STREQ("", nl_langinfo_l(0xdeadc0de, locale));
   freelocale(locale);
 }
 
@@ -304,5 +308,6 @@ TEST(nl_langinfo, ru_ru) {
   ASSERT_STREQ("^[дДyY]", nl_langinfo_l(YESEXPR, locale));
   ASSERT_STREQ("^[нНnN]", nl_langinfo_l(NOEXPR, locale));
   ASSERT_STREQ("+руб.", nl_langinfo_l(CRNCYSTR, locale));
+  ASSERT_STREQ("", nl_langinfo_l(0xdeadc0de, locale));
   freelocale(locale);
 }
