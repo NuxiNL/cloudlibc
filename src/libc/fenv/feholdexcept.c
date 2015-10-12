@@ -8,7 +8,13 @@
 #include "fenv_impl.h"
 
 int feholdexcept(fenv_t *envp) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Save state and clear exceptions.
+  envp->__fpcr = mrs_fpcr();
+  envp->__fpsr = mrs_fpsr();
+  msr_fpsr(envp->__fpsr & ~FE_ALL_EXCEPT);
+  return 0;
+#elif defined(__x86_64__)
   // Save x87 and SSE state.
   fnstenv(&envp->__x87);
   envp->__mxcsr = stmxcsr();

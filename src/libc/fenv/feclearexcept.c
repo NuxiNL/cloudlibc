@@ -8,7 +8,11 @@
 #include "fenv_impl.h"
 
 int feclearexcept(int excepts) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Clear exceptions in status register.
+  msr_fpsr(mrs_fpsr() & ~excepts);
+  return 0;
+#elif defined(__x86_64__)
   // Clear x87 exceptions.
   struct __x87_state x87_state;
   fnstenv(&x87_state);

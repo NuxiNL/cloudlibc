@@ -8,7 +8,12 @@
 #include "fenv_impl.h"
 
 int feupdateenv(const fenv_t *envp) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Restore environment, while raising existing exceptions.
+  msr_fpcr(envp->__fpcr);
+  msr_fpsr(envp->__fpsr | (mrs_fpsr() & FE_ALL_EXCEPT));
+  return 0;
+#elif defined(__x86_64__)
   // Save currently raised exceptions.
   int exceptions = (fnstsw() | stmxcsr()) & FE_ALL_EXCEPT;
 

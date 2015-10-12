@@ -8,7 +8,10 @@
 #include "fenv_impl.h"
 
 int fegetround(void) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Obtain rounding mode from FPCR.
+  return mrs_fpcr() & ROUNDING_MASK;
+#elif defined(__x86_64__)
   // Obtain rounding mode from SSE.
   return stmxcsr() & ROUNDING_MASK;
 #else

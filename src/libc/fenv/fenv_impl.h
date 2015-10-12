@@ -9,7 +9,36 @@
 #include <fenv.h>
 #include <stdint.h>
 
-#ifdef __x86_64__
+#if defined(__aarch64__)
+
+// Bits 22 and 23 that determine the rounding.
+#define ROUNDING_MASK 0xc00000
+
+// Assembly for floating point register manipulation.
+
+static inline uint32_t mrs_fpcr(void) {
+  uint64_t cr;
+  asm volatile("mrs %0, fpcr" : "=r"(cr));
+  return cr;
+}
+
+static inline uint32_t mrs_fpsr(void) {
+  uint64_t sr;
+  asm volatile("mrs %0, fpsr" : "=r"(sr));
+  return sr;
+}
+
+static inline void msr_fpcr(uint32_t value) {
+  uint64_t cr = value;
+  asm volatile("msr fpcr, %0" : : "r"(cr));
+}
+
+static inline void msr_fpsr(uint32_t value) {
+  uint64_t sr = value;
+  asm volatile("msr fpsr, %0" : : "r"(sr));
+}
+
+#elif defined(__x86_64__)
 
 // Bits 13 and 14 that determine the rounding.
 #define ROUNDING_MASK 0x6000

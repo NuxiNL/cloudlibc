@@ -8,7 +8,15 @@
 #include "fenv_impl.h"
 
 int fesetround(int round) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Disallow invalid rounding modes.
+  if ((round & ~ROUNDING_MASK) != 0)
+    return -1;
+
+  // Update FPCR rounding mode.
+  msr_fpcr((mrs_fpcr() & ~ROUNDING_MASK) | round);
+  return 0;
+#elif defined(__x86_64__)
   // Disallow invalid rounding modes.
   if ((round & ~ROUNDING_MASK) != 0)
     return -1;

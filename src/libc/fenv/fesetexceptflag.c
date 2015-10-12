@@ -8,7 +8,11 @@
 #include "fenv_impl.h"
 
 int fesetexceptflag(const fexcept_t *flagp, int excepts) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Set exceptions stored in object.
+  msr_fpsr((mrs_fpsr() & ~excepts) | (flagp->__exceptions & excepts));
+  return 0;
+#elif defined(__x86_64__)
   // Set x87 exceptions.
   struct __x87_state x87_state;
   fnstenv(&x87_state);

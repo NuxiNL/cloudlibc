@@ -6,7 +6,11 @@
 #include <fenv.h>
 
 const fenv_t __fe_dfl_env = {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+    // Use round to nearest as the default rounding mode.
+    .__fpcr = FE_TONEAREST,
+    .__fpsr = 0,
+#elif defined(__x86_64__)
     // Initial x87 state as set by the finit instruction.
     .__x87 =
         {

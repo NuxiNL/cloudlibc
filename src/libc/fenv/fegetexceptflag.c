@@ -8,7 +8,11 @@
 #include "fenv_impl.h"
 
 int fegetexceptflag(fexcept_t *flagp, int excepts) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Store exception flags in object.
+  flagp->__exceptions = mrs_fpsr() & excepts;
+  return 0;
+#elif defined(__x86_64__)
   // Combine the x87 and SSE exception flags.
   flagp->__exceptions = (fnstsw() | stmxcsr()) & excepts;
   return 0;

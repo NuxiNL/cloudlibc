@@ -8,7 +8,10 @@
 #include "fenv_impl.h"
 
 int fetestexcept(int excepts) {
-#ifdef __x86_64__
+#if defined(__aarch64__)
+  // Fetch exception flags.
+  return mrs_fpsr() & excepts;
+#elif defined(__x86_64__)
   // Combine the x87 and SSE exception flags.
   return (fnstsw() | stmxcsr()) & excepts;
 #else
