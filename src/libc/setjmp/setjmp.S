@@ -7,6 +7,7 @@
 
 ENTRY(setjmp)
 ALTENTRY(sigsetjmp)
+#if defined(__x86_64__)
   // Save register values.
   mov (%rsp), %rdx
   mov %rdx, 0(%rdi)
@@ -23,5 +24,8 @@ ALTENTRY(sigsetjmp)
   // Return zero for a direct invocation.
   xor %rax, %rax
   ret
+#else
+#error "Unsupported architecture"
+#endif
 END(setjmp)
 END(sigsetjmp)

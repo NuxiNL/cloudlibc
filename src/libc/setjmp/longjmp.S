@@ -7,6 +7,7 @@
 
 ENTRY(longjmp)
 ALTENTRY(siglongjmp)
+#if defined(__x86_64__)
   // Restore register values.
   mov 0(%rdi), %rdx
   mov %rdx, (%rsp)
@@ -28,5 +29,8 @@ ALTENTRY(siglongjmp)
   inc %rax
 1:
   ret
+#else
+#error "Unsupported architecture"
+#endif
 END(longjmp)
 END(siglongjmp)
