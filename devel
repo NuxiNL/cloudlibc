@@ -4,7 +4,7 @@ set -e
 
 : ${CC:=x86_64-unknown-cloudabi-cc}
 : ${AR:=x86_64-unknown-cloudabi-ar}
-: ${PREFIX:=/usr/local/x86_64-unknown-cloudabi}
+: ${PREFIX:=/usr/local/$(${CC} -dumpmachine)}
 
 export WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers \
 -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch \
