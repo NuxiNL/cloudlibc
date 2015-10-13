@@ -28,6 +28,116 @@
 
 #include "syscalldefs.h"
 
+#if defined(__aarch64__)
+
+typedef uint64_t register_t;
+
+// TODO(ed): Determine whether this is correct.
+#define CLOBBERS                                                               \
+  "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9", "x10", \
+      "x11", "x12", "x13", "x14", "x15", "x16", "x17", "x18", "d0", "d1",      \
+      "d2", "d3", "d4", "d5", "d6", "d7"
+
+#define SYSCALL_0_0(number, name)                            \
+  static inline cloudabi_errno_t cloudabi_sys_##name(void) { \
+    return CLOUDABI_ENOSYS;                                  \
+  }
+
+#define SYSCALL_0_1(number, name, rtype1)                               \
+  static inline cloudabi_errno_t cloudabi_sys_##name(rtype1 *result1) { \
+    return CLOUDABI_ENOSYS;                                             \
+  }
+
+#define SYSCALL_0_2(number, name, rtype1, rtype2)                       \
+  static inline cloudabi_errno_t cloudabi_sys_##name(rtype1 *result1,   \
+                                                     rtype2 *result2) { \
+    return CLOUDABI_ENOSYS;                                             \
+  }
+
+#define SYSCALL_1_0(number, name, type1)                             \
+  static inline cloudabi_errno_t cloudabi_sys_##name(type1 value1) { \
+    return CLOUDABI_ENOSYS;                                          \
+  }
+
+#define SYSCALL_1_1(number, name, type1, rtype1)                        \
+  static inline cloudabi_errno_t cloudabi_sys_##name(type1 value1,      \
+                                                     rtype1 *result1) { \
+    return CLOUDABI_ENOSYS;                                             \
+  }
+
+#define SYSCALL_1_2(number, name, type1, rtype1, rtype2) \
+  static inline cloudabi_errno_t cloudabi_sys_##name(    \
+      type1 value1, rtype1 *result1, rtype2 *result2) {  \
+    return CLOUDABI_ENOSYS;                              \
+  }
+
+#define SYSCALL_2_0(number, name, type1, type2)                      \
+  static inline cloudabi_errno_t cloudabi_sys_##name(type1 value1,   \
+                                                     type2 value2) { \
+    return CLOUDABI_ENOSYS;                                          \
+  }
+
+#define SYSCALL_2_1(number, name, type1, type2, rtype1) \
+  static inline cloudabi_errno_t cloudabi_sys_##name(   \
+      type1 value1, type2 value2, rtype1 *result1) {    \
+    return CLOUDABI_ENOSYS;                             \
+  }
+
+#define SYSCALL_3_0(number, name, type1, type2, type3) \
+  static inline cloudabi_errno_t cloudabi_sys_##name(  \
+      type1 value1, type2 value2, type3 value3) {      \
+    return CLOUDABI_ENOSYS;                            \
+  }
+
+#define SYSCALL_3_1(number, name, type1, type2, type3, rtype1)     \
+  static inline cloudabi_errno_t cloudabi_sys_##name(              \
+      type1 value1, type2 value2, type3 value3, rtype1 *result1) { \
+    return CLOUDABI_ENOSYS;                                        \
+  }
+
+#define SYSCALL_4_0(number, name, type1, type2, type3, type4)   \
+  static inline cloudabi_errno_t cloudabi_sys_##name(           \
+      type1 value1, type2 value2, type3 value3, type4 value4) { \
+    return CLOUDABI_ENOSYS;                                     \
+  }
+
+#define SYSCALL_4_1(number, name, type1, type2, type3, type4, rtype1) \
+  static inline cloudabi_errno_t cloudabi_sys_##name(                 \
+      type1 value1, type2 value2, type3 value3, type4 value4,         \
+      rtype1 *result1) {                                              \
+    return CLOUDABI_ENOSYS;                                           \
+  }
+
+#define SYSCALL_5_0(number, name, type1, type2, type3, type4, type5)          \
+  static inline cloudabi_errno_t cloudabi_sys_##name(                         \
+      type1 value1, type2 value2, type3 value3, type4 value4, type5 value5) { \
+    return CLOUDABI_ENOSYS;                                                   \
+  }
+
+#define SYSCALL_5_1(number, name, type1, type2, type3, type4, type5, rtype1) \
+  static inline cloudabi_errno_t cloudabi_sys_##name(                        \
+      type1 value1, type2 value2, type3 value3, type4 value4, type5 value5,  \
+      rtype1 *result1) {                                                     \
+    return CLOUDABI_ENOSYS;                                                  \
+  }
+
+#define SYSCALL_6_0(number, name, type1, type2, type3, type4, type5, type6) \
+  static inline cloudabi_errno_t cloudabi_sys_##name(                       \
+      type1 value1, type2 value2, type3 value3, type4 value4, type5 value5, \
+      type6 value6) {                                                       \
+    return CLOUDABI_ENOSYS;                                                 \
+  }
+
+#define SYSCALL_6_1(number, name, type1, type2, type3, type4, type5, type6, \
+                    rtype1)                                                 \
+  static inline cloudabi_errno_t cloudabi_sys_##name(                       \
+      type1 value1, type2 value2, type3 value3, type4 value4, type5 value5, \
+      type6 value6, rtype1 *result1) {                                      \
+    return CLOUDABI_ENOSYS;                                                 \
+  }
+
+#elif defined(__x86_64__)
+
 typedef uint64_t register_t;
 
 // TODO(ed): Determine whether this is correct.
@@ -38,14 +148,6 @@ typedef uint64_t register_t;
     register register_t reg_sc asm("rax") = (number);                \
     asm volatile("syscall" : "=r"(reg_sc) : "r"(reg_sc) : CLOBBERS); \
     return reg_sc;                                                   \
-  }
-
-#define SYSCALL_0_N(number, name)                          \
-  SYSCALL_0_0(number, _##name);                            \
-  static inline _Noreturn void cloudabi_sys_##name(void) { \
-    cloudabi_sys__##name();                                \
-    for (;;)                                               \
-      ;                                                    \
   }
 
 #define SYSCALL_0_1(number, name, rtype1)                               \
@@ -102,14 +204,6 @@ typedef uint64_t register_t;
                  : "r"(reg_sc), "r"(reg_value1)                       \
                  : CLOBBERS);                                         \
     return reg_sc;                                                    \
-  }
-
-#define SYSCALL_1_N(number, name, type1)                           \
-  SYSCALL_1_0(number, _##name, type1);                             \
-  static inline _Noreturn void cloudabi_sys_##name(type1 value1) { \
-    cloudabi_sys__##name(value1);                                  \
-    for (;;)                                                       \
-      ;                                                            \
   }
 
 #define SYSCALL_1_1(number, name, type1, rtype1)                        \
@@ -195,15 +289,6 @@ typedef uint64_t register_t;
     } else {                                                          \
       return reg_sc;                                                  \
     }                                                                 \
-  }
-
-#define SYSCALL_2_N(number, name, type1, type2)                    \
-  SYSCALL_2_0(number, _##name, type1, type2);                      \
-  static inline _Noreturn void cloudabi_sys_##name(type1 value1,   \
-                                                   type2 value2) { \
-    cloudabi_sys__##name(value1, value2);                          \
-    for (;;)                                                       \
-      ;                                                            \
   }
 
 #define SYSCALL_3_0(number, name, type1, type2, type3)                \
@@ -385,6 +470,35 @@ typedef uint64_t register_t;
     } else {                                                                \
       return reg_sc;                                                        \
     }                                                                       \
+  }
+
+#else
+#error "Unsupported architecture"
+#endif
+
+#define SYSCALL_0_N(number, name)                          \
+  SYSCALL_0_0(number, _##name);                            \
+  static inline _Noreturn void cloudabi_sys_##name(void) { \
+    cloudabi_sys__##name();                                \
+    for (;;)                                               \
+      ;                                                    \
+  }
+
+#define SYSCALL_1_N(number, name, type1)                           \
+  SYSCALL_1_0(number, _##name, type1);                             \
+  static inline _Noreturn void cloudabi_sys_##name(type1 value1) { \
+    cloudabi_sys__##name(value1);                                  \
+    for (;;)                                                       \
+      ;                                                            \
+  }
+
+#define SYSCALL_2_N(number, name, type1, type2)                    \
+  SYSCALL_2_0(number, _##name, type1, type2);                      \
+  static inline _Noreturn void cloudabi_sys_##name(type1 value1,   \
+                                                   type2 value2) { \
+    cloudabi_sys__##name(value1, value2);                          \
+    for (;;)                                                       \
+      ;                                                            \
   }
 
 #include "syscalllist.h"
