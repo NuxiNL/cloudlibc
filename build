@@ -8,17 +8,37 @@ set -e
 : ${CFLAGS:=-O3 -fstack-protector-strong -fomit-frame-pointer -g}
 : ${WARNFLAGS:=}
 
+# Contributed sources.
+DOUBLE_CONVERSION=contrib/double-conversion-1f0b845
+JEMALLOC=contrib/jemalloc-4.0.0
+OPENLIBM=contrib/openlibm-ef29d06
+
 # Additional compiler flags to include the right files, etc.
 CFLAGS="${CFLAGS} -nostdinc -Isrc -Isrc/include \
--Icontrib/double-conversion-1f0b845/src -Icontrib/jemalloc-4.0.0/include \
--Icontrib/openlibm-ef29d06/include -Icontrib/openlibm-ef29d06/src \
--Icontrib/openlibm-ef29d06/ld80 -Icontrib/openlibm-ef29d06 -fno-exceptions \
+-I${DOUBLE_CONVERSION}/src -I${JEMALLOC}/include \
+-I${OPENLIBM}/include -I${OPENLIBM}/src -I${OPENLIBM} -fno-exceptions \
 -fno-rtti -DOPENLIBM_USE_HOST_COMPLEX_H -DOPENLIBM_USE_HOST_FENV_H \
 -DOPENLIBM_USE_HOST_MATH_H -DOPENLIBM_ONLY_THREAD_SAFE"
 
+# Determine which OpenLibm directories to use.
+OPENLIBM_DIRS="${OPENLIBM}/bsdsrc ${OPENLIBM}/src"
+case $(${CC} -dumpmachine) in
+  aarch64-*)
+    OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld128"
+    CFLAGS="${CFLAGS} -I${OPENLIBM}/ld128"
+    ;;
+  x86_64-*)
+    OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld80"
+    CFLAGS="${CFLAGS} -I${OPENLIBM}/ld80"
+    ;;
+  *)
+    echo "Unknown architecture" >&2
+    return 1
+esac
+
 # List of source files.
-SRCS=$(find src contrib/double-conversion-1f0b845 contrib/jemalloc-4.0.0 \
-    contrib/openlibm-ef29d06 \( -name '*.[cS]' -o -name '*.cc' \) | sort)
+SRCS=$(find src ${DOUBLE_CONVERSION} ${JEMALLOC} ${OPENLIBM_DIRS} \
+    \( -name '*.[cS]' -o -name '*.cc' \) | sort)
 
 if [ "$1" != "fast" ]; then
   echo "=> Computing dependencies"
@@ -52,8 +72,7 @@ make -k -j8 -f _obj/Makefile all
 
 echo "=> Linking libraries"
 rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a
-find src/libc contrib/double-conversion-1f0b845 contrib/jemalloc-4.0.0 \
-    contrib/openlibm-ef29d06 \
+find src/libc ${DOUBLE_CONVERSION} ${JEMALLOC} ${OPENLIBM_DIRS} \
     \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
     xargs ${AR} -rcs _obj/libc.a
