@@ -54,7 +54,7 @@ if [ "$1" != "fast" ]; then
   ./build fast
 fi
 
-sudo ./install
+PREFIX="${PREFIX}" sudo -E ./install
 
 echo "=> Building unit tests"
 ${CC} -o _obj/unittest $(find src -name "*_test.c" | sort |
