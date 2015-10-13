@@ -516,6 +516,7 @@ typedef uint64_t register_t;
 #undef SYSCALL_2_N
 #undef SYSCALL_3_0
 #undef SYSCALL_3_1
+#undef SYSCALL_4_0
 #undef SYSCALL_4_1
 #undef SYSCALL_5_0
 #undef SYSCALL_5_1
