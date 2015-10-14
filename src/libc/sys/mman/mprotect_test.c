@@ -19,7 +19,7 @@ TEST(mprotect, example) {
   ASSERT_NE(MAP_FAILED, addr);
 
   // Make memory writable. Write value.
-  ASSERT_EQ(0, mprotect(addr, 100, PROT_WRITE));
+  ASSERT_EQ(0, mprotect(addr, 100, PROT_READ | PROT_WRITE));
   *(char *)addr = 'A';
 
   // Make memory readable. Check contents.
