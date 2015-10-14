@@ -213,16 +213,20 @@ TEST(snprintf, float16_align) {
 #if LDBL_HAS_SUBNORM == 1
 TEST(snprintf, float16_subnormal) {
   // Print subnormal values.
-  char buf[43];
+#if LDBL_MANT_DIG == 64
+  char buf[29];
   ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%La", LDBL_TRUE_MIN));
   ASSERT_STREQ("0x1p-16445", buf);
   long double high = nexttowardl(LDBL_MIN, 0.0L);
-#if LDBL_MANT_DIG == 64
   ASSERT_EQ(27, snprintf(buf, sizeof(buf), "%La", high));
   ASSERT_STREQ("0x1.fffffffffffffffcp-16383", buf);
 #elif LDBL_MANT_DIG == 113
-  ASSERT_EQ(42, snprintf(buf, sizeof(buf), "%La", high));
-  ASSERT_STREQ("0x1.ffffffffffffffffffffffffffffff8p-16383", buf);
+  char buf[40];
+  ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%La", LDBL_TRUE_MIN));
+  ASSERT_STREQ("0x1p-16494", buf);
+  long double high = nexttowardl(LDBL_MIN, 0.0L);
+  ASSERT_EQ(39, snprintf(buf, sizeof(buf), "%La", high));
+  ASSERT_STREQ("0x1.fffffffffffffffffffffffffffep-16383", buf);
 #else
 #error "Unknown floating point type"
 #endif
