@@ -44,7 +44,7 @@
     if (atomic_compare_exchange_##name(a, &v2, v3))            \
       ASSERT_EQ(0, memcmp(&v2, &v1, sizeof(T)));               \
     else                                                       \
-      ASSERT_TRUE(atomic_compare_exchange_##name(a, &v2, v3)); \
+      ASSERT_TRUE(atomic_compare_exchange_strong(a, &v2, v3)); \
     T v4 = atomic_load(a);                                     \
     ASSERT_EQ(0, memcmp(&v3, &v4, sizeof(T)));                 \
   } while (0)
