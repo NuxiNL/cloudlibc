@@ -15,11 +15,12 @@ static ssize_t us_ascii_mbtoc32(char32_t *restrict pc32, const char *restrict s,
   // Return next ASCII byte if it's valid.
   if (n < 1)
     return -2;
-  if (*s < 0) {
+  unsigned char b = *s;
+  if (b > SCHAR_MAX) {
     errno = EILSEQ;
     return -1;
   }
-  *pc32 = *s;
+  *pc32 = b;
   return 1;
 }
 
