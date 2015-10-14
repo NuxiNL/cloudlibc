@@ -23,7 +23,7 @@ static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
   memcpy(tls_start, __tls_init_data, __tls_init_size);
   memset(tls_start + __tls_init_size, '\0', __tls_total_size - __tls_init_size);
 #if defined(__aarch64__)
-  asm volatile("msr tpidr_el0, %0" : : "r"(tls_start));
+  asm volatile("msr tpidr_el0, %0" : : "r"(tls_start - 16));
 #elif defined(__x86_64__)
   char *tls_end = tls_start + __tls_total_size;
   cloudabi_sys_thread_tcb_set(&tls_end);
