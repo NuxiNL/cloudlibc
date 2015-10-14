@@ -212,7 +212,7 @@ TEST(snprintf, float16_align) {
 
 #if LDBL_HAS_SUBNORM == 1
 TEST(snprintf, float16_subnormal) {
-  // Print subnormal values.
+// Print subnormal values.
 #if LDBL_MANT_DIG == 64
   char buf[29];
   ASSERT_EQ(10, snprintf(buf, sizeof(buf), "%La", LDBL_TRUE_MIN));
