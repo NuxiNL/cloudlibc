@@ -56,13 +56,15 @@ TEST(strtold, hex2) {
   const char *normal = "0x1p-16382";
 #if LDBL_MANT_DIG == 64
   const char *highest_subnormal = "0x1.fffffffffffffffcp-16383";
+  const char *lowest_subnormal = "0x1p-16445";
+  const char *underflow = "0x1p-16446";
 #elif LDBL_MANT_DIG == 113
-  const char *highest_subnormal = "0x1.ffffffffffffffffffffffffffffff8p-16383";
+  const char *highest_subnormal = "0x1.fffffffffffffffffffffffffffep-16383";
+  const char *lowest_subnormal = "0x1p-16494";
+  const char *underflow = "0x1p-16495";
 #else
 #error "Unknown floating point type"
 #endif
-  const char *lowest_subnormal = "0x1p-16445";
-  const char *underflow = "0x1p-16446";
 
   // Test parsing of subnormal values.
   ASSERT_EQ(LDBL_MIN, strtold(normal, NULL));
