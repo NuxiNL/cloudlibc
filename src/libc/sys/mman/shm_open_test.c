@@ -40,7 +40,7 @@ TEST(shm_open, example) {
   ASSERT_EQ(1000, sb.st_size);
 
   // Map shared memory and write data into it.
-  void *mapping = mmap(NULL, 1000, PROT_WRITE, MAP_SHARED, fd, 0);
+  void *mapping = mmap(NULL, 1000, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   ASSERT_NE(MAP_FAILED, mapping);
   memset(mapping, 'A', 1000);
   ASSERT_EQ(0, munmap(mapping, 1000));
