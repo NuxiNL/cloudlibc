@@ -66,7 +66,24 @@ typedef uint64_t register_t;
 #define SYSCALL_1_1(number, name, type1, rtype1)                        \
   static inline cloudabi_errno_t cloudabi_sys_##name(type1 value1,      \
                                                      rtype1 *result1) { \
-    return CLOUDABI_ENOSYS;                                             \
+    register register_t reg_sc asm("x8") = (number);                    \
+    register register_t reg_value1 asm("x0") = (register_t)(value1);    \
+    register register_t okay;                                           \
+    asm volatile(                                                       \
+        "\tsvc 0\n"                                                     \
+        "\tmov %0, #0\n"                                                \
+        "\tb.cs 1f\n"                                                   \
+        "\tmov %0, #1\n"                                                \
+        "1:\n"                                                          \
+        : "=r"(okay), "=r"(reg_value1)                                  \
+        : "r"(reg_sc), "r"(reg_value1)                                  \
+        : CLOBBERS);                                                    \
+    if (okay) {                                                         \
+      *result1 = (rtype1)reg_value1;                                    \
+      return 0;                                                         \
+    } else {                                                            \
+      return reg_value1;                                                \
+    }                                                                   \
   }
 
 #define SYSCALL_1_2(number, name, type1, rtype1, rtype2) \
@@ -88,10 +105,28 @@ typedef uint64_t register_t;
     return reg_value1;                                               \
   }
 
-#define SYSCALL_2_1(number, name, type1, type2, rtype1) \
-  static inline cloudabi_errno_t cloudabi_sys_##name(   \
-      type1 value1, type2 value2, rtype1 *result1) {    \
-    return CLOUDABI_ENOSYS;                             \
+#define SYSCALL_2_1(number, name, type1, type2, rtype1)              \
+  static inline cloudabi_errno_t cloudabi_sys_##name(                \
+      type1 value1, type2 value2, rtype1 *result1) {                 \
+    register register_t reg_sc asm("x8") = (number);                 \
+    register register_t reg_value1 asm("x0") = (register_t)(value1); \
+    register register_t reg_value2 asm("x1") = (register_t)(value2); \
+    register register_t okay;                                        \
+    asm volatile(                                                    \
+        "\tsvc 0\n"                                                  \
+        "\tmov %0, #0\n"                                             \
+        "\tb.cs 1f\n"                                                \
+        "\tmov %0, #1\n"                                             \
+        "1:\n"                                                       \
+        : "=r"(okay), "=r"(reg_value1)                               \
+        : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2)              \
+        : CLOBBERS);                                                 \
+    if (okay) {                                                      \
+      *result1 = (rtype1)reg_value1;                                 \
+      return 0;                                                      \
+    } else {                                                         \
+      return reg_value1;                                             \
+    }                                                                \
   }
 
 #define SYSCALL_3_0(number, name, type1, type2, type3)               \
@@ -150,11 +185,32 @@ typedef uint64_t register_t;
     return reg_value1;                                               \
   }
 
-#define SYSCALL_4_1(number, name, type1, type2, type3, type4, rtype1) \
-  static inline cloudabi_errno_t cloudabi_sys_##name(                 \
-      type1 value1, type2 value2, type3 value3, type4 value4,         \
-      rtype1 *result1) {                                              \
-    return CLOUDABI_ENOSYS;                                           \
+#define SYSCALL_4_1(number, name, type1, type2, type3, type4, rtype1)     \
+  static inline cloudabi_errno_t cloudabi_sys_##name(                     \
+      type1 value1, type2 value2, type3 value3, type4 value4,             \
+      rtype1 *result1) {                                                  \
+    register register_t reg_sc asm("x8") = (number);                      \
+    register register_t reg_value1 asm("x0") = (register_t)(value1);      \
+    register register_t reg_value2 asm("x1") = (register_t)(value2);      \
+    register register_t reg_value3 asm("x2") = (register_t)(value3);      \
+    register register_t reg_value4 asm("x3") = (register_t)(value4);      \
+    register register_t okay;                                             \
+    asm volatile(                                                         \
+        "\tsvc 0\n"                                                       \
+        "\tmov %0, #0\n"                                                  \
+        "\tb.cs 1f\n"                                                     \
+        "\tmov %0, #1\n"                                                  \
+        "1:\n"                                                            \
+        : "=r"(okay), "=r"(reg_value1)                                    \
+        : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3), \
+          "r"(reg_value4)                                                 \
+        : CLOBBERS);                                                      \
+    if (okay) {                                                           \
+      *result1 = (rtype1)reg_value1;                                      \
+      return 0;                                                           \
+    } else {                                                              \
+      return reg_value1;                                                  \
+    }                                                                     \
   }
 
 #define SYSCALL_5_0(number, name, type1, type2, type3, type4, type5)          \
@@ -178,7 +234,29 @@ typedef uint64_t register_t;
   static inline cloudabi_errno_t cloudabi_sys_##name(                        \
       type1 value1, type2 value2, type3 value3, type4 value4, type5 value5,  \
       rtype1 *result1) {                                                     \
-    return CLOUDABI_ENOSYS;                                                  \
+    register register_t reg_sc asm("x8") = (number);                         \
+    register register_t reg_value1 asm("x0") = (register_t)(value1);         \
+    register register_t reg_value2 asm("x1") = (register_t)(value2);         \
+    register register_t reg_value3 asm("x2") = (register_t)(value3);         \
+    register register_t reg_value4 asm("x3") = (register_t)(value4);         \
+    register register_t reg_value5 asm("x4") = (register_t)(value5);         \
+    register register_t okay;                                                \
+    asm volatile(                                                            \
+        "\tsvc 0\n"                                                          \
+        "\tmov %0, #0\n"                                                     \
+        "\tb.cs 1f\n"                                                        \
+        "\tmov %0, #1\n"                                                     \
+        "1:\n"                                                               \
+        : "=r"(okay), "=r"(reg_value1)                                       \
+        : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),    \
+          "r"(reg_value4), "r"(reg_value5)                                   \
+        : CLOBBERS);                                                         \
+    if (okay) {                                                              \
+      *result1 = (rtype1)reg_value1;                                         \
+      return 0;                                                              \
+    } else {                                                                 \
+      return reg_value1;                                                     \
+    }                                                                        \
   }
 
 #define SYSCALL_6_0(number, name, type1, type2, type3, type4, type5, type6) \
@@ -206,7 +284,30 @@ typedef uint64_t register_t;
   static inline cloudabi_errno_t cloudabi_sys_##name(                       \
       type1 value1, type2 value2, type3 value3, type4 value4, type5 value5, \
       type6 value6, rtype1 *result1) {                                      \
-    return CLOUDABI_ENOSYS;                                                 \
+    register register_t reg_sc asm("x8") = (number);                        \
+    register register_t reg_value1 asm("x0") = (register_t)(value1);        \
+    register register_t reg_value2 asm("x1") = (register_t)(value2);        \
+    register register_t reg_value3 asm("x2") = (register_t)(value3);        \
+    register register_t reg_value4 asm("x3") = (register_t)(value4);        \
+    register register_t reg_value5 asm("x4") = (register_t)(value5);        \
+    register register_t reg_value6 asm("x5") = (register_t)(value6);        \
+    register register_t okay;                                               \
+    asm volatile(                                                           \
+        "\tsvc 0\n"                                                         \
+        "\tmov %0, #0\n"                                                    \
+        "\tb.cs 1f\n"                                                       \
+        "\tmov %0, #1\n"                                                    \
+        "1:\n"                                                              \
+        : "=r"(okay), "=r"(reg_value1)                                      \
+        : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),   \
+          "r"(reg_value4), "r"(reg_value5), "r"(reg_value6)                 \
+        : CLOBBERS);                                                        \
+    if (okay) {                                                             \
+      *result1 = (rtype1)reg_value1;                                        \
+      return 0;                                                             \
+    } else {                                                                \
+      return reg_value1;                                                    \
+    }                                                                       \
   }
 
 #elif defined(__x86_64__)
