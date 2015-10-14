@@ -23,7 +23,7 @@ static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
   char *tls_end = tls_start + __tls_total_size;
   memcpy(tls_start, __tls_init_data, __tls_init_size);
   memset(tls_start + __tls_init_size, '\0', __tls_total_size - __tls_init_size);
-  cloudabi_sys_thread_tcb_set(&tls_end);
+  thread_tcb_set(&tls_end);
 
   // Fix up some of the variables stored in TLS.
   pthread_t handle = data;

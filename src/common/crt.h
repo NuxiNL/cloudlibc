@@ -61,4 +61,16 @@ struct __pthread {
 extern thread_local pthread_t __pthread_self_object;
 extern thread_local cloudabi_tid_t __pthread_thread_id;
 
+// Wrapper around cloudabi_sys_thread_tcb_set() to only invoke the
+// underlying system call if there is no way this can be done natively.
+static inline void thread_tcb_set(void *ptr) {
+#if defined(__aarch64__)
+  asm volatile("msr tpidr_el0, %0" : : "r"(ptr));
+#elif defined(__x86_64__)
+  cloudabi_sys_thread_tcb_set(ptr);
+#else
+#error "Not implemented"
+#endif
+}
+
 #endif

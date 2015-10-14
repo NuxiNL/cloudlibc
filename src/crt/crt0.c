@@ -119,7 +119,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   crt_memcpy(tls_start, __tls_init_data, __tls_init_size);
   crt_memset(tls_start + __tls_init_size, 0,
              __tls_total_size - __tls_init_size);
-  cloudabi_sys_thread_tcb_set(&tls_end);
+  thread_tcb_set(&tls_end);
 
   // Patch up the pthread state for the initial thread. Make sure that
   // the pthread_t for the initial thread is valid. Also adjust
