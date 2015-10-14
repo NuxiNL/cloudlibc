@@ -115,11 +115,17 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // or mmap(), simply allocate a buffer on the stack of this thread.
   char tls_space[__tls_total_size + __tls_alignment - 1];
   char *tls_start = (char *)__roundup((uintptr_t)tls_space, __tls_alignment);
-  char *tls_end = tls_start + __tls_total_size;
   crt_memcpy(tls_start, __tls_init_data, __tls_init_size);
   crt_memset(tls_start + __tls_init_size, 0,
              __tls_total_size - __tls_init_size);
-  thread_tcb_set(&tls_end);
+#if defined(__aarch64__)
+  asm volatile("msr tpidr_el0, %0" : : "r"(tls_start));
+#elif defined(__x86_64__)
+  char *tls_end = tls_start + __tls_total_size;
+  cloudabi_sys_thread_tcb_set(&tls_end);
+#else
+#error "Unsupported architecture"
+#endif
 
   // Patch up the pthread state for the initial thread. Make sure that
   // the pthread_t for the initial thread is valid. Also adjust

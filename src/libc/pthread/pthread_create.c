@@ -20,10 +20,16 @@ static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
   // Set up TLS space.
   char tls_space[__tls_total_size + __tls_alignment - 1];
   char *tls_start = (char *)__roundup((uintptr_t)tls_space, __tls_alignment);
-  char *tls_end = tls_start + __tls_total_size;
   memcpy(tls_start, __tls_init_data, __tls_init_size);
   memset(tls_start + __tls_init_size, '\0', __tls_total_size - __tls_init_size);
-  thread_tcb_set(&tls_end);
+#if defined(__aarch64__)
+  asm volatile("msr tpidr_el0, %0" : : "r"(tls_start));
+#elif defined(__x86_64__)
+  char *tls_end = tls_start + __tls_total_size;
+  cloudabi_sys_thread_tcb_set(&tls_end);
+#else
+#error "Unsupported architecture"
+#endif
 
   // Fix up some of the variables stored in TLS.
   pthread_t handle = data;
