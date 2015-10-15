@@ -63,7 +63,7 @@ GENERATE_PRINT_VALUE_INT(unsigned long long, ullong, "ll", "u");
 
 GENERATE_PRINT_VALUE_FLOAT(float, float, "");
 GENERATE_PRINT_VALUE_FLOAT(double, double, "");
-GENERATE_PRINT_VALUE_FLOAT(double, ldouble, "L");
+GENERATE_PRINT_VALUE_FLOAT(long double, ldouble, "L");
 
 #undef GENERATE_PRINT_VALUE_FLOAT
 
