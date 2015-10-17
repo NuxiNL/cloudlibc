@@ -7,7 +7,6 @@ regex.h		 5%	Not started
 libintl.h	10%	Add something like gettext_l()
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
-sys/times.h	50%	Needs tests
 wchar.h		50%	stdio bits still missing. Many tests missing.
 sys/event.h	70%	Needs more tests
 string.h	80%	strcoll() and strxfrm() still missing
@@ -23,8 +22,8 @@ limits.h link.h locale.h math.h monetary.h net/if.h netdb.h netinet/in.h
 poll.h pthread.h sched.h semaphore.h setjmp.h signal.h stdalign.h
 stdarg.h stdatomic.h stdbool.h stddef.h stdint.h stdlib.h stdnoreturn.h
 strings.h sys/capsicum.h sys/mman.h sys/procdesc.h sys/stat.h sys/time.h
-sys/types.h sys/uio.h sys/un.h syslog.h tar.h testing.h tgmath.h
-threads.h time.h uchar.h wctype.h
+sys/times.h sys/types.h sys/uio.h sys/un.h syslog.h tar.h testing.h
+tgmath.h threads.h time.h uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
