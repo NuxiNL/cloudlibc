@@ -10,7 +10,6 @@ stdio.h		50%	printf() 'works'. scanf() doesn't. stdio still broken.
 wchar.h		50%	stdio bits still missing. Many tests missing.
 sys/event.h	70%	Needs more tests
 string.h	80%	strcoll() and strxfrm() still missing
-argdata.h	90%	YAML output needs floating point support
 sys/socket.h	90%	File descriptor passing missing
 unistd.h	90%	fpathconf() and sysconf() still missing
 
