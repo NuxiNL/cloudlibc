@@ -4,8 +4,10 @@
 // See the LICENSE file for details.
 
 #include <argdata.h>
+#include <float.h>
 #include <inttypes.h>
 #include <locale.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -108,6 +110,51 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     if (argdata_get_fd(ad, &value) == 0) {
       fprintf(fp, "!fd \"%d\"", value);
       return;
+    }
+  }
+
+  // Floating point numbers.
+  {
+    double value;
+    if (argdata_get_float(ad, &value) == 0) {
+      switch (fpclassify(value)) {
+        case FP_INFINITE:
+          // Positive or negative infinity.
+          fprintf(fp,
+                  signbit(value) ? "!!float \"-.inf\"" : "!!float \".inf\"");
+          return;
+        case FP_NAN:
+          // Not a number.
+          fprintf(fp, "!!float \".nan\"");
+          return;
+        case FP_ZERO:
+          // Zero. YAML doesn't distinguish between positive and negative zero.
+          fprintf(fp, "!!float \"0\"");
+          return;
+        default: {
+          // Normal or subnormal value.
+          char num[DBL_DECIMAL_DIG + 32];
+          snprintf(num, sizeof(num), "%.*e", DBL_DECIMAL_DIG, value);
+          char *exp = strchr(num, 'e');
+          // Strip off trailing zero digits from the significand.
+          for (char *dig = exp - 1; dig >= num && (*dig == '0' || *dig == '.');
+               --dig)
+            *dig = '\0';
+          // Preserve sign character.
+          *exp++ = '\0';
+          char sign = *exp++;
+          // Strip off leading zeroes from the exponent.
+          while (*exp == '0')
+            ++exp;
+          // Omit the exponent if it is zero.
+          if (*exp == '\0') {
+            fprintf(fp, "!!float \"%s\"", num);
+          } else {
+            fprintf(fp, "!!float \"%se%c%s\"", num, sign, exp);
+          }
+          return;
+        }
+      }
     }
   }
 
