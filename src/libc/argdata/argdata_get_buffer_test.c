@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <argdata.h>
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <testing.h>
@@ -109,6 +110,28 @@ TEST(argdata_get_buffer, fd) {
   argdata_t *ad = argdata_create_fd(12);
   TEST_OBJECT(ad, "\x03\x00\x00\x00\x00", 1, 12);
   argdata_free(ad);
+}
+
+TEST(argdata_get_buffer, float) {
+#define TEST_FLOAT(value, out)                   \
+  do {                                           \
+    argdata_t *ad = argdata_create_float(value); \
+    TEST_OBJECT(ad, "\x04" out, 0);              \
+    argdata_free(ad);                            \
+  } while (0)
+  TEST_FLOAT(-INFINITY, "\xff\xf0\x00\x00\x00\x00\x00\x00");
+  TEST_FLOAT(-0x1.e56b76eacd009p+54, "\xc3\x5e\x56\xb7\x6e\xac\xd0\x09");
+  TEST_FLOAT(-2.0, "\xc0\x00\x00\x00\x00\x00\x00\x00");
+  TEST_FLOAT(-1.0, "\xbf\xf0\x00\x00\x00\x00\x00\x00");
+  TEST_FLOAT(0.0, "\x00\x00\x00\x00\x00\x00\x00\x00");
+  TEST_FLOAT(0x1.6948c90b03bdcp-191, "\x34\x06\x94\x8c\x90\xb0\x3b\xdc");
+  TEST_FLOAT(1.0, "\x3f\xf0\x00\x00\x00\x00\x00\x00");
+  TEST_FLOAT(0x1.0000000000001p+0, "\x3f\xf0\x00\x00\x00\x00\x00\x01");
+  TEST_FLOAT(0x1.0000000000002p+0, "\x3f\xf0\x00\x00\x00\x00\x00\x02");
+  TEST_FLOAT(2.0, "\x40\x00\x00\x00\x00\x00\x00\x00");
+  TEST_FLOAT(INFINITY, "\x7f\xf0\x00\x00\x00\x00\x00\x00");
+  TEST_FLOAT(NAN, "\x7f\xf8\x00\x00\x00\x00\x00\x00");
+#undef TEST_FLOAT
 }
 
 TEST(argdata_get_buffer, int) {
