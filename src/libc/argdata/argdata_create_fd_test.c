@@ -17,7 +17,7 @@ TEST(argdata_create_fd, bad) {
   ASSERT_EQ(EBADF, errno);
 }
 
-TEST(argdata_create_int, good) {
+TEST(argdata_create_fd, good) {
   for (size_t i = 0; i < 1000; ++i) {
     // Create new file descriptor object.
     int j = arc4random_uniform(INT_MAX);
