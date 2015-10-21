@@ -98,18 +98,15 @@ The source tree is structured as follows:
 
 ## Building and installing cloudlibc
 
-After
-[building and installing Clang and GNU Binutils](https://github.com/NuxiNL/cloudlibc/wiki/Building-the-toolchain),
+*Note:* These instructions are only needed if you want to build
+cloudlibc manually, which is typically not needed. Please visit
+[Nuxi's company website](https://nuxi.nl/) for instructions on how to
+use CloudABI on your operating system of choice.
+
 cloudlibc may be built and installed by running the following command:
 
     ./build
     sudo ./install
-
-Once the build and installation has completed successfully, it should be
-possible to
-[install additional runtime libraries](https://github.com/NuxiNL/cloudlibc/wiki/Building-runtime-libraries),
-such as LLVM's compiler-rt, libc++ and libc++abi. These libraries are
-required for full C and C++ language support.
 
 ## Testing cloudlibc
 
@@ -135,39 +132,6 @@ logfile: !fd stdout
 nthreads: !!int 8
 EOF
 ```
-
-## Operating system support
-
-### FreeBSD
-
-CloudABI support has been upstreamed into FreeBSD as of SVN revision
-286680. The first release to include CloudABI support will be FreeBSD
-11.0. It is sufficient to run `kldload cloudabi64` to load in the
-CloudABI kernel module. Alternatively, the `COMPAT_CLOUDABI64` build
-option can be used to build support into the kernel.
-
-The
-[devel/cloudabi-toolchain](http://www.freshports.org/devel/cloudabi-toolchain)
-port can be installed to obtain a full cross compilation toolchain.
-There is no need to install Clang, cloudlibc or any of the LLVM
-libraries manually.
-
-The
-[sysutils/cloudabi-utils](http://www.freshports.org/sysutils/cloudabi-utils)
-port contains the `cloudabi-run` utility that can be used to more easily
-start up CloudABI processes.
-
-### Linux
-
-Linux support is also being developed. A copy of the patchset
-[can also be found on GitHub](https://github.com/NuxiNL/linux).
-
-### NetBSD
-
-A copy of NetBSD that supports CloudABI executables
-[can also be found on GitHub](https://github.com/NuxiNL/netbsd). As on
-FreeBSD, the kernel compilation option to enable CloudABI support is
-called `COMPAT_CLOUDABI64`.
 
 ## Support
 
