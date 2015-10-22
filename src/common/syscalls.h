@@ -55,9 +55,7 @@ typedef uint64_t register_t;
     register register_t okay;                                           \
     asm volatile(                                                       \
         "\tsvc 0\n"                                                     \
-        "\tmov %0, #0\n"                                                \
-        "\tb.cs 1f\n"                                                   \
-        "\tmov %0, #1\n"                                                \
+        "\tcset %0, cc\n"                                               \
         "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_value1), "=r"(reg_value2)                \
         : "r"(reg_sc)                                                   \
@@ -90,9 +88,7 @@ typedef uint64_t register_t;
     register register_t okay;                                           \
     asm volatile(                                                       \
         "\tsvc 0\n"                                                     \
-        "\tmov %0, #0\n"                                                \
-        "\tb.cs 1f\n"                                                   \
-        "\tmov %0, #1\n"                                                \
+        "\tcset %0, cc\n"                                               \
         "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_value1)                                  \
         : "r"(reg_sc), "r"(reg_value1)                                  \
@@ -114,9 +110,7 @@ typedef uint64_t register_t;
     register register_t okay;                                        \
     asm volatile(                                                    \
         "\tsvc 0\n"                                                  \
-        "\tmov %0, #0\n"                                             \
-        "\tb.cs 1f\n"                                                \
-        "\tmov %0, #1\n"                                             \
+        "\tcset %0, cc\n"                                            \
         "1:\n"                                                       \
         : "=r"(okay), "=r"(reg_value1), "=r"(reg_value2)             \
         : "r"(reg_sc), "r"(reg_value1)                               \
@@ -152,9 +146,7 @@ typedef uint64_t register_t;
     register register_t okay;                                        \
     asm volatile(                                                    \
         "\tsvc 0\n"                                                  \
-        "\tmov %0, #0\n"                                             \
-        "\tb.cs 1f\n"                                                \
-        "\tmov %0, #1\n"                                             \
+        "\tcset %0, cc\n"                                            \
         "1:\n"                                                       \
         : "=r"(okay), "=r"(reg_value1)                               \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2)              \
@@ -192,9 +184,7 @@ typedef uint64_t register_t;
     register register_t okay;                                            \
     asm volatile(                                                        \
         "\tsvc 0\n"                                                      \
-        "\tmov %0, #0\n"                                                 \
-        "\tb.cs 1f\n"                                                    \
-        "\tmov %0, #1\n"                                                 \
+        "\tcset %0, cc\n"                                                \
         "1:\n"                                                           \
         : "=r"(okay), "=r"(reg_value1)                                   \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3) \
@@ -235,9 +225,7 @@ typedef uint64_t register_t;
     register register_t okay;                                             \
     asm volatile(                                                         \
         "\tsvc 0\n"                                                       \
-        "\tmov %0, #0\n"                                                  \
-        "\tb.cs 1f\n"                                                     \
-        "\tmov %0, #1\n"                                                  \
+        "\tcset %0, cc\n"                                                 \
         "1:\n"                                                            \
         : "=r"(okay), "=r"(reg_value1)                                    \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3), \
@@ -281,9 +269,7 @@ typedef uint64_t register_t;
     register register_t okay;                                                \
     asm volatile(                                                            \
         "\tsvc 0\n"                                                          \
-        "\tmov %0, #0\n"                                                     \
-        "\tb.cs 1f\n"                                                        \
-        "\tmov %0, #1\n"                                                     \
+        "\tcset %0, cc\n"                                                    \
         "1:\n"                                                               \
         : "=r"(okay), "=r"(reg_value1)                                       \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),    \
@@ -332,9 +318,7 @@ typedef uint64_t register_t;
     register register_t okay;                                               \
     asm volatile(                                                           \
         "\tsvc 0\n"                                                         \
-        "\tmov %0, #0\n"                                                    \
-        "\tb.cs 1f\n"                                                       \
-        "\tmov %0, #1\n"                                                    \
+        "\tcset %0, cc\n"                                                   \
         "1:\n"                                                              \
         : "=r"(okay), "=r"(reg_value1)                                      \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),   \
@@ -370,9 +354,7 @@ typedef uint64_t register_t;
     register register_t okay;                                           \
     asm volatile(                                                       \
         "\tsyscall\n"                                                   \
-        "\tmov $0, %0\n"                                                \
-        "\tjb 1f\n"                                                     \
-        "\tmov $1, %0\n"                                                \
+        "\tcset %0, cc\n"                                               \
         "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_sc), "=r"(reg_value3)                    \
         : "r"(reg_sc)                                                   \
@@ -405,9 +387,7 @@ typedef uint64_t register_t;
     register register_t okay;                                           \
     asm volatile(                                                       \
         "\tsyscall\n"                                                   \
-        "\tmov $0, %0\n"                                                \
-        "\tjb 1f\n"                                                     \
-        "\tmov $1, %0\n"                                                \
+        "\tcset %0, cc\n"                                               \
         "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_sc)                                      \
         : "r"(reg_sc), "r"(reg_value1)                                  \
@@ -429,9 +409,7 @@ typedef uint64_t register_t;
     register register_t okay;                                         \
     asm volatile(                                                     \
         "\tsyscall\n"                                                 \
-        "\tmov $0, %0\n"                                              \
-        "\tjb 1f\n"                                                   \
-        "\tmov $1, %0\n"                                              \
+        "\tcset %0, cc\n"                                             \
         "1:\n"                                                        \
         : "=r"(okay), "=r"(reg_sc), "=r"(reg_value3)                  \
         : "r"(reg_sc), "r"(reg_value1)                                \
@@ -467,9 +445,7 @@ typedef uint64_t register_t;
     register register_t okay;                                         \
     asm volatile(                                                     \
         "\tsyscall\n"                                                 \
-        "\tmov $0, %0\n"                                              \
-        "\tjb 1f\n"                                                   \
-        "\tmov $1, %0\n"                                              \
+        "\tcset %0, cc\n"                                             \
         "1:\n"                                                        \
         : "=r"(okay), "=r"(reg_sc)                                    \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2)               \
@@ -507,9 +483,7 @@ typedef uint64_t register_t;
     register register_t okay;                                            \
     asm volatile(                                                        \
         "\tsyscall\n"                                                    \
-        "\tmov $0, %0\n"                                                 \
-        "\tjb 1f\n"                                                      \
-        "\tmov $1, %0\n"                                                 \
+        "\tcset %0, cc\n"                                                \
         "1:\n"                                                           \
         : "=r"(okay), "=r"(reg_sc)                                       \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3) \
@@ -550,9 +524,7 @@ typedef uint64_t register_t;
     register register_t okay;                                             \
     asm volatile(                                                         \
         "\tsyscall\n"                                                     \
-        "\tmov $0, %0\n"                                                  \
-        "\tjb 1f\n"                                                       \
-        "\tmov $1, %0\n"                                                  \
+        "\tcset %0, cc\n"                                                 \
         "1:\n"                                                            \
         : "=r"(okay), "=r"(reg_sc)                                        \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3), \
@@ -596,9 +568,7 @@ typedef uint64_t register_t;
     register register_t okay;                                                \
     asm volatile(                                                            \
         "\tsyscall\n"                                                        \
-        "\tmov $0, %0\n"                                                     \
-        "\tjb 1f\n"                                                          \
-        "\tmov $1, %0\n"                                                     \
+        "\tcset %0, cc\n"                                                    \
         "1:\n"                                                               \
         : "=r"(okay), "=r"(reg_sc)                                           \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),    \
@@ -647,9 +617,7 @@ typedef uint64_t register_t;
     register register_t okay;                                               \
     asm volatile(                                                           \
         "\tsyscall\n"                                                       \
-        "\tmov $0, %0\n"                                                    \
-        "\tjb 1f\n"                                                         \
-        "\tmov $1, %0\n"                                                    \
+        "\tcset %0, cc\n"                                                   \
         "1:\n"                                                              \
         : "=r"(okay), "=r"(reg_sc)                                          \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),   \
