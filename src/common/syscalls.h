@@ -351,10 +351,10 @@ typedef uint64_t register_t;
                                                      rtype2 *result2) { \
     register register_t reg_sc asm("rax") = (number);                   \
     register register_t reg_value3 asm("rdx");                          \
-    register register_t okay;                                           \
+    register char okay;                                                 \
     asm volatile(                                                       \
         "\tsyscall\n"                                                   \
-        "\tcset %0, cc\n"                                               \
+        "\tsetnc %0\n"                                                  \
         "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_sc), "=r"(reg_value3)                    \
         : "r"(reg_sc)                                                   \
@@ -384,10 +384,10 @@ typedef uint64_t register_t;
                                                      rtype1 *result1) { \
     register register_t reg_sc asm("rax") = (number);                   \
     register register_t reg_value1 asm("rdi") = (register_t)(value1);   \
-    register register_t okay;                                           \
+    register char okay;                                                 \
     asm volatile(                                                       \
         "\tsyscall\n"                                                   \
-        "\tcset %0, cc\n"                                               \
+        "\tsetnc %0\n"                                                  \
         "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_sc)                                      \
         : "r"(reg_sc), "r"(reg_value1)                                  \
@@ -406,10 +406,10 @@ typedef uint64_t register_t;
     register register_t reg_sc asm("rax") = (number);                 \
     register register_t reg_value1 asm("rdi") = (register_t)(value1); \
     register register_t reg_value3 asm("rdx");                        \
-    register register_t okay;                                         \
+    register char okay;                                               \
     asm volatile(                                                     \
         "\tsyscall\n"                                                 \
-        "\tcset %0, cc\n"                                             \
+        "\tsetnc %0\n"                                                \
         "1:\n"                                                        \
         : "=r"(okay), "=r"(reg_sc), "=r"(reg_value3)                  \
         : "r"(reg_sc), "r"(reg_value1)                                \
@@ -442,10 +442,10 @@ typedef uint64_t register_t;
     register register_t reg_sc asm("rax") = (number);                 \
     register register_t reg_value1 asm("rdi") = (register_t)(value1); \
     register register_t reg_value2 asm("rsi") = (register_t)(value2); \
-    register register_t okay;                                         \
+    register char okay;                                               \
     asm volatile(                                                     \
         "\tsyscall\n"                                                 \
-        "\tcset %0, cc\n"                                             \
+        "\tsetnc %0\n"                                                \
         "1:\n"                                                        \
         : "=r"(okay), "=r"(reg_sc)                                    \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2)               \
@@ -480,10 +480,10 @@ typedef uint64_t register_t;
     register register_t reg_value1 asm("rdi") = (register_t)(value1);    \
     register register_t reg_value2 asm("rsi") = (register_t)(value2);    \
     register register_t reg_value3 asm("rdx") = (register_t)(value3);    \
-    register register_t okay;                                            \
+    register char okay;                                                  \
     asm volatile(                                                        \
         "\tsyscall\n"                                                    \
-        "\tcset %0, cc\n"                                                \
+        "\tsetnc %0\n"                                                   \
         "1:\n"                                                           \
         : "=r"(okay), "=r"(reg_sc)                                       \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3) \
@@ -521,10 +521,10 @@ typedef uint64_t register_t;
     register register_t reg_value2 asm("rsi") = (register_t)(value2);     \
     register register_t reg_value3 asm("rdx") = (register_t)(value3);     \
     register register_t reg_value4 asm("r10") = (register_t)(value4);     \
-    register register_t okay;                                             \
+    register char okay;                                                   \
     asm volatile(                                                         \
         "\tsyscall\n"                                                     \
-        "\tcset %0, cc\n"                                                 \
+        "\tsetnc %0\n"                                                    \
         "1:\n"                                                            \
         : "=r"(okay), "=r"(reg_sc)                                        \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3), \
@@ -565,10 +565,10 @@ typedef uint64_t register_t;
     register register_t reg_value3 asm("rdx") = (register_t)(value3);        \
     register register_t reg_value4 asm("r10") = (register_t)(value4);        \
     register register_t reg_value5 asm("r8") = (register_t)(value5);         \
-    register register_t okay;                                                \
+    register char okay;                                                      \
     asm volatile(                                                            \
         "\tsyscall\n"                                                        \
-        "\tcset %0, cc\n"                                                    \
+        "\tsetnc %0\n"                                                       \
         "1:\n"                                                               \
         : "=r"(okay), "=r"(reg_sc)                                           \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),    \
@@ -614,10 +614,10 @@ typedef uint64_t register_t;
     register register_t reg_value4 asm("r10") = (register_t)(value4);       \
     register register_t reg_value5 asm("r8") = (register_t)(value5);        \
     register register_t reg_value6 asm("r9") = (register_t)(value6);        \
-    register register_t okay;                                               \
+    register char okay;                                                     \
     asm volatile(                                                           \
         "\tsyscall\n"                                                       \
-        "\tcset %0, cc\n"                                                   \
+        "\tsetnc %0\n"                                                      \
         "1:\n"                                                              \
         : "=r"(okay), "=r"(reg_sc)                                          \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),   \
