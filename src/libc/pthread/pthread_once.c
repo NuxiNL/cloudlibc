@@ -28,16 +28,18 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
   // inheritance.
   cloudabi_lock_t expected = CLOUDABI_LOCK_BOGUS;
   cloudabi_lock_t locked = __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED;
-  if (atomic_compare_exchange_strong_explicit(&once_control->__state, &expected,
-                                              locked, memory_order_acquire,
-                                              memory_order_acquire)) {
+  if (atomic_compare_exchange_strong_explicit(
+          &once_control->__state, &expected, locked,
+          memory_order_acquire | __memory_order_hle_acquire,
+          memory_order_acquire)) {
     // First invocation. Execute initialization routine.
     init_routine();
 
     // Attempt to mark the once object as finished.
     if (!atomic_compare_exchange_strong_explicit(
             &once_control->__state, &locked, CLOUDABI_LOCK_UNLOCKED,
-            memory_order_release, memory_order_relaxed)) {
+            memory_order_release | __memory_order_hle_release,
+            memory_order_relaxed)) {
       assert(locked == (__pthread_thread_id | CLOUDABI_LOCK_WRLOCKED |
                         CLOUDABI_LOCK_KERNEL_MANAGED) &&
              "Corrupt once object");

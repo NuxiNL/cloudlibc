@@ -14,9 +14,10 @@
 int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   // The canonical case: the lock has not been acquired.
   cloudabi_lock_t old = CLOUDABI_LOCK_UNLOCKED;
-  while (!atomic_compare_exchange_weak_explicit(&rwlock->__state, &old, old + 1,
-                                                memory_order_acquire,
-                                                memory_order_relaxed)) {
+  while (!atomic_compare_exchange_weak_explicit(
+      &rwlock->__state, &old, old + 1,
+      memory_order_acquire | __memory_order_hle_acquire,
+      memory_order_relaxed)) {
     if ((old & CLOUDABI_LOCK_WRLOCKED) != 0) {
       // Another thread already has a write lock.
       assert((old & ~CLOUDABI_LOCK_KERNEL_MANAGED) !=

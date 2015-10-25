@@ -33,7 +33,8 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
     // Attempt to unlock from userspace.
     old &= ~CLOUDABI_LOCK_KERNEL_MANAGED;
     if (!atomic_compare_exchange_strong_explicit(
-            state, &old, CLOUDABI_LOCK_UNLOCKED, memory_order_release,
+            state, &old, CLOUDABI_LOCK_UNLOCKED,
+            memory_order_release | __memory_order_hle_release,
             memory_order_relaxed)) {
       // Lock is managed by kernelspace. Call into the kernel to unblock
       // waiting threads.
@@ -63,7 +64,8 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
         if (atomic_compare_exchange_weak_explicit(
                 state, &old, __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED |
                                  CLOUDABI_LOCK_KERNEL_MANAGED,
-                memory_order_release, memory_order_relaxed)) {
+                memory_order_release | __memory_order_hle_release,
+                memory_order_relaxed)) {
           // Call into the kernel to unlock.
           cloudabi_errno_t error =
               cloudabi_sys_lock_unlock(state, rwlock->__pshared);
@@ -76,9 +78,10 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
         // the read lock count.
         assert((old & ~CLOUDABI_LOCK_KERNEL_MANAGED) != 0 &&
                "This rwlock is not locked");
-        if (atomic_compare_exchange_weak_explicit(state, &old, old - 1,
-                                                  memory_order_release,
-                                                  memory_order_relaxed))
+        if (atomic_compare_exchange_weak_explicit(
+                state, &old, old - 1,
+                memory_order_release | __memory_order_hle_release,
+                memory_order_relaxed))
           break;
       }
     }

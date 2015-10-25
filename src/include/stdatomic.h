@@ -22,6 +22,10 @@
 // SUCH DAMAGE.
 
 // <stdatomic.h> - atomics
+//
+// Extensions:
+// - __memory_order_hle_acquire and __memory_order_hle_release:
+//   Allows for annotation of locks to reduce contention.
 
 #ifndef _STDATOMIC_H_
 #define _STDATOMIC_H_
@@ -58,7 +62,17 @@ typedef enum {
   memory_order_acquire = __ATOMIC_ACQUIRE,
   memory_order_release = __ATOMIC_RELEASE,
   memory_order_acq_rel = __ATOMIC_ACQ_REL,
-  memory_order_seq_cst = __ATOMIC_SEQ_CST
+  memory_order_seq_cst = __ATOMIC_SEQ_CST,
+
+#if defined(__ATOMIC_HLE_ACQUIRE) && defined(__ATOMIC_HLE_RELEASE)
+  // Compiler supports Hardware Lock Elision.
+  __memory_order_hle_acquire = __ATOMIC_HLE_ACQUIRE,
+  __memory_order_hle_release = __ATOMIC_HLE_RELEASE
+#else
+  // Ignore Hardware Lock Elision hints.
+  __memory_order_hle_acquire = 0,
+  __memory_order_hle_release = 0
+#endif
 } memory_order;
 
 #define kill_dependency(y) (y)

@@ -16,7 +16,8 @@ int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   cloudabi_lock_t old = CLOUDABI_LOCK_UNLOCKED;
   if (atomic_compare_exchange_strong_explicit(
           &rwlock->__state, &old, __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED,
-          memory_order_acquire, memory_order_relaxed)) {
+          memory_order_acquire | __memory_order_hle_acquire,
+          memory_order_relaxed)) {
     LIST_INSERT_HEAD(&__pthread_wrlocks, rwlock, __write_locks);
     return 0;
   }
