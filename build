@@ -11,7 +11,7 @@ set -e
 # Contributed sources.
 DOUBLE_CONVERSION=contrib/double-conversion-1f0b845
 JEMALLOC=contrib/jemalloc-4.0.0
-OPENLIBM=contrib/openlibm-ef29d06
+OPENLIBM=contrib/openlibm-91f517b
 
 # Additional compiler flags to include the right files, etc.
 CFLAGS="${CFLAGS} -nostdinc -Isrc -Isrc/include \

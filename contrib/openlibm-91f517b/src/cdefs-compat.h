@@ -79,8 +79,5 @@
 #endif  /* __weak_reference */
 #endif	/* __GNUC__ */
 
-#ifndef __always_inline
-#define	__always_inline	__attribute__((__always_inline__))
-#endif
 
 #endif /* _CDEFS_COMPAT_H_ */
