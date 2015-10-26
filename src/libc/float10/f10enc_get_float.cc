@@ -5,7 +5,7 @@
 
 #include <common/float10.h>
 
-#include <strtod.h>
+#include <double-conversion/strtod.h>
 
 float __f10enc_get_float(const char *str, size_t len, int exponent) {
   return double_conversion::Strtof(

@@ -5,7 +5,7 @@
 
 #include <common/float10.h>
 
-#include <double-conversion.h>
+#include <double-conversion/double-conversion.h>
 
 using double_conversion::DoubleToStringConverter;
 

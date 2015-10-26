@@ -25,8 +25,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "bignum.h"
-#include "utils.h"
+#include "double-conversion/bignum.h"
+#include "double-conversion/utils.h"
 
 namespace double_conversion {
 
@@ -104,7 +104,7 @@ void Bignum::AssignDecimalString(Vector<const char> value) {
   const int kMaxUint64DecimalDigits = 19;
   Zero();
   int length = value.length();
-  int pos = 0;
+  unsigned int pos = 0;
   // Let's just say that each digit needs 4 bits.
   while (length >= kMaxUint64DecimalDigits) {
     uint64_t digits = ReadUInt64(value, pos, kMaxUint64DecimalDigits);
