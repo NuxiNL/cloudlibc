@@ -40,6 +40,12 @@ static inline bool append(FILE *stream, char **restrict lineptr,
 
 ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delimiter,
                  FILE *restrict stream) {
+  // Buffer and length pointer should be non-zero.
+  if (lineptr == NULL || n == NULL) {
+    errno = EINVAL;
+    return -1;
+  }
+
   // Line length is zero when no buffer is provided.
   if (*lineptr == NULL)
     *n = 0;

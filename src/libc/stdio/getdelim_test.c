@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <testing.h>
@@ -12,6 +13,13 @@ TEST(getdelim, example) {
   FILE *file = fmemopen((char *)mytext, sizeof(mytext) - 1, "r");
   char *lineptr = NULL;
   size_t n;
+
+  ASSERT_EQ(-1, getdelim(NULL, &n, ' ', file));
+  ASSERT_EQ(EINVAL, errno);
+  ASSERT_EQ(-1, getdelim(&lineptr, NULL, ' ', file));
+  ASSERT_EQ(EINVAL, errno);
+  ASSERT_EQ(-1, getdelim(NULL, NULL, ' ', file));
+  ASSERT_EQ(EINVAL, errno);
 
   ASSERT_EQ(5, getdelim(&lineptr, &n, ' ', file));
   ASSERT_EQ(16, n);
