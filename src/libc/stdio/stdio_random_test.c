@@ -88,14 +88,13 @@ static void apply_random_operations(FILE *stream) {
           // standardized, but most implementations seem to return NULL.
           dprintf(1, "Zero read\n");
           ASSERT_EQ(NULL, fgets(readbuf, readlen, stream));
+        } else if (readlen == 1) {
+          // This should always succeed by returning an empty buffer.
+          ASSERT_EQ(readbuf, fgets(readbuf, readlen, stream));
+          ASSERT_EQ('\0', readbuf[0]);
         } else if (offset >= length) {
-          // TODO(ed): Pick a proper behaviour for this.
-          dprintf(1, "Read past end of the file\n");
-          if (fgets(readbuf, readlen, stream) != NULL) {
-            ASSERT_EQ('\0', readbuf[0]);
-          } else {
-            has_eof = true;
-          }
+          ASSERT_EQ(NULL, fgets(readbuf, readlen, stream));
+          has_eof = true;
         } else {
           dprintf(1, "Read not past end of the file %ld + %zu, %ld\n", offset,
                   readlen, length);
