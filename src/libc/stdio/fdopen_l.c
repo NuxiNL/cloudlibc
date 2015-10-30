@@ -288,10 +288,8 @@ static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
     return NULL;
   }
   file->fd = fildes;
-  file->ops = &ops;
   file->offset = -1;
-
-  // Attach allocated buffer.
+  file->ops = &ops;
   file->pipe.readbuf = readbuf;
   file->pipe.writebuf = writebuf;
   file->pipe.bufsize = BUFSIZ;
