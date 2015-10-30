@@ -29,10 +29,22 @@ static bool stderr_setvbuf(FILE *file, size_t size) {
   return true;
 }
 
+static bool stderr_flush(FILE *file) {
+  // Nothing to flush.
+  return true;
+}
+
+static bool stderr_close(FILE *file) {
+  // Nothing to free.
+  return true;
+}
+
 static struct fileops stderrops = {
     .write_peek = stderr_write_peek,
     .seek = stderr_seek,
     .setvbuf = stderr_setvbuf,
+    .flush = stderr_flush,
+    .close = stderr_close,
 };
 
 struct _FILE __stderr = {
