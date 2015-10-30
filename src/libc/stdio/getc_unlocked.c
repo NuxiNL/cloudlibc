@@ -7,15 +7,11 @@
 
 #include <stdio.h>
 
-int getc_unlocked(FILE *stream) {
-  // Obtain the read buffer.
-  const char *readbuf;
-  size_t readbuflen;
-  if (!fread_peek(stream, &readbuf, &readbuflen) || readbuflen == 0)
-    return EOF;
+#ifndef getc_unlocked
+#error "getc_unlocked is supposed to be a macro as well"
+#endif
 
-  // Consume a single character.
-  unsigned char ch = *readbuf;
-  fread_consume(stream, 1);
-  return ch;
+// clang-format off
+int (getc_unlocked)(FILE *stream) {
+  return getc_unlocked(stream);
 }

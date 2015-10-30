@@ -113,12 +113,25 @@ static bool tmp_setvbuf(FILE *file, size_t size) __requires_exclusive(*file) {
   return true;
 }
 
+static bool tmp_flush(FILE *file) __requires_exclusive(*file) {
+  // There is no need to flush anything, as the contents of this file
+  // are only observable internally.
+  return true;
+}
+
+static bool tmp_close(FILE *file) __requires_exclusive(*file) {
+  free(file->tmpfile.buf);
+  return true;
+}
+
 FILE *tmpfile_l(locale_t locale) {
   static const struct fileops ops = {
       .read_peek = tmp_read_peek,
       .write_peek = tmp_write_peek,
       .seek = tmp_seek,
       .setvbuf = tmp_setvbuf,
+      .flush = tmp_flush,
+      .close = tmp_close,
   };
 
   FILE *file = __falloc("w+", locale);

@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/overflow.h>
 #include <common/stdio.h>
 
 #include <stdbool.h>
@@ -10,7 +11,36 @@
 #include <stdlib.h>
 #include <string.h>
 
-static bool mem_read_peek(FILE *file) {
+static void mem_drain(FILE *file) __requires_exclusive(*file) {
+  // TODO(ed): Perform NULL termination.
+
+  // Sync up the file offset again.
+  file->offset = ftello_fast(file);
+
+  // Adjust the file length if we've written data.
+  if (file->writebuf != file->fmemopen.owritebuf &&
+      (off_t)file->fmemopen.used < file->offset) {
+    // Write of data may have introduced sparseness into the file. Zero
+    // out the sparse region.
+    const char *end_sparse = file->fmemopen.owritebuf;
+    char *start_sparse = file->fmemopen.buf + file->fmemopen.used;
+    if (start_sparse < end_sparse)
+      memset(start_sparse, '\0', end_sparse - start_sparse);
+
+    file->fmemopen.used = file->offset;
+  }
+
+  // Discard both the read and write buffers.
+  file->readbuf = NULL;
+  file->readbuflen = 0;
+  file->fmemopen.owritebuf = file->writebuf = NULL;
+  file->writebuflen = 0;
+}
+
+static bool mem_read_peek(FILE *file) __requires_exclusive(*file) {
+  mem_drain(file);
+
+  // Expose the read buffer if the offset is not beyond end of file.
   if (file->offset < (off_t)file->fmemopen.used) {
     file->readbuf = file->fmemopen.buf + file->offset;
     file->readbuflen = file->fmemopen.used - file->offset;
@@ -19,60 +49,104 @@ static bool mem_read_peek(FILE *file) {
   return true;
 }
 
-// Single-byte space, used as a write buffer when attempting to write
-// beyond end-of-file.
-static char dead_space[1];
+static bool mem_write_peek(FILE *file) __requires_exclusive(*file) {
+  mem_drain(file);
 
-static bool mem_write_peek(FILE *file) {
-  if (file->writebuf == &dead_space[0]) {
-    // Nothing happened.
-    return true;
-  } else if (file->writebuf == &dead_space[1]) {
-    // Attempted to write beyond end of buffer.
-    file->writebuf = &dead_space[0];
-    file->writebuflen = 1;
-    file->offset = file->fmemopen.size + 1;
+  // Reset position to the end if we're using O_APPEND.
+  if ((file->oflags & O_APPEND) != 0)
+    file->offset = file->fmemopen.used;
+
+  // Disallow writes beyond end of file.
+  if (file->offset >= (off_t)file->fmemopen.size) {
     errno = ENOSPC;
     return false;
-  } else {
-    // Determine current offset within the file.
-    size_t offset = file->writebuf - file->fmemopen.buf;
-
-    // TODO(ed): Is this logic correct?
-    if (offset > file->fmemopen.used)
-      file->fmemopen.used = file->offset;
-
-    file->writebuflen = file->fmemopen.size - offset;
-    if (file->writebuflen == 0) {
-      // We're at the very end of our memory file. Provide a trap byte
-      // that will be used to determine whether we're writing past the
-      // end of the file.
-      file->writebuf = &dead_space[0];
-      file->writebuflen = 1;
-      file->offset = file->fmemopen.size + 1;
-    } else {
-      // Return the region from current position to the end of the file.
-      file->writebuf = file->fmemopen.buf + offset;
-      file->offset = file->fmemopen.size;
-    }
-    return true;
   }
+
+  // Expose the write buffer.
+  file->fmemopen.owritebuf = file->writebuf = file->fmemopen.buf + file->offset;
+  file->writebuflen = file->fmemopen.size - file->offset;
+  file->offset = file->fmemopen.size;
+  return true;
 }
 
-static bool mem_setvbuf(FILE *stream, size_t size) {
+static bool mem_seek(FILE *file, off_t offset, int whence)
+    __requires_exclusive(*file) {
+  // Force a drain to adjust the offset and length of the file.
+  mem_drain(file);
+
+  // Adjust the offset to be absolute.
+  switch (whence) {
+    case SEEK_CUR:
+      if (add_overflow(offset, file->offset, &offset)) {
+        errno = EOVERFLOW;
+        return false;
+      }
+      break;
+    case SEEK_END:
+      if (add_overflow(offset, file->fmemopen.used, &offset)) {
+        errno = EOVERFLOW;
+        return false;
+      }
+      break;
+    case SEEK_SET:
+      break;
+    default:
+      errno = EINVAL;
+      return false;
+  }
+
+  // Disallow negative offsets.
+  if (offset < 0 || offset > (off_t)file->fmemopen.size) {
+    errno = EINVAL;
+    return false;
+  }
+
+  // Apply new offset.
+  file->offset = offset;
+  return true;
+}
+
+static bool mem_setvbuf(FILE *file, size_t size) __requires_exclusive(*file) {
   // Buffer size of memory files cannot be adjusted, as data is written
   // into the underlying buffer directly.
   return true;
 }
 
-static const struct fileops mem_fileops = {
-    .read_peek = mem_read_peek,
-    .write_peek = mem_write_peek,
-    .setvbuf = mem_setvbuf,
-};
+static bool mem_flush(FILE *file) __requires_exclusive(*file) {
+  // Perform drain to force null termination and zeroing of sparse space.
+  mem_drain(file);
+  return true;
+}
+
+static bool mem_close(FILE *file) __requires_exclusive(*file) {
+  if (file->fmemopen.external) {
+    // External buffer. Perform drain to force null termination and
+    // zeroing of sparse space.
+    mem_drain(file);
+  } else {
+    // Internal buffer. Simply free the contents.
+    free(file->fmemopen.buf);
+  }
+  return true;
+}
 
 FILE *fmemopen_l(void *restrict buf, size_t size, const char *restrict mode,
                  locale_t locale) {
+  static const struct fileops ops = {
+      .read_peek = mem_read_peek,
+      .write_peek = mem_write_peek,
+      .seek = mem_seek,
+      .setvbuf = mem_setvbuf,
+      .flush = mem_flush,
+      .close = mem_close,
+  };
+
+  // Zero-sized buffers are not permitted.
+  if (size == 0) {
+    errno = EINVAL;
+    return NULL;
+  }
+
   // Allocate buffer and FILE object.
   FILE *file;
   if (buf == NULL && size > 0) {
@@ -88,6 +162,7 @@ FILE *fmemopen_l(void *restrict buf, size_t size, const char *restrict mode,
     file = __falloc(mode, locale);
     if (file == NULL)
       return NULL;
+    file->fmemopen.external = true;
 
     if (file->oflags & O_APPEND) {
       // Set offset to the end of the data.
@@ -101,6 +176,6 @@ FILE *fmemopen_l(void *restrict buf, size_t size, const char *restrict mode,
   file->fmemopen.buf = buf;
   file->fmemopen.size = size;
   file->writebuf = file->fmemopen.buf + file->offset;
-  file->ops = &mem_fileops;
+  file->ops = &ops;
   return file;
 }

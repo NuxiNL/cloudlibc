@@ -3,12 +3,12 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/limits.h>
+#include <common/overflow.h>
 #include <common/stdio.h>
 
 #include <sys/stat.h>
 
-#include <locale.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -23,125 +23,138 @@
 // file descriptor's offset. This makes it possible to have multiple
 // FILE objects pointing to the same file descriptor.
 
-static bool file_write_peek(FILE *);
+static bool file_drain(FILE *file) __requires_exclusive(*file) {
+  // Offset after draining.
+  off_t offset = ftello_fast(file);
 
-static bool file_read_peek(FILE *file) {
-  assert((file->oflags & O_RDONLY) != 0 &&
-         "Attempted to read from non-readable file");
+  // Check whether there is data that still needs to be written to disk.
+  while (file->file.written < file->writebuf) {
+    size_t buflen = file->writebuf - file->file.written;
+    ssize_t ret;
+    if ((file->oflags & O_APPEND) != 0) {
+      // File is opened for append. Call write().
+      ret = write(file->fd, file->file.written, buflen);
+    } else {
+      // File is not opened for append. We can use pwrite().
+      ret = pwrite(file->fd, file->file.written, buflen, offset - buflen);
+    }
+    if (ret < 0)
+      return false;
+    file->file.written += ret;
+  }
 
-  // First ensure that there's no more data in the write buffer before
-  // attempting to read.
-  if (!file_write_peek(file))
+  // Discard both the read and write buffers.
+  file->offset = offset;
+  file->readbuf = NULL;
+  file->readbuflen = 0;
+  file->writebuf = file->file.written = NULL;
+  file->writebuflen = 0;
+  return true;
+}
+
+static bool file_read_peek(FILE *file) __requires_exclusive(*file) {
+  if (!file_drain(file))
     return false;
 
-  // Recompute current file offset.
-  assert(file->readbuflen == 0 && "Read buffer available after write flush");
-  assert(file->writebuf == file->file.buf && "Not all data has been flushed");
-  off_t offset = file->offset - file->writebuflen;
-  assert(offset >= 0 && "File offset went negative");
-
   // Read data.
-  ssize_t ret = pread(file->fd, file->file.buf, file->file.bufsize, offset);
+  ssize_t ret =
+      pread(file->fd, file->file.buf, file->file.bufsize, file->offset);
   if (ret < 0)
     return false;
 
   // Put new read buffer in place.
   file->readbuf = file->file.buf;
   file->readbuflen = ret;
-  file->writebuflen = 0;
-  file->offset = offset + file->readbuflen;
+  file->offset += file->readbuflen;
   return true;
 }
 
-static bool file_write_peek(FILE *file) {
-  const char *buf = file->file.buf;
-  for (;;) {
-    size_t length = file->writebuf - buf;
-    if (length == 0)
-      break;
+static bool file_write_peek(FILE *file) __requires_exclusive(*file) {
+  if (!file_drain(file))
+    return false;
 
-    assert((file->oflags & O_WRONLY) != 0 &&
-           "Attempted to write to non-writable file");
-    assert(file->readbuflen == 0 &&
-           "Read and write buffer in use simultaneously");
-    off_t offset = file->offset - file->writebuflen - length;
-    ssize_t ret = pwrite(file->fd, buf, length, offset);
-    if (ret < 0) {
-      // Failed to write data. Move unwritten data to the start ouf the
-      // write buffer so it can be retried later on.
-      memmove(file->file.buf, buf, length);
-      file->writebuf = file->file.buf + length;
-      file->writebuflen = file->file.bufsize - length;
-      file->offset = offset + file->file.bufsize;
-      return false;
-    }
-    buf += ret;
-  }
-
-  // No data left to write. Reset the write buffer.
-  off_t offset = file->offset - file->readbuflen - file->writebuflen;
-  file->readbuflen = 0;
-  file->writebuf = file->file.buf;
+  // Put new write buffer in place.
+  file->writebuf = file->file.written = file->file.buf;
   file->writebuflen = file->file.bufsize;
-  file->offset = offset + file->writebuflen;
+  file->offset += file->writebuflen;
   return true;
 }
 
-static bool file_seek(FILE *file, off_t offset, int whence) {
-  // Determine new file offset.
-  off_t base;
+static bool file_seek(FILE *file, off_t offset, int whence)
+    __requires_exclusive(*file) {
+  // Drain data that needs to be written first. This may extend the
+  // length of the file.
+  if (!file_drain(file))
+    return false;
+
+  // Adjust the offset to be absolute.
   switch (whence) {
-    case SEEK_CUR: {
-      // Add current position within the file.
-      base = file->offset - file->readbuflen - file->writebuflen;
+    case SEEK_CUR:
+      if (add_overflow(offset, file->offset, &offset)) {
+        errno = EOVERFLOW;
+        return false;
+      }
       break;
-    }
     case SEEK_END: {
-      // Add length of the file.
       struct stat sb;
       if (fstat(file->fd, &sb) != 0)
         return false;
-      base = sb.st_size;
+      if (add_overflow(offset, sb.st_size, &offset)) {
+        errno = EOVERFLOW;
+        return false;
+      }
       break;
     }
-    case SEEK_SET: {
-      // Absolute offset.
-      base = 0;
+    case SEEK_SET:
       break;
-    }
-    default: {
+    default:
       errno = EINVAL;
       return false;
-    }
   }
 
-  // The condition below performs bounds checking against the offset.
-  // The expression essentially computes:
-  //
-  //     offset + base < 0 ||
-  //     offset + base + file->file.bufsize > NUMERIC_MAX(off_t)
-  assert(base >= 0 && "Negative base offset");
-  if (offset < -base ||
-      offset > NUMERIC_MAX(off_t) - base - (off_t)file->file.bufsize) {
+  // Disallow negative offsets.
+  if (offset < 0) {
     errno = EINVAL;
     return false;
   }
 
-  // Flush read/write buffers before seeking.
-  if (!file_write_peek(file))
-    return false;
-
-  // Apply the new offset.
-  assert(file->writebuflen == file->file.bufsize &&
-         "Write buffer is not in its initial state");
-  file->offset = base + offset + file->writebuflen;
+  // Apply new offset.
+  file->offset = offset;
   return true;
 }
 
-static bool file_setvbuf(FILE *file, size_t size) {
-  // TODO(ed): Implement.
-  errno = ENOSYS;
-  return false;
+static bool file_setvbuf(FILE *file, size_t size) __requires_exclusive(*file) {
+  if (!file_drain(file))
+    return false;
+
+  // Grow/shrink buffer using realloc().
+  char *new_buf = realloc(file->file.buf, size);
+  if (new_buf == NULL)
+    return NULL;
+  file->file.buf = new_buf;
+  file->file.bufsize = size;
+  return true;
+}
+
+static bool file_flush(FILE *file) __requires_exclusive(*file) {
+  // Write data that still needs to written to disk. Update the offset
+  // of the file descriptor to be in sync with the stream.
+  if (!file_drain(file))
+    return false;
+  return lseek(file->fd, file->offset, SEEK_SET) >= 0;
+}
+
+static bool file_close(FILE *file) __requires_exclusive(*file) {
+  // Drain any data that still needs to be written.
+  bool okay = true;
+  if (!file_drain(file))
+    okay = false;
+
+  // Free read/write buffer and the underlying file descriptor.
+  free(file->file.buf);
+  if (close(file->fd) != 0)
+    okay = false;
+  return okay;
 }
 
 static FILE *file_open(int fildes, const char *mode, locale_t locale,
@@ -151,6 +164,8 @@ static FILE *file_open(int fildes, const char *mode, locale_t locale,
       .write_peek = file_write_peek,
       .seek = file_seek,
       .setvbuf = file_setvbuf,
+      .flush = file_flush,
+      .close = file_close,
   };
 
   // Allocate the read/write buffer.
@@ -165,18 +180,10 @@ static FILE *file_open(int fildes, const char *mode, locale_t locale,
     return NULL;
   }
   file->fd = fildes;
-  // TODO(ed): Have separate ops for the append case.
-  file->ops = &ops;
-
-  // Attach allocated buffer.
   file->file.buf = buf;
   file->file.bufsize = BUFSIZ;
-
-  // Initial state: empty read and write buffers.
-  file->readbuflen = 0;
-  file->writebuf = file->file.buf;
-  file->writebuflen = file->file.bufsize;
-  file->offset = offset + BUFSIZ;
+  file->offset = offset;
+  file->ops = &ops;
   return file;
 }
 
@@ -185,61 +192,61 @@ static FILE *file_open(int fildes, const char *mode, locale_t locale,
 // Pipes and sockets require us to have separate read/write buffers. We
 // should also use read() and write(), as we cannot write at a position.
 
-static bool pipe_read_peek(FILE *file) {
-  assert((file->oflags & O_RDONLY) != 0 &&
-         "Attempted to read from non-readable file");
-
-  // Move remaining data in the read buffer to the front.
-  memmove(file->pipe.readbuf, file->readbuf, file->readbuflen);
-  file->readbuf = file->pipe.readbuf;
-
+static bool pipe_read_peek(FILE *file) __requires_exclusive(*file) {
   // Read next chunk of data.
-  ssize_t ret = read(file->fd, file->readbuf + file->readbuflen,
-                     file->pipe.bufsize - file->readbuflen);
+  ssize_t ret = read(file->fd, file->pipe.readbuf, file->pipe.bufsize);
   if (ret < 0)
     return false;
-
-  // Successfully read next buffer of data.
+  file->readbuf = file->pipe.readbuf;
   file->readbuflen += ret;
   return true;
 }
 
-static bool pipe_write_peek(FILE *file) {
-  const char *buf = file->pipe.writebuf;
-  for (;;) {
-    size_t length = file->writebuf - buf;
-    if (length == 0)
-      break;
-
-    assert((file->oflags & O_WRONLY) != 0 &&
-           "Attempted to write to non-writable file");
-    ssize_t ret = write(file->fd, buf, length);
-    if (ret < 0) {
-      // Failed to write data. Move unwritten data to the start ouf the
-      // write buffer so it can be retried later on.
-      memmove(file->pipe.writebuf, buf, length);
-      file->writebuf = file->pipe.writebuf + length;
-      file->writebuflen = file->pipe.bufsize - length;
+static bool pipe_write_peek(FILE *file) __requires_exclusive(*file) {
+  // Check whether there is data that still needs to be written to disk.
+  while (file->pipe.written < file->writebuf) {
+    ssize_t ret = write(file->fd, file->pipe.written,
+                        file->writebuf - file->pipe.written);
+    if (ret < 0)
       return false;
-    }
-    buf += ret;
+    file->pipe.written += ret;
   }
 
-  // No data left to write. Reset the write buffer.
-  file->writebuf = file->pipe.writebuf;
+  // Reset the write buffer.
+  file->writebuf = file->pipe.written = file->pipe.writebuf;
   file->writebuflen = file->pipe.bufsize;
   return true;
 }
 
-static bool pipe_seek(FILE *file, off_t offset, int whence) {
+static bool pipe_seek(FILE *file, off_t offset, int whence)
+    __requires_exclusive(*file) {
   // We cannot seek in pipes.
   errno = ESPIPE;
   return false;
 }
 
-static bool pipe_setvbuf(FILE *file, size_t bufsize) {
+static bool pipe_setvbuf(FILE *file, size_t bufsize)
+    __requires_exclusive(*file) {
   // TODO(ed): Implement.
-  return true;
+  return false;
+}
+
+static bool pipe_flush(FILE *file) __requires_exclusive(*file) {
+  return pipe_write_peek(file);
+}
+
+static bool pipe_close(FILE *file) __requires_exclusive(*file) {
+  // Drain any data that still needs to be written.
+  bool okay = true;
+  if (!pipe_write_peek(file))
+    okay = false;
+
+  // Free read/write buffers and the underlying file descriptor.
+  free(file->pipe.readbuf);
+  free(file->pipe.writebuf);
+  if (close(file->fd) != 0)
+    okay = false;
+  return okay;
 }
 
 static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
@@ -248,17 +255,25 @@ static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
       .write_peek = pipe_write_peek,
       .seek = pipe_seek,
       .setvbuf = pipe_setvbuf,
+      .flush = pipe_flush,
+      .close = pipe_close,
   };
 
-  // Allocate the read/write buffer.
-  char *buf = malloc(2 * BUFSIZ);
-  if (buf == NULL)
+  // Allocate the read/write buffers.
+  char *readbuf = malloc(BUFSIZ);
+  if (readbuf == NULL)
     return NULL;
+  char *writebuf = malloc(BUFSIZ);
+  if (writebuf == NULL) {
+    free(readbuf);
+    return NULL;
+  }
 
   // Allocate new stream object and initialize it.
   FILE *file = __falloc(mode, locale);
   if (file == NULL) {
-    free(buf);
+    free(readbuf);
+    free(writebuf);
     return NULL;
   }
   file->fd = fildes;
@@ -266,14 +281,9 @@ static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
   file->offset = -1;
 
   // Attach allocated buffer.
-  file->pipe.readbuf = buf;
-  file->pipe.writebuf = buf + BUFSIZ;
+  file->pipe.readbuf = readbuf;
+  file->pipe.writebuf = writebuf;
   file->pipe.bufsize = BUFSIZ;
-
-  // Initial state: empty read and write buffers.
-  file->readbuflen = 0;
-  file->writebuf = file->pipe.writebuf;
-  file->writebuflen = file->pipe.bufsize;
   return file;
 }
 

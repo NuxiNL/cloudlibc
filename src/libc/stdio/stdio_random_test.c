@@ -35,7 +35,7 @@ static void apply_random_operations(FILE *stream) {
   char contents[RANDOM_BUFFER_SIZE] = {};
   off_t offset = 0, length = 0;
   bool has_eof = false;
-  bool has_error;
+  bool has_error = false;
 
   // Apply a number of random operations on the file.
   for (int i = 0; i < 1000; ++i) {
@@ -229,7 +229,7 @@ static void apply_random_operations(FILE *stream) {
         char writebuf[sizeof(contents)];
         size_t writelen = size * nitems;
         arc4random_buf(writebuf, writelen);
-        dprintf(1, "%ld %zu %zu\n", offset, size, nitems);
+        dprintf(1, "%ld %ld %zu %zu\n", offset, length, size, nitems);
         size_t retitems = writelen == 0 ? 0 : nitems;
         ASSERT_EQ(retitems, fwrite(writebuf, size, nitems, stream));
         if (writelen != 0) {
@@ -331,18 +331,20 @@ static void apply_random_operations(FILE *stream) {
   ASSERT_EQ(0, fclose(stream));
 }
 
-#if 0
 TEST(stdio_random, fmemopen_buffer) {
-  char contents[RANDOM_BUFFER_SIZE];
-  FILE *stream = fmemopen(contents, sizeof(contents), "w+");
-  apply_random_operations(stream);
+  for (int i = 0; i < 100; ++i) {
+    char contents[RANDOM_BUFFER_SIZE];
+    FILE *stream = fmemopen(contents, sizeof(contents), "w+");
+    apply_random_operations(stream);
+  }
 }
 
 TEST(stdio_random, fmemopen_null) {
-  FILE *stream = fmemopen(NULL, RANDOM_BUFFER_SIZE, "w+");
-  apply_random_operations(stream);
+  for (int i = 0; i < 100; ++i) {
+    FILE *stream = fmemopen(NULL, RANDOM_BUFFER_SIZE, "w+");
+    apply_random_operations(stream);
+  }
 }
-#endif
 
 TEST(stdio_random, fopenat) {
   for (int i = 0; i < 100; ++i) {
@@ -351,11 +353,9 @@ TEST(stdio_random, fopenat) {
   }
 }
 
-#if 0
 TEST(stdio_random, tmpfile) {
-  for (int i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 100; ++i) {
     FILE *stream = tmpfile();
     apply_random_operations(stream);
   }
 }
-#endif

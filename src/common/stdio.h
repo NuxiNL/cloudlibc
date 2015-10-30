@@ -22,6 +22,8 @@ struct fileops {
   bool (*write_peek)(FILE *);        // Obtain write buffer.
   bool (*seek)(FILE *, off_t, int);  // Seek.
   bool (*setvbuf)(FILE *, size_t);   // Set buffer size.
+  bool (*flush)(FILE *);             // Flush read/write buffers.
+  bool (*close)(FILE *);             // Free resources.
 };
 
 struct __lockable _FILE {
@@ -50,23 +52,27 @@ struct __lockable _FILE {
   union {
     struct {
       char *buf;
+      const char *owritebuf;
       size_t used;
       size_t size;
+      bool external;
     } fmemopen;
     struct {
       char *buf;
+      char *written;
       size_t bufsize;
     } file;
     struct {
       char *readbuf;
       char *writebuf;
+      char *written;
       size_t bufsize;
     } pipe;
     struct {
       char *buf;
+      const char *owritebuf;
       size_t used;
       size_t size;
-      const char *owritebuf;
     } tmpfile;
   };
 
@@ -84,6 +90,7 @@ static inline bool fseekable(FILE *stream) __requires_exclusive(*stream) {
 
 static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
   assert((stream->oflags & O_RDONLY) != 0 && "Stream not opened for reading");
+  assert(stream->readbuflen == 0 && "Reading while data is already present");
   if (stream->ops->read_peek(stream)) {
     assert((!fseekable(stream) || stream->writebuflen == 0) &&
            "Write buffer still left intact");
@@ -112,6 +119,14 @@ static inline bool fop_seek(FILE *stream, off_t offset, int whence)
 static inline bool fop_setvbuf(FILE *stream, size_t len)
     __requires_exclusive(*stream) {
   return stream->ops->setvbuf(stream, len);
+}
+
+static inline bool fop_flush(FILE *stream) __requires_exclusive(*stream) {
+  return stream->ops->flush(stream);
+}
+
+static inline bool fop_close(FILE *stream) {
+  return stream->ops->close(stream);
 }
 
 // Locking functions.
@@ -203,6 +218,20 @@ static inline void fread_consume(FILE *stream, size_t buflen)
   stream->readbuflen -= buflen;
 }
 
+static inline int __getc_unlocked(FILE *stream) __requires_exclusive(*stream) {
+  // Obtain the read buffer.
+  const char *readbuf;
+  size_t readbuflen;
+  if (!fread_peek(stream, &readbuf, &readbuflen) || readbuflen == 0)
+    return EOF;
+
+  // Consume a single character.
+  unsigned char ch = *readbuf;
+  fread_consume(stream, 1);
+  return ch;
+}
+#define getc_unlocked(stream) __getc_unlocked(stream)
+
 static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     __requires_exclusive(*stream) {
   // Only allow peeks if we're opened for writing.
@@ -212,7 +241,7 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
   }
 
   const char *inbuf = buf;
-  while (inbuflen >= stream->writebuflen) {
+  while (inbuflen > stream->writebuflen) {
     memcpy(stream->writebuf, inbuf, stream->writebuflen);
     inbuf += stream->writebuflen;
     inbuflen -= stream->writebuflen;
@@ -233,6 +262,29 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
   return inbuf - buf;
 }
 
+static inline int __putc_unlocked(int c, FILE *stream)
+    __requires_exclusive(*stream) {
+  // Only allow storing characters if we're opened for writing.
+  if ((stream->oflags & O_WRONLY) == 0) {
+    errno = EBADF;
+    return EOF;
+  }
+
+  if (stream->writebuflen == 0) {
+    if (!fop_write_peek(stream)) {
+      stream->flags |= F_ERROR;
+      return EOF;
+    }
+  }
+
+  // TODO(ed): Honour buffering mechanism.
+  unsigned char ch = c;
+  *stream->writebuf++ = ch;
+  --stream->writebuflen;
+  return ch;
+}
+#define putc_unlocked(c, stream) __putc_unlocked(c, stream)
+
 static inline off_t ftello_fast(FILE *stream) __requires_exclusive(*stream) {
   assert(fseekable(stream) && "Stream is not seekable");
   assert((stream->readbuflen == 0 || stream->writebuflen == 0) &&
@@ -242,17 +294,6 @@ static inline off_t ftello_fast(FILE *stream) __requires_exclusive(*stream) {
   assert(result >= 0 && "Negative offset after buffer size correction");
   return result;
 }
-
-static inline int __putc_unlocked(int c, FILE *stream)
-    __requires_exclusive(*stream) {
-  // Write single byte of data.
-  unsigned char ch = c;
-  if (fwrite_put(stream, (const char *)&ch, 1) == 0)
-    return EOF;
-  return ch;
-}
-
-#define putc_unlocked(c, stream) __putc_unlocked(c, stream)
 
 // Allocates a stream.
 FILE *__falloc(const char *mode, locale_t locale);

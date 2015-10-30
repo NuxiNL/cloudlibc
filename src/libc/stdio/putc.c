@@ -3,6 +3,8 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/stdio.h>
+
 #include <stdio.h>
 
 int putc(int c, FILE *stream) {

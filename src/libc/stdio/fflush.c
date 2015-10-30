@@ -8,12 +8,8 @@
 #include <stdio.h>
 
 int fflush(FILE *stream) {
-  // TODO(ed): This is wrong?
-  if ((stream->oflags & O_WRONLY) == 0)
-    return 0;
-
   flockfile(stream);
-  bool result = fop_write_peek(stream);
+  bool result = fop_flush(stream);
   funlockfile(stream);
   return result ? 0 : EOF;
 }

@@ -10,17 +10,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int fclose(FILE *stream) __no_lock_analysis {
-  // Flush and close underlying descriptor.
-  int result = 0;
-  if ((stream->oflags & O_WRONLY) != 0 && !fop_write_peek(stream))
-    result = EOF;
-  if (stream->fd >= 0 && close(stream->fd) == -1)
-    result = EOF;
+int fclose(FILE *stream) {
+  // Close underlying descriptor.
+  int result = fop_close(stream) ? 0 : EOF;
 
   // Free file object and associated data.
   pthread_mutex_destroy(&stream->lock);
-  // TODO(ed): Clean up storage associated with FILE object.
   free(stream);
   return result;
 }
