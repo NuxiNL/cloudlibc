@@ -9,15 +9,11 @@
 
 int fseeko(FILE *stream, off_t offset, int whence) {
   flockfile(stream);
-  bool result = stream->ops->seek(stream, offset, whence);
-  if (result) {
-    funlockfile(stream);
-    return 0;
-  } else {
-    stream->flags |= F_ERROR;
-    funlockfile(stream);
-    return -1;
-  }
+  bool result = fop_seek(stream, offset, whence);
+  if (result)
+    stream->flags &= ~F_EOF;
+  funlockfile(stream);
+  return result ? 0 : -1;
 }
 
 #if _LONG_BIT == 64

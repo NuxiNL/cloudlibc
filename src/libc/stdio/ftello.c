@@ -10,18 +10,14 @@
 
 off_t ftello(FILE *stream) {
   flockfile(stream);
-  if (stream->offset == -1) {
+  if (!fseekable(stream)) {
     // File descriptor is not seekable.
     funlockfile(stream);
     errno = ESPIPE;
     return -1;
   }
   // Apply lengths of read and write buffers on top of the descriptor offset.
-  assert((stream->readbuflen == 0 || stream->writebuflen == 0) &&
-         "Read and write buffer both used on a streamable file");
-  off_t result =
-      stream->offset - (off_t)stream->readbuflen - (off_t)stream->writebuflen;
-  assert(result >= 0 && "Negative offset after buffer size correction");
+  off_t result = ftello_fast(stream);
   funlockfile(stream);
   return result;
 }

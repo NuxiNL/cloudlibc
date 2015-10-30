@@ -10,9 +10,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-int fclose(FILE *stream) {
+int fclose(FILE *stream) __no_lock_analysis {
   // Flush and close underlying descriptor.
-  int result = stream->ops->write_flush(stream) ? 0 : EOF;
+  int result = 0;
+  if ((stream->oflags & O_WRONLY) != 0 && !fop_write_flush(stream))
+    result = EOF;
   if (stream->fd >= 0 && close(stream->fd) == -1)
     result = EOF;
 

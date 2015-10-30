@@ -9,7 +9,7 @@
 
 int setvbuf(FILE *restrict stream, char *restrict buf, int type, size_t size) {
   flockfile(stream);
-  bool result = stream->ops->setvbuf(stream, size);
+  bool result = fop_setvbuf(stream, size);
   if (result)
     stream->buftype = type;
   funlockfile(stream);

@@ -24,9 +24,19 @@ char *fgets(char *restrict s, int n, FILE *restrict stream) {
     // Obtain the read buffer.
     const char *readbuf;
     size_t readbuflen;
-    if (!fread_peek(stream, &readbuf, &readbuflen) || readbuflen == 0) {
+    if (!fread_peek(stream, &readbuf, &readbuflen)) {
       funlockfile(stream);
       return NULL;
+    }
+
+    // End-of-file. Return the buffer or NULL, depending on whether
+    // we've already yielded any output.
+    if (readbuflen == 0) {
+      funlockfile(stream);
+      if (outbuf == s)
+        return NULL;
+      *outbuf = '\0';
+      return s;
     }
 
     // Limit the size of the output buffer if we find a newline

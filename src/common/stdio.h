@@ -62,6 +62,12 @@ struct __lockable _FILE {
       char *writebuf;
       size_t bufsize;
     } pipe;
+    struct {
+      char *buf;
+      size_t used;
+      size_t size;
+      const char *owritebuf;
+    } tmpfile;
   };
 
   // Per-stream lock. This must remain the last member of the object,
@@ -69,6 +75,44 @@ struct __lockable _FILE {
   pthread_mutex_t lock;
 #define FILE_COPYSIZE offsetof(FILE, lock)
 };
+
+static inline bool fseekable(FILE *stream) __requires_exclusive(*stream) {
+  return stream->offset >= 0;
+}
+
+// Invocation of operations.
+
+static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
+  assert((stream->oflags & O_RDONLY) != 0 && "Stream not opened for reading");
+  if (stream->ops->read_peek(stream)) {
+    assert((!fseekable(stream) || stream->writebuflen == 0) &&
+           "Write buffer still left intact");
+    return true;
+  }
+  return false;
+}
+
+static inline bool fop_write_flush(FILE *stream) __requires_exclusive(*stream) {
+  assert((stream->oflags & O_WRONLY) != 0 && "Stream not opened for writing");
+  if (stream->ops->write_flush(stream)) {
+    assert(stream->writebuflen > 0 &&
+           "Write flushing did not yield a new write buffer");
+    assert((!fseekable(stream) || stream->readbuflen == 0) &&
+           "Read buffer still left intact");
+    return true;
+  }
+  return false;
+}
+
+static inline bool fop_seek(FILE *stream, off_t offset, int whence)
+    __requires_exclusive(*stream) {
+  return stream->ops->seek(stream, offset, whence);
+}
+
+static inline bool fop_setvbuf(FILE *stream, size_t len)
+    __requires_exclusive(*stream) {
+  return stream->ops->setvbuf(stream, len);
+}
 
 // Locking functions.
 //
@@ -137,7 +181,7 @@ static inline bool fread_peek(FILE *stream, const char **buf, size_t *buflen)
       return false;
     }
 
-    if (!stream->ops->read_peek(stream)) {
+    if (!fop_read_peek(stream)) {
       stream->flags |= F_ERROR;
       return false;
     }
@@ -175,11 +219,10 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     stream->writebuf += stream->writebuflen;
     stream->writebuflen = 0;
 
-    if (!stream->ops->write_flush(stream)) {
+    if (!fop_write_flush(stream)) {
       stream->flags |= F_ERROR;
       return inbuf - buf - stream->writebuflen;
     }
-    assert(stream->writebuflen > 0 && "Write flush did not yield a new buffer");
   }
 
   // TODO(ed): Honour buffering mechanism.
@@ -188,6 +231,16 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
   stream->writebuf += inbuflen;
   stream->writebuflen -= inbuflen;
   return inbuf - buf;
+}
+
+static inline off_t ftello_fast(FILE *stream) __requires_exclusive(*stream) {
+  assert(fseekable(stream) && "Stream is not seekable");
+  assert((stream->readbuflen == 0 || stream->writebuflen == 0) &&
+         "Read and write buffer both used on a streamable file");
+  off_t result =
+      stream->offset - (off_t)stream->readbuflen - (off_t)stream->writebuflen;
+  assert(result >= 0 && "Negative offset after buffer size correction");
+  return result;
 }
 
 static inline int __putc_unlocked(int c, FILE *stream)
