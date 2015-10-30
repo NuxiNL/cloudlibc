@@ -95,17 +95,15 @@ static void apply_random_operations(FILE *stream) {
             linelen = readlen - 1;
           const char *start = contents + offset;
           const char *end = memchr(start, '\n', linelen);
-          if (end != NULL) {
+          if (end != NULL)
             linelen = end - start + 1;
-          }
           ASSERT_ARREQ(start, readbuf, linelen);
           ASSERT_EQ('\0', readbuf[linelen]);
+          // Set end-of-file if we returned the entire body, because the
+          // matching character was not found.
+          if (offset + (off_t)readlen > length && end == NULL)
+            has_eof = true;
           offset += linelen;
-
-          // XXX: glibc sets the end-of-file indicator some times.
-          clearerr(stream);
-          has_eof = false;
-          has_error = false;
         }
         break;
       }
