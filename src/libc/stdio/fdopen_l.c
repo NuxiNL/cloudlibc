@@ -26,6 +26,7 @@
 static bool file_drain(FILE *file) __requires_exclusive(*file) {
   // Offset after draining.
   off_t offset = ftello_fast(file);
+  bool refetch_offset = false;
 
   // Check whether there is data that still needs to be written to disk.
   while (file->file.written < file->writebuf) {
@@ -34,6 +35,7 @@ static bool file_drain(FILE *file) __requires_exclusive(*file) {
     if ((file->oflags & O_APPEND) != 0) {
       // File is opened for append. Call write().
       ret = write(file->fd, file->file.written, buflen);
+      refetch_offset = true;
     } else {
       // File is not opened for append. We can use pwrite().
       ret = pwrite(file->fd, file->file.written, buflen, offset - buflen);
@@ -41,6 +43,15 @@ static bool file_drain(FILE *file) __requires_exclusive(*file) {
     if (ret < 0)
       return false;
     file->file.written += ret;
+  }
+
+  // If we've done a write() that has been opened with O_APPEND, refetch
+  // the current offset within the file. This makes the offset go back
+  // in sync if there are multiple writers to the same file.
+  if (refetch_offset) {
+    off_t new_offset = lseek(file->fd, 0, SEEK_CUR);
+    if (new_offset >= 0)
+      offset = new_offset;
   }
 
   // Discard both the read and write buffers.
