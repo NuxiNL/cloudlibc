@@ -89,10 +89,10 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(NULL, fgets(readbuf, readlen, stream));
           has_eof = true;
         } else {
-          ASSERT_EQ(readbuf, fgets(readbuf, readlen, stream));
+          ASSERT_EQ(readbuf, fgets(readbuf, readlen--, stream));
           size_t linelen = length - offset;
-          if (linelen >= readlen)
-            linelen = readlen - 1;
+          if (linelen > readlen)
+            linelen = readlen;
           const char *start = contents + offset;
           const char *end = memchr(start, '\n', linelen);
           if (end != NULL)
