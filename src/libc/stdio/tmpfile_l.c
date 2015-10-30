@@ -46,7 +46,7 @@ static bool tmp_read_peek(FILE *file) __requires_exclusive(*file) {
   return true;
 }
 
-static bool tmp_write_flush(FILE *file) __requires_exclusive(*file) {
+static bool tmp_write_peek(FILE *file) __requires_exclusive(*file) {
   tmp_drain(file);
 
   // Grow the file buffer if the cursor is at end of file or beyond.
@@ -116,7 +116,7 @@ static bool tmp_setvbuf(FILE *file, size_t size) __requires_exclusive(*file) {
 FILE *tmpfile_l(locale_t locale) {
   static const struct fileops ops = {
       .read_peek = tmp_read_peek,
-      .write_flush = tmp_write_flush,
+      .write_peek = tmp_write_peek,
       .seek = tmp_seek,
       .setvbuf = tmp_setvbuf,
   };

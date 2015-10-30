@@ -19,7 +19,7 @@
 
 struct fileops {
   bool (*read_peek)(FILE *);         // Obtain read buffer.
-  bool (*write_flush)(FILE *);       // Flush write buffer.
+  bool (*write_peek)(FILE *);        // Obtain write buffer.
   bool (*seek)(FILE *, off_t, int);  // Seek.
   bool (*setvbuf)(FILE *, size_t);   // Set buffer size.
 };
@@ -92,9 +92,9 @@ static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
   return false;
 }
 
-static inline bool fop_write_flush(FILE *stream) __requires_exclusive(*stream) {
+static inline bool fop_write_peek(FILE *stream) __requires_exclusive(*stream) {
   assert((stream->oflags & O_WRONLY) != 0 && "Stream not opened for writing");
-  if (stream->ops->write_flush(stream)) {
+  if (stream->ops->write_peek(stream)) {
     assert(stream->writebuflen > 0 &&
            "Write flushing did not yield a new write buffer");
     assert((!fseekable(stream) || stream->readbuflen == 0) &&
@@ -219,7 +219,7 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     stream->writebuf += stream->writebuflen;
     stream->writebuflen = 0;
 
-    if (!fop_write_flush(stream)) {
+    if (!fop_write_peek(stream)) {
       stream->flags |= F_ERROR;
       return inbuf - buf - stream->writebuflen;
     }

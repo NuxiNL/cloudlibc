@@ -13,7 +13,7 @@ int fflush(FILE *stream) {
     return 0;
 
   flockfile(stream);
-  bool result = fop_write_flush(stream);
+  bool result = fop_write_peek(stream);
   funlockfile(stream);
   return result ? 0 : EOF;
 }

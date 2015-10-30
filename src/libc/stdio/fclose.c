@@ -13,7 +13,7 @@
 int fclose(FILE *stream) __no_lock_analysis {
   // Flush and close underlying descriptor.
   int result = 0;
-  if ((stream->oflags & O_WRONLY) != 0 && !fop_write_flush(stream))
+  if ((stream->oflags & O_WRONLY) != 0 && !fop_write_peek(stream))
     result = EOF;
   if (stream->fd >= 0 && close(stream->fd) == -1)
     result = EOF;

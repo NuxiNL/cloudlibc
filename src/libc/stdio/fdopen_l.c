@@ -23,7 +23,7 @@
 // file descriptor's offset. This makes it possible to have multiple
 // FILE objects pointing to the same file descriptor.
 
-static bool file_write_flush(FILE *);
+static bool file_write_peek(FILE *);
 
 static bool file_read_peek(FILE *file) {
   assert((file->oflags & O_RDONLY) != 0 &&
@@ -31,7 +31,7 @@ static bool file_read_peek(FILE *file) {
 
   // First ensure that there's no more data in the write buffer before
   // attempting to read.
-  if (!file_write_flush(file))
+  if (!file_write_peek(file))
     return false;
 
   // Recompute current file offset.
@@ -53,7 +53,7 @@ static bool file_read_peek(FILE *file) {
   return true;
 }
 
-static bool file_write_flush(FILE *file) {
+static bool file_write_peek(FILE *file) {
   const char *buf = file->file.buf;
   for (;;) {
     size_t length = file->writebuf - buf;
@@ -128,7 +128,7 @@ static bool file_seek(FILE *file, off_t offset, int whence) {
   }
 
   // Flush read/write buffers before seeking.
-  if (!file_write_flush(file))
+  if (!file_write_peek(file))
     return false;
 
   // Apply the new offset.
@@ -148,7 +148,7 @@ static FILE *file_open(int fildes, const char *mode, locale_t locale,
                        off_t offset) {
   static const struct fileops ops = {
       .read_peek = file_read_peek,
-      .write_flush = file_write_flush,
+      .write_peek = file_write_peek,
       .seek = file_seek,
       .setvbuf = file_setvbuf,
   };
@@ -204,7 +204,7 @@ static bool pipe_read_peek(FILE *file) {
   return true;
 }
 
-static bool pipe_write_flush(FILE *file) {
+static bool pipe_write_peek(FILE *file) {
   const char *buf = file->pipe.writebuf;
   for (;;) {
     size_t length = file->writebuf - buf;
@@ -245,7 +245,7 @@ static bool pipe_setvbuf(FILE *file, size_t bufsize) {
 static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
   static const struct fileops ops = {
       .read_peek = pipe_read_peek,
-      .write_flush = pipe_write_flush,
+      .write_peek = pipe_write_peek,
       .seek = pipe_seek,
       .setvbuf = pipe_setvbuf,
   };

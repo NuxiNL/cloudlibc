@@ -23,7 +23,7 @@ static bool mem_read_peek(FILE *file) {
 // beyond end-of-file.
 static char dead_space[1];
 
-static bool mem_write_flush(FILE *file) {
+static bool mem_write_peek(FILE *file) {
   if (file->writebuf == &dead_space[0]) {
     // Nothing happened.
     return true;
@@ -67,7 +67,7 @@ static bool mem_setvbuf(FILE *stream, size_t size) {
 
 static const struct fileops mem_fileops = {
     .read_peek = mem_read_peek,
-    .write_flush = mem_write_flush,
+    .write_peek = mem_write_peek,
     .setvbuf = mem_setvbuf,
 };
 

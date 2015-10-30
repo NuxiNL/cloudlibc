@@ -10,7 +10,7 @@
 #include <pthread.h>
 #include <stdio.h>
 
-static bool stderr_write_flush(FILE *file) {
+static bool stderr_write_peek(FILE *file) {
   // Provide a '/dev/null' buffer.
   static char nullbuf[128];
   file->writebuf = nullbuf;
@@ -30,7 +30,7 @@ static bool stderr_setvbuf(FILE *file, size_t size) {
 }
 
 static struct fileops stderrops = {
-    .write_flush = stderr_write_flush,
+    .write_peek = stderr_write_peek,
     .seek = stderr_seek,
     .setvbuf = stderr_setvbuf,
 };

@@ -342,6 +342,7 @@ TEST(stdio_random, fmemopen_null) {
   FILE *stream = fmemopen(NULL, RANDOM_BUFFER_SIZE, "w+");
   apply_random_operations(stream);
 }
+#endif
 
 TEST(stdio_random, fopenat) {
   for (int i = 0; i < 100; ++i) {
@@ -349,11 +350,12 @@ TEST(stdio_random, fopenat) {
     apply_random_operations(stream);
   }
 }
-#endif
 
+#if 0
 TEST(stdio_random, tmpfile) {
   for (int i = 0; i < 1000; ++i) {
     FILE *stream = tmpfile();
     apply_random_operations(stream);
   }
 }
+#endif
