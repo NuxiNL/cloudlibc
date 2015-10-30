@@ -7,6 +7,11 @@
 #include <stdio.h>
 #include <testing.h>
 
+TEST(fmemopen, null) {
+  ASSERT_EQ(NULL, fmemopen(NULL, 0, "w+"));
+  ASSERT_EQ(EINVAL, errno);
+}
+
 TEST(fmemopen, read) {
   // Construct a read-only memory file.
   static const char mytext[] = "Hello, world";

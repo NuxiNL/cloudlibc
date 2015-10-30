@@ -10,7 +10,7 @@
 
 TEST(fileno, bad) {
   // Memory stream has no underlying file descriptor.
-  FILE *fp = fmemopen(NULL, 0, "r");
+  FILE *fp = fmemopen(NULL, 1, "r");
   ASSERT_NE(NULL, fp);
   ASSERT_EQ(-1, fileno(fp));
   ASSERT_EQ(EBADF, errno);
