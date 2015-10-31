@@ -91,7 +91,7 @@ static bool file_write_peek(FILE *file) __requires_exclusive(*file) {
   return true;
 }
 
-static bool file_seek(FILE *file, off_t offset, int whence)
+static bool file_seek(FILE *file, off_t offset, bool seek_end)
     __requires_exclusive(*file) {
   // Drain data that needs to be written first. This may extend the
   // length of the file.
@@ -99,28 +99,14 @@ static bool file_seek(FILE *file, off_t offset, int whence)
     return false;
 
   // Adjust the offset to be absolute.
-  switch (whence) {
-    case SEEK_CUR:
-      if (add_overflow(offset, file->offset, &offset)) {
-        errno = EOVERFLOW;
-        return false;
-      }
-      break;
-    case SEEK_END: {
-      struct stat sb;
-      if (fstat(file->fd, &sb) != 0)
-        return false;
-      if (add_overflow(offset, sb.st_size, &offset)) {
-        errno = EOVERFLOW;
-        return false;
-      }
-      break;
-    }
-    case SEEK_SET:
-      break;
-    default:
-      errno = EINVAL;
+  if (seek_end) {
+    struct stat sb;
+    if (fstat(file->fd, &sb) != 0)
       return false;
+    if (add_overflow(offset, sb.st_size, &offset)) {
+      errno = EOVERFLOW;
+      return false;
+    }
   }
 
   // Disallow negative offsets.

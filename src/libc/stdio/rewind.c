@@ -5,12 +5,14 @@
 
 #include <common/stdio.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 
 void rewind(FILE *stream) {
   flockfile(stream);
   if (fseekable(stream))
-    fop_seek(stream, 0, SEEK_SET);
+    fop_seek(stream, 0, false);
   stream->flags &= ~(F_EOF | F_ERROR);
+  stream->ungetclen = 0;
   funlockfile(stream);
 }

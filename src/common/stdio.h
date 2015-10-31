@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -18,12 +19,12 @@
 #include <string.h>
 
 struct fileops {
-  bool (*read_peek)(FILE *);         // Obtain read buffer.
-  bool (*write_peek)(FILE *);        // Obtain write buffer.
-  bool (*seek)(FILE *, off_t, int);  // Seek.
-  bool (*setvbuf)(FILE *, size_t);   // Set buffer size.
-  bool (*flush)(FILE *);             // Flush read/write buffers.
-  bool (*close)(FILE *);             // Free resources.
+  bool (*read_peek)(FILE *);          // Obtain read buffer.
+  bool (*write_peek)(FILE *);         // Obtain write buffer.
+  bool (*seek)(FILE *, off_t, bool);  // Seek.
+  bool (*setvbuf)(FILE *, size_t);    // Set buffer size.
+  bool (*flush)(FILE *);              // Flush read/write buffers.
+  bool (*close)(FILE *);              // Free resources.
 };
 
 struct __lockable _FILE {
@@ -40,6 +41,9 @@ struct __lockable _FILE {
   } flags;
   int buftype;   // _IOFBF, _IOLBF or _IONBF.
   off_t offset;  // Negative if stream is not seekable.
+
+  char ungetc[MB_LEN_MAX * 4];  // ungetc() buffer. Filled from the back.
+  size_t ungetclen;             // Number of characters pushed back.
 
   char *readbuf;
   size_t readbuflen;
@@ -91,6 +95,7 @@ static inline bool fseekable(FILE *stream) __requires_exclusive(*stream) {
 static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
   assert((stream->oflags & O_RDONLY) != 0 && "Stream not opened for reading");
   assert(stream->readbuflen == 0 && "Reading while data is already present");
+  assert(stream->ungetclen == 0 && "Reading while ungetc chars are present");
   if (stream->ops->read_peek(stream)) {
     assert((!fseekable(stream) || stream->writebuflen == 0) &&
            "Write buffer still left intact");
@@ -111,10 +116,10 @@ static inline bool fop_write_peek(FILE *stream) __requires_exclusive(*stream) {
   return false;
 }
 
-static inline bool fop_seek(FILE *stream, off_t offset, int whence)
+static inline bool fop_seek(FILE *stream, off_t offset, bool seek_end)
     __requires_exclusive(*stream) {
   assert(fseekable(stream) && "Attempted to seek on an unseekable stream");
-  return stream->ops->seek(stream, offset, whence);
+  return stream->ops->seek(stream, offset, seek_end);
 }
 
 static inline bool fop_setvbuf(FILE *stream, size_t len)
@@ -189,6 +194,13 @@ static inline int get_oflags_from_string(const char *s) {
 
 static inline bool fread_peek(FILE *stream, const char **buf, size_t *buflen)
     __requires_exclusive(*stream) {
+  // First consume characters from the ungetc buffer.
+  if (stream->ungetclen > 0) {
+    *buf = stream->ungetc + sizeof(stream->ungetc) - stream->ungetclen;
+    *buflen = stream->ungetclen;
+    return true;
+  }
+
   // Refill the read buffer if empty.
   if (stream->readbuflen == 0) {
     // Only allow reads if we're opened for reading.
@@ -213,10 +225,18 @@ static inline bool fread_peek(FILE *stream, const char **buf, size_t *buflen)
 
 static inline void fread_consume(FILE *stream, size_t buflen)
     __requires_exclusive(*stream) {
-  assert(buflen <= stream->readbuflen &&
-         "Attempted to consume more data than available");
-  stream->readbuf += buflen;
-  stream->readbuflen -= buflen;
+  if (stream->ungetclen > 0) {
+    // Purge characters from the ungetc buffer.
+    assert(buflen <= stream->ungetclen &&
+           "Attempted to consume more data than available");
+    stream->ungetclen -= buflen;
+  } else {
+    // Purge characters from the read buffer.
+    assert(buflen <= stream->readbuflen &&
+           "Attempted to consume more data than available");
+    stream->readbuf += buflen;
+    stream->readbuflen -= buflen;
+  }
 }
 
 static inline int __getc_unlocked(FILE *stream) __requires_exclusive(*stream) {

@@ -5,6 +5,7 @@
 
 #include <common/stdio.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 
 int setvbuf(FILE *restrict stream, char *restrict buf, int type, size_t size) {

@@ -37,13 +37,19 @@ static void random_pair(size_t max, size_t *a, size_t *b) {
 // This function is used to test streams that are created by functions
 // such as fdopen(), tmpfile() and fmemopen() to see whether they behave
 // correctly when presented a random sequence of operations.
+//
+// TODO(ed): Make tests for fgets(), fread(), getdelim() and getline()
+// work when characters have been pushed back using ungetc().
 static void apply_random_operations(FILE *stream) {
   char contents[RANDOM_BUFFER_SIZE] = {};
   off_t offset = 0, length = 0;
   bool has_eof = false;
   bool has_error = false;
+  char pushbacks[4];
+  size_t npushbacks = 0;
 
   for (int i = 0; i < 1000; ++i) {
+    off_t logical_offset = offset - npushbacks;
     switch (arc4random_uniform(22)) {
       case 0:
         // clearerr() should only clear the end-of-file and error flags.
@@ -62,48 +68,54 @@ static void apply_random_operations(FILE *stream) {
       case 3:
         // fflush() should have no observable effect.
         ASSERT_EQ(0, fflush(stream));
+        npushbacks = 0;
         break;
       case 4:
         // fgetc() should set the end-of-file flag when reading past the
         // file boundary.
-        if (offset >= length) {
+        if (npushbacks > 0) {
+          // Should return character from ungetc().
+          ASSERT_EQ((unsigned char)pushbacks[--npushbacks], fgetc(stream));
+        } else if (offset < length) {
+          ASSERT_EQ((unsigned char)contents[offset++], fgetc(stream));
+        } else {
           ASSERT_EQ(EOF, fgetc(stream));
           has_eof = true;
-        } else {
-          ASSERT_EQ((unsigned char)contents[offset++], fgetc(stream));
         }
         break;
       case 5: {
         // fgets().
-        char readbuf[sizeof(contents)];
-        size_t readlen = arc4random_uniform(sizeof(readbuf) + 1);
-        if (readlen == 0) {
-          // Call fgets() with buffer size zero. This behaviour isn't
-          // standardized, but most implementations seem to return NULL.
-          ASSERT_EQ(NULL, fgets(readbuf, readlen, stream));
-        } else if (readlen == 1) {
-          // This should always succeed by returning an empty buffer.
-          ASSERT_EQ(readbuf, fgets(readbuf, readlen, stream));
-          ASSERT_EQ('\0', readbuf[0]);
-        } else if (offset >= length) {
-          ASSERT_EQ(NULL, fgets(readbuf, readlen, stream));
-          has_eof = true;
-        } else {
-          ASSERT_EQ(readbuf, fgets(readbuf, readlen--, stream));
-          size_t linelen = length - offset;
-          if (linelen > readlen)
-            linelen = readlen;
-          const char *start = contents + offset;
-          const char *end = memchr(start, '\n', linelen);
-          if (end != NULL)
-            linelen = end - start + 1;
-          ASSERT_ARREQ(start, readbuf, linelen);
-          ASSERT_EQ('\0', readbuf[linelen]);
-          // Set end-of-file if we returned the entire body, because the
-          // matching character was not found.
-          if (offset + (off_t)readlen > length && end == NULL)
+        if (npushbacks == 0) {
+          char readbuf[sizeof(contents)];
+          size_t readlen = arc4random_uniform(sizeof(readbuf) + 1);
+          if (readlen == 0) {
+            // Call fgets() with buffer size zero. This behaviour isn't
+            // standardized, but most implementations seem to return NULL.
+            ASSERT_EQ(NULL, fgets(readbuf, readlen, stream));
+          } else if (readlen == 1) {
+            // This should always succeed by returning an empty buffer.
+            ASSERT_EQ(readbuf, fgets(readbuf, readlen, stream));
+            ASSERT_EQ('\0', readbuf[0]);
+          } else if (offset >= length) {
+            ASSERT_EQ(NULL, fgets(readbuf, readlen, stream));
             has_eof = true;
-          offset += linelen;
+          } else {
+            ASSERT_EQ(readbuf, fgets(readbuf, readlen--, stream));
+            size_t linelen = length - offset;
+            if (linelen > readlen)
+              linelen = readlen;
+            const char *start = contents + offset;
+            const char *end = memchr(start, '\n', linelen);
+            if (end != NULL)
+              linelen = end - start + 1;
+            ASSERT_ARREQ(start, readbuf, linelen);
+            ASSERT_EQ('\0', readbuf[linelen]);
+            // Set end-of-file if we returned the entire body, because the
+            // matching character was not found.
+            if (offset + (off_t)readlen > length && end == NULL)
+              has_eof = true;
+            offset += linelen;
+          }
         }
         break;
       }
@@ -150,31 +162,33 @@ static void apply_random_operations(FILE *stream) {
       }
       case 9: {
         // fread().
-        size_t size, nitems;
-        random_pair(sizeof(contents) * 2, &size, &nitems);
-        if (size == 0 || nitems == 0) {
-          // Zero sized read should always return NULL and leave the
-          // stream unaffected.
-          ASSERT_EQ(0, fread(NULL, 0, 0, stream));
-        } else if (offset >= length) {
-          // Read past the end of the file.
-          ASSERT_EQ(0, fread(NULL, size, nitems, stream));
-          has_eof = true;
-        } else {
-          // Read in the body of the file.
-          size_t retitems = (length - offset) / size;
-          if (retitems > nitems)
-            retitems = nitems;
-          char readbuf[sizeof(contents)];
-          ASSERT_EQ(retitems, fread(readbuf, size, nitems, stream));
-          ASSERT_ARREQ(contents + offset, readbuf, size * retitems);
-          if (retitems != nitems) {
-            // Short read at the end of the file.
-            offset = length;
+        if (npushbacks == 0) {
+          size_t size, nitems;
+          random_pair(sizeof(contents) * 2, &size, &nitems);
+          if (size == 0 || nitems == 0) {
+            // Zero sized read should always return NULL and leave the
+            // stream unaffected.
+            ASSERT_EQ(0, fread(NULL, 0, 0, stream));
+          } else if (offset >= length) {
+            // Read past the end of the file.
+            ASSERT_EQ(0, fread(NULL, size, nitems, stream));
             has_eof = true;
           } else {
-            // Read enclosed in the file.
-            offset += size * nitems;
+            // Read in the body of the file.
+            size_t retitems = (length - offset) / size;
+            if (retitems > nitems)
+              retitems = nitems;
+            char readbuf[sizeof(contents)];
+            ASSERT_EQ(retitems, fread(readbuf, size, nitems, stream));
+            ASSERT_ARREQ(contents + offset, readbuf, size * retitems);
+            if (retitems != nitems) {
+              // Short read at the end of the file.
+              offset = length;
+              has_eof = true;
+            } else {
+              // Read enclosed in the file.
+              offset += size * nitems;
+            }
           }
         }
         break;
@@ -189,13 +203,14 @@ static void apply_random_operations(FILE *stream) {
             (off_t)arc4random_uniform(2 * sizeof(contents)) - sizeof(contents);
         if (new_offset < 0) {
           // Negative file offset.
-          ASSERT_EQ(-1, fseeko(stream, new_offset - offset, SEEK_CUR));
+          ASSERT_EQ(-1, fseeko(stream, new_offset - logical_offset, SEEK_CUR));
           ASSERT_EQ(EINVAL, errno);
         } else {
           // Valid file offset.
-          ASSERT_EQ(0, fseeko(stream, new_offset - offset, SEEK_CUR));
+          ASSERT_EQ(0, fseeko(stream, new_offset - logical_offset, SEEK_CUR));
           offset = new_offset;
           has_eof = false;
+          npushbacks = 0;
         }
         break;
       }
@@ -212,6 +227,7 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(0, fseeko(stream, new_offset - length, SEEK_END));
           offset = new_offset;
           has_eof = false;
+          npushbacks = 0;
         }
         break;
       }
@@ -228,12 +244,13 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(0, fseeko(stream, new_offset, SEEK_SET));
           offset = new_offset;
           has_eof = false;
+          npushbacks = 0;
         }
         break;
       }
       case 14:
         // ftello().
-        ASSERT_EQ(offset, ftello(stream));
+        ASSERT_EQ(logical_offset, ftello(stream));
         break;
       case 15: {
         // fwrite().
@@ -255,66 +272,74 @@ static void apply_random_operations(FILE *stream) {
       case 16:
         // getc() should set the end-of-file flag when reading past the
         // file boundary.
-        if (offset >= length) {
+        if (npushbacks > 0) {
+          // Should return character from ungetc().
+          ASSERT_EQ((unsigned char)pushbacks[--npushbacks], getc(stream));
+        } else if (offset < length) {
+          ASSERT_EQ((unsigned char)contents[offset++], getc(stream));
+        } else {
           ASSERT_EQ(EOF, getc(stream));
           has_eof = true;
-        } else {
-          ASSERT_EQ((unsigned char)contents[offset++], getc(stream));
         }
         break;
       case 17: {
         // getdelim().
-        char *line = NULL;
-        size_t linelen = 0;
-        unsigned char delim;
-        arc4random_buf(&delim, sizeof(delim));
-        if (offset >= length) {
-          // Already at the end of the file.
-          ASSERT_EQ(-1, getdelim(&line, &linelen, delim, stream));
-          has_eof = true;
-        } else {
-          // Enclosed within the file contents.
-          size_t remaining = length - offset;
-          const char *start = contents + offset;
-          const char *end = memchr(start, delim, remaining);
-          size_t retval = end == NULL ? remaining : end - start + 1;
-          ASSERT_EQ((ssize_t)retval, getdelim(&line, &linelen, delim, stream));
-          ASSERT_ARREQ(start, line, retval);
-          ASSERT_EQ('\0', line[retval]);
-          offset += retval;
-          // Set end-of-file if we returned the entire body, because the
-          // matching character was not found.
-          if (end == NULL)
+        if (npushbacks == 0) {
+          char *line = NULL;
+          size_t linelen = 0;
+          unsigned char delim;
+          arc4random_buf(&delim, sizeof(delim));
+          if (offset >= length) {
+            // Already at the end of the file.
+            ASSERT_EQ(-1, getdelim(&line, &linelen, delim, stream));
             has_eof = true;
+          } else {
+            // Enclosed within the file contents.
+            size_t remaining = length - offset;
+            const char *start = contents + offset;
+            const char *end = memchr(start, delim, remaining);
+            size_t retval = end == NULL ? remaining : end - start + 1;
+            ASSERT_EQ((ssize_t)retval,
+                      getdelim(&line, &linelen, delim, stream));
+            ASSERT_ARREQ(start, line, retval);
+            ASSERT_EQ('\0', line[retval]);
+            offset += retval;
+            // Set end-of-file if we returned the entire body, because the
+            // matching character was not found.
+            if (end == NULL)
+              has_eof = true;
+          }
+          free(line);
+          break;
         }
-        free(line);
-        break;
       }
       case 18: {
         // getline().
-        char *line = NULL;
-        size_t linelen = 0;
-        if (offset >= length) {
-          // Already at the end of the file.
-          ASSERT_EQ(-1, getline(&line, &linelen, stream));
-          has_eof = true;
-        } else {
-          // Enclosed within the file contents.
-          size_t remaining = length - offset;
-          const char *start = contents + offset;
-          const char *end = memchr(start, '\n', remaining);
-          size_t retval = end == NULL ? remaining : end - start + 1;
-          ASSERT_EQ((ssize_t)retval, getline(&line, &linelen, stream));
-          ASSERT_ARREQ(start, line, retval);
-          ASSERT_EQ('\0', line[retval]);
-          offset += retval;
-          // Set end-of-file if we returned the entire body, because the
-          // matching character was not found.
-          if (end == NULL)
+        if (npushbacks == 0) {
+          char *line = NULL;
+          size_t linelen = 0;
+          if (offset >= length) {
+            // Already at the end of the file.
+            ASSERT_EQ(-1, getline(&line, &linelen, stream));
             has_eof = true;
+          } else {
+            // Enclosed within the file contents.
+            size_t remaining = length - offset;
+            const char *start = contents + offset;
+            const char *end = memchr(start, '\n', remaining);
+            size_t retval = end == NULL ? remaining : end - start + 1;
+            ASSERT_EQ((ssize_t)retval, getline(&line, &linelen, stream));
+            ASSERT_ARREQ(start, line, retval);
+            ASSERT_EQ('\0', line[retval]);
+            offset += retval;
+            // Set end-of-file if we returned the entire body, because the
+            // matching character was not found.
+            if (end == NULL)
+              has_eof = true;
+          }
+          free(line);
+          break;
         }
-        free(line);
-        break;
       }
       case 19:
         // putc().
@@ -334,10 +359,16 @@ static void apply_random_operations(FILE *stream) {
         offset = 0;
         has_eof = false;
         has_error = false;
+        npushbacks = 0;
         break;
       case 21:
         // ungetc().
-        // TODO(ed): Fix.
+        if (npushbacks < sizeof(pushbacks)) {
+          unsigned char ch;
+          arc4random_buf(&ch, sizeof(ch));
+          ASSERT_EQ(ch, ungetc(ch, stream));
+          pushbacks[npushbacks++] = ch;
+        }
         break;
     }
     ASSERT_LE(0, offset);

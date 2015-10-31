@@ -8,6 +8,7 @@
 
 #include <fcntl.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 static bool stderr_write_peek(FILE *file) {

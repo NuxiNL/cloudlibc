@@ -16,8 +16,9 @@ off_t ftello(FILE *stream) {
     errno = ESPIPE;
     return -1;
   }
-  // Apply lengths of read and write buffers on top of the descriptor offset.
-  off_t result = ftello_fast(stream);
+  // Apply lengths of the read, write and ungetc buffers on top of the
+  // descriptor offset.
+  off_t result = ftello_fast(stream) - stream->ungetclen;
   funlockfile(stream);
   return result;
 }

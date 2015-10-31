@@ -3,21 +3,45 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/overflow.h>
 #include <common/stdio.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 
 int fseeko(FILE *stream, off_t offset, int whence) {
   flockfile(stream);
-  bool result;
+  bool result = false;
   if (!fseekable(stream)) {
+    // Attempted to call fseeko() on a non-seekable stream.
     errno = ESPIPE;
-    result = false;
   } else {
-    result = fop_seek(stream, offset, whence);
+    // Process whence value.
+    switch (whence) {
+      case SEEK_CUR:
+        // Add the current position and perform SEEK_SET.
+        if (add_overflow(offset, ftello_fast(stream) - stream->ungetclen,
+                         &offset)) {
+          errno = EOVERFLOW;
+          break;
+        }
+        result = fop_seek(stream, offset, false);
+        break;
+      case SEEK_END:
+        result = fop_seek(stream, offset, true);
+        break;
+      case SEEK_SET:
+        result = fop_seek(stream, offset, false);
+        break;
+      default:
+        errno = EINVAL;
+        break;
+    }
   }
-  if (result)
+  if (result) {
     stream->flags &= ~F_EOF;
+    stream->ungetclen = 0;
+  }
   funlockfile(stream);
   return result ? 0 : -1;
 }

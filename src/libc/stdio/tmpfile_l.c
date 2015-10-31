@@ -70,30 +70,17 @@ static bool tmp_write_peek(FILE *file) __requires_exclusive(*file) {
   return true;
 }
 
-static bool tmp_seek(FILE *file, off_t offset, int whence)
+static bool tmp_seek(FILE *file, off_t offset, bool seek_end)
     __requires_exclusive(*file) {
   // Force a drain to adjust the offset and length of the file.
   tmp_drain(file);
 
   // Adjust the offset to be absolute.
-  switch (whence) {
-    case SEEK_CUR:
-      if (add_overflow(offset, file->offset, &offset)) {
-        errno = EOVERFLOW;
-        return false;
-      }
-      break;
-    case SEEK_END:
-      if (add_overflow(offset, file->tmpfile.used, &offset)) {
-        errno = EOVERFLOW;
-        return false;
-      }
-      break;
-    case SEEK_SET:
-      break;
-    default:
-      errno = EINVAL;
+  if (seek_end) {
+    if (add_overflow(offset, file->tmpfile.used, &offset)) {
+      errno = EOVERFLOW;
       return false;
+    }
   }
 
   // Disallow negative offsets.
