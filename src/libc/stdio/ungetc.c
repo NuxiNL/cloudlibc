@@ -19,8 +19,9 @@ int ungetc(int c, FILE *stream) {
   bool result = false;
   if ((stream->oflags & O_RDONLY) != 0 &&
       stream->ungetclen < sizeof(stream->ungetc)) {
-    result = true;
     stream->ungetc[sizeof(stream->ungetc) - ++stream->ungetclen] = c;
+    stream->flags &= ~F_EOF;
+    result = true;
   }
   funlockfile(stream);
   return result ? (unsigned char)c : EOF;

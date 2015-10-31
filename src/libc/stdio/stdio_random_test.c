@@ -368,6 +368,7 @@ static void apply_random_operations(FILE *stream) {
           arc4random_buf(&ch, sizeof(ch));
           ASSERT_EQ(ch, ungetc(ch, stream));
           pushbacks[npushbacks++] = ch;
+          has_eof = false;
         }
         break;
     }
