@@ -113,6 +113,7 @@ static inline bool fop_write_peek(FILE *stream) __requires_exclusive(*stream) {
 
 static inline bool fop_seek(FILE *stream, off_t offset, int whence)
     __requires_exclusive(*stream) {
+  assert(fseekable(stream) && "Attempted to seek on an unseekable stream");
   return stream->ops->seek(stream, offset, whence);
 }
 

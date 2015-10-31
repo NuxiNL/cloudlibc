@@ -9,7 +9,13 @@
 
 int fseeko(FILE *stream, off_t offset, int whence) {
   flockfile(stream);
-  bool result = fop_seek(stream, offset, whence);
+  bool result;
+  if (!fseekable(stream)) {
+    errno = ESPIPE;
+    result = false;
+  } else {
+    result = fop_seek(stream, offset, whence);
+  }
   if (result)
     stream->flags &= ~F_EOF;
   funlockfile(stream);

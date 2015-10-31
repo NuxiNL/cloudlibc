@@ -229,13 +229,6 @@ static bool pipe_write_peek(FILE *file) __requires_exclusive(*file) {
   return true;
 }
 
-static bool pipe_seek(FILE *file, off_t offset, int whence)
-    __requires_exclusive(*file) {
-  // We cannot seek in pipes.
-  errno = ESPIPE;
-  return false;
-}
-
 static bool pipe_setvbuf(FILE *file, size_t bufsize)
     __requires_exclusive(*file) {
   // TODO(ed): Implement.
@@ -264,7 +257,6 @@ static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
   static const struct fileops ops = {
       .read_peek = pipe_read_peek,
       .write_peek = pipe_write_peek,
-      .seek = pipe_seek,
       .setvbuf = pipe_setvbuf,
       .flush = pipe_flush,
       .close = pipe_close,

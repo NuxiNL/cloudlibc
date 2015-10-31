@@ -18,12 +18,6 @@ static bool stderr_write_peek(FILE *file) {
   return true;
 }
 
-static bool stderr_seek(FILE *file, off_t offset, int whence) {
-  // Behave like a pipe.
-  errno = ESPIPE;
-  return false;
-}
-
 static bool stderr_setvbuf(FILE *file, size_t size) {
   // Ignore request.
   return true;
@@ -41,7 +35,6 @@ static bool stderr_close(FILE *file) {
 
 static struct fileops stderrops = {
     .write_peek = stderr_write_peek,
-    .seek = stderr_seek,
     .setvbuf = stderr_setvbuf,
     .flush = stderr_flush,
     .close = stderr_close,
