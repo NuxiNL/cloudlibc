@@ -5,11 +5,12 @@
 
 #include <common/stdio.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 
 int ferror(FILE *stream) {
   flockfile(stream);
-  int result = (stream->flags & F_ERROR) != 0;
+  bool result = (stream->flags & F_ERROR) != 0;
   funlockfile(stream);
   return result;
 }
