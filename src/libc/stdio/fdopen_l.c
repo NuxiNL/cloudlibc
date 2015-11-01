@@ -25,7 +25,7 @@
 
 static bool file_drain(FILE *file) __requires_exclusive(*file) {
   // Offset after draining.
-  off_t offset = ftello_fast(file);
+  off_t offset = ftello_physical(file);
   bool refetch_offset = false;
 
   // Check whether there is data that still needs to be written to disk.

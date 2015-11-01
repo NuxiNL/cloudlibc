@@ -12,7 +12,7 @@
 
 static void tmp_drain(FILE *file) __requires_exclusive(*file) {
   // Sync up the file offset again.
-  file->offset = ftello_fast(file);
+  file->offset = ftello_physical(file);
 
   // Adjust the file length if we've written data.
   if (file->writebuf != file->tmpfile.owritebuf &&

@@ -20,8 +20,7 @@ int fseeko(FILE *stream, off_t offset, int whence) {
     switch (whence) {
       case SEEK_CUR:
         // Add the current position and perform SEEK_SET.
-        if (add_overflow(offset, ftello_fast(stream) - stream->ungetclen,
-                         &offset)) {
+        if (add_overflow(offset, ftello_logical(stream), &offset)) {
           errno = EOVERFLOW;
           break;
         }

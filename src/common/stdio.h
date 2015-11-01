@@ -306,7 +306,9 @@ static inline int __putc_unlocked(int c, FILE *stream)
 }
 #define putc_unlocked(c, stream) __putc_unlocked(c, stream)
 
-static inline off_t ftello_fast(FILE *stream) __requires_exclusive(*stream) {
+// Offset within the underlying file of the stream object.
+static inline off_t ftello_physical(FILE *stream)
+    __requires_exclusive(*stream) {
   assert(fseekable(stream) && "Stream is not seekable");
   assert((stream->readbuflen == 0 || stream->writebuflen == 0) &&
          "Read and write buffer both used on a streamable file");
@@ -314,6 +316,12 @@ static inline off_t ftello_fast(FILE *stream) __requires_exclusive(*stream) {
       stream->offset - (off_t)stream->readbuflen - (off_t)stream->writebuflen;
   assert(result >= 0 && "Negative offset after buffer size correction");
   return result;
+}
+
+// Offset as reported by ftello(), namely accounting for the number of
+// characters stored in the ungetc() buffer.
+static inline off_t ftello_logical(FILE *stream) __requires_exclusive(*stream) {
+  return ftello_physical(stream) - stream->ungetclen;
 }
 
 // Allocates a stream.

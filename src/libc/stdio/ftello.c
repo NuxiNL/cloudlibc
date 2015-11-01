@@ -18,7 +18,7 @@ off_t ftello(FILE *stream) {
   }
   // Apply lengths of the read, write and ungetc buffers on top of the
   // descriptor offset.
-  off_t result = ftello_fast(stream) - stream->ungetclen;
+  off_t result = ftello_logical(stream);
   funlockfile(stream);
   return result;
 }
