@@ -124,6 +124,7 @@ static inline bool fop_seek(FILE *stream, off_t offset, bool seek_end)
 
 static inline bool fop_setvbuf(FILE *stream, size_t len)
     __requires_exclusive(*stream) {
+  assert(len > 0 && "Attempted to set buffer size to zero");
   return stream->ops->setvbuf(stream, len);
 }
 

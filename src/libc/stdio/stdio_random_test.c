@@ -38,6 +38,10 @@ static void random_pair(size_t max, size_t *a, size_t *b) {
 // such as fdopen(), tmpfile() and fmemopen() to see whether they behave
 // correctly when presented a random sequence of operations.
 //
+// As this stdio implementation allows setvbuf() to be called at any
+// time, also add some random invocations of this function. It should
+// not have any impact that's externally visible.
+//
 // TODO(ed): Make tests for fgets(), fread(), getdelim() and getline()
 // work when characters have been pushed back using ungetc().
 static void apply_random_operations(FILE *stream) {
@@ -50,7 +54,7 @@ static void apply_random_operations(FILE *stream) {
 
   for (int i = 0; i < 1000; ++i) {
     off_t logical_offset = offset - npushbacks;
-    switch (arc4random_uniform(22)) {
+    switch (arc4random_uniform(25)) {
       case 0:
         // clearerr() should only clear the end-of-file and error flags.
         clearerr(stream);
@@ -362,6 +366,21 @@ static void apply_random_operations(FILE *stream) {
         npushbacks = 0;
         break;
       case 21:
+        // setvbuf(_IOFBF).
+        ASSERT_EQ(0, setvbuf(stream, NULL, _IOFBF,
+                             arc4random_uniform(sizeof(contents) * 2)));
+        break;
+      case 22:
+        // setvbuf(_IOLBF).
+        ASSERT_EQ(0, setvbuf(stream, NULL, _IOLBF,
+                             arc4random_uniform(sizeof(contents) * 2)));
+        break;
+      case 23:
+        // setvbuf(_IONBF).
+        ASSERT_EQ(0, setvbuf(stream, NULL, _IONBF,
+                             arc4random_uniform(sizeof(contents) * 2)));
+        break;
+      case 24:
         // ungetc().
         if (npushbacks < sizeof(pushbacks)) {
           unsigned char ch;
