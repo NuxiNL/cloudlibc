@@ -19,6 +19,7 @@ TEST(fgetc, eagain) {
   // Read cannot block.
   ASSERT_EQ(EOF, fgetc(fp));
   ASSERT_EQ(EAGAIN, errno);
+  ASSERT_TRUE(ferror(fp));
 
   ASSERT_EQ(0, fclose(fp));
   ASSERT_EQ(0, close(fds[1]));
@@ -33,6 +34,7 @@ TEST(fgetc, ebadf) {
   // Reading should not be permitted.
   ASSERT_EQ(EOF, fgetc(fp));
   ASSERT_EQ(EBADF, errno);
+  ASSERT_FALSE(ferror(fp));
 
   ASSERT_EQ(0, fclose(fp));
   ASSERT_EQ(0, close(fds[0]));
