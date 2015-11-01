@@ -9,9 +9,12 @@
 #include <stdio.h>
 
 int fileno(FILE *stream) {
-  if (stream->fd < 0) {
+  flockfile(stream);
+  int fd = stream->fd;
+  funlockfile(stream);
+  if (fd < 0) {
     errno = EBADF;
     return -1;
   }
-  return stream->fd;
+  return fd;
 }
