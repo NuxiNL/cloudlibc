@@ -52,7 +52,7 @@ static void apply_random_operations(FILE *stream) {
   char pushbacks[4];
   size_t npushbacks = 0;
   fpos_t position;
-  off_t position_offset;
+  off_t position_offset = -1;
   bool position_valid = false;
 
   for (int i = 0; i < 1000; ++i) {
@@ -92,9 +92,14 @@ static void apply_random_operations(FILE *stream) {
         break;
       case 5:
         // fgetpos().
-        ASSERT_EQ(0, fgetpos(stream, &position));
-        position_valid = true;
-        position_offset = logical_offset;
+        if (logical_offset < 0) {
+          ASSERT_EQ(-1, fgetpos(stream, &position));
+          ASSERT_EQ(EOVERFLOW, errno);
+        } else {
+          ASSERT_EQ(0, fgetpos(stream, &position));
+          position_valid = true;
+          position_offset = logical_offset;
+        }
         break;
       case 6: {
         // fgets().
@@ -263,17 +268,11 @@ static void apply_random_operations(FILE *stream) {
       }
       case 15:
         // fsetpos().
-        if (position_valid) {
-          if (position_offset < 0) {
-            ASSERT_EQ(-1, fsetpos(stream, &position));
-            ASSERT_EQ(EINVAL, errno);
-          } else {
-            // Valid file offset.
-            ASSERT_EQ(0, fsetpos(stream, &position));
-            offset = position_offset;
-            has_eof = false;
-            npushbacks = 0;
-          }
+        if (position_offset >= 0) {
+          ASSERT_EQ(0, fsetpos(stream, &position));
+          offset = position_offset;
+          has_eof = false;
+          npushbacks = 0;
         }
         break;
       case 16:

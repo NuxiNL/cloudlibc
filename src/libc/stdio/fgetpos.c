@@ -18,6 +18,14 @@ int fgetpos(FILE *restrict stream, fpos_t *restrict pos) {
     errno = ESPIPE;
     return -1;
   }
+  off_t offset = ftello_logical(stream);
+  if (offset < 0) {
+    // Don't attempt to preserve negative offsets in an fpos_t, as there
+    // is no meaningful way in which they can be used with fsetpos().
+    funlockfile(stream);
+    errno = EOVERFLOW;
+    return -1;
+  }
   pos->__offset = ftello_logical(stream);
   static_assert(sizeof(pos->__mbstate) >= sizeof(stream->readstate),
                 "Multibyte read state too large");
