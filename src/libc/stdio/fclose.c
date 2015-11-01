@@ -6,16 +6,17 @@
 #include <common/stdio.h>
 
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
 int fclose(FILE *stream) {
   // Close underlying descriptor.
-  int result = fop_close(stream) ? 0 : EOF;
+  bool result = fop_close(stream);
 
   // Free file object and associated data.
   pthread_mutex_destroy(&stream->lock);
   free(stream);
-  return result;
+  return result ? 0 : EOF;
 }
