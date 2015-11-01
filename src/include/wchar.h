@@ -50,7 +50,7 @@
 //   Assumes encoding and decoding state share the same layout.
 // - wcpcpy(), wcscat(), wcscpy() and wcsncat():
 //   Prone to buffer overflows. Not safe to use.
-// - fwide() and open_wmemstream():
+// - open_wmemstream():
 //   Streams are currently byte-oriented.
 
 #ifndef _WCHAR_H_
@@ -108,6 +108,7 @@ wint_t fgetwc(FILE *);
 wchar_t *fgetws(wchar_t *__restrict, int, FILE *__restrict);
 wint_t fputwc(wchar_t, FILE *);
 int fputws(const wchar_t *__restrict, FILE *__restrict);
+int fwide(FILE *, int);
 int fwprintf(FILE *__restrict, const wchar_t *__restrict, ...);
 int fwprintf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, ...);
 int fwscanf(FILE *__restrict, const wchar_t *__restrict, ...);

@@ -39,8 +39,9 @@ struct __lockable _FILE {
     F_EOF = 0x1,    // Stream is at end-of-file.
     F_ERROR = 0x2,  // An I/O error has occurred.
   } flags;
-  int buftype;   // _IOFBF, _IOLBF or _IONBF.
-  off_t offset;  // Negative if stream is not seekable.
+  int orientation;  // Wide-oriented or byte-oriented stream.
+  int buftype;      // _IOFBF, _IOLBF or _IONBF.
+  off_t offset;     // Negative if stream is not seekable.
 
   char ungetc[MB_LEN_MAX * 4];  // ungetc() buffer. Filled from the back.
   size_t ungetclen;             // Number of characters pushed back.
