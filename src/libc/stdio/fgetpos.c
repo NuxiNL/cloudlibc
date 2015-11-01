@@ -26,7 +26,7 @@ int fgetpos(FILE *restrict stream, fpos_t *restrict pos) {
     errno = EOVERFLOW;
     return -1;
   }
-  pos->__offset = ftello_logical(stream);
+  pos->__offset = offset;
   static_assert(sizeof(pos->__mbstate) >= sizeof(stream->readstate),
                 "Multibyte read state too large");
   memcpy(&pos->__mbstate, &stream->readstate, sizeof(stream->readstate));
