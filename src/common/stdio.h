@@ -207,6 +207,7 @@ static inline bool fread_peek(FILE *stream, const char **buf, size_t *buflen)
   if (stream->readbuflen == 0) {
     // Only allow reads if we're opened for reading.
     if ((stream->oflags & O_RDONLY) == 0) {
+      stream->flags |= F_ERROR;
       errno = EBADF;
       return false;
     }
@@ -259,6 +260,7 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     __requires_exclusive(*stream) {
   // Only allow peeks if we're opened for writing.
   if ((stream->oflags & O_WRONLY) == 0) {
+    stream->flags |= F_ERROR;
     errno = EBADF;
     return 0;
   }
@@ -289,6 +291,7 @@ static inline int __putc_unlocked(int c, FILE *stream)
     __requires_exclusive(*stream) {
   // Only allow storing characters if we're opened for writing.
   if ((stream->oflags & O_WRONLY) == 0) {
+    stream->flags |= F_ERROR;
     errno = EBADF;
     return EOF;
   }

@@ -23,8 +23,10 @@ TEST(fflush, eagain) {
   funlockfile(fp);
 
   // Flushing should still fail with EAGAIN.
+  clearerr(fp);
   errno = 0;
   ASSERT_EQ(EOF, fflush(fp));
+  ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(EAGAIN, errno);
   ASSERT_EQ(EOF, fclose(fp));
   ASSERT_EQ(0, close(fds[0]));
@@ -44,6 +46,7 @@ TEST_SEPARATE_PROCESS(fflush, ebadf) {
 
   // Flushing should fail, as underlying file descriptor is already gone.
   ASSERT_EQ(EOF, fflush(fp));
+  ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(EBADF, errno);
   ASSERT_EQ(EOF, fclose(fp));
 }
@@ -61,6 +64,7 @@ TEST(fflush, epipe) {
 
   // We should be unable to flush.
   ASSERT_EQ(EOF, fflush(fp));
+  ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(EPIPE, errno);
   ASSERT_EQ(EOF, fclose(fp));
 }

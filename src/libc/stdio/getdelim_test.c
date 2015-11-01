@@ -15,10 +15,15 @@ TEST(getdelim, example) {
   size_t n;
 
   ASSERT_EQ(-1, getdelim(NULL, &n, ' ', file));
+  ASSERT_TRUE(ferror(file));
   ASSERT_EQ(EINVAL, errno);
+  clearerr(file);
   ASSERT_EQ(-1, getdelim(&lineptr, NULL, ' ', file));
+  ASSERT_TRUE(ferror(file));
   ASSERT_EQ(EINVAL, errno);
+  clearerr(file);
   ASSERT_EQ(-1, getdelim(NULL, NULL, ' ', file));
+  ASSERT_TRUE(ferror(file));
   ASSERT_EQ(EINVAL, errno);
 
   ASSERT_EQ(5, getdelim(&lineptr, &n, ' ', file));

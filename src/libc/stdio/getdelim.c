@@ -43,6 +43,9 @@ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delimiter,
                  FILE *restrict stream) {
   // Buffer and length pointer should be non-zero.
   if (lineptr == NULL || n == NULL) {
+    flockfile(stream);
+    stream->flags |= F_ERROR;
+    funlockfile(stream);
     errno = EINVAL;
     return -1;
   }
