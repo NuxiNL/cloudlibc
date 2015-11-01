@@ -6,18 +6,27 @@
 #include <common/stdio.h>
 
 #include <assert.h>
+#include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
 int fsetpos(FILE *stream, const fpos_t *pos) {
   flockfile(stream);
-  int result = fseeko(stream, pos->__offset, SEEK_SET);
-  if (result == 0) {
-    // Restore multibyte read state.
-    static_assert(sizeof(pos->__mbstate) >= sizeof(stream->readstate),
-                  "Multibyte read state too large");
-    memcpy(&stream->readstate, &pos->__mbstate, sizeof(stream->readstate));
+  bool result = false;
+  if (!fseekable(stream)) {
+    // Attempted to call fsetpos() on a non-seekable stream.
+    errno = ESPIPE;
+  } else {
+    result = fop_seek(stream, pos->__offset, false);
+    if (result) {
+      stream->flags &= ~F_EOF;
+      stream->ungetclen = 0;
+      static_assert(sizeof(pos->__mbstate) >= sizeof(stream->readstate),
+                    "Multibyte read state too large");
+      memcpy(&stream->readstate, &pos->__mbstate, sizeof(stream->readstate));
+    }
   }
   funlockfile(stream);
-  return result;
+  return result ? 0 : -1;
 }

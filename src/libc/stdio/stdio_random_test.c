@@ -51,10 +51,13 @@ static void apply_random_operations(FILE *stream) {
   bool has_error = false;
   char pushbacks[4];
   size_t npushbacks = 0;
+  fpos_t position;
+  off_t position_offset;
+  bool position_valid = false;
 
   for (int i = 0; i < 1000; ++i) {
     off_t logical_offset = offset - npushbacks;
-    switch (arc4random_uniform(25)) {
+    switch (arc4random_uniform(27)) {
       case 0:
         // clearerr() should only clear the end-of-file and error flags.
         clearerr(stream);
@@ -87,7 +90,13 @@ static void apply_random_operations(FILE *stream) {
           has_eof = true;
         }
         break;
-      case 5: {
+      case 5:
+        // fgetpos().
+        ASSERT_EQ(0, fgetpos(stream, &position));
+        position_valid = true;
+        position_offset = logical_offset;
+        break;
+      case 6: {
         // fgets().
         if (npushbacks == 0) {
           char readbuf[sizeof(contents)];
@@ -123,7 +132,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 6: {
+      case 7: {
         // fprintf(). Don't test formatting extensively. Just print a
         // randomly generated string using %s.
         size_t writelen = arc4random_uniform(sizeof(contents) - offset + 1);
@@ -138,7 +147,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 7: {
+      case 8: {
         // fputc().
         if (offset < (off_t)sizeof(contents)) {
           unsigned int c;
@@ -150,7 +159,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 8: {
+      case 9: {
         // fputs().
         size_t writelen = arc4random_uniform(sizeof(contents) - offset + 1);
         char writebuf[sizeof(contents) + 1];
@@ -164,7 +173,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 9: {
+      case 10: {
         // fread().
         if (npushbacks == 0) {
           size_t size, nitems;
@@ -197,11 +206,11 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 10:
+      case 11:
         // fscanf().
         // TODO(ed): Fix.
         break;
-      case 11: {
+      case 12: {
         // fseeko(SEEK_CUR).
         off_t new_offset =
             (off_t)arc4random_uniform(2 * sizeof(contents)) - sizeof(contents);
@@ -218,7 +227,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 12: {
+      case 13: {
         // fseeko(SEEK_END).
         off_t new_offset =
             (off_t)arc4random_uniform(2 * sizeof(contents)) - sizeof(contents);
@@ -235,7 +244,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 13: {
+      case 14: {
         // fseeko(SEEK_SET).
         off_t new_offset =
             (off_t)arc4random_uniform(2 * sizeof(contents)) - sizeof(contents);
@@ -252,11 +261,26 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 14:
+      case 15:
+        // fsetpos().
+        if (position_valid) {
+          if (position_offset < 0) {
+            ASSERT_EQ(-1, fsetpos(stream, &position));
+            ASSERT_EQ(EINVAL, errno);
+          } else {
+            // Valid file offset.
+            ASSERT_EQ(0, fsetpos(stream, &position));
+            offset = position_offset;
+            has_eof = false;
+            npushbacks = 0;
+          }
+        }
+        break;
+      case 16:
         // ftello().
         ASSERT_EQ(logical_offset, ftello(stream));
         break;
-      case 15: {
+      case 17: {
         // fwrite().
         size_t size, nitems;
         random_pair(sizeof(contents) - offset, &size, &nitems);
@@ -273,7 +297,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 16:
+      case 18:
         // getc() should set the end-of-file flag when reading past the
         // file boundary.
         if (npushbacks > 0) {
@@ -286,7 +310,7 @@ static void apply_random_operations(FILE *stream) {
           has_eof = true;
         }
         break;
-      case 17: {
+      case 19: {
         // getdelim().
         if (npushbacks == 0) {
           char *line = NULL;
@@ -317,7 +341,7 @@ static void apply_random_operations(FILE *stream) {
           break;
         }
       }
-      case 18: {
+      case 20: {
         // getline().
         if (npushbacks == 0) {
           char *line = NULL;
@@ -345,7 +369,7 @@ static void apply_random_operations(FILE *stream) {
           break;
         }
       }
-      case 19:
+      case 21:
         // putc().
         if (offset < (off_t)sizeof(contents)) {
           unsigned int c;
@@ -356,7 +380,7 @@ static void apply_random_operations(FILE *stream) {
             length = offset;
         }
         break;
-      case 20:
+      case 22:
         // rewind() should reset the offset, the end-of-file flag and
         // the error flag.
         rewind(stream);
@@ -365,22 +389,22 @@ static void apply_random_operations(FILE *stream) {
         has_error = false;
         npushbacks = 0;
         break;
-      case 21:
+      case 23:
         // setvbuf(_IOFBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IOFBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 22:
+      case 24:
         // setvbuf(_IOLBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IOLBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 23:
+      case 25:
         // setvbuf(_IONBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IONBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 24:
+      case 26:
         // ungetc().
         if (npushbacks < sizeof(pushbacks)) {
           unsigned char ch;

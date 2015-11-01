@@ -6,20 +6,19 @@
 #include <common/stdio.h>
 
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
 int fgetpos(FILE *restrict stream, fpos_t *restrict pos) {
-  // Obtain file offset.
   flockfile(stream);
-  off_t result = ftello(stream);
-  if (result == -1) {
+  if (!fseekable(stream)) {
+    // File descriptor is not seekable.
     funlockfile(stream);
+    errno = ESPIPE;
     return -1;
   }
-
-  // Preserve offset and multibyte read state.
-  pos->__offset = result;
+  pos->__offset = ftello_logical(stream);
   static_assert(sizeof(pos->__mbstate) >= sizeof(stream->readstate),
                 "Multibyte read state too large");
   memcpy(&pos->__mbstate, &stream->readstate, sizeof(stream->readstate));

@@ -36,10 +36,10 @@ int fseeko(FILE *stream, off_t offset, int whence) {
         errno = EINVAL;
         break;
     }
-  }
-  if (result) {
-    stream->flags &= ~F_EOF;
-    stream->ungetclen = 0;
+    if (result) {
+      stream->flags &= ~F_EOF;
+      stream->ungetclen = 0;
+    }
   }
   funlockfile(stream);
   return result ? 0 : -1;
