@@ -149,7 +149,7 @@ static inline void __flockfile(FILE *file)
 
 static inline int __ftrylockfile(FILE *file)
     __trylocks_exclusive(0, *file) __no_lock_analysis {
-  return pthread_mutex_trylock(&(file)->lock) != 0;
+  return pthread_mutex_trylock(&file->lock);
 }
 
 static inline void __funlockfile(FILE *file)
