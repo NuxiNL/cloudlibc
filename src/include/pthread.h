@@ -27,8 +27,7 @@
 // - PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP:
 //   Also present on Linux.
 // - pthread_t:
-//   A pointer type to make inequality operators work, which is commonly
-//   used in existing code.
+//   An arithmetic type, as required by SUSv2.
 // - pthread_mutex_t, pthread_rwlock_t and pthread_spinlock_t:
 //   All implemented using the same underlying type. pthread_cond_*wait()
 //   can be used in combination with any type of lock.
