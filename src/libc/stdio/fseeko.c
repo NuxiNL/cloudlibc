@@ -6,6 +6,7 @@
 #include <common/overflow.h>
 #include <common/stdio.h>
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -45,6 +46,6 @@ int fseeko(FILE *stream, off_t offset, int whence) {
   return result ? 0 : -1;
 }
 
-#if _LONG_BIT == 64
+#if LONG_BIT == 64
 __strong_reference(fseeko, fseek);
 #endif

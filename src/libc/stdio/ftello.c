@@ -6,6 +6,7 @@
 #include <common/stdio.h>
 
 #include <assert.h>
+#include <limits.h>
 #include <stdio.h>
 
 off_t ftello(FILE *stream) {
@@ -21,6 +22,6 @@ off_t ftello(FILE *stream) {
   return result;
 }
 
-#if _LONG_BIT == 64
+#if LONG_BIT == 64
 __strong_reference(ftello, ftell);
 #endif
