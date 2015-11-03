@@ -119,7 +119,7 @@ TEST(fputwc, success) {
   FILE *fp = fmemopen_l(NULL, 9, "w+", LC_C_UNICODE_LOCALE);
   ASSERT_NE(NULL, fp);
 
-  // Writing a large Unicode character shall fail.
+  // Fill file with Unicode characters.
   ASSERT_EQ(L'☃', fputwc(L'☃', fp));
   ASSERT_EQ(L'☃', fputwc(L'☃', fp));
   ASSERT_EQ(L'☃', fputwc(L'☃', fp));
