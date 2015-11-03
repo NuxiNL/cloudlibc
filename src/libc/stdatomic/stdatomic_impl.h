@@ -10,6 +10,7 @@
 
 #include <stdatomic.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 // Clang doesn't allow us to explicitly implement builtin functions.
 // Work around this limitation by emitting a function with a different
@@ -34,8 +35,26 @@ void __atomic_exchange(size_t, void *, void *, void *, memory_order);
 void __atomic_load(size_t, void *, void *, memory_order);
 void __atomic_store(size_t, void *, void *, memory_order);
 
-// Lock to serialize all calls. We should consider changing this to a
-// pool of locks and hashing the address of the object.
-extern pthread_rwlock_t __atomic_fallback_lock;
+// Exponent of the size of the table of locks that should be used for
+// atomic objects that are not lock-free.
+#define ATOMIC_FALLBACK_NBITS 4
+
+// Table of locks.
+extern pthread_rwlock_t __atomic_fallback_locks[];
+
+// Fetches a lock for an atomic object that is not lock-free, based on
+// the address of the object.
+static inline pthread_rwlock_t *atomic_fallback_getlock(void *object) {
+  if (ATOMIC_FALLBACK_NBITS == 0) {
+    // Table consists of a single lock. Return lock without performing
+    // any arithmetic.
+    return &__atomic_fallback_locks[0];
+  } else {
+    // Use Knuth's multiplicative method to hash the address.
+    uint32_t v = (uintptr_t)object;
+    return &__atomic_fallback_locks[v * UINT32_C(2654435761) >>
+                                    (32 - ATOMIC_FALLBACK_NBITS)];
+  }
+}
 
 #endif

@@ -9,7 +9,8 @@
 #include "stdatomic_impl.h"
 
 void __atomic_load(size_t len, void *object, void *value, memory_order order) {
-  pthread_rwlock_rdlock(&__atomic_fallback_lock);
+  pthread_rwlock_t *lock = atomic_fallback_getlock(object);
+  pthread_rwlock_rdlock(lock);
   memcpy(value, object, len);
-  pthread_rwlock_unlock(&__atomic_fallback_lock);
+  pthread_rwlock_unlock(lock);
 }
