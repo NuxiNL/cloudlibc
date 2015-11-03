@@ -14,5 +14,6 @@ void rewind(FILE *stream) {
     fop_seek(stream, 0, false);
   stream->flags &= ~(F_EOF | F_ERROR);
   stream->ungetclen = 0;
+  memset(&stream->readstate, '\0', sizeof(stream->readstate));
   funlockfile(stream);
 }

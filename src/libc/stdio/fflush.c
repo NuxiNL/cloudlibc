@@ -11,9 +11,10 @@
 int fflush(FILE *stream) {
   flockfile(stream);
   bool result = fop_flush(stream);
-  if (result)
+  if (result) {
     stream->ungetclen = 0;
-  else
+    memset(&stream->readstate, '\0', sizeof(stream->readstate));
+  } else
     stream->flags |= F_ERROR;
   funlockfile(stream);
   return result ? 0 : EOF;

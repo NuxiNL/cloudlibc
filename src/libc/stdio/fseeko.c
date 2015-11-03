@@ -40,6 +40,7 @@ int fseeko(FILE *stream, off_t offset, int whence) {
     if (result) {
       stream->flags &= ~F_EOF;
       stream->ungetclen = 0;
+      memset(&stream->readstate, '\0', sizeof(stream->readstate));
     }
   }
   funlockfile(stream);

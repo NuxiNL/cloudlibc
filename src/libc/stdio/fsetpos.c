@@ -22,6 +22,7 @@ int fsetpos(FILE *stream, const fpos_t *pos) {
     if (result) {
       stream->flags &= ~F_EOF;
       stream->ungetclen = 0;
+      memset(&stream->readstate, '\0', sizeof(stream->readstate));
       static_assert(sizeof(pos->__mbstate) >= sizeof(stream->readstate),
                     "Multibyte read state too large");
       memcpy(&stream->readstate, &pos->__mbstate, sizeof(stream->readstate));
