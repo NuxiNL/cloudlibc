@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/arc4random.h>
 #include <common/crt.h>
 #include <common/pthread.h>
 #include <common/refcount.h>
@@ -55,6 +56,10 @@ int pdfork(int *fdp, ...) {
     LIST_FOREACH(lock, &__pthread_wrlocks, __write_locks) {
       atomic_init(&lock->__state, tid | CLOUDABI_LOCK_WRLOCKED);
     }
+
+    // Deplete the PRNG pool for this new thread. This will cause it to
+    // refresh its state the next time we need random data.
+    __arc4random_bytesleft = 0;
 
     // Invoke "child" fork handlers.
     if (first != NULL) {
