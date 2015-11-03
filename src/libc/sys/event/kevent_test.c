@@ -42,7 +42,7 @@ TEST(kevent, evfilt_read_ebadf) {
   ASSERT_EQ((void *)0x42, ke.udata);
 }
 
-TEST(kevent, evfilt_read_pipe) {
+TEST_SEPARATE_PROCESS(kevent, evfilt_read_pipe) {
   int fdq = kqueue();
   ASSERT_LE(0, fdq);
   int fdp[2];
