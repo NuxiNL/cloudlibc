@@ -75,7 +75,6 @@ TEST(fputc, epipe) {
   // already been closed.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(0, fcntl(fds[1], F_SETFL, fcntl(fds[1], F_GETFL) | O_NONBLOCK));
   FILE *fp = fdopen(fds[1], "w");
   ASSERT_EQ(0, close(fds[0]));
 
