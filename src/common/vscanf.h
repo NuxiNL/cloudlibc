@@ -74,12 +74,6 @@ static int vfscanf_locked(FILE *stream, locale_t, const char_t *, va_list)
     __requires_exclusive(*stream);
 
 int NAME(FILE *stream, locale_t locale, const char_t *format, va_list ap) {
-  // Validate that the stream is opened for reading.
-  if ((stream->oflags & O_RDONLY) == 0) {
-    errno = EBADF;
-    return EOF;
-  }
-
   flockfile(stream);
   int ret = vfscanf_locked(stream, locale, format, ap);
   funlockfile(stream);
@@ -88,6 +82,13 @@ int NAME(FILE *stream, locale_t locale, const char_t *format, va_list ap) {
 
 static int vfscanf_locked(FILE *stream, locale_t locale, const char_t *format,
                           va_list ap) {
+  // Validate that the stream is opened for reading.
+  if ((stream->oflags & O_RDONLY) == 0) {
+    stream->flags |= F_ERROR;
+    errno = EBADF;
+    return EOF;
+  }
+
 // TODO(ed): Make INPUT_REMAINING() work. Fix error handling.
 #define INPUT_REMAINING(n) false
 #define INPUT_PEEK(n) (stream->readbuf[n])
