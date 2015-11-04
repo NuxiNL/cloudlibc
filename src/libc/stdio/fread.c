@@ -13,10 +13,6 @@
 
 size_t fread(void *restrict ptr, size_t size, size_t nitems,
              FILE *restrict stream) {
-  // Zero-sized read. Return immediately.
-  if (size == 0 || nitems == 0)
-    return 0;
-
   // Check for overflow of size * nitems.
   size_t outbuflen;
   if (mul_overflow(size, nitems, &outbuflen)) {
@@ -26,6 +22,10 @@ size_t fread(void *restrict ptr, size_t size, size_t nitems,
     errno = EINVAL;
     return 0;
   }
+
+  // Zero-sized read. Return immediately.
+  if (outbuflen == 0)
+    return 0;
 
   char *outbuf = ptr;
   flockfile(stream);
