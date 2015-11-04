@@ -49,5 +49,6 @@ TEST(getdelim, example) {
   ASSERT_EQ(-1, getline(&lineptr, &n, file));
   ASSERT_TRUE(feof(file));
 
+  ASSERT_EQ(0, fclose(file));
   free(lineptr);
 }
