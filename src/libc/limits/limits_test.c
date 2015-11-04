@@ -3,9 +3,6 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/limits.h>
-#include <common/syscalldefs.h>
-
 #include <assert.h>
 #include <limits.h>
 
