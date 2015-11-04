@@ -6,6 +6,7 @@
 #include <common/overflow.h>
 #include <common/stdio.h>
 
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
