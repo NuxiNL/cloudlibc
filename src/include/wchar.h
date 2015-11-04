@@ -28,6 +28,8 @@
 //   Analogous to asprintf().
 // - dwprintf(), dwprintf_l(), vdwprintf() and vdwprintf_l():
 //   Analogous to dprintf().
+// - getwdelim() and getwline():
+//   Analogous to getdelim() and getline().
 // - wcsfmon(), wcsfmon_l(), vwcsfmon() and vwcsfmon_l():
 //   Analogous to strfmon(), strfmon_l(), vstrfmon() and vstrftmon_l().
 // - wcslcat() and wcslcpy():
@@ -114,6 +116,8 @@ int fwprintf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, ...);
 int fwscanf(FILE *__restrict, const wchar_t *__restrict, ...);
 int fwscanf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, ...);
 wint_t getwc(FILE *);
+__ssize_t getwdelim(wchar_t **__restrict, size_t *__restrict, wint_t, FILE *);
+__ssize_t getwline(wchar_t **__restrict, size_t *__restrict, FILE *);
 size_t mbrlen(const char *__restrict, size_t, mbstate_t *__restrict);
 size_t mbrlen_l(const char *__restrict, size_t, mbstate_t *__restrict,
                 locale_t);
