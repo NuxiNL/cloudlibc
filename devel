@@ -4,6 +4,7 @@ set -e
 
 : ${CC:=x86_64-unknown-cloudabi-cc}
 : ${AR:=x86_64-unknown-cloudabi-ar}
+: ${NM:=x86_64-unknown-cloudabi-nm}
 : ${PREFIX:=/usr/local/$(${CC} -dumpmachine)}
 
 export WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers \
@@ -52,6 +53,50 @@ if [ "$1" != "fast" ]; then
   done
   # Invoke the build again if we had to fix up one or more sources files.
   ./build fast
+fi
+
+# Ensure that no unexpected symbols remain unresolved. Some symbols are
+# provided by compiler-rt, so they are known to be absent. The main()
+# function is of course provided by the application linked against this
+# library.
+(cat << EOF
+__addtf3
+__divtf3
+__eqtf2
+__extenddftf2
+__extendsftf2
+__fixtfdi
+__fixtfsi
+__floatditf
+__floatsitf
+__floatunsitf
+__getf2
+__gttf2
+__letf2
+__lttf2
+__muldc3
+__mulsc3
+__multc3
+__multf3
+__mulxc3
+__netf2
+__subtf3
+__trunctfdf2
+__trunctfsf2
+__unordtf2
+main
+EOF
+(${NM} -g --defined-only _obj/libc.a
+find src/crt -name "*.[cS]" |
+    sed -e 's/.*\///' -e 's/\.[a-zA-Z]*$//' | while read crt; do
+  ${NM} -g --defined-only _obj/src_crt_${crt}.o
+done) | grep '\<[A-Z]\>' | awk '{print $3}') | sort -u > _obj/defined
+${NM} -u _obj/libc.a | grep '\<U\>' | awk '{print $2}' | \
+    grep -ve '^__start_' -e '^__stop_' | sort -u > _obj/undefined
+if [ "$(comm -13 _obj/defined _obj/undefined)" != "" ]; then
+  echo "Library leaves unresolved symbols:"
+  comm -13 _obj/defined _obj/undefined
+  exit 1
 fi
 
 PREFIX="${PREFIX}" sudo -E ./install
