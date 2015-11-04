@@ -38,23 +38,25 @@ static bool ms_write_peek(FILE *file) __requires_exclusive(*file) {
   ms_drain(file);
 
   // Grow the file buffer if the cursor is at end of file or beyond.
-  // Ensure that there is always space left for the trailing null byte.
-  if (file->offset >= (off_t)file->memstream.size - 1) {
-    size_t new_size = file->memstream.size;
+  // We ensure that we always allocate one byte more than what is stored
+  // in file->memstream.size, so that it's always safe to add a trailing
+  // null byte in ms_flush().
+  if (file->offset >= (off_t)file->memstream.size) {
+    size_t new_size = file->memstream.size + 1;
     while (file->offset >= (off_t)new_size - 1)
       new_size *= 2;
     char *new_buf = realloc(file->memstream.buf, new_size);
     if (new_buf == NULL)
       return false;
     file->memstream.buf = new_buf;
-    file->memstream.size = new_size;
+    file->memstream.size = new_size - 1;
   }
 
-  // Expose the write buffer, except for the final byte.
+  // Expose the write buffer.
   file->memstream.owritebuf = file->writebuf =
       file->memstream.buf + file->offset;
-  file->writebuflen = file->memstream.size - file->offset - 1;
-  file->offset = file->memstream.size - 1;
+  file->writebuflen = file->memstream.size - file->offset;
+  file->offset = file->memstream.size;
   return true;
 }
 
@@ -124,7 +126,7 @@ FILE *open_memstream_l(char **bufp, size_t *sizep, locale_t locale) {
   }
   file->ops = &ops;
   file->memstream.buf = buf;
-  file->memstream.size = DEFAULT_BUFFER_SIZE;
+  file->memstream.size = DEFAULT_BUFFER_SIZE - 1;
   file->memstream.bufp = bufp;
   file->memstream.sizep = sizep;
   return file;
