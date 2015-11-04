@@ -72,8 +72,10 @@ static bool file_read_peek(FILE *file) __requires_exclusive(*file) {
   // Read data.
   ssize_t ret =
       pread(file->fd, file->file.buf, file->file.bufsize, file->offset);
-  if (ret < 0)
+  if (ret < 0) {
+    file->flags |= F_ERROR;
     return false;
+  }
 
   // Put new read buffer in place.
   file->readbuf = file->file.buf;
