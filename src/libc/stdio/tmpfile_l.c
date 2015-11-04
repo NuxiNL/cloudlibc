@@ -54,7 +54,7 @@ static bool tmp_write_peek(FILE *file) __requires_exclusive(*file) {
     size_t new_size = file->tmpfile.size;
     if (new_size < 16)
       new_size = 16;
-    while ((off_t)new_size <= file->offset)
+    while (file->offset >= (off_t)new_size)
       new_size *= 2;
     char *new_buf = realloc(file->tmpfile.buf, new_size);
     if (new_buf == NULL)

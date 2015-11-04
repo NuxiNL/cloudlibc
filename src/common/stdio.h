@@ -68,6 +68,14 @@ struct __lockable _FILE {
       size_t bufsize;
     } file;
     struct {
+      char *buf;
+      const char *owritebuf;
+      size_t used;
+      size_t size;
+      char **bufp;
+      size_t *sizep;
+    } memstream;
+    struct {
       char *readbuf;
       char *writebuf;
       char *written;
