@@ -39,6 +39,7 @@
 
 namespace double_conversion {
 
+#if 0  // Disable this, as it generates references to __cxa_guard_*.
 const DoubleToStringConverter& DoubleToStringConverter::EcmaScriptConverter() {
   int flags = UNIQUE_ZERO | EMIT_POSITIVE_EXPONENT_SIGN;
   static DoubleToStringConverter converter(flags,
@@ -49,6 +50,7 @@ const DoubleToStringConverter& DoubleToStringConverter::EcmaScriptConverter() {
                                            6, 0);
   return converter;
 }
+#endif
 
 
 bool DoubleToStringConverter::HandleSpecialValues(
