@@ -40,8 +40,10 @@ static bool file_drain(FILE *file) __requires_exclusive(*file) {
       // File is not opened for append. We can use pwrite().
       ret = pwrite(file->fd, file->file.written, buflen, offset - buflen);
     }
-    if (ret < 0)
+    if (ret < 0) {
+      file->flags |= F_ERROR;
       return false;
+    }
     file->file.written += ret;
   }
 
