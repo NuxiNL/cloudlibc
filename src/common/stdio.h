@@ -319,6 +319,23 @@ static inline int __putc_unlocked(int c, FILE *stream)
 }
 #define putc_unlocked(c, stream) __putc_unlocked(c, stream)
 
+static inline wint_t putwc_unlocked(wchar_t wc, FILE *stream)
+    __requires_exclusive(*stream) {
+  // Convert character to a multibyte sequence, using the character set
+  // associated with the stream.
+  const struct lc_ctype *ctype = stream->ctype;
+  char buf[MB_LEN_MAX];
+  ssize_t len = ctype->c32tomb(buf, wc, ctype->data);
+  if (len == -1) {
+    stream->flags |= F_ERROR;
+    return WEOF;
+  }
+
+  // Write it.
+  size_t written = fwrite_put(stream, buf, len);
+  return written == (size_t)len ? wc : WEOF;
+}
+
 // Offset within the underlying file of the stream object.
 static inline off_t ftello_physical(FILE *stream)
     __requires_exclusive(*stream) {

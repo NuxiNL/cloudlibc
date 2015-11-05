@@ -329,13 +329,13 @@ int NAME(FILE *stream, locale_t locale, const char_t *format, va_list ap) {
   size_t resultwritten = 0;
   flockfile(stream);
 #if WIDE
-#define PUTCHAR(c)                   \
-  do {                               \
-    if (fputwc(c, stream) == WEOF) { \
-      funlockfile(stream);           \
-      return -1;                     \
-    }                                \
-    ++resultwritten;                 \
+#define PUTCHAR(c)                           \
+  do {                                       \
+    if (putwc_unlocked(c, stream) == WEOF) { \
+      funlockfile(stream);                   \
+      return -1;                             \
+    }                                        \
+    ++resultwritten;                         \
   } while (0)
 #else
 #define PUTCHAR(c)                         \
