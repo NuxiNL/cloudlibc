@@ -14,11 +14,13 @@
 int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
   // For consistency with fputs(), leave the stream unaffected if the
   // string is empty.
-  const char32_t *c32s = (const char32_t *)ws;
-  if (*c32s == U'\0')
+  size_t len = wcslen(ws);
+  if (len == 0)
     return 0;
 
   flockfile(stream);
+  const char32_t *c32s = (const char32_t *)ws;
+  const char32_t *end = c32s + len;
   do {
     // Obtain a write buffer.
     if (stream->writebuflen == 0) {
@@ -46,18 +48,16 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
     // go. The result will be written in the write buffer directly.
     // TODO(ed): Honour buffering mechanism.
     const struct lc_ctype *ctype = stream->ctype;
-    ssize_t len = ctype->c32stombs(stream->writebuf, &c32s, SIZE_MAX,
-                                   stream->writebuflen, ctype->data);
-    if (len == -1) {
+    ssize_t written = ctype->c32stombs(stream->writebuf, &c32s, end - c32s,
+                                       stream->writebuflen, ctype->data);
+    if (written == -1) {
       stream->flags |= F_ERROR;
       funlockfile(stream);
       return WEOF;
     }
-    stream->writebuf += len;
-    stream->writebuflen -= len;
-    if (c32s == NULL)
-      break;
-  } while (*c32s != U'\0');
+    stream->writebuf += written;
+    stream->writebuflen -= written;
+  } while (c32s < end);
   funlockfile(stream);
   return 0;
 }
