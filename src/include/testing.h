@@ -150,24 +150,24 @@ _MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, LE, <= )
 _MACRO_FOREACH_INEQUALITY_TYPE(_GENERATE_COMPARE, LT, < )
 #undef _GENERATE_COMPARE
 
-#define ASSERT_EQ(expected, actual) \
-  _EXPRESSION_FOREACH_TYPE(__test_compare_EQ, actual)( \
-      expected, #expected, actual, #actual, __FILE__, __LINE__)
-#define ASSERT_NE(expected, actual) \
-  _EXPRESSION_FOREACH_TYPE(__test_compare_NE, actual)( \
-      expected, #expected, actual, #actual, __FILE__, __LINE__)
-#define ASSERT_GE(expected, actual) \
-  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_GE, actual)( \
-      expected, #expected, actual, #actual, __FILE__, __LINE__)
-#define ASSERT_GT(expected, actual) \
-  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_GT, actual)( \
-      expected, #expected, actual, #actual, __FILE__, __LINE__)
-#define ASSERT_LE(expected, actual) \
-  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_LE, actual)( \
-      expected, #expected, actual, #actual, __FILE__, __LINE__)
-#define ASSERT_LT(expected, actual) \
-  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_LT, actual)( \
-      expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_EQ(expected, actual)                   \
+  _EXPRESSION_FOREACH_TYPE(__test_compare_EQ, actual) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_NE(expected, actual)                   \
+  _EXPRESSION_FOREACH_TYPE(__test_compare_NE, actual) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_GE(expected, actual)                              \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_GE, actual) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_GT(expected, actual)                              \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_GT, actual) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_LE(expected, actual)                              \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_LE, actual) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_LT(expected, actual)                              \
+  _EXPRESSION_FOREACH_INEQUALITY_TYPE(__test_compare_LT, actual) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
 
 // Boolean comparison.
 //
@@ -196,9 +196,9 @@ _MACRO_FOREACH_TYPE(_GENERATE_COMPARE_ARREQ, unused)
 __END_DECLS
 #undef _GENERATE_COMPARE_ARREQ
 
-#define ASSERT_ARREQ(expected, actual, length) \
-  _EXPRESSION_FOREACH_TYPE(__test_compare_ARREQ, *(actual))( \
-      expected, #expected, actual, #actual, length, __FILE__, __LINE__)
+#define ASSERT_ARREQ(expected, actual, length)              \
+  _EXPRESSION_FOREACH_TYPE(__test_compare_ARREQ, *(actual)) \
+  (expected, #expected, actual, #actual, length, __FILE__, __LINE__)
 
 // String comparison.
 //
@@ -214,9 +214,9 @@ _MACRO_FOREACH_TYPE(_GENERATE_COMPARE_STREQ, unused)
 __END_DECLS
 #undef _GENERATE_COMPARE_STREQ
 
-#define ASSERT_STREQ(expected, actual) \
-  _EXPRESSION_FOREACH_TYPE(__test_compare_STREQ, *(actual))( \
-      expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_STREQ(expected, actual)                      \
+  _EXPRESSION_FOREACH_TYPE(__test_compare_STREQ, *(actual)) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
 
 // Notes: print additional values upon failed assertions.
 //
