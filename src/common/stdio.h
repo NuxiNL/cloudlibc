@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 
+// Routines that need to be provided by a stream provider.
 struct fileops {
   bool (*read_peek)(FILE *);          // Obtain read buffer.
   bool (*write_peek)(FILE *);         // Obtain write buffer.
@@ -27,10 +28,44 @@ struct fileops {
   bool (*close)(FILE *);              // Free resources.
 };
 
+// Replacement for read_peek()/write_peek() that can be used if the
+// operation conflicts with the access mode.
+static inline bool ebadf(FILE *file) {
+  errno = EBADF;
+  return false;
+}
+
+// Replacement for seek() that can be used if the stream is not
+// seekable. Setting this to NULL does not harm, as the seek() operation
+// is never called if the offset is set to -1.
+#define espipe NULL
+
+// Macros for declaring operations tables for simple stream providers
+// that do not distinguish between access modes.
+#define DECLARE_FILEOPS_SIMPLE(prefix)                        \
+  static struct fileops prefix##_ops = {                      \
+      prefix##_read_peek, prefix##_write_peek, prefix##_seek, \
+      prefix##_setvbuf,   prefix##_flush,      prefix##_close}
+#define GET_FILEOPS_SIMPLE(prefix) (&prefix##_ops)
+
+// Macros for declaring operations tables for stream providers that do
+// distinguish between access modes.
+#define DECLARE_FILEOPS_ACCMODE(prefix)                             \
+  static struct fileops prefix##_ops[3] = {                         \
+      {prefix##_read_peek, ebadf, prefix##_seek, prefix##_setvbuf,  \
+       prefix##_flush, prefix##_close},                             \
+      {ebadf, prefix##_write_peek, prefix##_seek, prefix##_setvbuf, \
+       prefix##_flush, prefix##_close},                             \
+      {prefix##_read_peek, prefix##_write_peek, prefix##_seek,      \
+       prefix##_setvbuf, prefix##_flush, prefix##_close}}
+#define GET_FILEOPS_ACCMODE(prefix, oflags)                               \
+  (((oflags)&O_WRONLY) == 0 ? &prefix##_ops[0] : ((oflags)&O_RDONLY) == 0 \
+                                                     ? &prefix##_ops[1]   \
+                                                     : &prefix##_ops[2])
+
 struct __lockable _FILE {
   // Constant data.
   int fd;                        // Underlying file descriptor.
-  int oflags;                    // Flags that were used to open the file.
   const struct fileops *ops;     // Underlying operations.
   const struct lc_ctype *ctype;  // Character set or wide character conversion.
 
@@ -60,12 +95,14 @@ struct __lockable _FILE {
       const char *owritebuf;
       size_t used;
       size_t size;
-      bool external;
+      bool external : 1;
+      bool append : 1;
     } fmemopen;
     struct {
       char *buf;
       char *written;
       size_t bufsize;
+      bool append : 1;
     } file;
     struct {
       char *buf;
@@ -102,7 +139,6 @@ static inline bool fseekable(FILE *stream) __requires_exclusive(*stream) {
 // Invocation of operations.
 
 static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
-  assert((stream->oflags & O_RDONLY) != 0 && "Stream not opened for reading");
   assert(stream->readbuflen == 0 && "Reading while data is already present");
   assert(stream->ungetclen == 0 && "Reading while ungetc chars are present");
   if (stream->ops->read_peek(stream)) {
@@ -114,7 +150,6 @@ static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
 }
 
 static inline bool fop_write_peek(FILE *stream) __requires_exclusive(*stream) {
-  assert((stream->oflags & O_WRONLY) != 0 && "Stream not opened for writing");
   if (stream->ops->write_peek(stream)) {
     assert(stream->writebuflen > 0 &&
            "Write flushing did not yield a new write buffer");
@@ -213,13 +248,6 @@ static inline bool fread_peek(FILE *stream, const char **buf, size_t *buflen)
 
   // Refill the read buffer if empty.
   if (stream->readbuflen == 0) {
-    // Only allow reads if we're opened for reading.
-    if ((stream->oflags & O_RDONLY) == 0) {
-      stream->flags |= F_ERROR;
-      errno = EBADF;
-      return false;
-    }
-
     if (!fop_read_peek(stream)) {
       stream->flags |= F_ERROR;
       return false;
@@ -268,13 +296,6 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     __requires_exclusive(*stream) {
   assert(inbuflen > 0 && "Attempted to write zero bytes");
 
-  // Only allow peeks if we're opened for writing.
-  if ((stream->oflags & O_WRONLY) == 0) {
-    stream->flags |= F_ERROR;
-    errno = EBADF;
-    return 0;
-  }
-
   const char *inbuf = buf;
   while (inbuflen > stream->writebuflen) {
     memcpy(stream->writebuf, inbuf, stream->writebuflen);
@@ -299,13 +320,6 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
 
 static inline int __putc_unlocked(int c, FILE *stream)
     __requires_exclusive(*stream) {
-  // Only allow storing characters if we're opened for writing.
-  if ((stream->oflags & O_WRONLY) == 0) {
-    stream->flags |= F_ERROR;
-    errno = EBADF;
-    return EOF;
-  }
-
   if (stream->writebuflen == 0) {
     if (!fop_write_peek(stream)) {
       stream->flags |= F_ERROR;
@@ -357,6 +371,6 @@ static inline off_t ftello_logical(FILE *stream) __requires_exclusive(*stream) {
 }
 
 // Allocates a stream.
-FILE *__falloc(const char *mode, locale_t locale);
+FILE *__falloc(locale_t locale);
 
 #endif

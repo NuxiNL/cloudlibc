@@ -9,20 +9,12 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-FILE *__falloc(const char *mode, locale_t locale) {
-  // Parse mode.
-  int oflags = get_oflags_from_string(mode);
-  if (oflags == 0) {
-    errno = EINVAL;
-    return NULL;
-  }
-
+FILE *__falloc(locale_t locale) {
   // Create file object.
   FILE *file = calloc(1, sizeof(*file));
   if (file == NULL)
     return NULL;
   file->fd = -1;
-  file->oflags = oflags;
   file->ctype = locale->ctype;
   file->buftype = _IOFBF;
 

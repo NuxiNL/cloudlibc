@@ -22,9 +22,7 @@ int ungetc(int c, FILE *stream) {
   // consistency with ungetwc().
   flockfile(stream);
   bool result = false;
-  if ((stream->oflags & O_RDONLY) == 0) {
-    errno = EBADF;
-  } else if (stream->ungetclen >= sizeof(stream->ungetc)) {
+  if (stream->ungetclen >= sizeof(stream->ungetc)) {
     errno = ENOSPC;
   } else {
     stream->ungetc[sizeof(stream->ungetc) - ++stream->ungetclen] = c;

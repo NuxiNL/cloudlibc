@@ -112,18 +112,11 @@ static bool tmp_close(FILE *file) __requires_exclusive(*file) {
 }
 
 FILE *tmpfile_l(locale_t locale) {
-  static const struct fileops ops = {
-      .read_peek = tmp_read_peek,
-      .write_peek = tmp_write_peek,
-      .seek = tmp_seek,
-      .setvbuf = tmp_setvbuf,
-      .flush = tmp_flush,
-      .close = tmp_close,
-  };
+  DECLARE_FILEOPS_SIMPLE(tmp);
 
-  FILE *file = __falloc("w+", locale);
+  FILE *file = __falloc(locale);
   if (file == NULL)
     return NULL;
-  file->ops = &ops;
+  file->ops = GET_FILEOPS_SIMPLE(tmp);
   return file;
 }

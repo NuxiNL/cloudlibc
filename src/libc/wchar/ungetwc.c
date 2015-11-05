@@ -26,21 +26,17 @@ wint_t ungetwc(wint_t wc, FILE *stream) {
   // EILSEQ. Set errno to reasonable values for all other error cases.
   flockfile(stream);
   bool result = false;
-  if ((stream->oflags & O_RDONLY) == 0) {
-    errno = EBADF;
-  } else {
-    const struct lc_ctype *ctype = stream->ctype;
-    char buf[MB_LEN_MAX];
-    ssize_t len = ctype->c32tomb(buf, wc, ctype->data);
-    if (len != -1) {
-      if (stream->ungetclen + len > sizeof(stream->ungetc)) {
-        errno = ENOSPC;
-      } else {
-        stream->ungetclen += len;
-        memcpy(stream->ungetc + sizeof(stream->ungetc) - stream->ungetclen, buf,
-               len);
-        result = true;
-      }
+  const struct lc_ctype *ctype = stream->ctype;
+  char buf[MB_LEN_MAX];
+  ssize_t len = ctype->c32tomb(buf, wc, ctype->data);
+  if (len != -1) {
+    if (stream->ungetclen + len > sizeof(stream->ungetc)) {
+      errno = ENOSPC;
+    } else {
+      stream->ungetclen += len;
+      memcpy(stream->ungetc + sizeof(stream->ungetc) - stream->ungetclen, buf,
+             len);
+      result = true;
     }
   }
   funlockfile(stream);

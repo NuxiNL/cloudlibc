@@ -20,13 +20,6 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
 
   // Only allow action if we're opened for writing.
   flockfile(stream);
-  if ((stream->oflags & O_WRONLY) == 0) {
-    stream->flags |= F_ERROR;
-    funlockfile(stream);
-    errno = EBADF;
-    return WEOF;
-  }
-
   do {
     // Obtain a write buffer.
     if (stream->writebuflen == 0) {

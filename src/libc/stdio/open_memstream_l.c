@@ -34,6 +34,8 @@ static void ms_drain(FILE *file) __requires_exclusive(*file) {
   file->writebuflen = 0;
 }
 
+#define ms_read_peek ebadf
+
 static bool ms_write_peek(FILE *file) __requires_exclusive(*file) {
   ms_drain(file);
 
@@ -103,28 +105,24 @@ static bool ms_flush(FILE *file) __requires_exclusive(*file) {
   return true;
 }
 
+#define ms_close ms_flush
+
 #define DEFAULT_BUFFER_SIZE (2 * sizeof(void *))
 
 FILE *open_memstream_l(char **bufp, size_t *sizep, locale_t locale) {
-  static const struct fileops ops = {
-      .write_peek = ms_write_peek,
-      .seek = ms_seek,
-      .setvbuf = ms_setvbuf,
-      .flush = ms_flush,
-      .close = ms_flush,
-  };
+  DECLARE_FILEOPS_SIMPLE(ms);
 
   // Already allocate a buffer upon creation. This ensures that fflush()
   // and fclose() may never fail.
   char *buf = malloc(DEFAULT_BUFFER_SIZE);
   if (buf == NULL)
     return NULL;
-  FILE *file = __falloc("w", locale);
+  FILE *file = __falloc(locale);
   if (file == NULL) {
     free(buf);
     return NULL;
   }
-  file->ops = &ops;
+  file->ops = GET_FILEOPS_SIMPLE(ms);
   file->memstream.buf = buf;
   file->memstream.size = DEFAULT_BUFFER_SIZE - 1;
   file->memstream.bufp = bufp;

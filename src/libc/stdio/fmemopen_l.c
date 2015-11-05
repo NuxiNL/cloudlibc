@@ -54,7 +54,7 @@ static bool mem_write_peek(FILE *file) __requires_exclusive(*file) {
   mem_drain(file);
 
   // Reset position to the end if we're using O_APPEND.
-  if ((file->oflags & O_APPEND) != 0)
+  if (file->fmemopen.append)
     file->offset = file->fmemopen.used;
 
   // Disallow writes beyond end of file.
@@ -120,16 +120,15 @@ static bool mem_close(FILE *file) __requires_exclusive(*file) {
 
 FILE *fmemopen_l(void *restrict buf, size_t size, const char *restrict mode,
                  locale_t locale) {
-  static const struct fileops ops = {
-      .read_peek = mem_read_peek,
-      .write_peek = mem_write_peek,
-      .seek = mem_seek,
-      .setvbuf = mem_setvbuf,
-      .flush = mem_flush,
-      .close = mem_close,
-  };
+  DECLARE_FILEOPS_ACCMODE(mem);
 
-  // Zero-sized buffers are not permitted.
+  // Process arguments. Zero-sized buffers are not permitted.
+  int oflags = get_oflags_from_string(mode);
+  if (oflags == 0 || size == 0) {
+    errno = EINVAL;
+    return NULL;
+  }
+
   if (size == 0) {
     errno = EINVAL;
     return NULL;
@@ -141,21 +140,21 @@ FILE *fmemopen_l(void *restrict buf, size_t size, const char *restrict mode,
     buf = malloc(size);
     if (buf == NULL)
       return NULL;
-    file = __falloc(mode, locale);
+    file = __falloc(locale);
     if (file == NULL) {
       free(buf);
       return NULL;
     }
   } else {
-    file = __falloc(mode, locale);
+    file = __falloc(locale);
     if (file == NULL)
       return NULL;
     file->fmemopen.external = true;
 
-    if (file->oflags & O_APPEND) {
+    if ((oflags & O_APPEND) != 0) {
       // Set offset to the end of the data.
       file->offset = file->fmemopen.used = strnlen(buf, size);
-    } else if ((file->oflags & O_WRONLY) == 0) {
+    } else if ((oflags & O_WRONLY) == 0) {
       // Use provided size directly.
       file->fmemopen.used = size;
     }
@@ -163,7 +162,8 @@ FILE *fmemopen_l(void *restrict buf, size_t size, const char *restrict mode,
 
   file->fmemopen.buf = buf;
   file->fmemopen.size = size;
+  file->fmemopen.append = (oflags & O_APPEND) != 0;
   file->writebuf = file->fmemopen.buf + file->offset;
-  file->ops = &ops;
+  file->ops = GET_FILEOPS_ACCMODE(mem, oflags);
   return file;
 }

@@ -32,7 +32,7 @@ static bool file_drain(FILE *file) __requires_exclusive(*file) {
   while (file->file.written < file->writebuf) {
     size_t buflen = file->writebuf - file->file.written;
     ssize_t ret;
-    if ((file->oflags & O_APPEND) != 0) {
+    if (file->file.append) {
       // File is opened for append. Call write().
       ret = write(file->fd, file->file.written, buflen);
       refetch_offset = true;
@@ -156,16 +156,8 @@ static bool file_close(FILE *file) __requires_exclusive(*file) {
   return okay;
 }
 
-static FILE *file_open(int fildes, const char *mode, locale_t locale,
-                       off_t offset) {
-  static const struct fileops ops = {
-      .read_peek = file_read_peek,
-      .write_peek = file_write_peek,
-      .seek = file_seek,
-      .setvbuf = file_setvbuf,
-      .flush = file_flush,
-      .close = file_close,
-  };
+static FILE *file_open(int fildes, int oflags, locale_t locale, off_t offset) {
+  DECLARE_FILEOPS_ACCMODE(file);
 
   // Allocate the read/write buffer.
   char *buf = malloc(BUFSIZ);
@@ -173,7 +165,7 @@ static FILE *file_open(int fildes, const char *mode, locale_t locale,
     return NULL;
 
   // Allocate new stream object and initialize it.
-  FILE *file = __falloc(mode, locale);
+  FILE *file = __falloc(locale);
   if (file == NULL) {
     free(buf);
     return NULL;
@@ -181,8 +173,9 @@ static FILE *file_open(int fildes, const char *mode, locale_t locale,
   file->fd = fildes;
   file->file.buf = buf;
   file->file.bufsize = BUFSIZ;
+  file->file.append = (oflags & O_APPEND) != 0;
   file->offset = offset;
-  file->ops = &ops;
+  file->ops = GET_FILEOPS_ACCMODE(file, oflags);
   return file;
 }
 
@@ -219,6 +212,8 @@ static bool pipe_write_peek(FILE *file) __requires_exclusive(*file) {
   return true;
 }
 
+#define pipe_seek espipe
+
 static bool pipe_setvbuf(FILE *file, size_t bufsize)
     __requires_exclusive(*file) {
   // TODO(ed): Implement.
@@ -243,14 +238,8 @@ static bool pipe_close(FILE *file) __requires_exclusive(*file) {
   return okay;
 }
 
-static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
-  static const struct fileops ops = {
-      .read_peek = pipe_read_peek,
-      .write_peek = pipe_write_peek,
-      .setvbuf = pipe_setvbuf,
-      .flush = pipe_flush,
-      .close = pipe_close,
-  };
+static FILE *pipe_open(int fildes, int oflags, locale_t locale) {
+  DECLARE_FILEOPS_ACCMODE(pipe);
 
   // Allocate the read/write buffers.
   char *readbuf = malloc(BUFSIZ);
@@ -263,7 +252,7 @@ static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
   }
 
   // Allocate new stream object and initialize it.
-  FILE *file = __falloc(mode, locale);
+  FILE *file = __falloc(locale);
   if (file == NULL) {
     free(readbuf);
     free(writebuf);
@@ -271,7 +260,7 @@ static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
   }
   file->fd = fildes;
   file->offset = -1;
-  file->ops = &ops;
+  file->ops = GET_FILEOPS_ACCMODE(pipe, oflags);
   file->pipe.readbuf = readbuf;
   file->pipe.writebuf = writebuf;
   file->pipe.bufsize = BUFSIZ;
@@ -279,6 +268,13 @@ static FILE *pipe_open(int fildes, const char *mode, locale_t locale) {
 }
 
 FILE *fdopen_l(int fildes, const char *mode, locale_t locale) {
+  // Parse mode string.
+  int oflags = get_oflags_from_string(mode);
+  if (oflags == 0) {
+    errno = EINVAL;
+    return NULL;
+  }
+
   // Determine whether this file descriptor is seekable. Based on this
   // we either associate it with the file operations or the pipe
   // operations.
@@ -287,9 +283,9 @@ FILE *fdopen_l(int fildes, const char *mode, locale_t locale) {
     if (errno != ESPIPE)
       return NULL;
     // Descriptor is a pipe, socket, etc.
-    return pipe_open(fildes, mode, locale);
+    return pipe_open(fildes, oflags, locale);
   } else {
     // Descriptor is a regular file.
-    return file_open(fildes, mode, locale, offset);
+    return file_open(fildes, oflags, locale, offset);
   }
 }
