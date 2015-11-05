@@ -297,6 +297,7 @@ fprintf_l
 fputc
 fputs
 fputwc
+fputws
 fread
 free
 freeaddrinfo
