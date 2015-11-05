@@ -37,7 +37,7 @@ malloc_tsd_no_cleanup(void *arg)
 JEMALLOC_EXPORT
 #endif
 void
-_malloc_thread_cleanup(void)
+__malloc_thread_cleanup(void)
 {
 	bool pending[MALLOC_TSD_CLEANUPS_MAX], again;
 	unsigned i;

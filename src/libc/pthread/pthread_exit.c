@@ -15,7 +15,7 @@
 #include <stdlib.h>
 
 // Integration with jemalloc.
-void _malloc_thread_cleanup(void);
+void __malloc_thread_cleanup(void);
 
 noreturn void pthread_exit(void *value_ptr) {
   // Invoke cleanup routines registered by pthread_cleanup_push().
@@ -61,7 +61,7 @@ noreturn void pthread_exit(void *value_ptr) {
     exit(0);
 
   // Deinitialize malloc().
-  _malloc_thread_cleanup();
+  __malloc_thread_cleanup();
 
   // In case the thread has an automatically allocated stack and has
   // been detached, we need to enqueue its deallocation.
