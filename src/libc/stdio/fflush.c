@@ -14,8 +14,7 @@ int fflush(FILE *stream) {
   if (result) {
     stream->ungetclen = 0;
     memset(&stream->readstate, '\0', sizeof(stream->readstate));
-  } else
-    stream->flags |= F_ERROR;
+  }
   funlockfile(stream);
   return result ? 0 : EOF;
 }

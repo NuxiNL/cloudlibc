@@ -146,6 +146,7 @@ static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
            "Write buffer still left intact");
     return true;
   }
+  stream->flags |= F_ERROR;
   return false;
 }
 
@@ -157,6 +158,7 @@ static inline bool fop_write_peek(FILE *stream) __requires_exclusive(*stream) {
            "Read buffer still left intact");
     return true;
   }
+  stream->flags |= F_ERROR;
   return false;
 }
 
@@ -173,7 +175,10 @@ static inline bool fop_setvbuf(FILE *stream, size_t len)
 }
 
 static inline bool fop_flush(FILE *stream) __requires_exclusive(*stream) {
-  return stream->ops->flush(stream);
+  if (stream->ops->flush(stream))
+    return true;
+  stream->flags |= F_ERROR;
+  return false;
 }
 
 static inline bool fop_close(FILE *stream) {
@@ -248,10 +253,8 @@ static inline bool fread_peek(FILE *stream, const char **buf, size_t *buflen)
 
   // Refill the read buffer if empty.
   if (stream->readbuflen == 0) {
-    if (!fop_read_peek(stream)) {
-      stream->flags |= F_ERROR;
+    if (!fop_read_peek(stream))
       return false;
-    }
     if (stream->readbuflen == 0)
       stream->flags |= F_EOF;
   }
@@ -304,10 +307,8 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     stream->writebuf += stream->writebuflen;
     stream->writebuflen = 0;
 
-    if (!fop_write_peek(stream)) {
-      stream->flags |= F_ERROR;
+    if (!fop_write_peek(stream))
       return inbuf - buf - stream->writebuflen;
-    }
   }
 
   // TODO(ed): Honour buffering mechanism.
@@ -321,10 +322,8 @@ static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
 static inline int __putc_unlocked(int c, FILE *stream)
     __requires_exclusive(*stream) {
   if (stream->writebuflen == 0) {
-    if (!fop_write_peek(stream)) {
-      stream->flags |= F_ERROR;
+    if (!fop_write_peek(stream))
       return EOF;
-    }
   }
 
   // TODO(ed): Honour buffering mechanism.
