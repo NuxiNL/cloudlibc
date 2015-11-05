@@ -51,7 +51,7 @@ TEST_SEPARATE_PROCESS(fflush, ebadf) {
   ASSERT_EQ(EOF, fclose(fp));
 }
 
-TEST(fflush, epipe) {
+TEST_SEPARATE_PROCESS(fflush, epipe) {
   // Create a pipe of which the read side is closed.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

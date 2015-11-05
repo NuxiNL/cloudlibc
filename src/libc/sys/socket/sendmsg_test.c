@@ -11,7 +11,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST(sendmsg, bad) {
+TEST_SEPARATE_PROCESS(sendmsg, bad) {
   // Bad file descriptor.
   char b = 'A';
   struct iovec biov = {.iov_base = &b, .iov_len = 1};

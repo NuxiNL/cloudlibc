@@ -46,7 +46,7 @@ TEST_SEPARATE_PROCESS(fclose, ebadf) {
   ASSERT_EQ(EBADF, errno);
 }
 
-TEST(fclose, epipe) {
+TEST_SEPARATE_PROCESS(fclose, epipe) {
   // Create a pipe of which the read side is closed.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

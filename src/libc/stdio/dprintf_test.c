@@ -9,7 +9,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST(dprintf, bad) {
+TEST_SEPARATE_PROCESS(dprintf, bad) {
   // Bad file descriptor.
   ASSERT_EQ(-1, dprintf(-1, "Hello, world\n"));
   ASSERT_EQ(EBADF, errno);

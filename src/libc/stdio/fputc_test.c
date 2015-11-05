@@ -70,7 +70,7 @@ TEST(fputc, enospc) {
   ASSERT_EQ(0, fclose(fp));
 }
 
-TEST(fputc, epipe) {
+TEST_SEPARATE_PROCESS(fputc, epipe) {
   // Create a stream to non-blocking write side of a pipe that has
   // already been closed.
   int fds[2];
