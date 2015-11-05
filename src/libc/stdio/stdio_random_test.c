@@ -4,11 +4,13 @@
 // See the LICENSE file for details.
 
 #include <errno.h>
+#include <locale.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <testing.h>
+#include <wchar.h>
 
 // Creates a random string of a given length. It ensures that the string
 // itself contains no null bytes.
@@ -20,12 +22,28 @@ static void random_string(char *buf, size_t len) {
       buf[i] = 1;
 }
 
+// Creates a random wide character string containing just ISO-8859-1
+// characters.
+static void random_wstring(wchar_t *buf, size_t len) {
+  unsigned char bytebuf[len];
+  arc4random_buf(bytebuf, len);
+  buf[len] = '\0';
+  for (size_t i = 0; i < len; ++i)
+    buf[i] = bytebuf[i] == 0 ? 1 : bytebuf[i];
+}
+
 // Creates a pair of random numbers whose product does not exceed a
 // maximum.
 static void random_pair(size_t max, size_t *a, size_t *b) {
   size_t total = arc4random_uniform(max + 1);
   *a = arc4random_uniform(total + 1);
   *b = *a == 0 ? arc4random() : total / *a;
+}
+
+// Copy wide characters into a byte buffer as ISO-8859-1.
+static void to_narrow(char *out, const wchar_t *in, size_t n) {
+  for (size_t i = 0; i < n; ++i)
+    out[i] = in[i];
 }
 
 #define RANDOM_BUFFER_SIZE 1024
@@ -42,6 +60,9 @@ static void random_pair(size_t max, size_t *a, size_t *b) {
 // time, also add some random invocations of this function. It should
 // not have any impact that's externally visible.
 //
+// We also perform some simple testing for wide character functions, by
+// using the ISO-8559-1 character set.
+//
 // TODO(ed): Make tests for fgets(), fread(), getdelim() and getline()
 // work when characters have been pushed back using ungetc().
 static void apply_random_operations(FILE *stream) {
@@ -57,7 +78,7 @@ static void apply_random_operations(FILE *stream) {
 
   for (int i = 0; i < 1000; ++i) {
     off_t logical_offset = offset - npushbacks;
-    switch (arc4random_uniform(27)) {
+    switch (arc4random_uniform(39)) {
       case 0:
         // clearerr() should only clear the end-of-file and error flags.
         clearerr(stream);
@@ -137,7 +158,15 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 7: {
+      case 7:
+        // fgetwc().
+        // TODO(ed): Fix.
+        break;
+      case 8:
+        // fgetws().
+        // TODO(ed): Fix.
+        break;
+      case 9: {
         // fprintf(). Don't test formatting extensively. Just print a
         // randomly generated string using %s.
         size_t writelen = arc4random_uniform(sizeof(contents) - offset + 1);
@@ -152,7 +181,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 8: {
+      case 10: {
         // fputc().
         if (offset < (off_t)sizeof(contents)) {
           unsigned int c;
@@ -164,7 +193,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 9: {
+      case 11: {
         // fputs().
         size_t writelen = arc4random_uniform(sizeof(contents) - offset + 1);
         char writebuf[sizeof(contents) + 1];
@@ -178,7 +207,31 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 10: {
+      case 12:
+        // fputwc().
+        if (offset < (off_t)sizeof(contents)) {
+          unsigned char c;
+          arc4random_buf(&c, sizeof(c));
+          ASSERT_EQ(c, fputwc(c, stream));
+          contents[offset++] = c;
+          if (length < offset)
+            length = offset;
+        }
+      case 13: {
+        // fputws().
+        size_t writelen = arc4random_uniform(sizeof(contents) - offset + 1);
+        wchar_t writebuf[sizeof(contents) + 1];
+        random_wstring(writebuf, writelen);
+        ASSERT_LE(0, fputws(writebuf, stream));
+        if (writelen != 0) {
+          to_narrow(contents + offset, writebuf, writelen);
+          offset += writelen;
+          if (length < offset)
+            length = offset;
+        }
+        break;
+      }
+      case 14: {
         // fread().
         if (npushbacks == 0) {
           size_t size, nitems;
@@ -211,11 +264,11 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 11:
+      case 15:
         // fscanf().
         // TODO(ed): Fix.
         break;
-      case 12: {
+      case 16: {
         // fseeko(SEEK_CUR).
         off_t new_offset =
             (off_t)arc4random_uniform(2 * sizeof(contents)) - sizeof(contents);
@@ -232,7 +285,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 13: {
+      case 17: {
         // fseeko(SEEK_END).
         off_t new_offset =
             (off_t)arc4random_uniform(2 * sizeof(contents)) - sizeof(contents);
@@ -249,7 +302,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 14: {
+      case 18: {
         // fseeko(SEEK_SET).
         off_t new_offset =
             (off_t)arc4random_uniform(2 * sizeof(contents)) - sizeof(contents);
@@ -266,7 +319,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 15:
+      case 19:
         // fsetpos().
         if (position_offset >= 0) {
           ASSERT_EQ(0, fsetpos(stream, &position));
@@ -275,11 +328,23 @@ static void apply_random_operations(FILE *stream) {
           npushbacks = 0;
         }
         break;
-      case 16:
+      case 20:
         // ftello().
         ASSERT_EQ(logical_offset, ftello(stream));
         break;
-      case 17: {
+      case 21:
+        // fwide().
+        // TODO(ed): Fix.
+        break;
+      case 22:
+        // fwprintf().
+        // TODO(ed): Fix.
+        break;
+      case 23:
+        // fwscanf().
+        // TODO(ed): Fix.
+        break;
+      case 24: {
         // fwrite().
         size_t size, nitems;
         random_pair(sizeof(contents) - offset, &size, &nitems);
@@ -296,7 +361,7 @@ static void apply_random_operations(FILE *stream) {
         }
         break;
       }
-      case 18:
+      case 25:
         // getc() should set the end-of-file flag when reading past the
         // file boundary.
         if (npushbacks > 0) {
@@ -309,7 +374,7 @@ static void apply_random_operations(FILE *stream) {
           has_eof = true;
         }
         break;
-      case 19: {
+      case 26: {
         // getdelim().
         if (npushbacks == 0) {
           char *line = NULL;
@@ -340,7 +405,7 @@ static void apply_random_operations(FILE *stream) {
           break;
         }
       }
-      case 20: {
+      case 27: {
         // getline().
         if (npushbacks == 0) {
           char *line = NULL;
@@ -368,7 +433,19 @@ static void apply_random_operations(FILE *stream) {
           break;
         }
       }
-      case 21:
+      case 28:
+        // getwc().
+        // TODO(ed): Fix.
+        break;
+      case 29:
+        // getwdelim().
+        // TODO(ed): Fix.
+        break;
+      case 30:
+        // getwline().
+        // TODO(ed): Fix.
+        break;
+      case 31:
         // putc().
         if (offset < (off_t)sizeof(contents)) {
           unsigned int c;
@@ -379,7 +456,18 @@ static void apply_random_operations(FILE *stream) {
             length = offset;
         }
         break;
-      case 22:
+      case 32:
+        // putwc().
+        if (offset < (off_t)sizeof(contents)) {
+          unsigned char c;
+          arc4random_buf(&c, sizeof(c));
+          ASSERT_EQ(c, putwc(c, stream));
+          contents[offset++] = c;
+          if (length < offset)
+            length = offset;
+        }
+        break;
+      case 33:
         // rewind() should reset the offset, the end-of-file flag and
         // the error flag.
         rewind(stream);
@@ -388,27 +476,37 @@ static void apply_random_operations(FILE *stream) {
         has_error = false;
         npushbacks = 0;
         break;
-      case 23:
+      case 34:
         // setvbuf(_IOFBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IOFBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 24:
+      case 35:
         // setvbuf(_IOLBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IOLBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 25:
+      case 36:
         // setvbuf(_IONBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IONBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 26:
+      case 37:
         // ungetc().
         if (npushbacks < sizeof(pushbacks)) {
           unsigned char ch;
           arc4random_buf(&ch, sizeof(ch));
           ASSERT_EQ(ch, ungetc(ch, stream));
+          pushbacks[npushbacks++] = ch;
+          has_eof = false;
+        }
+        break;
+      case 38:
+        // ungetwc().
+        if (npushbacks < sizeof(pushbacks)) {
+          unsigned char ch;
+          arc4random_buf(&ch, sizeof(ch));
+          ASSERT_EQ(ch, ungetwc(ch, stream));
           pushbacks[npushbacks++] = ch;
           has_eof = false;
         }
@@ -423,30 +521,38 @@ static void apply_random_operations(FILE *stream) {
 }
 
 TEST(stdio_random, fmemopen_buffer) {
+  locale_t locale = newlocale(LC_CTYPE_MASK, ".ISO-8859-1", 0);
   for (int i = 0; i < 100; ++i) {
     char contents[RANDOM_BUFFER_SIZE];
-    FILE *stream = fmemopen(contents, sizeof(contents), "w+");
+    FILE *stream = fmemopen_l(contents, sizeof(contents), "w+", locale);
     apply_random_operations(stream);
   }
+  freelocale(locale);
 }
 
 TEST(stdio_random, fmemopen_null) {
+  locale_t locale = newlocale(LC_CTYPE_MASK, ".ISO-8859-1", 0);
   for (int i = 0; i < 100; ++i) {
-    FILE *stream = fmemopen(NULL, RANDOM_BUFFER_SIZE, "w+");
+    FILE *stream = fmemopen_l(NULL, RANDOM_BUFFER_SIZE, "w+", locale);
     apply_random_operations(stream);
   }
+  freelocale(locale);
 }
 
 TEST(stdio_random, fopenat) {
+  locale_t locale = newlocale(LC_CTYPE_MASK, ".ISO-8859-1", 0);
   for (int i = 0; i < 100; ++i) {
-    FILE *stream = fopenat(fd_tmp, "example", "w+");
+    FILE *stream = fopenat_l(fd_tmp, "example", "w+", locale);
     apply_random_operations(stream);
   }
+  freelocale(locale);
 }
 
 TEST(stdio_random, tmpfile) {
+  locale_t locale = newlocale(LC_CTYPE_MASK, ".ISO-8859-1", 0);
   for (int i = 0; i < 100; ++i) {
-    FILE *stream = tmpfile();
+    FILE *stream = tmpfile_l(locale);
     apply_random_operations(stream);
   }
+  freelocale(locale);
 }
