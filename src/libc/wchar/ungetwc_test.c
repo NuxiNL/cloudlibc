@@ -10,21 +10,6 @@
 #include <unistd.h>
 #include <wchar.h>
 
-TEST(ungetwc, ebadf) {
-  // Create a stream to write side of a pipe.
-  int fds[2];
-  ASSERT_EQ(0, pipe(fds));
-  FILE *fp = fdopen(fds[1], "w");
-
-  // Pushing characters into the read buffer should not be permitted.
-  ASSERT_EQ(WEOF, ungetwc(L'a', fp));
-  ASSERT_FALSE(ferror(fp));
-  ASSERT_EQ(EBADF, errno);
-
-  ASSERT_EQ(0, fclose(fp));
-  ASSERT_EQ(0, close(fds[0]));
-}
-
 TEST(ungetwc, eilseq) {
   FILE *fp = tmpfile();
   ASSERT_NE(NULL, fp);
