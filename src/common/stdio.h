@@ -266,6 +266,8 @@ static inline int __getc_unlocked(FILE *stream) __requires_exclusive(*stream) {
 
 static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     __requires_exclusive(*stream) {
+  assert(inbuflen > 0 && "Attempted to write zero bytes");
+
   // Only allow peeks if we're opened for writing.
   if ((stream->oflags & O_WRONLY) == 0) {
     stream->flags |= F_ERROR;
