@@ -18,7 +18,6 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
   if (*c32s == U'\0')
     return 0;
 
-  // Only allow action if we're opened for writing.
   flockfile(stream);
   do {
     // Obtain a write buffer.

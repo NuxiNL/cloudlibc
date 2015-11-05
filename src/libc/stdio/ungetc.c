@@ -17,9 +17,8 @@ int ungetc(int c, FILE *stream) {
     return EOF;
   }
 
-  // Push byte into ungetc buffer. Only allow this to be performed if
-  // the stream has been opened for reading. Set error codes for
-  // consistency with ungetwc().
+  // Push byte into ungetc buffer. Set errno to ENOSPC for consistency
+  // with ungetwc().
   flockfile(stream);
   bool result = false;
   if (stream->ungetclen >= sizeof(stream->ungetc)) {
