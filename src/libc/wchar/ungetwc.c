@@ -36,6 +36,7 @@ wint_t ungetwc(wint_t wc, FILE *stream) {
       stream->ungetclen += len;
       memcpy(stream->ungetc + sizeof(stream->ungetc) - stream->ungetclen, buf,
              len);
+      stream->flags &= ~F_EOF;
       result = true;
     }
   }
