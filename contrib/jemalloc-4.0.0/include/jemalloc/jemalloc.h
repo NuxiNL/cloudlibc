@@ -70,6 +70,21 @@ extern "C" {
 #  define je_malloc_usable_size malloc_usable_size
 #endif
 
+#define	dallocx JEMALLOC_N(dallocx)
+#define	mallctl JEMALLOC_N(mallctl)
+#define	mallctlbymib JEMALLOC_N(mallctlbymib)
+#define	mallctlnametomib JEMALLOC_N(mallctlnametomib)
+#define	malloc_conf JEMALLOC_N(malloc_conf)
+#define	malloc_message JEMALLOC_N(malloc_message)
+#define	malloc_stats_print JEMALLOC_N(malloc_stats_print)
+#define	malloc_usable_size JEMALLOC_N(malloc_usable_size)
+#define	mallocx JEMALLOC_N(mallocx)
+#define	nallocx JEMALLOC_N(nallocx)
+#define	rallocx JEMALLOC_N(rallocx)
+#define	sallocx JEMALLOC_N(sallocx)
+#define	sdallocx JEMALLOC_N(sdallocx)
+#define	xallocx JEMALLOC_N(xallocx)
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>

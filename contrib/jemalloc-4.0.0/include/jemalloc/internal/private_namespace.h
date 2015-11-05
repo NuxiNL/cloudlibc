@@ -492,3 +492,8 @@
 #define	valgrind_make_mem_defined JEMALLOC_N(valgrind_make_mem_defined)
 #define	valgrind_make_mem_noaccess JEMALLOC_N(valgrind_make_mem_noaccess)
 #define	valgrind_make_mem_undefined JEMALLOC_N(valgrind_make_mem_undefined)
+
+#define	lg_prof_sample JEMALLOC_N(lg_prof_sample)
+#define	nhclasses JEMALLOC_N(nhclasses)
+#define	nlclasses JEMALLOC_N(nlclasses)
+#define	prof_active JEMALLOC_N(prof_active)
