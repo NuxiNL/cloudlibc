@@ -99,6 +99,15 @@ if [ "$(comm -13 _obj/defined _obj/undefined)" != "" ]; then
   exit 1
 fi
 
+# Ensure that no unexpected symbols are declared in the public namespace.
+${NM} --defined-only -g _obj/libc.a | grep ' [A-Z] ' | awk '{print $3}' | \
+    grep -v -e '^_[A-Z]' -e '^__' | LC_ALL=C sort -u > _obj/symbols
+if ! cmp -s src/libc/symbols _obj/symbols; then
+  echo "Library exports unexpected symbols:"
+  diff src/libc/symbols _obj/symbols
+  exit 1
+fi
+
 PREFIX="${PREFIX}" sudo -E ./install
 
 echo "=> Building unit tests"
