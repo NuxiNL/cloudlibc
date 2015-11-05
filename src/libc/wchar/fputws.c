@@ -27,7 +27,7 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
     return WEOF;
   }
 
-  while (*c32s != U'\0') {
+  do {
     // Obtain a write buffer.
     if (stream->writebuflen == 0) {
       if (!fop_write_peek(stream)) {
@@ -65,7 +65,7 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
     stream->writebuflen -= len;
     if (c32s == NULL)
       break;
-  }
+  } while (*c32s != U'\0');
   funlockfile(stream);
   return 0;
 }
