@@ -16,7 +16,7 @@
 #  include "../jemalloc.h"
 #  undef JEMALLOC_NO_RENAME
 #else
-#  define JEMALLOC_N(n) je_##n
+#  define JEMALLOC_N(n) __je_##n
 #  include "../jemalloc.h"
 #endif
 #include "jemalloc/internal/private_namespace.h"
