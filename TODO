@@ -6,9 +6,9 @@ aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 libintl.h	10%	Add something like gettext_l()
 fnmatch.h	50%	Depends on regex.h. Still needs tests
-wchar.h		50%	stdio bits still missing. Many tests missing.
-stdio.h		70%	printf() 'works'. scanf() doesn't. needs more tests.
+wchar.h		60%	Some stdio bits still missing. Many tests missing.
 sys/event.h	70%	Needs more tests
+stdio.h		80%	scanf() still brittle. Needs more tests.
 string.h	80%	strcoll() and strxfrm() still missing
 sys/socket.h	90%	File descriptor passing missing
 unistd.h	90%	fpathconf() and sysconf() still missing
