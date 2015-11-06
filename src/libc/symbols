@@ -269,6 +269,7 @@ ffsll
 fgetc
 fgetpos
 fgets
+fgetwc
 fileno
 flockfile
 floor
@@ -345,6 +346,7 @@ getsockopt
 getsubopt
 gettext
 gettimeofday
+getwc
 getwdelim
 getwline
 gmtime_r

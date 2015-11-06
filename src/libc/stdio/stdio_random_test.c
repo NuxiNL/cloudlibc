@@ -159,8 +159,17 @@ static void apply_random_operations(FILE *stream) {
         break;
       }
       case 7:
-        // fgetwc().
-        // TODO(ed): Fix.
+        // fgetwc() should set the end-of-file flag when reading past
+        // the file boundary.
+        if (npushbacks > 0) {
+          // Should return character from ungetwc().
+          ASSERT_EQ((unsigned char)pushbacks[--npushbacks], fgetwc(stream));
+        } else if (offset < length) {
+          ASSERT_EQ((unsigned char)contents[offset++], fgetwc(stream));
+        } else {
+          ASSERT_EQ(WEOF, fgetwc(stream));
+          has_eof = true;
+        }
         break;
       case 8:
         // fgetws().
@@ -434,8 +443,17 @@ static void apply_random_operations(FILE *stream) {
         }
       }
       case 28:
-        // getwc().
-        // TODO(ed): Fix.
+        // getwc() should set the end-of-file flag when reading past the
+        // file boundary.
+        if (npushbacks > 0) {
+          // Should return character from ungetwc().
+          ASSERT_EQ((unsigned char)pushbacks[--npushbacks], getwc(stream));
+        } else if (offset < length) {
+          ASSERT_EQ((unsigned char)contents[offset++], getwc(stream));
+        } else {
+          ASSERT_EQ(WEOF, getwc(stream));
+          has_eof = true;
+        }
         break;
       case 29:
         // getwdelim().
