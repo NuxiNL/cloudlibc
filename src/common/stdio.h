@@ -295,42 +295,57 @@ static inline int __getc_unlocked(FILE *stream) __requires_exclusive(*stream) {
 }
 #define getc_unlocked(stream) __getc_unlocked(stream)
 
+static inline bool fwrite_peek(FILE *stream, char **writebuf,
+                               size_t *writebuflen)
+    __requires_exclusive(*stream) {
+  if (stream->writebuflen == 0 && !fop_write_peek(stream))
+    return false;
+  *writebuf = stream->writebuf;
+  *writebuflen = stream->writebuflen;
+  return true;
+}
+
+static inline void fwrite_produce(FILE *stream, size_t buflen)
+    __requires_exclusive(*stream) {
+  // TODO(ed): Honour buffering mechanism.
+  assert(buflen <= stream->writebuflen &&
+         "Attempted to produce more data than the buffer can hold");
+  stream->writebuf += buflen;
+  stream->writebuflen -= buflen;
+}
+
 static inline size_t fwrite_put(FILE *stream, const char *buf, size_t inbuflen)
     __requires_exclusive(*stream) {
   assert(inbuflen > 0 && "Attempted to write zero bytes");
 
   const char *inbuf = buf;
-  while (inbuflen > stream->writebuflen) {
-    memcpy(stream->writebuf, inbuf, stream->writebuflen);
-    inbuf += stream->writebuflen;
-    inbuflen -= stream->writebuflen;
-    stream->writebuf += stream->writebuflen;
-    stream->writebuflen = 0;
-
-    if (!fop_write_peek(stream))
-      return inbuf - buf - stream->writebuflen;
+  for (;;) {
+    char *writebuf;
+    size_t writebuflen;
+    if (!fwrite_peek(stream, &writebuf, &writebuflen))
+      return inbuf - buf;
+    if (inbuflen > writebuflen) {
+      memcpy(writebuf, inbuf, writebuflen);
+      fwrite_produce(stream, writebuflen);
+      inbuf += writebuflen;
+      inbuflen -= writebuflen;
+    } else {
+      memcpy(writebuf, inbuf, inbuflen);
+      fwrite_produce(stream, inbuflen);
+      return inbuf + inbuflen - buf;
+    }
   }
-
-  // TODO(ed): Honour buffering mechanism.
-  memcpy(stream->writebuf, inbuf, inbuflen);
-  inbuf += inbuflen;
-  stream->writebuf += inbuflen;
-  stream->writebuflen -= inbuflen;
-  return inbuf - buf;
 }
 
 static inline int __putc_unlocked(int c, FILE *stream)
     __requires_exclusive(*stream) {
-  if (stream->writebuflen == 0) {
-    if (!fop_write_peek(stream))
-      return EOF;
-  }
-
-  // TODO(ed): Honour buffering mechanism.
-  unsigned char ch = c;
-  *stream->writebuf++ = ch;
-  --stream->writebuflen;
-  return ch;
+  char *writebuf;
+  size_t writebuflen;
+  if (!fwrite_peek(stream, &writebuf, &writebuflen))
+    return EOF;
+  *writebuf = c;
+  fwrite_produce(stream, 1);
+  return (unsigned char)c;
 }
 #define putc_unlocked(c, stream) __putc_unlocked(c, stream)
 

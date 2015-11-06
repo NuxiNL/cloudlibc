@@ -23,39 +23,35 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
   const char32_t *end = c32s + len;
   do {
     // Obtain a write buffer.
-    if (stream->writebuflen == 0) {
-      if (!fop_write_peek(stream)) {
-        funlockfile(stream);
-        return WEOF;
-      }
+    char *writebuf;
+    size_t writebuflen;
+    if (!fwrite_peek(stream, &writebuf, &writebuflen)) {
+      funlockfile(stream);
+      return WEOF;
     }
-
-    // If the remaining space in the write buffer is smaller than
-    // MB_LEN_MAX, we won't be able to let c32tomb() or c32stombs()
-    // store its result in the write buffer directly. The resulting
-    // character may span the buffer boundary. Perform a simple putwc()
-    // for this character.
-    if (stream->writebuflen < MB_LEN_MAX) {
+    if (writebuflen < MB_LEN_MAX) {
+      // If the remaining space in the write buffer is smaller than
+      // MB_LEN_MAX, we won't be able to let c32tomb() or c32stombs()
+      // store its result in the write buffer directly. The resulting
+      // character may span the buffer boundary. Perform a simple
+      // putwc() for this character.
       if (putwc_unlocked(*c32s++, stream) == WEOF) {
         funlockfile(stream);
         return WEOF;
       }
-      continue;
+    } else {
+      // Call into c32stombs() to convert multiple wide characters in
+      // one go. The result will be written in the write buffer directly.
+      const struct lc_ctype *ctype = stream->ctype;
+      ssize_t written = ctype->c32stombs(writebuf, &c32s, end - c32s,
+                                         writebuflen, ctype->data);
+      if (written == -1) {
+        stream->flags |= F_ERROR;
+        funlockfile(stream);
+        return WEOF;
+      }
+      fwrite_produce(stream, written);
     }
-
-    // Call into c32stombs() to convert multiple wide characters in one
-    // go. The result will be written in the write buffer directly.
-    // TODO(ed): Honour buffering mechanism.
-    const struct lc_ctype *ctype = stream->ctype;
-    ssize_t written = ctype->c32stombs(stream->writebuf, &c32s, end - c32s,
-                                       stream->writebuflen, ctype->data);
-    if (written == -1) {
-      stream->flags |= F_ERROR;
-      funlockfile(stream);
-      return WEOF;
-    }
-    stream->writebuf += written;
-    stream->writebuflen -= written;
   } while (c32s < end);
   funlockfile(stream);
   return 0;
