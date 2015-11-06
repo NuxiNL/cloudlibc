@@ -377,10 +377,21 @@ static void apply_random_operations(FILE *stream) {
         // fwide().
         // TODO(ed): Fix.
         break;
-      case 22:
-        // fwprintf().
-        // TODO(ed): Fix.
+      case 22: {
+        // fwprintf(). Don't test formatting extensively. Just print a
+        // randomly generated string using %ls.
+        size_t writelen = arc4random_uniform(sizeof(contents) - offset + 1);
+        wchar_t writebuf[sizeof(contents) + 1];
+        random_wstring(writebuf, writelen);
+        ASSERT_EQ((int)writelen, fwprintf(stream, L"%ls", writebuf));
+        if (writelen != 0) {
+          to_narrow(contents + offset, writebuf, writelen);
+          offset += writelen;
+          if (length < offset)
+            length = offset;
+        }
         break;
+      }
       case 23:
         // fwscanf().
         // TODO(ed): Fix.
