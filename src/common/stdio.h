@@ -144,6 +144,8 @@ static inline bool fop_read_peek(FILE *stream) __requires_exclusive(*stream) {
   if (stream->ops->read_peek(stream)) {
     assert((!fseekable(stream) || stream->writebuflen == 0) &&
            "Write buffer still left intact");
+    if (stream->readbuflen == 0)
+      stream->flags |= F_EOF;
     return true;
   }
   stream->flags |= F_ERROR;
@@ -252,12 +254,8 @@ static inline bool fread_peek(FILE *stream, const char **buf, size_t *buflen)
   }
 
   // Refill the read buffer if empty.
-  if (stream->readbuflen == 0) {
-    if (!fop_read_peek(stream))
-      return false;
-    if (stream->readbuflen == 0)
-      stream->flags |= F_EOF;
-  }
+  if (stream->readbuflen == 0 && !fop_read_peek(stream))
+    return false;
 
   // Provide access to the read buffer.
   *buf = stream->readbuf;
