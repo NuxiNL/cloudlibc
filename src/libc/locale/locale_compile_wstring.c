@@ -13,7 +13,7 @@ static char *convert_wstring(const wchar_t *in, locale_t locale) {
   // Compute length of multi-byte string.
   const struct lc_ctype *ctype = locale->ctype;
   const char32_t *wcs = (const char32_t *)in;
-  ssize_t len = ctype->c32stombs(NULL, &wcs, SIZE_MAX, 0, ctype->data);
+  ssize_t len = ctype->c32stombs(NULL, 0, &wcs, SIZE_MAX, ctype->data);
   if (len < 0)
     return NULL;
 
@@ -21,7 +21,7 @@ static char *convert_wstring(const wchar_t *in, locale_t locale) {
   char *str = malloc(len + 1);
   if (str == NULL)
     return NULL;
-  ctype->c32stombs(str, &wcs, SIZE_MAX, len, ctype->data);
+  ctype->c32stombs(str, len, &wcs, SIZE_MAX, ctype->data);
   str[len] = '\0';
   return str;
 }

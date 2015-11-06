@@ -11,5 +11,5 @@ size_t wcsnrtombs_l(char *restrict dst, const wchar_t **restrict src,
                     size_t nwc, size_t len, mbstate_t *restrict ps,
                     locale_t locale) {
   const struct lc_ctype *ctype = locale->ctype;
-  return ctype->c32stombs(dst, (const char32_t **)src, nwc, len, ctype->data);
+  return ctype->c32stombs(dst, len, (const char32_t **)src, nwc, ctype->data);
 }

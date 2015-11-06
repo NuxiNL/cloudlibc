@@ -43,8 +43,8 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
     } else {
       // Call into c32stombs() to convert multiple wide characters in
       // one go. The result will be written in the write buffer directly.
-      ssize_t written = ctype->c32stombs(writebuf, &c32s, end - c32s,
-                                         writebuflen, ctype->data);
+      ssize_t written = ctype->c32stombs(writebuf, writebuflen, &c32s,
+                                         end - c32s, ctype->data);
       if (written == -1) {
         stream->flags |= F_ERROR;
         funlockfile(stream);
