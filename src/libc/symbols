@@ -270,6 +270,7 @@ fgetc
 fgetpos
 fgets
 fgetwc
+fgetws
 fileno
 flockfile
 floor

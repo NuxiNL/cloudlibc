@@ -173,7 +173,39 @@ static void apply_random_operations(FILE *stream) {
         break;
       case 8:
         // fgetws().
-        // TODO(ed): Fix.
+        if (npushbacks == 0) {
+          wchar_t readbuf[sizeof(contents)];
+          size_t readlen = arc4random_uniform(sizeof(readbuf) + 1);
+          if (readlen == 0) {
+            // Call fgets() with buffer size zero. This behaviour isn't
+            // standardized, but most implementations seem to return NULL.
+            ASSERT_EQ(NULL, fgetws(readbuf, readlen, stream));
+          } else if (readlen == 1) {
+            // This should always succeed by returning an empty buffer.
+            ASSERT_EQ(readbuf, fgetws(readbuf, readlen, stream));
+            ASSERT_EQ(L'\0', readbuf[0]);
+          } else if (offset >= length) {
+            ASSERT_EQ(NULL, fgetws(readbuf, readlen, stream));
+            has_eof = true;
+          } else {
+            ASSERT_EQ(readbuf, fgetws(readbuf, readlen--, stream));
+            size_t linelen = length - offset;
+            if (linelen > readlen)
+              linelen = readlen;
+            const char *start = contents + offset;
+            const char *end = memchr(start, '\n', linelen);
+            if (end != NULL)
+              linelen = end - start + 1;
+            for (size_t j = 0; j < linelen; ++j)
+              ASSERT_EQ((unsigned char)start[j], readbuf[j]);
+            ASSERT_EQ(L'\0', readbuf[linelen]);
+            // Set end-of-file if we returned the entire body, because the
+            // matching character was not found.
+            if (offset + (off_t)readlen > length && end == NULL)
+              has_eof = true;
+            offset += linelen;
+          }
+        }
         break;
       case 9: {
         // fprintf(). Don't test formatting extensively. Just print a
