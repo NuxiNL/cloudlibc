@@ -10,16 +10,18 @@
 
 char *fgets(char *restrict s, int n, FILE *restrict stream) {
   // Handle cases where we don't need to access any data.
-  if (n <= 0)
+  flockfile_orientation(stream, -1);
+  if (n <= 0) {
+    funlockfile(stream);
     return NULL;
-  if (n == 1) {
+  } else if (n == 1) {
+    funlockfile(stream);
     *s = '\0';
     return s;
   }
 
   char *outbuf = s;
   size_t outbuflen = n - 1;
-  flockfile(stream);
   for (;;) {
     // Obtain the read buffer.
     const char *readbuf;

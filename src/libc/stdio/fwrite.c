@@ -13,9 +13,9 @@
 size_t fwrite(const void *restrict ptr, size_t size, size_t nitems,
               FILE *restrict stream) {
   // Check for overflow of size * nitems.
+  flockfile_orientation(stream, -1);
   size_t writelen;
   if (mul_overflow(size, nitems, &writelen)) {
-    flockfile(stream);
     stream->flags |= F_ERROR;
     funlockfile(stream);
     errno = EINVAL;
@@ -23,11 +23,12 @@ size_t fwrite(const void *restrict ptr, size_t size, size_t nitems,
   }
 
   // Zero-sized write. Return immediately.
-  if (writelen == 0)
+  if (writelen == 0) {
+    funlockfile(stream);
     return 0;
+  }
 
   // Write data.
-  flockfile(stream);
   size_t len = fwrite_put(stream, ptr, writelen);
   funlockfile(stream);
   return len / size;

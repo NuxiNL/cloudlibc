@@ -45,14 +45,22 @@ TEST(fgets, ebadf) {
 TEST(fgets, small) {
   // Non-positive size should just return a NULL pointer, regardless of
   // the stream provided.
-  ASSERT_EQ(NULL, fgets(NULL, -123, NULL));
-  ASSERT_EQ(NULL, fgets(NULL, 0, NULL));
+  FILE *fp = tmpfile();
+  ASSERT_NE(NULL, fp);
+  ASSERT_EQ(NULL, fgets(NULL, -123, fp));
+  ASSERT_EQ(NULL, fgets(NULL, 0, fp));
 
   // One-sized buffer always returns an empty string, regardless of the
   // stream provided.
   char buf[1];
-  ASSERT_EQ(buf, fgets(buf, sizeof(buf), NULL));
+  ASSERT_EQ(buf, fgets(buf, sizeof(buf), fp));
   ASSERT_STREQ("", buf);
+
+  // Stream should still be in the initial state.
+  ASSERT_EQ(0, ftello(fp));
+  ASSERT_FALSE(feof(fp));
+  ASSERT_FALSE(ferror(fp));
+  ASSERT_EQ(0, fclose(fp));
 }
 
 TEST(fgets, example) {

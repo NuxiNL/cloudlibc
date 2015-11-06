@@ -58,9 +58,15 @@ TEST(fread, einval) {
 
 TEST(fread, zero) {
   // Zero-sized reads should leave the stream unaffected.
-  ASSERT_EQ(0, fread(NULL, 12308120, 0, NULL));
-  ASSERT_EQ(0, fread(NULL, 0, 5492142, NULL));
-  ASSERT_EQ(0, fread(NULL, 0, 0, NULL));
+  FILE *fp = tmpfile();
+  ASSERT_NE(NULL, fp);
+  ASSERT_EQ(0, fread(NULL, 12308120, 0, fp));
+  ASSERT_EQ(0, fread(NULL, 0, 5492142, fp));
+  ASSERT_EQ(0, fread(NULL, 0, 0, fp));
+  ASSERT_EQ(0, ftello(fp));
+  ASSERT_FALSE(feof(fp));
+  ASSERT_FALSE(ferror(fp));
+  ASSERT_EQ(0, fclose(fp));
 }
 
 TEST(fread, example) {

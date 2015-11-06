@@ -327,7 +327,7 @@ int NAME(int fd, locale_t locale, const char_t *format, va_list ap) {
 #elif STYLE == VFPRINTF
 int NAME(FILE *stream, locale_t locale, const char_t *format, va_list ap) {
   size_t resultwritten = 0;
-  flockfile(stream);
+  flockfile_orientation(stream, WIDE ? 1 : -1);
 #if WIDE
 #define PUTCHAR(c)                           \
   do {                                       \

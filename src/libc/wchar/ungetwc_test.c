@@ -24,8 +24,11 @@ TEST(ungetwc, eilseq) {
 
 TEST(ungetwc, einval) {
   // Pushing WEOF should leave the stream unchanged.
-  ASSERT_EQ(WEOF, ungetwc(WEOF, NULL));
+  FILE *fp = tmpfile();
+  ASSERT_NE(NULL, fp);
+  ASSERT_EQ(WEOF, ungetwc(WEOF, fp));
   ASSERT_EQ(EINVAL, errno);
+  ASSERT_EQ(0, fclose(fp));
 }
 
 TEST(ungetwc, enospc) {

@@ -13,14 +13,16 @@
 
 wchar_t *fgetws(wchar_t *restrict ws, int n, FILE *restrict stream) {
   // Handle cases where we don't need to access any data.
-  if (n <= 0)
+  flockfile_orientation(stream, 1);
+  if (n <= 0) {
+    funlockfile(stream);
     return NULL;
-  if (n == 1) {
+  } else if (n == 1) {
+    funlockfile(stream);
     *ws = L'\0';
     return ws;
   }
 
-  flockfile(stream);
   const struct lc_ctype *ctype = stream->ctype;
   char32_t *outbuf = (char32_t *)ws;
   size_t outbuflen = n - 1;

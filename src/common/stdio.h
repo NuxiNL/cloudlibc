@@ -211,6 +211,13 @@ static inline void __funlockfile(FILE *file)
 #define ftrylockfile(file) __ftrylockfile(file)
 #define funlockfile(file) __funlockfile(file)
 
+static inline void flockfile_orientation(FILE *file, int mode)
+    __locks_exclusive(*file) {
+  flockfile(file);
+  if (file->orientation == 0)
+    file->orientation = mode;
+}
+
 // Parses /[rwa]b?+?b?x?/.
 static inline int get_oflags_from_string(const char *s) {
   int oflags;

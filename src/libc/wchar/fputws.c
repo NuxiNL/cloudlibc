@@ -14,11 +14,13 @@
 int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
   // For consistency with fputs(), leave the stream unaffected if the
   // string is empty.
+  flockfile_orientation(stream, 1);
   size_t len = wcslen(ws);
-  if (len == 0)
+  if (len == 0) {
+    funlockfile(stream);
     return 0;
+  }
 
-  flockfile(stream);
   const struct lc_ctype *ctype = stream->ctype;
   const char32_t *c32s = (const char32_t *)ws;
   const char32_t *end = c32s + len;

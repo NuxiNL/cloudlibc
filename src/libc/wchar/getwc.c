@@ -12,7 +12,7 @@
 #include <wchar.h>
 
 wint_t getwc(FILE *stream) {
-  flockfile(stream);
+  flockfile_orientation(stream, 1);
   const struct lc_ctype *ctype = stream->ctype;
   for (;;) {
     // Obtain read buffer.

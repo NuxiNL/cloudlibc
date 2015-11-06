@@ -75,10 +75,16 @@ static void apply_random_operations(FILE *stream) {
   fpos_t position;
   off_t position_offset = -1;
   bool position_valid = false;
+  int orientation = 0;
 
+#define ORIENTATION(value)   \
+  do {                       \
+    if (orientation == 0)    \
+      orientation = (value); \
+  } while (0)
   for (int i = 0; i < 1000; ++i) {
     off_t logical_offset = offset - npushbacks;
-    switch (arc4random_uniform(39)) {
+    switch (arc4random_uniform(41)) {
       case 0:
         // clearerr() should only clear the end-of-file and error flags.
         clearerr(stream);
@@ -110,6 +116,7 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(EOF, fgetc(stream));
           has_eof = true;
         }
+        ORIENTATION(-1);
         break;
       case 5:
         // fgetpos().
@@ -155,6 +162,7 @@ static void apply_random_operations(FILE *stream) {
               has_eof = true;
             offset += linelen;
           }
+          ORIENTATION(-1);
         }
         break;
       }
@@ -170,6 +178,7 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(WEOF, fgetwc(stream));
           has_eof = true;
         }
+        ORIENTATION(1);
         break;
       case 8:
         // fgetws().
@@ -205,6 +214,7 @@ static void apply_random_operations(FILE *stream) {
               has_eof = true;
             offset += linelen;
           }
+          ORIENTATION(1);
         }
         break;
       case 9: {
@@ -220,6 +230,7 @@ static void apply_random_operations(FILE *stream) {
           if (length < offset)
             length = offset;
         }
+        ORIENTATION(-1);
         break;
       }
       case 10: {
@@ -231,6 +242,7 @@ static void apply_random_operations(FILE *stream) {
           contents[offset++] = c;
           if (length < offset)
             length = offset;
+          ORIENTATION(-1);
         }
         break;
       }
@@ -246,6 +258,7 @@ static void apply_random_operations(FILE *stream) {
           if (length < offset)
             length = offset;
         }
+        ORIENTATION(-1);
         break;
       }
       case 12:
@@ -257,6 +270,7 @@ static void apply_random_operations(FILE *stream) {
           contents[offset++] = c;
           if (length < offset)
             length = offset;
+          ORIENTATION(1);
         }
       case 13: {
         // fputws().
@@ -270,6 +284,7 @@ static void apply_random_operations(FILE *stream) {
           if (length < offset)
             length = offset;
         }
+        ORIENTATION(1);
         break;
       }
       case 14: {
@@ -302,6 +317,7 @@ static void apply_random_operations(FILE *stream) {
               offset += size * nitems;
             }
           }
+          ORIENTATION(-1);
         }
         break;
       }
@@ -374,10 +390,22 @@ static void apply_random_operations(FILE *stream) {
         ASSERT_EQ(logical_offset, ftello(stream));
         break;
       case 21:
-        // fwide().
-        // TODO(ed): Fix.
+        // fwide(-1).
+        if (orientation == 0)
+          orientation = -1;
+        ASSERT_EQ(orientation, fwide(stream, -1));
         break;
-      case 22: {
+      case 22:
+        // fwide(0).
+        ASSERT_EQ(orientation, fwide(stream, 0));
+        break;
+      case 23:
+        // fwide(1).
+        if (orientation == 0)
+          orientation = 1;
+        ASSERT_EQ(orientation, fwide(stream, 1));
+        break;
+      case 24: {
         // fwprintf(). Don't test formatting extensively. Just print a
         // randomly generated string using %ls.
         size_t writelen = arc4random_uniform(sizeof(contents) - offset + 1);
@@ -390,13 +418,14 @@ static void apply_random_operations(FILE *stream) {
           if (length < offset)
             length = offset;
         }
+        ORIENTATION(1);
         break;
       }
-      case 23:
+      case 25:
         // fwscanf().
         // TODO(ed): Fix.
         break;
-      case 24: {
+      case 26: {
         // fwrite().
         size_t size, nitems;
         random_pair(sizeof(contents) - offset, &size, &nitems);
@@ -411,9 +440,10 @@ static void apply_random_operations(FILE *stream) {
           if (length < offset)
             length = offset;
         }
+        ORIENTATION(-1);
         break;
       }
-      case 25:
+      case 27:
         // getc() should set the end-of-file flag when reading past the
         // file boundary.
         if (npushbacks > 0) {
@@ -425,8 +455,9 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(EOF, getc(stream));
           has_eof = true;
         }
+        ORIENTATION(-1);
         break;
-      case 26: {
+      case 28: {
         // getdelim().
         if (npushbacks == 0) {
           char *line = NULL;
@@ -454,10 +485,11 @@ static void apply_random_operations(FILE *stream) {
               has_eof = true;
           }
           free(line);
+          ORIENTATION(-1);
           break;
         }
       }
-      case 27: {
+      case 29: {
         // getline().
         if (npushbacks == 0) {
           char *line = NULL;
@@ -481,11 +513,12 @@ static void apply_random_operations(FILE *stream) {
             if (end == NULL)
               has_eof = true;
           }
+          ORIENTATION(-1);
           free(line);
           break;
         }
       }
-      case 28:
+      case 30:
         // getwc() should set the end-of-file flag when reading past the
         // file boundary.
         if (npushbacks > 0) {
@@ -497,16 +530,17 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(WEOF, getwc(stream));
           has_eof = true;
         }
+        ORIENTATION(1);
         break;
-      case 29:
+      case 31:
         // getwdelim().
         // TODO(ed): Fix.
         break;
-      case 30:
+      case 32:
         // getwline().
         // TODO(ed): Fix.
         break;
-      case 31:
+      case 33:
         // putc().
         if (offset < (off_t)sizeof(contents)) {
           unsigned int c;
@@ -515,9 +549,10 @@ static void apply_random_operations(FILE *stream) {
           contents[offset++] = c;
           if (length < offset)
             length = offset;
+          ORIENTATION(-1);
         }
         break;
-      case 32:
+      case 34:
         // putwc().
         if (offset < (off_t)sizeof(contents)) {
           unsigned char c;
@@ -526,9 +561,10 @@ static void apply_random_operations(FILE *stream) {
           contents[offset++] = c;
           if (length < offset)
             length = offset;
+          ORIENTATION(1);
         }
         break;
-      case 33:
+      case 35:
         // rewind() should reset the offset, the end-of-file flag and
         // the error flag.
         rewind(stream);
@@ -537,22 +573,22 @@ static void apply_random_operations(FILE *stream) {
         has_error = false;
         npushbacks = 0;
         break;
-      case 34:
+      case 36:
         // setvbuf(_IOFBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IOFBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 35:
+      case 37:
         // setvbuf(_IOLBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IOLBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 36:
+      case 38:
         // setvbuf(_IONBF).
         ASSERT_EQ(0, setvbuf(stream, NULL, _IONBF,
                              arc4random_uniform(sizeof(contents) * 2)));
         break;
-      case 37:
+      case 39:
         // ungetc().
         if (npushbacks < sizeof(pushbacks)) {
           unsigned char ch;
@@ -560,9 +596,10 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(ch, ungetc(ch, stream));
           pushbacks[npushbacks++] = ch;
           has_eof = false;
+          ORIENTATION(-1);
         }
         break;
-      case 38:
+      case 40:
         // ungetwc().
         if (npushbacks < sizeof(pushbacks)) {
           unsigned char ch;
@@ -570,6 +607,7 @@ static void apply_random_operations(FILE *stream) {
           ASSERT_EQ(ch, ungetwc(ch, stream));
           pushbacks[npushbacks++] = ch;
           has_eof = false;
+          ORIENTATION(1);
         }
         break;
     }
@@ -578,6 +616,7 @@ static void apply_random_operations(FILE *stream) {
     ASSERT_LE(0, length);
     ASSERT_GE((off_t)sizeof(contents), length);
   }
+#undef ORIENTATION
   ASSERT_EQ(0, fclose(stream));
 }
 

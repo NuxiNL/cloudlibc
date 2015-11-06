@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 int getc(FILE *stream) {
-  flockfile(stream);
+  flockfile_orientation(stream, -1);
   int result = getc_unlocked(stream);
   funlockfile(stream);
   return result;

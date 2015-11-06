@@ -10,8 +10,11 @@
 
 TEST(ungetc, einval) {
   // Pushing EOF should leave the stream unchanged.
-  ASSERT_EQ(EOF, ungetc(EOF, NULL));
+  FILE *fp = tmpfile();
+  ASSERT_NE(NULL, fp);
+  ASSERT_EQ(EOF, ungetc(EOF, fp));
   ASSERT_EQ(EINVAL, errno);
+  ASSERT_EQ(0, fclose(fp));
 }
 
 TEST(ungetc, enospc) {

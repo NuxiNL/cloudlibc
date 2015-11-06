@@ -8,7 +8,7 @@
 #include <wchar.h>
 
 wint_t putwc(wchar_t wc, FILE *stream) {
-  flockfile(stream);
+  flockfile_orientation(stream, 1);
   wint_t result = putwc_unlocked(wc, stream);
   funlockfile(stream);
   return result;

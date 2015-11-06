@@ -42,8 +42,8 @@ static inline bool append(FILE *stream, char **restrict lineptr,
 ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delimiter,
                  FILE *restrict stream) {
   // Buffer and length pointer should be non-zero.
+  flockfile_orientation(stream, -1);
   if (lineptr == NULL || n == NULL) {
-    flockfile(stream);
     stream->flags |= F_ERROR;
     funlockfile(stream);
     errno = EINVAL;
@@ -55,7 +55,6 @@ ssize_t getdelim(char **restrict lineptr, size_t *restrict n, int delimiter,
     *n = 0;
 
   size_t nread = 0;
-  flockfile(stream);
   for (;;) {
     const char *readbuf;
     size_t readbuflen;

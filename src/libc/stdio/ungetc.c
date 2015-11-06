@@ -11,17 +11,14 @@
 #include <stdio.h>
 
 int ungetc(int c, FILE *stream) {
-  // Pushing EOF is not permitted.
-  if (c == EOF) {
-    errno = EINVAL;
-    return EOF;
-  }
-
   // Push byte into ungetc buffer. Set errno to ENOSPC for consistency
   // with ungetwc().
-  flockfile(stream);
+  flockfile_orientation(stream, -1);
   bool result = false;
-  if (stream->ungetclen >= sizeof(stream->ungetc)) {
+  if (c == EOF) {
+    // Pushing EOF is not permitted.
+    errno = EINVAL;
+  } else if (stream->ungetclen >= sizeof(stream->ungetc)) {
     errno = ENOSPC;
   } else {
     stream->ungetc[sizeof(stream->ungetc) - ++stream->ungetclen] = c;

@@ -74,7 +74,7 @@ static int vfscanf_locked(FILE *stream, locale_t, const char_t *, va_list)
     __requires_exclusive(*stream);
 
 int NAME(FILE *stream, locale_t locale, const char_t *format, va_list ap) {
-  flockfile(stream);
+  flockfile_orientation(stream, WIDE ? 1 : -1);
   int ret = vfscanf_locked(stream, locale, format, ap);
   funlockfile(stream);
   return ret;

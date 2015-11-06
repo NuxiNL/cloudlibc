@@ -14,9 +14,9 @@
 size_t fread(void *restrict ptr, size_t size, size_t nitems,
              FILE *restrict stream) {
   // Check for overflow of size * nitems.
+  flockfile_orientation(stream, -1);
   size_t outbuflen;
   if (mul_overflow(size, nitems, &outbuflen)) {
-    flockfile(stream);
     stream->flags |= F_ERROR;
     funlockfile(stream);
     errno = EINVAL;
@@ -24,11 +24,12 @@ size_t fread(void *restrict ptr, size_t size, size_t nitems,
   }
 
   // Zero-sized read. Return immediately.
-  if (outbuflen == 0)
+  if (outbuflen == 0) {
+    funlockfile(stream);
     return 0;
+  }
 
   char *outbuf = ptr;
-  flockfile(stream);
   for (;;) {
     // Obtain the read buffer.
     const char *readbuf;
