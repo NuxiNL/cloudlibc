@@ -19,6 +19,7 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
     return 0;
 
   flockfile(stream);
+  const struct lc_ctype *ctype = stream->ctype;
   const char32_t *c32s = (const char32_t *)ws;
   const char32_t *end = c32s + len;
   do {
@@ -42,7 +43,6 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
     } else {
       // Call into c32stombs() to convert multiple wide characters in
       // one go. The result will be written in the write buffer directly.
-      const struct lc_ctype *ctype = stream->ctype;
       ssize_t written = ctype->c32stombs(writebuf, &c32s, end - c32s,
                                          writebuflen, ctype->data);
       if (written == -1) {
