@@ -79,7 +79,7 @@ typedef __time_t time_t;
 
 struct tm {
   // Standard fields.
-  int tm_sec;    // Seconds [0,60].
+  int tm_sec;    // Seconds [0,59].
   int tm_min;    // Minutes [0,59].
   int tm_hour;   // Hour [0,23].
   int tm_mday;   // Day of month [1,31].
