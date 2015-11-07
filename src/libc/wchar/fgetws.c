@@ -7,6 +7,7 @@
 #include <common/stdio.h>
 
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <wchar.h>
@@ -60,28 +61,17 @@ wchar_t *fgetws(wchar_t *restrict ws, int n, FILE *restrict stream) {
     if (newline != NULL)
       readbuflen = newline - readbuf + 1;
 
+    // Call into mbstoc32s() to convert read buffer contents to wide
+    // characters.
     const char *new_readbuf = readbuf;
     ssize_t len = ctype->mbstoc32s(outbuf, outbuflen, &new_readbuf, readbuflen,
-                                   &stream->readstate, ctype->data);
+                                   &stream->readstate, ctype->data, true);
     if (len == -1) {
       // Conversion error.
       funlockfile(stream);
       return NULL;
     }
-
-    if (new_readbuf == NULL) {
-      // The read buffer contained a null character, meaning the read
-      // buffer pointer is adjusted to NULL. Try to act similar to
-      // fgets(), where we just place the null character in the string
-      // buffer literally.
-      newline = NULL;
-      ++len;
-      fread_consume(stream, strlen(readbuf) + 1);
-    } else {
-      // Read buffer contained no null characters.
-      fread_consume(stream, new_readbuf - readbuf);
-    }
-
+    fread_consume(stream, new_readbuf - readbuf);
     if (newline != NULL || (size_t)len == outbuflen) {
       // Successfully read a line or filled the entire output buffer.
       funlockfile(stream);

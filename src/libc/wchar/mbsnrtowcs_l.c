@@ -5,6 +5,8 @@
 
 #include <common/locale.h>
 
+#include <stdbool.h>
+#include <uchar.h>
 #include <wchar.h>
 
 size_t mbsnrtowcs_l(wchar_t *restrict dst, const char **restrict src,
@@ -12,5 +14,5 @@ size_t mbsnrtowcs_l(wchar_t *restrict dst, const char **restrict src,
                     locale_t locale) {
   const struct lc_ctype *ctype = locale->ctype;
   return ctype->mbstoc32s((char32_t *)dst, len, src, nmc,
-                          (struct mbtoc32state *)ps, ctype->data);
+                          (struct mbtoc32state *)ps, ctype->data, false);
 }

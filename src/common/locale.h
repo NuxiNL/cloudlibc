@@ -53,7 +53,7 @@ struct lc_ctype {
                      struct mbtoc32state *restrict, const void *restrict);
   ssize_t (*mbstoc32s)(char32_t *restrict, size_t, const char **restrict,
                        size_t, struct mbtoc32state *restrict,
-                       const void *restrict);
+                       const void *restrict, bool);
 
   // UCS-4 character to multibyte conversion.
   size_t c32tomb_max;
@@ -65,65 +65,65 @@ struct lc_ctype {
 // Generates a mbsnrtowcs() function based on mbrtowc(). This allows us
 // to implement mbsnrtowcs() without having a single function call per
 // character.
-#define GENERATE_MBSTOC32S(mbstoc32s, mbtoc32)             \
-  ssize_t mbstoc32s(char32_t *restrict dst, size_t len,    \
-                    const char **restrict src, size_t nmc, \
-                    struct mbtoc32state *restrict ps,      \
-                    const void *restrict data) {           \
-    const char *sb = *src;                                 \
-    if (dst == NULL) {                                     \
-      /* No output buffer. Compute the length. */          \
-      size_t ret = 0;                                      \
-      for (;;) {                                           \
-        char32_t c32;                                      \
-        ssize_t l = mbtoc32(&c32, sb, nmc, ps, data);      \
-        switch (l) {                                       \
-          case -1:                                         \
-            /* An error occurred. */                       \
-            return -1;                                     \
-          case -2:                                         \
-            /* End of buffer. */                           \
-            return ret;                                    \
-          default:                                         \
-            /* Valid character. */                         \
-            if (c32 == U'\0')                              \
-              return ret;                                  \
-            sb += l;                                       \
-            nmc -= l;                                      \
-            ++ret;                                         \
-            break;                                         \
-        }                                                  \
-      }                                                    \
-    } else {                                               \
-      /* Output buffer available. Store results. */        \
-      char32_t *db = dst;                                  \
-      while (len-- > 0) {                                  \
-        ssize_t l = mbtoc32(db, sb, nmc, ps, data);        \
-        switch (l) {                                       \
-          case -1:                                         \
-            /* An error occurred. */                       \
-            *src = sb;                                     \
-            return -1;                                     \
-          case -2:                                         \
-            /* End of buffer. */                           \
-            *src = sb + nmc;                               \
-            return db - dst;                               \
-          default:                                         \
-            /* Valid character. */                         \
-            if (*db == U'\0') {                            \
-              *src = NULL;                                 \
-              return db - dst;                             \
-            }                                              \
-            sb += l;                                       \
-            nmc -= l;                                      \
-            ++db;                                          \
-            break;                                         \
-        }                                                  \
-      }                                                    \
-      /* Filled entire output buffer. */                   \
-      *src = sb;                                           \
-      return db - dst;                                     \
-    }                                                      \
+#define GENERATE_MBSTOC32S(mbstoc32s, mbtoc32)                    \
+  ssize_t mbstoc32s(char32_t *restrict dst, size_t len,           \
+                    const char **restrict src, size_t nmc,        \
+                    struct mbtoc32state *restrict ps,             \
+                    const void *restrict data, bool allow_null) { \
+    const char *sb = *src;                                        \
+    if (dst == NULL) {                                            \
+      /* No output buffer. Compute the length. */                 \
+      size_t ret = 0;                                             \
+      for (;;) {                                                  \
+        char32_t c32;                                             \
+        ssize_t l = mbtoc32(&c32, sb, nmc, ps, data);             \
+        switch (l) {                                              \
+          case -1:                                                \
+            /* An error occurred. */                              \
+            return -1;                                            \
+          case -2:                                                \
+            /* End of buffer. */                                  \
+            return ret;                                           \
+          default:                                                \
+            /* Valid character. */                                \
+            if (c32 == U'\0' && !allow_null)                      \
+              return ret;                                         \
+            sb += l;                                              \
+            nmc -= l;                                             \
+            ++ret;                                                \
+            break;                                                \
+        }                                                         \
+      }                                                           \
+    } else {                                                      \
+      /* Output buffer available. Store results. */               \
+      char32_t *db = dst;                                         \
+      while (len-- > 0) {                                         \
+        ssize_t l = mbtoc32(db, sb, nmc, ps, data);               \
+        switch (l) {                                              \
+          case -1:                                                \
+            /* An error occurred. */                              \
+            *src = sb;                                            \
+            return -1;                                            \
+          case -2:                                                \
+            /* End of buffer. */                                  \
+            *src = sb + nmc;                                      \
+            return db - dst;                                      \
+          default:                                                \
+            /* Valid character. */                                \
+            if (*db == U'\0' && !allow_null) {                    \
+              *src = NULL;                                        \
+              return db - dst;                                    \
+            }                                                     \
+            sb += l;                                              \
+            nmc -= l;                                             \
+            ++db;                                                 \
+            break;                                                \
+        }                                                         \
+      }                                                           \
+      /* Filled entire output buffer. */                          \
+      *src = sb;                                                  \
+      return db - dst;                                            \
+    }                                                             \
   }
 
 // Generates a wcsrtombs() function based on wcrtomb().
