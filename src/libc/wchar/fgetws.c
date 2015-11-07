@@ -68,6 +68,7 @@ wchar_t *fgetws(wchar_t *restrict ws, int n, FILE *restrict stream) {
                                    &stream->readstate, ctype->data, true);
     if (len == -1) {
       // Conversion error.
+      stream->flags |= F_ERROR;
       funlockfile(stream);
       return NULL;
     }
