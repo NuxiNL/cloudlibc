@@ -37,12 +37,10 @@
 //   perror(), *print() and *scanf() always use the C locale.
 //
 // Features missing:
-// - gets(), sprintf() and vsprintf():
-//   Prone to buffer overflows. Not safe to use.
 // - fopen(), freopen(), rename(), ctermid(), tempnam(), tmpnam(),
 //   L_ctermid, L_tmpnam, P_tmpdir and TMP_MAX:
 //   Requires global filesystem namespace.
-// - getchar(), getchar_unlocked(), printf(), putchar(),
+// - getchar(), getchar_unlocked(), gets(), printf(), putchar(),
 //   putchar_unlocked(), puts(), scanf(), vprintf(), vscanf(), stdin and
 //   stdout:
 //   Standard descriptors stdin and stdout are not available.
@@ -193,6 +191,15 @@ static __inline void __setbuf(FILE *__restrict __stream,
   setvbuf(__stream, __buf, __buf != NULL ? _IOFBF : _IONBF, BUFSIZ);
 }
 #define setbuf(stream, buf) __setbuf(stream, buf)
+#endif
+
+#ifdef _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
+__BEGIN_DECLS
+#define sprintf(s, ...) __sprintf(s, __VA_ARGS__)
+int sprintf(char *__restrict, const char *__restrict, ...);
+#define vsprintf(s, format, ap) __vsprintf(s, format, ap)
+int vsprintf(char *__restrict, const char *__restrict, va_list);
+__END_DECLS
 #endif
 
 #endif
