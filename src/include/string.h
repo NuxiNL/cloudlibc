@@ -33,8 +33,6 @@
 //   on Linux.
 //
 // Features missing:
-// - stpcpy(), strcat(), strcpy() and strncat():
-//   Prone to buffer overflows. Not safe to use.
 // - strtok():
 //   Not thread-safe.
 
@@ -92,5 +90,18 @@ int strverscmp(const char *, const char *) __pure;
 size_t strxfrm(char *__restrict, const char *__restrict, size_t);
 size_t strxfrm_l(char *__restrict, const char *__restrict, size_t, locale_t);
 __END_DECLS
+
+#ifdef _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
+__BEGIN_DECLS
+#define stpcpy(s1, s2) __stpcpy(s1, s2)
+char *stpcpy(char *__restrict, const char *__restrict);
+#define strcat(s1, s2) __strcat(s1, s2)
+char *strcat(char *__restrict, const char *__restrict);
+#define strcpy(s1, s2) __strcpy(s1, s2)
+char *strcpy(char *__restrict, const char *__restrict);
+#define strncat(s1, s2, n) __strncat(s1, s2, n)
+char *strncat(char *__restrict, const char *__restrict, size_t);
+__END_DECLS
+#endif
 
 #endif
