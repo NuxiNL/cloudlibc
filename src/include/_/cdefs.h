@@ -52,6 +52,7 @@
 
 #define __offsetof(type, member) __builtin_offsetof(type, member)
 
+#define __extname(x) __asm__(x)
 #define __malloc_like __attribute__((__malloc__))
 #define __pure2 __attribute__((__const__))
 #define __pure __attribute__((__pure__))

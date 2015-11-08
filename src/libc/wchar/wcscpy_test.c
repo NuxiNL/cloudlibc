@@ -3,9 +3,9 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#define _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
-
 #include <testing.h>
+#include <wchar.h>
+#define _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
 #include <wchar.h>
 
 TEST(wcscpy, example) {

@@ -3,8 +3,8 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <string.h>
 #define _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
-
 #include <string.h>
 #include <testing.h>
 

@@ -193,13 +193,16 @@ static __inline void __setbuf(FILE *__restrict __stream,
 #define setbuf(stream, buf) __setbuf(stream, buf)
 #endif
 
-#ifdef _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
-__BEGIN_DECLS
-#define sprintf(s, ...) __sprintf(s, __VA_ARGS__)
-int sprintf(char *__restrict, const char *__restrict, ...);
-#define vsprintf(s, format, ap) __vsprintf(s, format, ap)
-int vsprintf(char *__restrict, const char *__restrict, va_list);
-__END_DECLS
 #endif
+
+#if !defined(_STDIO_H_UNSAFE_) && defined(_CLOUDLIBC_UNSAFE_STRING_FUNCTIONS)
+#define _STDIO_H_UNSAFE_
+
+__BEGIN_DECLS
+int sprintf(char *__restrict, const char *__restrict, ...)
+    __extname("__sprintf");
+int vsprintf(char *__restrict, const char *__restrict, va_list)
+    __extname("__vsprintf");
+__END_DECLS
 
 #endif

@@ -232,17 +232,20 @@ wchar_t *wmemmove(wchar_t *, const wchar_t *, size_t);
 wchar_t *wmemset(wchar_t *, wchar_t, size_t);
 __END_DECLS
 
-#ifdef _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
-__BEGIN_DECLS
-#define wcpcpy(ws1, ws2) __wcpcpy(ws1, ws2)
-wchar_t *wcpcpy(wchar_t *__restrict, const wchar_t *__restrict);
-#define wcscat(ws1, ws2) __wcscat(ws1, ws2)
-wchar_t *wcscat(wchar_t *__restrict, const wchar_t *__restrict);
-#define wcscpy(ws1, ws2) __wcscpy(ws1, ws2)
-wchar_t *wcscpy(wchar_t *__restrict, const wchar_t *__restrict);
-#define wcsncat(ws1, ws2, n) __wcsncat(ws1, ws2, n)
-wchar_t *wcsncat(wchar_t *__restrict, const wchar_t *__restrict, size_t);
-__END_DECLS
 #endif
+
+#if !defined(_WCHAR_H_UNSAFE_) && defined(_CLOUDLIBC_UNSAFE_STRING_FUNCTIONS)
+#define _WCHAR_H_UNSAFE_
+
+__BEGIN_DECLS
+wchar_t *wcpcpy(wchar_t *__restrict, const wchar_t *__restrict)
+    __extname("__wcpcpy");
+wchar_t *wcscat(wchar_t *__restrict, const wchar_t *__restrict)
+    __extname("__wcscat");
+wchar_t *wcscpy(wchar_t *__restrict, const wchar_t *__restrict)
+    __extname("__wcscpy");
+wchar_t *wcsncat(wchar_t *__restrict, const wchar_t *__restrict, size_t)
+    __extname("__wcsncat");
+__END_DECLS
 
 #endif
