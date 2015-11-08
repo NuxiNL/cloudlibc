@@ -50,8 +50,6 @@
 //   Standard descriptors are not available.
 // - mbsinit():
 //   Assumes encoding and decoding state share the same layout.
-// - wcpcpy(), wcscat(), wcscpy() and wcsncat():
-//   Prone to buffer overflows. Not safe to use.
 // - open_wmemstream():
 //   Streams are currently byte-oriented.
 
@@ -233,5 +231,18 @@ wchar_t *wmemmem(const wchar_t *, size_t, const wchar_t *, size_t) __pure;
 wchar_t *wmemmove(wchar_t *, const wchar_t *, size_t);
 wchar_t *wmemset(wchar_t *, wchar_t, size_t);
 __END_DECLS
+
+#ifdef _CLOUDLIBC_UNSAFE_STRING_FUNCTIONS
+__BEGIN_DECLS
+#define wcpcpy(ws1, ws2) __wcpcpy(ws1, ws2)
+wchar_t *wcpcpy(wchar_t *__restrict, const wchar_t *__restrict);
+#define wcscat(ws1, ws2) __wcscat(ws1, ws2)
+wchar_t *wcscat(wchar_t *__restrict, const wchar_t *__restrict);
+#define wcscpy(ws1, ws2) __wcscpy(ws1, ws2)
+wchar_t *wcscpy(wchar_t *__restrict, const wchar_t *__restrict);
+#define wcsncat(ws1, ws2, n) __wcsncat(ws1, ws2, n)
+wchar_t *wcsncat(wchar_t *__restrict, const wchar_t *__restrict, size_t);
+__END_DECLS
+#endif
 
 #endif
