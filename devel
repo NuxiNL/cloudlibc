@@ -90,7 +90,7 @@ EOF
 find src/crt -name "*.[cS]" |
     sed -e 's/.*\///' -e 's/\.[a-zA-Z]*$//' | while read crt; do
   ${NM} -g --defined-only _obj/src_crt_${crt}.o
-done) | grep '\<[A-Z]\>' | awk '{print $3}') | sort -u > _obj/defined
+done) | grep '\<[A-Z]\>' | awk '{print $3}') | sort > _obj/defined
 ${NM} -u _obj/libc.a | grep '\<U\>' | awk '{print $2}' | \
     grep -ve '^__start_' -e '^__stop_' | sort -u > _obj/undefined
 if [ "$(comm -13 _obj/defined _obj/undefined)" != "" ]; then
