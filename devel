@@ -12,7 +12,7 @@ export WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers \
 -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes \
 -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety \
 -Wsign-compare -Wundef -Wno-comment"
-export HEADERWARNFLAGS="-Weverything -Wno-c++11-compat \
+export HEADERWARNFLAGS="-Werror -Weverything -Wno-c++11-compat \
 -Wno-c++98-compat-pedantic -Wno-c11-extensions -Wno-c99-extensions \
 -Wno-cast-qual -Wno-comment -Wno-complex-component-init -Wno-float-equal \
 -Wno-language-extension-token -Wno-long-long -Wno-old-style-cast -Wno-padded \
