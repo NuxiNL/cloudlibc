@@ -46,8 +46,6 @@
 // - struct itimerspec, timer_create(), timer_delete(), timer_getoverrun(),
 //   timer_gettime(), timer_settime():
 //   Requires signal handling support.
-// - tzset():
-//   No process-wide timezone exists.
 
 #ifndef _TIME_H_
 #define _TIME_H_
@@ -136,6 +134,7 @@ char *strptime_l(const char *__restrict, const char *__restrict,
                  struct tm *__restrict, locale_t);
 time_t time(time_t *);
 int timespec_get(struct timespec *, int);
+void tzset(void);
 __END_DECLS
 
 #endif
