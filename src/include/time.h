@@ -46,7 +46,7 @@
 // - struct itimerspec, timer_create(), timer_delete(), timer_getoverrun(),
 //   timer_gettime(), timer_settime():
 //   Requires signal handling support.
-// - tzset(), daylight, timezone, tzname:
+// - tzset():
 //   No process-wide timezone exists.
 
 #ifndef _TIME_H_
@@ -107,6 +107,8 @@ struct tm {
 #define TIMER_ABSTIME 1
 
 #define TIME_UTC CLOCK_REALTIME
+
+extern char *tzname[];
 
 __BEGIN_DECLS
 char *asctime_r(const struct tm *__restrict, char *__restrict);

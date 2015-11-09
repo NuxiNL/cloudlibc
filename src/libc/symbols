@@ -843,6 +843,7 @@ tss_create
 tss_delete
 tss_get
 tss_set
+tzname
 ungetc
 ungetwc
 unlinkat
