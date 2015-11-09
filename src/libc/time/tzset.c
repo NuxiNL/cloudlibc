@@ -6,5 +6,7 @@
 #include <time.h>
 
 void tzset(void) {
-  // Nothing to do.
+  // Reset the contents of tzname to their default values.
+  tzname[0] = (char *)"UTC";
+  tzname[1] = (char *)"UTC";
 }
