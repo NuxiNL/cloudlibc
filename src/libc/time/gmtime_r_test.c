@@ -41,7 +41,7 @@ TEST(gmtime_r, lowest) {
   ASSERT_STREQ("UTC", tm.tm_zone);
   ASSERT_EQ(0, tm.tm_nsec);
 
-  ASSERT_EQ(timestamp, mktime(&tm));
+  ASSERT_EQ(timestamp, timegm(&tm));
 }
 
 TEST(gmtime_r, past) {
@@ -58,7 +58,7 @@ TEST(gmtime_r, past) {
   ASSERT_EQ(0, tm.tm_wday);
   ASSERT_EQ(164, tm.tm_yday);
   ASSERT_EQ(0, tm.tm_isdst);
-  ASSERT_EQ(timestamp, mktime(&tm));
+  ASSERT_EQ(timestamp, timegm(&tm));
 }
 
 TEST(gmtime_r, just_before_epoch) {
@@ -75,7 +75,7 @@ TEST(gmtime_r, just_before_epoch) {
   ASSERT_EQ(3, tm.tm_wday);
   ASSERT_EQ(364, tm.tm_yday);
   ASSERT_EQ(0, tm.tm_isdst);
-  ASSERT_EQ(timestamp, mktime(&tm));
+  ASSERT_EQ(timestamp, timegm(&tm));
 }
 
 TEST(gmtime_r, epoch) {
@@ -92,7 +92,7 @@ TEST(gmtime_r, epoch) {
   ASSERT_EQ(4, tm.tm_wday);
   ASSERT_EQ(0, tm.tm_yday);
   ASSERT_EQ(0, tm.tm_isdst);
-  ASSERT_EQ(timestamp, mktime(&tm));
+  ASSERT_EQ(timestamp, timegm(&tm));
 }
 
 TEST(gmtime_r, recent) {
@@ -109,7 +109,7 @@ TEST(gmtime_r, recent) {
   ASSERT_EQ(1, tm.tm_wday);
   ASSERT_EQ(271, tm.tm_yday);
   ASSERT_EQ(0, tm.tm_isdst);
-  ASSERT_EQ(timestamp, mktime(&tm));
+  ASSERT_EQ(timestamp, timegm(&tm));
 }
 
 TEST(gmtime_r, future) {
@@ -126,7 +126,7 @@ TEST(gmtime_r, future) {
   ASSERT_EQ(0, tm.tm_wday);
   ASSERT_EQ(200, tm.tm_yday);
   ASSERT_EQ(0, tm.tm_isdst);
-  ASSERT_EQ(timestamp, mktime(&tm));
+  ASSERT_EQ(timestamp, timegm(&tm));
 }
 
 TEST(gmtime_r, highest) {
@@ -145,7 +145,7 @@ TEST(gmtime_r, highest) {
   ASSERT_EQ(INT_MAX, tm.tm_year);
   ASSERT_TRUE(tm.tm_yday == 364 || tm.tm_yday == 365);
   ASSERT_EQ(0, tm.tm_isdst);
-  ASSERT_EQ(timestamp, mktime(&tm));
+  ASSERT_EQ(timestamp, timegm(&tm));
 }
 
 TEST(gmtime_r, toohigh) {

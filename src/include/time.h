@@ -35,6 +35,8 @@
 //   Adds sub-second precision to strftime()/strptime().
 // - nanosleep() and clock_nanosleep():
 //   Last argument is optional, as calls can never be interrupted.
+// - timegm():
+//   mktime() for UTC. Present on many other systems.
 //
 // Features missing:
 // - clock_getcpuclockid():
@@ -133,6 +135,7 @@ char *strptime(const char *__restrict, const char *__restrict,
 char *strptime_l(const char *__restrict, const char *__restrict,
                  struct tm *__restrict, locale_t);
 time_t time(time_t *);
+time_t timegm(struct tm *);
 int timespec_get(struct timespec *, int);
 void tzset(void);
 __END_DECLS

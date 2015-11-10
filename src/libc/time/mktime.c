@@ -26,3 +26,5 @@ time_t mktime(struct tm *tm) {
   }
   return result.tv_sec;
 }
+
+__strong_reference(mktime, timegm);

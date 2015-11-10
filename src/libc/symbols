@@ -822,6 +822,7 @@ thrd_join
 thrd_sleep
 thrd_yield
 time
+timegm
 times
 timespec_get
 tmpfile
