@@ -5,7 +5,7 @@
 
 #include <assert.h>
 #include <netdb.h>
-#include <pthread.h>
+#include <stdatomic.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <strings.h>
@@ -41,9 +41,17 @@ static const char *proto_get_name(uint8_t protoid) {
   return NULL;
 }
 
+struct servent_entry {
+  const char *entry;
+  uint8_t protoid;
+  struct servent servent;
+  struct servent_entry *next;
+};
+
 // Allocates a new struct servent object based on an entry from the IANA
 // port number registry.
-static struct servent *create_servent(const char *entry, uint8_t protoid) {
+static struct servent_entry *create_servent_entry(const char *entry,
+                                                  uint8_t protoid) {
   // Compute the number of aliases this entry has.
   size_t aliases_count = 1;
   for (const char *alias = portstr_get_next(entry);
@@ -55,14 +63,20 @@ static struct servent *create_servent(const char *entry, uint8_t protoid) {
 
   // Allocate space to allocate the entry. We'll store the servent
   // object, followed by the pointers to the strings.
-  struct servent *se = malloc(sizeof(*se) + aliases_count * sizeof(char *));
+  struct servent_entry *se =
+      malloc(sizeof(*se) + aliases_count * sizeof(char *));
   if (se == NULL)
     return NULL;
-  *se = (struct servent){
-      .s_name = (char *)portstr_get_name(entry),
-      .s_aliases = (char **)(se + 1),
-      .s_port = portstr_get_port(entry),
-      .s_proto = (char *)proto_get_name(protoid),
+  *se = (struct servent_entry){
+      .entry = entry,
+      .protoid = protoid,
+      .servent =
+          {
+              .s_name = (char *)portstr_get_name(entry),
+              .s_aliases = (char **)(se + 1),
+              .s_port = portstr_get_port(entry),
+              .s_proto = (char *)proto_get_name(protoid),
+          },
   };
 
   // Fill the array with aliases.
@@ -78,60 +92,38 @@ static struct servent *create_servent(const char *entry, uint8_t protoid) {
   return se;
 }
 
-struct servent_entry {
-  const char *entry;
-  uint8_t protoid;
-  struct servent *servent;
-};
-
 // Attempts to fetch a memoized copy of struct servent. If no copy is
 // available, it creates a new copy through create_servent().
-//
-// TODO(ed): This could use a hash table. Maybe see if we could
-// implement a generalized hash table for memoization.
 static struct servent *get_servent(const char *entry, uint8_t protoid) {
-  static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-  static struct servent_entry *table = NULL;
-  static size_t size = 0;
+  static _Atomic(struct servent_entry *)table = ATOMIC_VAR_INIT(NULL);
 
   // Search for an existing copy.
-  pthread_mutex_lock(&lock);
-  size_t last = 0;
-  while (last < size && table[last].servent != NULL) {
-    if (table[last].entry == entry && table[last].protoid == protoid) {
-      pthread_mutex_unlock(&lock);
-      return table[last].servent;
-    }
-    ++last;
-  }
+  struct servent_entry *first =
+      atomic_load_explicit(&table, memory_order_relaxed);
+  for (struct servent_entry *se = first; se != NULL; se = se->next)
+    if (se->entry == entry && se->protoid == protoid)
+      return &se->servent;
 
-  // Grow the table if needed.
-  if (last >= size) {
-    size_t new_size = last * 2;
-    if (new_size < 8)
-      new_size = 8;
-    struct servent_entry *new_table =
-        realloc(table, new_size * sizeof(*new_table));
-    if (new_table == NULL) {
-      pthread_mutex_unlock(&lock);
-      return NULL;
-    }
-    memset(new_table + size, '\0', (new_size - size) * sizeof(*new_table));
-    table = new_table;
-    size = new_size;
-  }
-
-  // Store the new entry.
-  struct servent *new_servent = create_servent(entry, protoid);
-  if (new_servent == NULL) {
-    pthread_mutex_unlock(&lock);
+  // Existing entry not found. Allocate a new entry.
+  struct servent_entry *se_new = create_servent_entry(entry, protoid);
+  if (se_new == NULL)
     return NULL;
+
+  for (;;) {
+    // Store the new entry in the global list. The list is lockless, so
+    // perform a compare-and-exchange.
+    se_new->next = first;
+    if (atomic_compare_exchange_weak(&table, &first, se_new))
+      return &se_new->servent;
+
+    // Compare-and-exchange failed. See if a servent for the same entry
+    // got created in the meantime.
+    for (struct servent_entry *se = first; se != se_new->next; se = se->next)
+      if (se->entry == entry && se->protoid == protoid) {
+        free(se_new);
+        return &se->servent;
+      }
   }
-  table[last].entry = entry;
-  table[last].protoid = protoid;
-  table[last++].servent = new_servent;
-  pthread_mutex_unlock(&lock);
-  return new_servent;
 }
 
 // Public API.
