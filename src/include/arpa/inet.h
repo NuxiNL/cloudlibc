@@ -24,11 +24,11 @@
 // <arpa/inet.h> - definitions for internet operations
 //
 // Features missing:
-// - inet_ntoa():
-//   Not thread-safe.
 // - inet_addr():
 //   API does not allow 255.255.255.255 to be parsed. Does not support
 //   IPv6. Use inet_pton() instead.
+// - inet_ntoa():
+//   Not thread-safe.
 
 #ifndef _ARPA_INET_H_
 #define _ARPA_INET_H_
