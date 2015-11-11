@@ -37,6 +37,7 @@
 #define _NETINET_IN_H_
 
 #include <_/endian.h>
+#include <_/limits.h>
 #include <_/struct/in_addr.h>
 #include <_/types.h>
 
