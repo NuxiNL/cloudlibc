@@ -104,9 +104,9 @@ extern const struct in6_addr in6addr_loopback;
 #define IPPROTO_IPV6 41
 #define IPPROTO_RAW 255
 
-#define INADDR_ANY ((uint32_t)0x00000000)
-#define INADDR_BROADCAST ((uint32_t)0xffffffff)
-#define INADDR_LOOPBACK ((uint32_t)0x7f000001)
+#define INADDR_ANY _UINT32_C(0x00000000)
+#define INADDR_BROADCAST _UINT32_C(0xffffffff)
+#define INADDR_LOOPBACK _UINT32_C(0x7f000001)
 
 #define INET_ADDRSTRLEN 16
 _Static_assert(INET_ADDRSTRLEN == sizeof("255.255.255.255"),
