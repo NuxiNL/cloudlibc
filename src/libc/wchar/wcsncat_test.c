@@ -17,5 +17,5 @@ TEST(wcsncat, example) {
   ASSERT_EQ(buf, wcsncat(buf, L"", 1));
   ASSERT_ARREQ(L"Hello\0AAAA", buf, __arraycount(buf));
   ASSERT_EQ(buf, wcsncat(buf, L"!!!!!!!!!!!!", 3));
-  ASSERT_ARREQ(L"Hello!!!AA", buf, __arraycount(buf));
+  ASSERT_ARREQ(L"Hello!!!\0A", buf, __arraycount(buf));
 }

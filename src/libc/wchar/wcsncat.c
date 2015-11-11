@@ -13,10 +13,11 @@ wchar_t *wcsncat(wchar_t *restrict ws1, const wchar_t *restrict ws2, size_t n) {
     while (*ws != L'\0')
       ++ws;
     do {
-      *ws++ = *ws2;
-      if (*ws2++ == L'\0')
+      if (*ws2 == L'\0')
         break;
+      *ws++ = *ws2++;
     } while (--n > 0);
+    *ws = L'\0';
   }
   return ws1;
 }

@@ -10,7 +10,7 @@
 char *stpcpy(char *restrict s1, const char *restrict s2) {
   for (;;) {
     *s1 = *s2;
-    if (*s2++ == L'\0')
+    if (*s2++ == '\0')
       return s1;
     ++s1;
   }

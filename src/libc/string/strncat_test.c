@@ -17,5 +17,5 @@ TEST(strncat, example) {
   ASSERT_EQ(buf, strncat(buf, "", 1));
   ASSERT_ARREQ("Hello\0AAAA", buf, sizeof(buf));
   ASSERT_EQ(buf, strncat(buf, "!!!!!!!!!!!!", 3));
-  ASSERT_ARREQ("Hello!!!AA", buf, sizeof(buf));
+  ASSERT_ARREQ("Hello!!!\0A", buf, sizeof(buf));
 }
