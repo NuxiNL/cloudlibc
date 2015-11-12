@@ -320,7 +320,8 @@ for name in ERAS:
 for name, rules in sorted(RULES.iteritems()):
   if len(rules) > 0:
     print 'static const struct lc_timezone_rule %s[] = {' % name
-    for rule in rules:
+    for rule in sorted(rules, key=lambda r: (r['year_from'], r['month'],
+                                             r['monthday'])):
       assert rule['save'] in [0, 20, 30, 60, 90, 120]
       print '    {%d, %d, %d, %d, %d, %d, %s, %d, \"%s\"},' % (
           rule['year_from'], rule['year_to'], rule['month'], rule['weekday'],
