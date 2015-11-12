@@ -13,10 +13,9 @@ last_isdst = 0
 
 def printline(t1, t2, isdst, abbreviation, consistency):
   ts1 = int((t1 - datetime.datetime(1970, 1, 1)).total_seconds())
-  print (
-'      TESTVECTOR(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, \"%s\", %s),' % (
+  print 'TESTVECTOR(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, \"%s\", %s)' % (
     ts1, t2.year, t2.month, t2.isoweekday() % 7, t2.day, t2.hour, t2.minute,
-    t2.second, isdst, (t2 - t1).total_seconds(), abbreviation, consistency))
+    t2.second, isdst, (t2 - t1).total_seconds(), abbreviation, consistency)
 
 for line in sys.stdin:
   fields = line.split()
