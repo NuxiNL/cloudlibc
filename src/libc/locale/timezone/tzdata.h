@@ -3302,7 +3302,7 @@ static const struct lc_timezone_era eras_America_St_Johns[] = {
 };
 static const struct lc_timezone_era eras_America_Swift_Current[] = {
     {NULL, 0, -25880, -2030201320, 0, 0, "LMT", ""},
-    {rules_Canada, 10, -25200, -747327600, 0, 6, "M%sT", ""},
+    {rules_Canada, 10, -25200, -747241200, 0, 6, "M%sT", ""},
     {rules_Regina, 17, -25200, -631126800, 0, 6, "M%sT", ""},
     {rules_Swift, 5, -25200, 73472400, 0, 6, "M%sT", ""},
     {NULL, 0, -21600, 0, 0, 0, "CST", ""},

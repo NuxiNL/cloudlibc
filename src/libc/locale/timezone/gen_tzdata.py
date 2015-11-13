@@ -157,7 +157,7 @@ def handle_endtime(fields):
   # 'Sun>=1' are being used, even in Zone directives. Translate these to
   # exact dates.
   quirkmap = {
-      ('1946', 'Apr', 'lastSun'): 27,
+      ('1946', 'Apr', 'lastSun'): 28,
       ('1960', 'Apr', 'lastSun'): 24,
       ('1972', 'Apr', 'lastSun'): 30,
       ('1979', 'Apr', 'lastSun'): 29,
