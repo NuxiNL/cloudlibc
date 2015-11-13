@@ -17,10 +17,26 @@
 static const struct lc_timezone_rule *determine_applicable_rule(
     const struct lc_timezone_rule *rules, size_t rules_count,
     const struct tm *std, int gmtoff) {
+  // Start out by picking the first standard time rule as a fallback. It
+  // may be the case that the code below obtains no matching rule, for
+  // example if the timestamp is lower than any of the starting times of
+  // the rules.
+  //
+  // This rule has no influence on the time computation, but at least
+  // ensures that we have a proper timezone abbreviation.
+  static const struct lc_timezone_rule nomatch = {};
+  const struct lc_timezone_rule *match = &nomatch;
+  for (size_t i = 0; i < rules_count; ++i) {
+    if (rules[i].save == 0) {
+      match = &rules[i];
+      break;
+    }
+  }
+
   // Obtain the rule that applies to the start of the current year, but
   // also the set of rules that applies to the current.
   struct ruleset ruleset = {};
-  const struct lc_timezone_rule *match = NULL, *unused;
+  const struct lc_timezone_rule *unused;
   ruleset_fill_with_year(&ruleset, &rules, &rules_count, std->tm_year, &match,
                          &unused);
 
@@ -42,22 +58,7 @@ static const struct lc_timezone_rule *determine_applicable_rule(
       break;
     match = rule;
   }
-
-  if (match != NULL)
-    return match;
-
-  // Still not a single rule that matched. Find at least an entry
-  // without daylight saving time, so we have a proper timezone name.
-  while (rules_count > 0) {
-    if (rules->save == 0)
-      return rules;
-    ++rules;
-    --rules_count;
-  }
-
-  // Not a single rule that is of any use.
-  static const struct lc_timezone_rule nomatch = {};
-  return &nomatch;
+  return match;
 }
 
 // Computes the abbreviated name of the timezone. For example, the era
