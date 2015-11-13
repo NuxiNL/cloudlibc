@@ -5,18 +5,42 @@
 # This file is distrbuted under a 2-clause BSD license.
 # See the LICENSE file for details.
 
-import collections
 import datetime
 
 DATAFILES = set(['africa', 'antarctica', 'asia', 'australasia',
                  'backward', 'etcetera', 'europe', 'northamerica',
                  'pacificnew', 'southamerica'])
 
-RULES = collections.defaultdict(list)
-ERAS = collections.defaultdict(list)
+RULES = {}
+ERAS = {}
 LINKS = {}
 
-# A standard ruleset for countries that are always in daylight saving time.
+# Standard ruleset for countries that have fixed daylight saving time amounts.
+RULES['rules__'] = []
+RULES['rules_020'] = [{
+    'year_from': 0,
+    'year_to': 255,
+    'month': 0,
+    'monthday': 1,
+    'weekday': 7,
+    'hour': 0,
+    'minute': 0,
+    'timebase': 'TIMEBASE_CUR',
+    'save': 20,
+    'abbreviation': '',
+}]
+RULES['rules_030'] = [{
+    'year_from': 0,
+    'year_to': 255,
+    'month': 0,
+    'monthday': 1,
+    'weekday': 7,
+    'hour': 0,
+    'minute': 0,
+    'timebase': 'TIMEBASE_CUR',
+    'save': 30,
+    'abbreviation': '',
+}]
 RULES['rules_100'] = [{
     'year_from': 0,
     'year_to': 255,
@@ -59,7 +83,10 @@ def handle_zoneline(ename, fields, end, timebase):
   # End date.
   entry['end'] = end
   entry['timebase'] = timebase
-  ERAS[ename].append(entry)
+  if ename in ERAS:
+    ERAS[ename].append(entry)
+  else:
+    ERAS[ename] = [entry]
 
 def is_leap(year):
   year %= 400
@@ -143,7 +170,10 @@ def handle_ruleline(rname, fields):
   entry['save'] = int(save[0]) * 60 + int(save[1])
 
   entry['abbreviation'] = fields[7] if fields[7] != '-' else ''
-  RULES[rname].append(entry)
+  if rname in RULES:
+    RULES[rname].append(entry)
+  else:
+    RULES[rname] = [entry]
 
 def translate_day(fields):
   return fields[2]
