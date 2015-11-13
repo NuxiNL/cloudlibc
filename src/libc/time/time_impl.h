@@ -9,7 +9,10 @@
 #include <common/locale.h>
 #include <common/time.h>
 
+#include <sys/types.h>
+
 #include <assert.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -64,6 +67,31 @@ static inline void ruleset_add(struct ruleset *ruleset,
   ruleset->rules[newslot] = rule;
 }
 
+// Returns the last entry that got applied before the start of a year.
+// Even though entries in the ruleset are sorted by month and day, it
+// may not be the case that this is the last entry in the ruleset. Some
+// entries may expire earlier than others.
+//
+// Pick the entry that has the highest month and day number, prefering a
+// shorter expiration.
+static inline void ruleset_get_last(struct ruleset *ruleset, int year,
+                                    const struct lc_timezone_rule **last,
+                                    const struct lc_timezone_rule **last_dst) {
+  assert(ruleset->rules_count > 0 && "Cannot be called on an empty ruleset");
+  *last = ruleset->rules[ruleset->rules_count - 1];
+  if ((*last)->save > 0)
+    *last_dst = *last;
+  for (ssize_t i = ruleset->rules_count - 2;
+       (*last)->year_to < year - 1 && i >= 0; --i) {
+    const struct lc_timezone_rule *rule = ruleset->rules[i];
+    if ((*last)->year_to < rule->year_to) {
+      *last = rule;
+      if ((*last)->save > 0)
+        *last_dst = *last;
+    }
+  }
+}
+
 // Populates a ruleset with a set of rules that applies to a given year.
 // During the process, it also keeps track of the rule that applies
 // to the start of the year.
@@ -83,9 +111,7 @@ static inline void ruleset_fill_with_year(
     if (last_year != rule->year_from)
       ruleset_remove_stale(ruleset, rule->year_from);
     ruleset_add(ruleset, rule);
-    *last = ruleset->rules[ruleset->rules_count - 1];
-    if ((*last)->save > 0)
-      *last_dst = *last;
+    ruleset_get_last(ruleset, year, last, last_dst);
     --*rules_count;
   }
 

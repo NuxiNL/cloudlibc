@@ -3,6 +3,7 @@
 // This file is distrbuted under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/limits.h>
 #include <common/locale.h>
 #include <common/time.h>
 
@@ -129,18 +130,25 @@ int localtime_l(const struct timespec *restrict timer,
   // provided timestamp.
   const struct lc_timezone *timezone = locale->timezone;
   const struct lc_timezone_era *era = &timezone->eras[0];
+  time_t era_start = NUMERIC_MIN(time_t);
   for (size_t i = 1; i < timezone->eras_count; ++i) {
     if (era->end > timer->tv_sec)
       break;
+    era_start = era->end + era->gmtoff + era->end_save_actual * 600;
     era = &timezone->eras[i];
   }
 
   int error;
   if (era->rules_count > 0) {
     // Timezone has daylight saving time rules. First compute the
-    // standard time and use that to compute the actual offset.
+    // standard time and use that to compute the actual offset. If the
+    // timestamp is close to the start of the era and the UTC offset got
+    // decreased, make sure that the timestamp used for matching is set
+    // to the start of the era. This ensures that we match the proper
+    // DST rules.
+    time_t timer_std = timer->tv_sec + era->gmtoff;
     struct tm std;
-    __localtime_utc(timer->tv_sec + era->gmtoff, &std);
+    __localtime_utc(timer_std > era_start ? timer_std : era_start, &std);
 
     // Obtain applicable daylight saving time rule and recompute.
     const struct lc_timezone_rule *rule = determine_applicable_rule(
