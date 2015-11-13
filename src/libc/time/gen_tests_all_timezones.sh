@@ -9,9 +9,10 @@ zic -d output africa antarctica asia australasia backward etcetera europe \
     northamerica pacificnew southamerica
 cd output
 i=0
+curdir=`pwd`
 find * -type f | while read f; do
   echo "TEST_BEGIN(generated_$i, \"$f\")"
-  zdump -v "$f" | ../../convert_zdump_to_tests.py
+  zdump -v "$curdir/$f" | ../../convert_zdump_to_tests.py
   echo TEST_END
   i=$(($i+1))
 done
