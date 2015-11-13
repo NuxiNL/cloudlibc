@@ -264,9 +264,19 @@ def fixup_era(era):
         ruleset = [rule for rule in ruleset
                         if rule['year_to'] >= rules[0]['year_from']]
       ruleset = sort_ruleset(ruleset + [rules[0]])
-      save = 0 if len(ruleset) == 0 else ruleset[-1]['save'] * 60
-      if save != 0:
-        save_dst = save
+      # Determine which rule was active at the end of the year.
+      last = None
+      for rule in reversed(ruleset):
+        if last == None:
+          last = rule
+        else:
+          if last['year_to'] >= std.year - 1901:
+            break
+          if last['year_to'] < rule['year_to']:
+            last = rule
+        save = last['save'] * 60
+        if save != 0:
+          save_dst = save
       rules = rules[1:]
 
     # Step 2: Determine ruleset of the current year.
@@ -282,14 +292,14 @@ def fixup_era(era):
     for rule in ruleset:
       if rule['timebase'] == 'TIMEBASE_CUR':
         time = (datetime.datetime(1970, 1, 1) +
-                datetime.timedelta(seconds=lastsec - era['gmtoff'] - save))
+                datetime.timedelta(seconds=lastsec))
       elif rule['timebase'] == 'TIMEBASE_STD':
         time = (datetime.datetime(1970, 1, 1) +
-                datetime.timedelta(seconds=lastsec - era['gmtoff']))
+                datetime.timedelta(seconds=lastsec - save))
       else:
         assert rule['timebase'] == 'TIMEBASE_UTC'
         time = (datetime.datetime(1970, 1, 1) +
-                datetime.timedelta(seconds=lastsec))
+                datetime.timedelta(seconds=lastsec - era['gmtoff'] - save))
       monthdaydelta = 0
       if rule['weekday'] != 7:
         monthdaydelta = (rule['weekday'] - (time.isoweekday() - 1) +

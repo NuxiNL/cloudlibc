@@ -2245,7 +2245,7 @@ static const struct lc_timezone_era eras_Africa_El_Aaiun[] = {
 static const struct lc_timezone_era eras_Africa_Johannesburg[] = {
     {NULL, 0, 6720, -2458173120, 0, 0, "LMT", ""},
     {NULL, 0, 5400, -2109288600, 0, 0, "SAST", ""},
-    {rules_SA, 2, 7200, 0, 6, 6, "SAST", ""},
+    {rules_SA, 2, 7200, 0, 0, 6, "SAST", ""},
 };
 static const struct lc_timezone_era eras_Africa_Khartoum[] = {
     {NULL, 0, 7808, -1230775808, 0, 0, "LMT", ""},
@@ -2341,9 +2341,9 @@ static const struct lc_timezone_era eras_America_Argentina_Buenos_Aires[] = {
     {NULL, 0, -15408, -1567453392, 0, 0, "CMT", ""},
     {NULL, 0, -14400, -1233432000, 0, 0, "ART", ""},
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
-    {rules_Arg, 29, -10800, 0, 6, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 0, 0, 6, "AR%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Argentina_Catamarca[] = {
     {NULL, 0, -15788, -2372096212, 0, 0, "LMT", ""},
@@ -2352,8 +2352,8 @@ static const struct lc_timezone_era eras_America_Argentina_Catamarca[] = {
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 667965600, 6, 6, "AR%sT", ""},
     {NULL, 0, -14400, 687931200, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {NULL, 0, -10800, 1086058800, 0, 0, "ART", ""},
     {NULL, 0, -14400, 1087704000, 0, 0, "WART", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
@@ -2366,9 +2366,9 @@ static const struct lc_timezone_era eras_America_Argentina_Cordoba[] = {
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 667965600, 6, 6, "AR%sT", ""},
     {NULL, 0, -14400, 687931200, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
-    {rules_Arg, 29, -10800, 0, 6, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 0, 0, 6, "AR%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Argentina_Jujuy[] = {
     {NULL, 0, -15672, -2372096328, 0, 0, "LMT", ""},
@@ -2380,8 +2380,8 @@ static const struct lc_timezone_era eras_America_Argentina_Jujuy[] = {
     {rules_100, 1, -14400, 669178800, 6, 6, "WARST", ""},
     {NULL, 0, -14400, 686721600, 0, 0, "WART", ""},
     {rules_100, 1, -10800, 694231200, 6, 6, "ARST", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "ART", ""},
 };
@@ -2392,8 +2392,8 @@ static const struct lc_timezone_era eras_America_Argentina_La_Rioja[] = {
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 667792800, 6, 6, "AR%sT", ""},
     {NULL, 0, -14400, 673588800, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {NULL, 0, -10800, 1086058800, 0, 0, "ART", ""},
     {NULL, 0, -14400, 1087704000, 0, 0, "WART", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
@@ -2410,8 +2410,8 @@ static const struct lc_timezone_era eras_America_Argentina_Mendoza[] = {
     {NULL, 0, -14400, 687499200, 0, 0, "WART", ""},
     {rules_100, 1, -14400, 699418800, 6, 6, "WARST", ""},
     {NULL, 0, -14400, 719380800, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {NULL, 0, -10800, 1085281200, 0, 0, "ART", ""},
     {NULL, 0, -14400, 1096171200, 0, 0, "WART", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
@@ -2422,8 +2422,8 @@ static const struct lc_timezone_era eras_America_Argentina_Rio_Gallegos[] = {
     {NULL, 0, -15408, -1567453392, 0, 0, "CMT", ""},
     {NULL, 0, -14400, -1233432000, 0, 0, "ART", ""},
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {NULL, 0, -10800, 1086058800, 0, 0, "ART", ""},
     {NULL, 0, -14400, 1087704000, 0, 0, "WART", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
@@ -2436,8 +2436,8 @@ static const struct lc_timezone_era eras_America_Argentina_Salta[] = {
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 667965600, 6, 6, "AR%sT", ""},
     {NULL, 0, -14400, 687931200, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "ART", ""},
 };
@@ -2448,8 +2448,8 @@ static const struct lc_timezone_era eras_America_Argentina_San_Juan[] = {
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 667792800, 6, 6, "AR%sT", ""},
     {NULL, 0, -14400, 673588800, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {NULL, 0, -10800, 1085972400, 0, 0, "ART", ""},
     {NULL, 0, -14400, 1090728000, 0, 0, "WART", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
@@ -2480,19 +2480,19 @@ static const struct lc_timezone_era eras_America_Argentina_Tucuman[] = {
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 667965600, 6, 6, "AR%sT", ""},
     {NULL, 0, -14400, 687931200, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {NULL, 0, -10800, 1086058800, 0, 0, "ART", ""},
     {NULL, 0, -14400, 1087099200, 0, 0, "WART", ""},
-    {rules_Arg, 29, -10800, 0, 6, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 0, 0, 6, "AR%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Argentina_Ushuaia[] = {
     {NULL, 0, -16392, -2372095608, 0, 0, "LMT", ""},
     {NULL, 0, -15408, -1567453392, 0, 0, "CMT", ""},
     {NULL, 0, -14400, -1233432000, 0, 0, "ART", ""},
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
-    {rules_Arg, 29, -10800, 938916000, 6, 6, "AR%sT", ""},
-    {rules_Arg, 29, -14400, 952056000, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -10800, 938919600, 0, 6, "AR%sT", ""},
+    {rules_Arg, 29, -14400, 952052400, 6, 6, "AR%sT", ""},
     {NULL, 0, -10800, 1085886000, 0, 0, "ART", ""},
     {NULL, 0, -14400, 1087704000, 0, 0, "WART", ""},
     {rules_Arg, 29, -10800, 1224298800, 0, 6, "AR%sT", ""},
@@ -2509,7 +2509,7 @@ static const struct lc_timezone_era eras_America_Atikokan[] = {
     {NULL, 0, -21988, -2366733212, 0, 0, "LMT", ""},
     {rules_Canada, 10, -21600, -923248800, 0, 6, "C%sT", ""},
     {rules_100, 1, -21600, -880214400, 6, 6, "CDT", ""},
-    {rules_Canada, 10, -21600, -765388800, 0, 6, "C%sT", ""},
+    {rules_Canada, 10, -21600, -765392400, 6, 6, "C%sT", ""},
     {NULL, 0, -18000, 0, 0, 0, "EST", ""},
 };
 static const struct lc_timezone_era eras_America_Bahia[] = {
@@ -2544,7 +2544,7 @@ static const struct lc_timezone_era eras_America_Belem[] = {
 };
 static const struct lc_timezone_era eras_America_Belize[] = {
     {NULL, 0, -21168, -1822500432, 0, 0, "LMT", ""},
-    {rules_Belize, 6, -21600, 0, 3, 3, "C%sT", ""},
+    {rules_Belize, 6, -21600, 0, 0, 3, "C%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Blanc_Sablon[] = {
     {NULL, 0, -13708, -2713896692, 0, 0, "LMT", ""},
@@ -2580,7 +2580,7 @@ static const struct lc_timezone_era eras_America_Cambridge_Bay[] = {
 };
 static const struct lc_timezone_era eras_America_Campo_Grande[] = {
     {NULL, 0, -13108, -1767212492, 0, 0, "LMT", ""},
-    {rules_Brazil, 64, -14400, 0, 6, 6, "AM%sT", ""},
+    {rules_Brazil, 64, -14400, 0, 0, 6, "AM%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Cancun[] = {
     {NULL, 0, -20824, -1514743200, 0, 0, "LMT", ""},
@@ -2644,7 +2644,7 @@ static const struct lc_timezone_era eras_America_Cuiaba[] = {
     {NULL, 0, -13460, -1767212140, 0, 0, "LMT", ""},
     {rules_Brazil, 64, -14400, 1064376000, 0, 6, "AM%sT", ""},
     {NULL, 0, -14400, 1096603200, 0, 0, "AMT", ""},
-    {rules_Brazil, 64, -14400, 0, 6, 6, "AM%sT", ""},
+    {rules_Brazil, 64, -14400, 0, 0, 6, "AM%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Curacao[] = {
     {NULL, 0, -16547, -1826738653, 0, 0, "LMT", ""},
@@ -2660,7 +2660,7 @@ static const struct lc_timezone_era eras_America_Danmarkshavn[] = {
 static const struct lc_timezone_era eras_America_Dawson[] = {
     {NULL, 0, -33460, -2188996940, 0, 0, "LMT", ""},
     {rules_NT_YK, 12, -32400, 120646800, 0, 12, "Y%sT", ""},
-    {rules_NT_YK, 12, -28800, 315561600, 0, 12, "P%sT", ""},
+    {rules_NT_YK, 12, -28800, 315561600, 0, 6, "P%sT", ""},
     {rules_Canada, 10, -28800, 0, 0, 6, "P%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Dawson_Creek[] = {
@@ -2824,7 +2824,7 @@ static const struct lc_timezone_era eras_America_Indiana_Marengo[] = {
     {rules_US, 13, -21600, -599594400, 0, 6, "C%sT", ""},
     {rules_Marengo, 4, -21600, -273686400, 0, 6, "C%sT", ""},
     {NULL, 0, -18000, -31518000, 0, 0, "EST", ""},
-    {rules_US, 13, -18000, 126684000, 6, 6, "E%sT", ""},
+    {rules_US, 13, -18000, 126687600, 0, 6, "E%sT", ""},
     {rules_100, 1, -21600, 152089200, 6, 6, "CDT", ""},
     {rules_US, 13, -18000, 189320400, 0, 6, "E%sT", ""},
     {NULL, 0, -18000, 1136091600, 0, 0, "EST", ""},
@@ -2880,7 +2880,7 @@ static const struct lc_timezone_era eras_America_Indiana_Winamac[] = {
 static const struct lc_timezone_era eras_America_Inuvik[] = {
     {NULL, 0, 0, -536457600, 0, 0, "zzz", ""},
     {rules_NT_YK, 12, -28800, 294228000, 0, 12, "P%sT", ""},
-    {rules_NT_YK, 12, -25200, 315558000, 0, 12, "M%sT", ""},
+    {rules_NT_YK, 12, -25200, 315558000, 0, 6, "M%sT", ""},
     {rules_Canada, 10, -25200, 0, 0, 6, "M%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Iqaluit[] = {
@@ -2911,11 +2911,11 @@ static const struct lc_timezone_era eras_America_Juneau[] = {
 static const struct lc_timezone_era eras_America_Kentucky_Louisville[] = {
     {NULL, 0, -20582, -2717647200, 0, 0, "LMT", ""},
     {rules_US, 13, -21600, -1546279200, 0, 6, "C%sT", ""},
-    {rules_Louisville, 7, -21600, -883591200, 0, 6, "C%sT", ""},
+    {rules_Louisville, 7, -21600, -883594800, 6, 6, "C%sT", ""},
     {rules_US, 13, -21600, -757360800, 0, 6, "C%sT", ""},
     {rules_Louisville, 7, -21600, -266432400, 6, 6, "C%sT", ""},
     {NULL, 0, -18000, -63140400, 0, 0, "EST", ""},
-    {rules_US, 13, -18000, 126684000, 6, 6, "E%sT", ""},
+    {rules_US, 13, -18000, 126687600, 0, 6, "E%sT", ""},
     {rules_100, 1, -21600, 152089200, 6, 6, "CDT", ""},
     {rules_US, 13, -18000, 0, 0, 6, "E%sT", ""},
 };
@@ -2935,7 +2935,7 @@ static const struct lc_timezone_era eras_America_La_Paz[] = {
 static const struct lc_timezone_era eras_America_Lima[] = {
     {NULL, 0, -18492, -2524503108, 0, 0, "LMT", ""},
     {NULL, 0, -18516, -1938538284, 0, 0, "LMT", ""},
-    {rules_Peru, 10, -18000, 0, 6, 6, "PE%sT", ""},
+    {rules_Peru, 10, -18000, 0, 0, 6, "PE%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Los_Angeles[] = {
     {NULL, 0, -28378, -2717640000, 0, 0, "LMT", ""},
@@ -3057,7 +3057,7 @@ static const struct lc_timezone_era eras_America_Monterrey[] = {
 static const struct lc_timezone_era eras_America_Montevideo[] = {
     {NULL, 0, -13484, -2256668116, 0, 0, "LMT", ""},
     {NULL, 0, -13484, -1567455316, 0, 0, "MMT", ""},
-    {rules_Uruguay, 45, -12600, -853623000, 6, 6, "UY%sT", ""},
+    {rules_Uruguay, 45, -12600, -853619400, 0, 3, "UY%sT", ""},
     {rules_Uruguay, 45, -10800, 0, 0, 3, "UY%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Nassau[] = {
@@ -3272,7 +3272,7 @@ static const struct lc_timezone_era eras_America_Sao_Paulo[] = {
     {NULL, 0, -11188, -1767214412, 0, 0, "LMT", ""},
     {rules_Brazil, 64, -10800, -195426000, 0, 6, "BR%sT", ""},
     {rules_100, 1, -10800, -189381600, 6, 6, "BRST", ""},
-    {rules_Brazil, 64, -10800, 0, 6, 6, "BR%sT", ""},
+    {rules_Brazil, 64, -10800, 0, 0, 6, "BR%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Scoresbysund[] = {
     {NULL, 0, -5272, -1686090728, 0, 0, "LMT", ""},
@@ -3348,7 +3348,7 @@ static const struct lc_timezone_era eras_America_Tijuana[] = {
 static const struct lc_timezone_era eras_America_Toronto[] = {
     {NULL, 0, -19052, -2366736148, 0, 0, "LMT", ""},
     {rules_Canada, 10, -18000, -1609441200, 0, 6, "E%sT", ""},
-    {rules_Toronto, 24, -18000, -880218000, 0, 6, "E%sT", ""},
+    {rules_Toronto, 24, -18000, -880218000, 6, 6, "E%sT", ""},
     {rules_Canada, 10, -18000, -757364400, 0, 6, "E%sT", ""},
     {rules_Toronto, 24, -18000, 126248400, 0, 6, "E%sT", ""},
     {rules_Canada, 10, -18000, 0, 0, 6, "E%sT", ""},
@@ -3361,7 +3361,7 @@ static const struct lc_timezone_era eras_America_Vancouver[] = {
 static const struct lc_timezone_era eras_America_Whitehorse[] = {
     {NULL, 0, -32412, -2188997988, 0, 0, "LMT", ""},
     {rules_NT_YK, 12, -32400, -81961200, 0, 12, "Y%sT", ""},
-    {rules_NT_YK, 12, -28800, 315561600, 0, 12, "P%sT", ""},
+    {rules_NT_YK, 12, -28800, 315561600, 0, 6, "P%sT", ""},
     {rules_Canada, 10, -28800, 0, 0, 6, "P%sT", ""},
 };
 static const struct lc_timezone_era eras_America_Winnipeg[] = {
@@ -3380,7 +3380,7 @@ static const struct lc_timezone_era eras_America_Yakutat[] = {
 };
 static const struct lc_timezone_era eras_America_Yellowknife[] = {
     {NULL, 0, 0, -1104537600, 0, 0, "zzz", ""},
-    {rules_NT_YK, 12, -25200, 315558000, 0, 12, "M%sT", ""},
+    {rules_NT_YK, 12, -25200, 315558000, 0, 6, "M%sT", ""},
     {rules_Canada, 10, -25200, 0, 0, 6, "M%sT", ""},
 };
 static const struct lc_timezone_era eras_Antarctica_Casey[] = {
@@ -3413,7 +3413,7 @@ static const struct lc_timezone_era eras_Antarctica_Macquarie[] = {
     {rules_100, 1, 36000, -1669892400, 6, 6, "AEDT", ""},
     {rules_Aus, 7, 36000, -1601719200, 0, 6, "AE%sT", ""},
     {NULL, 0, 0, -687052800, 0, 0, "zzz", ""},
-    {rules_Aus, 7, 36000, -94734000, 6, 6, "AE%sT", ""},
+    {rules_Aus, 7, 36000, -94730400, 0, 6, "AE%sT", ""},
     {rules_AT, 19, 36000, 1270310400, 6, 6, "AE%sT", ""},
     {NULL, 0, 39600, 0, 0, 0, "MIST", ""},
 };
@@ -4089,19 +4089,19 @@ static const struct lc_timezone_era eras_Atlantic_Stanley[] = {
 static const struct lc_timezone_era eras_Australia_Adelaide[] = {
     {NULL, 0, 33260, -2364110060, 0, 0, "LMT", ""},
     {NULL, 0, 32400, -2230189200, 0, 0, "ACST", ""},
-    {rules_Aus, 7, 34200, 31498200, 6, 6, "AC%sT", ""},
+    {rules_Aus, 7, 34200, 31501800, 0, 6, "AC%sT", ""},
     {rules_AS, 15, 34200, 0, 0, 0, "AC%sT", ""},
 };
 static const struct lc_timezone_era eras_Australia_Brisbane[] = {
     {NULL, 0, 36728, -2366791928, 0, 0, "LMT", ""},
-    {rules_Aus, 7, 36000, 31496400, 6, 6, "AE%sT", ""},
+    {rules_Aus, 7, 36000, 31500000, 0, 6, "AE%sT", ""},
     {rules_AQ, 4, 36000, 0, 0, 0, "AE%sT", ""},
 };
 static const struct lc_timezone_era eras_Australia_Broken_Hill[] = {
     {NULL, 0, 33948, -2364110748, 0, 0, "LMT", ""},
     {NULL, 0, 36000, -2314951200, 0, 0, "AEST", ""},
     {NULL, 0, 32400, -2230189200, 0, 0, "ACST", ""},
-    {rules_Aus, 7, 34200, 31498200, 6, 6, "AC%sT", ""},
+    {rules_Aus, 7, 34200, 31501800, 0, 6, "AC%sT", ""},
     {rules_AN, 16, 34200, 946647000, 6, 6, "AC%sT", ""},
     {rules_AS, 15, 34200, 0, 0, 0, "AC%sT", ""},
 };
@@ -4109,13 +4109,13 @@ static const struct lc_timezone_era eras_Australia_Currie[] = {
     {NULL, 0, 34528, -2345794528, 0, 0, "LMT", ""},
     {NULL, 0, 36000, -1680508800, 0, 0, "AEST", ""},
     {rules_100, 1, 36000, -1669892400, 6, 6, "AEDT", ""},
-    {rules_Aus, 7, 36000, 47134800, 6, 6, "AE%sT", ""},
+    {rules_Aus, 7, 36000, 47138400, 0, 6, "AE%sT", ""},
     {rules_AT, 19, 36000, 0, 6, 6, "AE%sT", ""},
 };
 static const struct lc_timezone_era eras_Australia_Darwin[] = {
     {NULL, 0, 31400, -2364108200, 0, 0, "LMT", ""},
     {NULL, 0, 32400, -2230189200, 0, 0, "ACST", ""},
-    {rules_Aus, 7, 34200, 0, 6, 6, "AC%sT", ""},
+    {rules_Aus, 7, 34200, 0, 0, 6, "AC%sT", ""},
 };
 static const struct lc_timezone_era eras_Australia_Eucla[] = {
     {NULL, 0, 30928, -2337928528, 0, 0, "LMT", ""},
@@ -4126,12 +4126,12 @@ static const struct lc_timezone_era eras_Australia_Hobart[] = {
     {NULL, 0, 35356, -2345795356, 0, 0, "LMT", ""},
     {NULL, 0, 36000, -1680508800, 0, 0, "AEST", ""},
     {rules_100, 1, 36000, -1669892400, 6, 6, "AEDT", ""},
-    {rules_Aus, 7, 36000, -94734000, 6, 6, "AE%sT", ""},
+    {rules_Aus, 7, 36000, -94730400, 0, 6, "AE%sT", ""},
     {rules_AT, 19, 36000, 0, 6, 6, "AE%sT", ""},
 };
 static const struct lc_timezone_era eras_Australia_Lindeman[] = {
     {NULL, 0, 35756, -2366790956, 0, 0, "LMT", ""},
-    {rules_Aus, 7, 36000, 31496400, 6, 6, "AE%sT", ""},
+    {rules_Aus, 7, 36000, 31500000, 0, 6, "AE%sT", ""},
     {rules_AQ, 4, 36000, 709912800, 0, 6, "AE%sT", ""},
     {rules_Holiday, 2, 36000, 0, 0, 0, "AE%sT", ""},
 };
@@ -4142,7 +4142,7 @@ static const struct lc_timezone_era eras_Australia_Lord_Howe[] = {
 };
 static const struct lc_timezone_era eras_Australia_Melbourne[] = {
     {NULL, 0, 34792, -2364111592, 0, 0, "LMT", ""},
-    {rules_Aus, 7, 36000, 31496400, 6, 6, "AE%sT", ""},
+    {rules_Aus, 7, 36000, 31500000, 0, 6, "AE%sT", ""},
     {rules_AV, 14, 36000, 0, 0, 0, "AE%sT", ""},
 };
 static const struct lc_timezone_era eras_Australia_Perth[] = {
@@ -4152,7 +4152,7 @@ static const struct lc_timezone_era eras_Australia_Perth[] = {
 };
 static const struct lc_timezone_era eras_Australia_Sydney[] = {
     {NULL, 0, 36292, -2364113092, 0, 0, "LMT", ""},
-    {rules_Aus, 7, 36000, 31496400, 6, 6, "AE%sT", ""},
+    {rules_Aus, 7, 36000, 31500000, 0, 6, "AE%sT", ""},
     {rules_AN, 16, 36000, 0, 0, 0, "AE%sT", ""},
 };
 static const struct lc_timezone_era eras_CET[] = {
