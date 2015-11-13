@@ -113,7 +113,7 @@ TEST(openat, o_directory) {
                   CAP_FSTAT | CAP_FSTATAT | CAP_FSYNC | CAP_FUTIMES |
                   CAP_FUTIMESAT | CAP_LINKAT_SOURCE | CAP_LINKAT_TARGET |
                   CAP_LOOKUP | CAP_MKDIRAT | CAP_MKFIFOAT | CAP_POSIX_FADVISE |
-                  CAP_READDIR | CAP_READLINK | CAP_RENAMEAT_SOURCE |
+                  CAP_READDIR | CAP_READLINKAT | CAP_RENAMEAT_SOURCE |
                   CAP_RENAMEAT_TARGET | CAP_SYMLINKAT | CAP_UNLINKAT,
               base.__value);
     ASSERT_EQ(CAP_BINDAT | CAP_CONNECTAT | CAP_CREATE | CAP_EVENT | CAP_FCNTL |
@@ -122,7 +122,7 @@ TEST(openat, o_directory) {
                   CAP_LINKAT_SOURCE | CAP_LINKAT_TARGET | CAP_LOOKUP |
                   CAP_MKDIRAT | CAP_MKFIFOAT | CAP_MMAP_RWX |
                   CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE | CAP_PREAD |
-                  CAP_PWRITE | CAP_READ | CAP_READDIR | CAP_READLINK |
+                  CAP_PWRITE | CAP_READ | CAP_READDIR | CAP_READLINKAT |
                   CAP_RENAMEAT_SOURCE | CAP_RENAMEAT_TARGET | CAP_SEEK |
                   CAP_SYMLINKAT | CAP_UNLINKAT | CAP_WRITE,
               inheriting.__value);

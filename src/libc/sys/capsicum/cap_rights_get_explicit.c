@@ -49,7 +49,7 @@ static_assert(CAP_PWRITE == (CLOUDABI_RIGHT_FD_WRITE | CLOUDABI_RIGHT_FD_SEEK),
               "Value mismatch");
 static_assert(CAP_READ == CLOUDABI_RIGHT_FD_READ, "Value mismatch");
 static_assert(CAP_READDIR == CLOUDABI_RIGHT_FILE_READDIR, "Value mismatch");
-static_assert(CAP_READLINK == CLOUDABI_RIGHT_FILE_READLINK, "Value mismatch");
+static_assert(CAP_READLINKAT == CLOUDABI_RIGHT_FILE_READLINK, "Value mismatch");
 static_assert(CAP_SEEK == (CLOUDABI_RIGHT_FD_SEEK | CLOUDABI_RIGHT_FD_TELL),
               "Value mismatch");
 static_assert(CAP_SEEK_TELL == CLOUDABI_RIGHT_FD_TELL, "Value mismatch");

@@ -25,7 +25,7 @@
 //
 // Extensions:
 // - CAP_FDATASYNC, CAP_POSIX_FADVISE, CAP_POSIX_FALLOCATE, CAP_READDIR,
-//   CAP_READLINK:
+//   CAP_READLINKAT:
 //   fdatasync(), posix_fadvise(), posix_fallocate(), readdir() and
 //   readlink() can be controlled independently in this environment.
 // - cap_rights_get_explicit() and cap_rights_limit_explicit():
@@ -101,8 +101,7 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_PREAD (CAP_READ | _CAP_BIT(2))
 #define CAP_PWRITE (CAP_WRITE | _CAP_BIT(2))
 #define CAP_READ _CAP_BIT(1)
-#define CAP_READDIR _CAP_BIT(15)   // Extension.
-#define CAP_READLINK _CAP_BIT(16)  // Extension.
+#define CAP_READDIR _CAP_BIT(15)  // Extension.
 #define CAP_SEEK (CAP_SEEK_TELL | _CAP_BIT(2))
 #define CAP_SEEK_TELL _CAP_BIT(5)
 #define CAP_WRITE _CAP_BIT(6)
@@ -119,6 +118,7 @@ typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
 #define CAP_LOOKUP _CAP_BIT(14)
 #define CAP_MKDIRAT _CAP_BIT(9)
 #define CAP_MKFIFOAT _CAP_BIT(11)
+#define CAP_READLINKAT _CAP_BIT(16)  // Extension.
 #define CAP_RENAMEAT_SOURCE _CAP_BIT(17)
 #define CAP_RENAMEAT_TARGET _CAP_BIT(18)
 #define CAP_SYMLINKAT _CAP_BIT(24)
