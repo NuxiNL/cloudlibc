@@ -296,6 +296,11 @@ def fixup_era(era):
   save = 0
   save_dst = 0
 
+  # Convert end time to standard time if it's UTC.
+  if era['timebase'] == 'u':
+    era['end'] += era['gmtoff']
+    era['timebase'] = 's'
+
   if len(rules) > 0:
     # Step 1: Determine ruleset of the previous year.
     lastsec = era['end'] - 1
@@ -362,7 +367,8 @@ def fixup_era(era):
   if era['timebase'] == 's':
     # Time should be relative to standard time.
     era['end'] -= era['gmtoff']
-  elif era['timebase'] == 'c':
+  else:
+    assert era['timebase'] == 'c'
     era['end'] -= era['gmtoff'] + save
 
   return era

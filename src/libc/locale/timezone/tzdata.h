@@ -3263,7 +3263,7 @@ static const struct lc_timezone_era eras_America_Santiago[] = {
     {rules_100, 1, -14400, -736376400, 6, 6, "CLST", ""},
     {NULL, 0, -14400, -718056000, 0, 0, "CLT", ""},
     {NULL, 0, -18000, -713649600, 0, 0, "CLT", ""},
-    {rules_Chile, 30, -14400, 1430017200, 0, 6, "CL%sT", ""},
+    {rules_Chile, 30, -14400, 1430017200, 6, 6, "CL%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "CLT", ""},
 };
 static const struct lc_timezone_era eras_America_Santo_Domingo[] = {
@@ -3432,7 +3432,7 @@ static const struct lc_timezone_era eras_Antarctica_Palmer[] = {
     {NULL, 0, 0, -157766400, 0, 0, "zzz", ""},
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 389070000, 0, 6, "AR%sT", ""},
-    {rules_Chile, 30, -14400, 1430017200, 0, 6, "CL%sT", ""},
+    {rules_Chile, 30, -14400, 1430017200, 6, 6, "CL%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "CLT", ""},
 };
 static const struct lc_timezone_era eras_Antarctica_Rothera[] = {
@@ -4766,8 +4766,8 @@ static const struct lc_timezone_era eras_Pacific_Chuuk[] = {
 static const struct lc_timezone_era eras_Pacific_Easter[] = {
     {NULL, 0, -26248, -2524495352, 0, 0, "LMT", ""},
     {NULL, 0, -26248, -1178124152, 0, 0, "EMT", ""},
-    {rules_Chile, 30, -25200, 384922800, 0, 6, "EAS%sT", ""},
-    {rules_Chile, 30, -21600, 1430017200, 0, 6, "EAS%sT", ""},
+    {rules_Chile, 30, -25200, 384922800, 6, 6, "EAS%sT", ""},
+    {rules_Chile, 30, -21600, 1430017200, 6, 6, "EAS%sT", ""},
     {NULL, 0, -18000, 0, 0, 0, "EAST", ""},
 };
 static const struct lc_timezone_era eras_Pacific_Efate[] = {
