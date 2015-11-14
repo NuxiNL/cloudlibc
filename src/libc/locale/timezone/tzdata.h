@@ -2522,7 +2522,7 @@ static const struct lc_timezone_era eras_America_Bahia[] = {
     {NULL, 0, -9244, -1767216356, 0, 0, "LMT", ""},
     {rules_Brazil, 64, -10800, 1064372400, 0, 6, "BR%sT", ""},
     {NULL, 0, -10800, 1318734000, 0, 0, "BRT", ""},
-    {rules_Brazil, 64, -10800, 1350784800, 6, 6, "BR%sT", ""},
+    {rules_Brazil, 64, -10800, 1350788400, 0, 6, "BR%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "BRT", ""},
 };
 static const struct lc_timezone_era eras_America_Bahia_Banderas[] = {
@@ -2578,7 +2578,7 @@ static const struct lc_timezone_era eras_America_Boise[] = {
 };
 static const struct lc_timezone_era eras_America_Cambridge_Bay[] = {
     {NULL, 0, 0, -1577923200, 0, 0, "zzz", ""},
-    {rules_NT_YK, 12, -25200, 941360400, 0, 6, "M%sT", ""},
+    {rules_NT_YK, 12, -25200, 941356800, 6, 6, "M%sT", ""},
     {rules_Canada, 10, -21600, 972802800, 6, 6, "C%sT", ""},
     {NULL, 0, -18000, 973400400, 0, 0, "EST", ""},
     {NULL, 0, -21600, 986115600, 0, 0, "CST", ""},
@@ -2891,7 +2891,7 @@ static const struct lc_timezone_era eras_America_Inuvik[] = {
 };
 static const struct lc_timezone_era eras_America_Iqaluit[] = {
     {NULL, 0, 0, -865296000, 0, 0, "zzz", ""},
-    {rules_NT_YK, 12, -18000, 941353200, 0, 6, "E%sT", ""},
+    {rules_NT_YK, 12, -18000, 941349600, 6, 6, "E%sT", ""},
     {rules_Canada, 10, -21600, 972802800, 6, 6, "C%sT", ""},
     {rules_Canada, 10, -18000, 0, 0, 6, "E%sT", ""},
 };
@@ -3033,7 +3033,7 @@ static const struct lc_timezone_era eras_America_Mexico_City[] = {
     {NULL, 0, -25200, -1220292000, 0, 0, "MST", ""},
     {NULL, 0, -21600, -1207159200, 0, 0, "CST", ""},
     {NULL, 0, -25200, -1191344400, 0, 0, "MST", ""},
-    {rules_Mexico, 14, -21600, 1001836800, 0, 6, "C%sT", ""},
+    {rules_Mexico, 14, -21600, 1001833200, 6, 6, "C%sT", ""},
     {NULL, 0, -21600, 1014184800, 0, 0, "CST", ""},
     {rules_Mexico, 14, -21600, 0, 0, 6, "C%sT", ""},
 };
@@ -3068,7 +3068,7 @@ static const struct lc_timezone_era eras_America_Montevideo[] = {
 };
 static const struct lc_timezone_era eras_America_Nassau[] = {
     {NULL, 0, -18570, -1825095030, 0, 0, "LMT", ""},
-    {rules_Bahamas, 2, -18000, 189320400, 0, 0, "E%sT", ""},
+    {rules_Bahamas, 2, -18000, 189320400, 0, 6, "E%sT", ""},
     {rules_US, 13, -18000, 0, 0, 6, "E%sT", ""},
 };
 static const struct lc_timezone_era eras_America_New_York[] = {
@@ -3107,7 +3107,7 @@ static const struct lc_timezone_era eras_America_Noronha[] = {
 };
 static const struct lc_timezone_era eras_America_North_Dakota_Beulah[] = {
     {NULL, 0, -24427, -2717643600, 0, 0, "LMT", ""},
-    {rules_US, 13, -25200, 1289120400, 0, 6, "M%sT", ""},
+    {rules_US, 13, -25200, 1289116800, 6, 6, "M%sT", ""},
     {rules_US, 13, -21600, 0, 0, 6, "C%sT", ""},
 };
 static const struct lc_timezone_era eras_America_North_Dakota_Center[] = {
@@ -3141,7 +3141,7 @@ static const struct lc_timezone_era eras_America_Panama[] = {
 static const struct lc_timezone_era eras_America_Pangnirtung[] = {
     {NULL, 0, 0, -1546300800, 0, 0, "zzz", ""},
     {rules_NT_YK, 12, -14400, 796802400, 0, 6, "A%sT", ""},
-    {rules_Canada, 10, -18000, 941353200, 0, 6, "E%sT", ""},
+    {rules_Canada, 10, -18000, 941349600, 6, 6, "E%sT", ""},
     {rules_Canada, 10, -21600, 972802800, 6, 6, "C%sT", ""},
     {rules_Canada, 10, -18000, 0, 0, 6, "E%sT", ""},
 };
@@ -3263,7 +3263,7 @@ static const struct lc_timezone_era eras_America_Santiago[] = {
     {rules_100, 1, -14400, -736376400, 6, 6, "CLST", ""},
     {NULL, 0, -14400, -718056000, 0, 0, "CLT", ""},
     {NULL, 0, -18000, -713649600, 0, 0, "CLT", ""},
-    {rules_Chile, 30, -14400, 1430017200, 6, 6, "CL%sT", ""},
+    {rules_Chile, 30, -14400, 1430017200, 0, 6, "CL%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "CLT", ""},
 };
 static const struct lc_timezone_era eras_America_Santo_Domingo[] = {
@@ -3432,7 +3432,7 @@ static const struct lc_timezone_era eras_Antarctica_Palmer[] = {
     {NULL, 0, 0, -157766400, 0, 0, "zzz", ""},
     {rules_Arg, 29, -14400, -7588800, 0, 6, "AR%sT", ""},
     {rules_Arg, 29, -10800, 389070000, 0, 6, "AR%sT", ""},
-    {rules_Chile, 30, -14400, 1430017200, 6, 6, "CL%sT", ""},
+    {rules_Chile, 30, -14400, 1430017200, 0, 6, "CL%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "CLT", ""},
 };
 static const struct lc_timezone_era eras_Antarctica_Rothera[] = {
@@ -3467,7 +3467,7 @@ static const struct lc_timezone_era eras_Asia_Anadyr[] = {
     {NULL, 0, 42596, -1441194596, 0, 0, "LMT", ""},
     {NULL, 0, 43200, -1247572800, 0, 0, "ANAT", ""},
     {rules_Russia, 20, 46800, 386420400, 0, 6, "ANA%sT", ""},
-    {rules_Russia, 20, 43200, 670341600, 6, 6, "ANA%sT", ""},
+    {rules_Russia, 20, 43200, 670341600, 0, 6, "ANA%sT", ""},
     {rules_Russia, 20, 39600, 695746800, 0, 6, "ANA%sT", ""},
     {rules_Russia, 20, 43200, 1269698400, 0, 6, "ANA%sT", ""},
     {rules_Russia, 20, 39600, 1301151600, 0, 6, "ANA%sT", ""},
@@ -3499,7 +3499,7 @@ static const struct lc_timezone_era eras_Asia_Aqtobe[] = {
 static const struct lc_timezone_era eras_Asia_Ashgabat[] = {
     {NULL, 0, 14012, -1441166012, 0, 0, "LMT", ""},
     {NULL, 0, 14400, -1247544000, 0, 0, "ASHT", ""},
-    {rules_RussiaAsia, 9, 18000, 670363200, 6, 6, "ASH%sT", ""},
+    {rules_RussiaAsia, 9, 18000, 670366800, 0, 6, "ASH%sT", ""},
     {rules_RussiaAsia, 9, 14400, 688507200, 0, 6, "ASH%sT", ""},
     {rules_RussiaAsia, 9, 14400, 695772000, 0, 6, "TM%sT", ""},
     {NULL, 0, 18000, 0, 0, 0, "TMT", ""},
@@ -3513,7 +3513,7 @@ static const struct lc_timezone_era eras_Asia_Baghdad[] = {
 static const struct lc_timezone_era eras_Asia_Baku[] = {
     {NULL, 0, 11964, -1441163964, 0, 0, "LMT", ""},
     {NULL, 0, 10800, -405140400, 0, 0, "BAKT", ""},
-    {rules_RussiaAsia, 9, 14400, 670370400, 6, 6, "BAK%sT", ""},
+    {rules_RussiaAsia, 9, 14400, 670370400, 0, 6, "BAK%sT", ""},
     {rules_100, 1, 10800, 683496000, 6, 6, "BAKST", ""},
     {rules_RussiaAsia, 9, 10800, 717534000, 6, 6, "AZ%sT", ""},
     {NULL, 0, 14400, 820440000, 0, 0, "AZT", ""},
@@ -3532,7 +3532,7 @@ static const struct lc_timezone_era eras_Asia_Beirut[] = {
 static const struct lc_timezone_era eras_Asia_Bishkek[] = {
     {NULL, 0, 17904, -1441169904, 0, 0, "LMT", ""},
     {NULL, 0, 18000, -1247547600, 0, 0, "FRUT", ""},
-    {rules_RussiaAsia, 9, 21600, 670363200, 6, 6, "FRU%sT", ""},
+    {rules_RussiaAsia, 9, 21600, 670363200, 0, 6, "FRU%sT", ""},
     {rules_100, 1, 18000, 683582400, 6, 6, "FRUST", ""},
     {rules_Kyrgyz, 4, 18000, 1123783200, 6, 6, "KG%sT", ""},
     {NULL, 0, 21600, 0, 0, 0, "KGT", ""},
@@ -3545,7 +3545,7 @@ static const struct lc_timezone_era eras_Asia_Brunei[] = {
 static const struct lc_timezone_era eras_Asia_Chita[] = {
     {NULL, 0, 27232, -1579419232, 0, 0, "LMT", ""},
     {NULL, 0, 28800, -1247558400, 0, 0, "YAKT", ""},
-    {rules_Russia, 20, 32400, 670352400, 6, 6, "YAK%sT", ""},
+    {rules_Russia, 20, 32400, 670352400, 0, 6, "YAK%sT", ""},
     {rules_Russia, 20, 28800, 695757600, 0, 6, "YAK%sT", ""},
     {rules_Russia, 20, 32400, 1301158800, 0, 6, "YAK%sT", ""},
     {NULL, 0, 36000, 1414252800, 0, 0, "YAKT", ""},
@@ -3598,7 +3598,7 @@ static const struct lc_timezone_era eras_Asia_Dubai[] = {
 static const struct lc_timezone_era eras_Asia_Dushanbe[] = {
     {NULL, 0, 16512, -1441168512, 0, 0, "LMT", ""},
     {NULL, 0, 18000, -1247547600, 0, 0, "DUST", ""},
-    {rules_RussiaAsia, 9, 21600, 670363200, 6, 6, "DUS%sT", ""},
+    {rules_RussiaAsia, 9, 21600, 670363200, 0, 6, "DUS%sT", ""},
     {rules_100, 1, 18000, 684363600, 6, 6, "DUSST", ""},
     {NULL, 0, 18000, 0, 0, 0, "TJT", ""},
 };
@@ -3651,7 +3651,7 @@ static const struct lc_timezone_era eras_Asia_Irkutsk[] = {
     {NULL, 0, 25025, -2840165825, 0, 0, "LMT", ""},
     {NULL, 0, 25025, -1575874625, 0, 0, "IMT", ""},
     {NULL, 0, 25200, -1247554800, 0, 0, "IRKT", ""},
-    {rules_Russia, 20, 28800, 670356000, 6, 6, "IRK%sT", ""},
+    {rules_Russia, 20, 28800, 670356000, 0, 6, "IRK%sT", ""},
     {rules_Russia, 20, 25200, 695761200, 0, 6, "IRK%sT", ""},
     {rules_Russia, 20, 28800, 1301162400, 0, 6, "IRK%sT", ""},
     {NULL, 0, 32400, 1414256400, 0, 0, "IRKT", ""},
@@ -3687,7 +3687,7 @@ static const struct lc_timezone_era eras_Asia_Kabul[] = {
 static const struct lc_timezone_era eras_Asia_Kamchatka[] = {
     {NULL, 0, 38076, -1487759676, 0, 0, "LMT", ""},
     {NULL, 0, 39600, -1247569200, 0, 0, "PETT", ""},
-    {rules_Russia, 20, 43200, 670341600, 6, 6, "PET%sT", ""},
+    {rules_Russia, 20, 43200, 670341600, 0, 6, "PET%sT", ""},
     {rules_Russia, 20, 39600, 695746800, 0, 6, "PET%sT", ""},
     {rules_Russia, 20, 43200, 1269698400, 0, 6, "PET%sT", ""},
     {rules_Russia, 20, 39600, 1301151600, 0, 6, "PET%sT", ""},
@@ -3709,7 +3709,7 @@ static const struct lc_timezone_era eras_Asia_Kathmandu[] = {
 static const struct lc_timezone_era eras_Asia_Khandyga[] = {
     {NULL, 0, 32533, -1579424533, 0, 0, "LMT", ""},
     {NULL, 0, 28800, -1247558400, 0, 0, "YAKT", ""},
-    {rules_Russia, 20, 32400, 670352400, 6, 6, "YAK%sT", ""},
+    {rules_Russia, 20, 32400, 670352400, 0, 6, "YAK%sT", ""},
     {rules_Russia, 20, 28800, 695757600, 0, 6, "YAK%sT", ""},
     {rules_Russia, 20, 32400, 1072882800, 0, 6, "YAK%sT", ""},
     {rules_Russia, 20, 36000, 1301155200, 0, 6, "VLA%sT", ""},
@@ -3728,7 +3728,7 @@ static const struct lc_timezone_era eras_Asia_Kolkata[] = {
 static const struct lc_timezone_era eras_Asia_Krasnoyarsk[] = {
     {NULL, 0, 22286, -1577513486, 0, 0, "LMT", ""},
     {NULL, 0, 21600, -1247551200, 0, 0, "KRAT", ""},
-    {rules_Russia, 20, 25200, 670359600, 6, 6, "KRA%sT", ""},
+    {rules_Russia, 20, 25200, 670359600, 0, 6, "KRA%sT", ""},
     {rules_Russia, 20, 21600, 695764800, 0, 6, "KRA%sT", ""},
     {rules_Russia, 20, 25200, 1301166000, 0, 6, "KRA%sT", ""},
     {NULL, 0, 28800, 1414260000, 0, 0, "KRAT", ""},
@@ -3761,7 +3761,7 @@ static const struct lc_timezone_era eras_Asia_Macau[] = {
 static const struct lc_timezone_era eras_Asia_Magadan[] = {
     {NULL, 0, 36192, -1441188192, 0, 0, "LMT", ""},
     {NULL, 0, 36000, -1247565600, 0, 0, "MAGT", ""},
-    {rules_Russia, 20, 39600, 670345200, 6, 6, "MAG%sT", ""},
+    {rules_Russia, 20, 39600, 670345200, 0, 6, "MAG%sT", ""},
     {rules_Russia, 20, 36000, 695750400, 0, 6, "MAG%sT", ""},
     {rules_Russia, 20, 39600, 1301151600, 0, 6, "MAG%sT", ""},
     {NULL, 0, 43200, 1414245600, 0, 0, "MAGT", ""},
@@ -3789,7 +3789,7 @@ static const struct lc_timezone_era eras_Asia_Nicosia[] = {
 static const struct lc_timezone_era eras_Asia_Novokuznetsk[] = {
     {NULL, 0, 20928, -1441259328, 0, 0, "LMT", ""},
     {NULL, 0, 21600, -1247551200, 0, 0, "KRAT", ""},
-    {rules_Russia, 20, 25200, 670359600, 6, 6, "KRA%sT", ""},
+    {rules_Russia, 20, 25200, 670359600, 0, 6, "KRA%sT", ""},
     {rules_Russia, 20, 21600, 695764800, 0, 6, "KRA%sT", ""},
     {rules_Russia, 20, 25200, 1269716400, 0, 6, "KRA%sT", ""},
     {rules_Russia, 20, 21600, 1301169600, 0, 6, "NOV%sT", ""},
@@ -3799,7 +3799,7 @@ static const struct lc_timezone_era eras_Asia_Novokuznetsk[] = {
 static const struct lc_timezone_era eras_Asia_Novosibirsk[] = {
     {NULL, 0, 19900, -1579476700, 0, 0, "LMT", ""},
     {NULL, 0, 21600, -1247551200, 0, 0, "NOVT", ""},
-    {rules_Russia, 20, 25200, 670359600, 6, 6, "NOV%sT", ""},
+    {rules_Russia, 20, 25200, 670359600, 0, 6, "NOV%sT", ""},
     {rules_Russia, 20, 21600, 695764800, 0, 6, "NOV%sT", ""},
     {rules_Russia, 20, 25200, 738086400, 6, 6, "NOV%sT", ""},
     {rules_Russia, 20, 21600, 1301169600, 0, 6, "NOV%sT", ""},
@@ -3809,7 +3809,7 @@ static const struct lc_timezone_era eras_Asia_Novosibirsk[] = {
 static const struct lc_timezone_era eras_Asia_Omsk[] = {
     {NULL, 0, 17610, -1582088010, 0, 0, "LMT", ""},
     {NULL, 0, 18000, -1247547600, 0, 0, "OMST", ""},
-    {rules_Russia, 20, 21600, 670363200, 6, 6, "OMS%sT", ""},
+    {rules_Russia, 20, 21600, 670363200, 0, 6, "OMS%sT", ""},
     {rules_Russia, 20, 18000, 695768400, 0, 6, "OMS%sT", ""},
     {rules_Russia, 20, 21600, 1301169600, 0, 6, "OMS%sT", ""},
     {NULL, 0, 25200, 1414263600, 0, 0, "OMST", ""},
@@ -3878,7 +3878,7 @@ static const struct lc_timezone_era eras_Asia_Sakhalin[] = {
     {NULL, 0, 34248, -2031039048, 0, 0, "LMT", ""},
     {NULL, 0, 32400, -1017824400, 0, 0, "JCST", ""},
     {NULL, 0, 32400, -768560400, 0, 0, "JST", ""},
-    {rules_Russia, 20, 39600, 670345200, 6, 6, "SAK%sT", ""},
+    {rules_Russia, 20, 39600, 670345200, 0, 6, "SAK%sT", ""},
     {rules_Russia, 20, 36000, 695750400, 0, 6, "SAK%sT", ""},
     {rules_Russia, 20, 39600, 859647600, 0, 6, "SAK%sT", ""},
     {rules_Russia, 20, 36000, 1301155200, 0, 6, "SAK%sT", ""},
@@ -3924,7 +3924,7 @@ static const struct lc_timezone_era eras_Asia_Singapore[] = {
 static const struct lc_timezone_era eras_Asia_Srednekolymsk[] = {
     {NULL, 0, 36892, -1441188892, 0, 0, "LMT", ""},
     {NULL, 0, 36000, -1247565600, 0, 0, "MAGT", ""},
-    {rules_Russia, 20, 39600, 670345200, 6, 6, "MAG%sT", ""},
+    {rules_Russia, 20, 39600, 670345200, 0, 6, "MAG%sT", ""},
     {rules_Russia, 20, 36000, 695750400, 0, 6, "MAG%sT", ""},
     {rules_Russia, 20, 39600, 1301151600, 0, 6, "MAG%sT", ""},
     {NULL, 0, 43200, 1414245600, 0, 0, "MAGT", ""},
@@ -3939,7 +3939,7 @@ static const struct lc_timezone_era eras_Asia_Taipei[] = {
 static const struct lc_timezone_era eras_Asia_Tashkent[] = {
     {NULL, 0, 16631, -1441168631, 0, 0, "LMT", ""},
     {NULL, 0, 18000, -1247547600, 0, 0, "TAST", ""},
-    {rules_RussiaAsia, 9, 21600, 670359600, 6, 6, "TAS%sT", ""},
+    {rules_RussiaAsia, 9, 21600, 670363200, 0, 6, "TAS%sT", ""},
     {rules_RussiaAsia, 9, 18000, 683661600, 6, 6, "TAS%sT", ""},
     {rules_RussiaAsia, 9, 18000, 694206000, 0, 6, "UZ%sT", ""},
     {NULL, 0, 18000, 0, 0, 0, "UZT", ""},
@@ -3948,7 +3948,7 @@ static const struct lc_timezone_era eras_Asia_Tbilisi[] = {
     {NULL, 0, 10751, -2840151551, 0, 0, "LMT", ""},
     {NULL, 0, 10751, -1441162751, 0, 0, "TBMT", ""},
     {NULL, 0, 10800, -405140400, 0, 0, "TBIT", ""},
-    {rules_RussiaAsia, 9, 14400, 670370400, 6, 6, "TBI%sT", ""},
+    {rules_RussiaAsia, 9, 14400, 670370400, 0, 6, "TBI%sT", ""},
     {rules_100, 1, 10800, 671140800, 6, 6, "TBIST", ""},
     {rules_RussiaAsia, 9, 10800, 694213200, 0, 6, "GE%sT", ""},
     {rules_E_EurAsia, 3, 10800, 780436800, 6, 6, "GE%sT", ""},
@@ -3989,7 +3989,7 @@ static const struct lc_timezone_era eras_Asia_Ust_Nera[] = {
     {NULL, 0, 34374, -1579426374, 0, 0, "LMT", ""},
     {NULL, 0, 28800, -1247558400, 0, 0, "YAKT", ""},
     {rules_Russia, 20, 32400, 354898800, 0, 6, "YAKT", ""},
-    {rules_Russia, 20, 39600, 670345200, 6, 6, "MAG%sT", ""},
+    {rules_Russia, 20, 39600, 670345200, 0, 6, "MAG%sT", ""},
     {rules_Russia, 20, 36000, 695750400, 0, 6, "MAG%sT", ""},
     {rules_Russia, 20, 39600, 1301151600, 0, 6, "MAG%sT", ""},
     {NULL, 0, 43200, 1315828800, 0, 0, "MAGT", ""},
@@ -3999,7 +3999,7 @@ static const struct lc_timezone_era eras_Asia_Ust_Nera[] = {
 static const struct lc_timezone_era eras_Asia_Vladivostok[] = {
     {NULL, 0, 31651, -1487321251, 0, 0, "LMT", ""},
     {NULL, 0, 32400, -1247562000, 0, 0, "VLAT", ""},
-    {rules_Russia, 20, 36000, 670348800, 6, 6, "VLA%sT", ""},
+    {rules_Russia, 20, 36000, 670348800, 0, 6, "VLA%sT", ""},
     {rules_Russia, 20, 32400, 695754000, 0, 6, "VLA%sT", ""},
     {rules_Russia, 20, 36000, 1301155200, 0, 6, "VLA%sT", ""},
     {NULL, 0, 39600, 1414249200, 0, 0, "VLAT", ""},
@@ -4008,7 +4008,7 @@ static const struct lc_timezone_era eras_Asia_Vladivostok[] = {
 static const struct lc_timezone_era eras_Asia_Yakutsk[] = {
     {NULL, 0, 31138, -1579423138, 0, 0, "LMT", ""},
     {NULL, 0, 28800, -1247558400, 0, 0, "YAKT", ""},
-    {rules_Russia, 20, 32400, 670352400, 6, 6, "YAK%sT", ""},
+    {rules_Russia, 20, 32400, 670352400, 0, 6, "YAK%sT", ""},
     {rules_Russia, 20, 28800, 695757600, 0, 6, "YAK%sT", ""},
     {rules_Russia, 20, 32400, 1301158800, 0, 6, "YAK%sT", ""},
     {NULL, 0, 36000, 1414252800, 0, 0, "YAKT", ""},
@@ -4018,7 +4018,7 @@ static const struct lc_timezone_era eras_Asia_Yekaterinburg[] = {
     {NULL, 0, 14553, -1688270553, 0, 0, "LMT", ""},
     {NULL, 0, 13505, -1592610305, 0, 0, "PMT", ""},
     {NULL, 0, 14400, -1247544000, 0, 0, "SVET", ""},
-    {rules_Russia, 20, 18000, 670366800, 6, 6, "SVE%sT", ""},
+    {rules_Russia, 20, 18000, 670366800, 0, 6, "SVE%sT", ""},
     {rules_Russia, 20, 14400, 695772000, 0, 6, "SVE%sT", ""},
     {rules_Russia, 20, 18000, 1301173200, 0, 6, "YEK%sT", ""},
     {NULL, 0, 21600, 1414267200, 0, 0, "YEKT", ""},
@@ -4027,7 +4027,7 @@ static const struct lc_timezone_era eras_Asia_Yekaterinburg[] = {
 static const struct lc_timezone_era eras_Asia_Yerevan[] = {
     {NULL, 0, 10680, -1441162680, 0, 0, "LMT", ""},
     {NULL, 0, 10800, -405140400, 0, 0, "YERT", ""},
-    {rules_RussiaAsia, 9, 14400, 670370400, 6, 6, "YER%sT", ""},
+    {rules_RussiaAsia, 9, 14400, 670370400, 0, 6, "YER%sT", ""},
     {rules_100, 1, 10800, 685569600, 6, 6, "YERST", ""},
     {rules_RussiaAsia, 9, 10800, 811897200, 6, 6, "AM%sT", ""},
     {NULL, 0, 14400, 852062400, 0, 0, "AMT", ""},
@@ -4088,7 +4088,7 @@ static const struct lc_timezone_era eras_Atlantic_Stanley[] = {
     {NULL, 0, -13884, -2524507716, 0, 0, "LMT", ""},
     {NULL, 0, -13884, -1824235716, 0, 0, "SMT", ""},
     {rules_Falk, 12, -14400, 420609600, 0, 6, "FK%sT", ""},
-    {rules_Falk, 12, -10800, 495597600, 6, 6, "FK%sT", ""},
+    {rules_Falk, 12, -10800, 495601200, 0, 6, "FK%sT", ""},
     {rules_Falk, 12, -14400, 1283666400, 0, 6, "FK%sT", ""},
     {NULL, 0, -10800, 0, 0, 0, "FKST", ""},
 };
@@ -4396,7 +4396,7 @@ static const struct lc_timezone_era eras_Europe_Kaliningrad[] = {
     {NULL, 0, 4920, -2422056120, 0, 0, "LMT", ""},
     {rules_C_Eur, 17, 3600, -788922000, 0, 6, "CE%sT", ""},
     {rules_Poland, 20, 7200, -757389600, 0, 6, "CE%sT", ""},
-    {rules_Russia, 20, 10800, 670374000, 6, 6, "MSK", "MSD"},
+    {rules_Russia, 20, 10800, 670374000, 0, 6, "MSK", "MSD"},
     {rules_Russia, 20, 7200, 1301184000, 0, 6, "EE%sT", ""},
     {NULL, 0, 10800, 1414278000, 0, 0, "FET", ""},
     {NULL, 0, 7200, 0, 0, 0, "EET", ""},
@@ -4419,7 +4419,7 @@ static const struct lc_timezone_era eras_Europe_Lisbon[] = {
     {NULL, 0, 3600, 212544000, 0, 0, "CET", ""},
     {rules_Port, 50, 0, 433299600, 6, 6, "WE%sT", ""},
     {rules_W_Eur, 6, 0, 717555600, 6, 6, "WE%sT", ""},
-    {rules_EU, 6, 3600, 828234000, 6, 6, "CE%sT", ""},
+    {rules_EU, 6, 3600, 828234000, 0, 6, "CE%sT", ""},
     {rules_EU, 6, 0, 0, 0, 0, "WE%sT", ""},
 };
 static const struct lc_timezone_era eras_Europe_London[] = {
@@ -4481,7 +4481,7 @@ static const struct lc_timezone_era eras_Europe_Moscow[] = {
     {rules_Russia, 20, 10800, -1522728000, 6, 6, "%s", ""},
     {rules_Russia, 20, 10800, -1491188400, 0, 6, "MSK", "MSD"},
     {NULL, 0, 7200, -1247536800, 0, 0, "EET", ""},
-    {rules_Russia, 20, 10800, 670374000, 6, 6, "MSK", "MSD"},
+    {rules_Russia, 20, 10800, 670374000, 0, 6, "MSK", "MSD"},
     {rules_Russia, 20, 7200, 695779200, 0, 6, "EE%sT", ""},
     {rules_Russia, 20, 10800, 1301180400, 0, 6, "MSK", "MSD"},
     {NULL, 0, 14400, 1414274400, 0, 0, "MSK", ""},
@@ -4540,7 +4540,7 @@ static const struct lc_timezone_era eras_Europe_Samara[] = {
     {NULL, 0, 10800, -1247540400, 0, 0, "SAMT", ""},
     {NULL, 0, 14400, -1102305600, 0, 0, "SAMT", ""},
     {rules_Russia, 20, 14400, 606866400, 0, 6, "KUY%sT", ""},
-    {rules_Russia, 20, 10800, 670374000, 6, 6, "MSK", "MSD"},
+    {rules_Russia, 20, 10800, 670374000, 0, 6, "MSK", "MSD"},
     {rules_Russia, 20, 7200, 686102400, 6, 6, "EE%sT", ""},
     {NULL, 0, 10800, 687916800, 0, 0, "KUYT", ""},
     {rules_Russia, 20, 14400, 1269727200, 0, 6, "SAM%sT", ""},
@@ -4557,7 +4557,7 @@ static const struct lc_timezone_era eras_Europe_Simferopol[] = {
     {NULL, 0, 10800, 646786800, 0, 0, "MSK", ""},
     {NULL, 0, 7200, 694216800, 0, 0, "EET", ""},
     {rules_E_Eur, 6, 7200, 767739600, 6, 6, "EE%sT", ""},
-    {rules_E_Eur, 6, 10800, 828219600, 6, 6, "MSK", "MSD"},
+    {rules_E_Eur, 6, 10800, 828219600, 0, 6, "MSK", "MSD"},
     {rules_100, 1, 10800, 846374400, 6, 6, "MSD", ""},
     {rules_Russia, 20, 10800, 852066000, 0, 6, "MSK", "MSD"},
     {NULL, 0, 10800, 859683600, 0, 0, "MSK", ""},
@@ -4596,7 +4596,7 @@ static const struct lc_timezone_era eras_Europe_Tallinn[] = {
     {rules_Russia, 20, 10800, 606870000, 0, 6, "MSK", "MSD"},
     {rules_100, 1, 7200, 622598400, 6, 6, "EEST", ""},
     {rules_C_Eur, 17, 7200, 906411600, 6, 6, "EE%sT", ""},
-    {rules_EU, 6, 7200, 941335200, 0, 6, "EE%sT", ""},
+    {rules_EU, 6, 7200, 941331600, 6, 6, "EE%sT", ""},
     {NULL, 0, 7200, 1014242400, 0, 0, "EET", ""},
     {rules_EU, 6, 7200, 0, 0, 0, "EE%sT", ""},
 };
@@ -4638,11 +4638,11 @@ static const struct lc_timezone_era eras_Europe_Vilnius[] = {
     {NULL, 0, 3600, -928198800, 0, 0, "CET", ""},
     {NULL, 0, 10800, -900126000, 0, 0, "MSK", ""},
     {rules_C_Eur, 17, 3600, -802144800, 6, 6, "CE%sT", ""},
-    {rules_Russia, 20, 10800, 670374000, 6, 6, "MSK", "MSD"},
+    {rules_Russia, 20, 10800, 670374000, 0, 6, "MSK", "MSD"},
     {rules_100, 1, 7200, 686102400, 6, 6, "EEST", ""},
     {rules_C_Eur, 17, 7200, 883605600, 0, 6, "EE%sT", ""},
     {NULL, 0, 7200, 891133200, 0, 0, "EET", ""},
-    {rules_EU, 6, 3600, 941331600, 0, 6, "CE%sT", ""},
+    {rules_EU, 6, 3600, 941331600, 6, 6, "CE%sT", ""},
     {NULL, 0, 7200, 1041372000, 0, 0, "EET", ""},
     {rules_EU, 6, 7200, 0, 0, 0, "EE%sT", ""},
 };
@@ -4652,7 +4652,7 @@ static const struct lc_timezone_era eras_Europe_Volgograd[] = {
     {NULL, 0, 10800, -1247540400, 0, 0, "STAT", ""},
     {NULL, 0, 14400, -256881600, 0, 0, "STAT", ""},
     {rules_Russia, 20, 14400, 606866400, 0, 6, "VOL%sT", ""},
-    {rules_Russia, 20, 10800, 670374000, 6, 6, "VOL%sT", ""},
+    {rules_Russia, 20, 10800, 670374000, 0, 6, "VOL%sT", ""},
     {NULL, 0, 14400, 701820000, 0, 0, "VOLT", ""},
     {rules_Russia, 20, 10800, 1301180400, 0, 6, "MSK", "MSD"},
     {NULL, 0, 14400, 1414274400, 0, 0, "MSK", ""},
@@ -4675,7 +4675,7 @@ static const struct lc_timezone_era eras_Europe_Zaporozhye[] = {
     {NULL, 0, 7200, -1247536800, 0, 0, "EET", ""},
     {NULL, 0, 10800, -894769200, 0, 0, "MSK", ""},
     {rules_C_Eur, 17, 3600, -826419600, 0, 6, "CE%sT", ""},
-    {rules_Russia, 20, 10800, 670370400, 6, 6, "MSK", "MSD"},
+    {rules_Russia, 20, 10800, 670374000, 0, 6, "MSK", "MSD"},
     {rules_E_Eur, 6, 7200, 788911200, 0, 6, "EE%sT", ""},
     {rules_EU, 6, 7200, 0, 0, 0, "EE%sT", ""},
 };
@@ -4766,8 +4766,8 @@ static const struct lc_timezone_era eras_Pacific_Chuuk[] = {
 static const struct lc_timezone_era eras_Pacific_Easter[] = {
     {NULL, 0, -26248, -2524495352, 0, 0, "LMT", ""},
     {NULL, 0, -26248, -1178124152, 0, 0, "EMT", ""},
-    {rules_Chile, 30, -25200, 384922800, 6, 6, "EAS%sT", ""},
-    {rules_Chile, 30, -21600, 1430017200, 6, 6, "EAS%sT", ""},
+    {rules_Chile, 30, -25200, 384922800, 0, 6, "EAS%sT", ""},
+    {rules_Chile, 30, -21600, 1430017200, 0, 6, "EAS%sT", ""},
     {NULL, 0, -18000, 0, 0, 0, "EAST", ""},
 };
 static const struct lc_timezone_era eras_Pacific_Efate[] = {

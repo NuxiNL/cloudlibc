@@ -332,7 +332,7 @@ def fixup_era(era):
                 datetime.timedelta(seconds=lastsec - era['gmtoff'] - save))
       monthdaydelta = 0
       if rule['weekday'] != 7:
-        monthdaydelta = (rule['weekday'] - (time.isoweekday() - 1) +
+        monthdaydelta = (rule['weekday'] - time.isoweekday() +
                          time.day - rule['monthday']) % 7
       assert monthdaydelta >= 0 and monthdaydelta < 7
       if (rule['month'], rule['monthday'] + monthdaydelta,
@@ -353,6 +353,10 @@ def fixup_era(era):
 
   return era
 
+for name in RULES:
+  RULES[name] = sorted(
+      RULES[name], key=lambda r: (r['year_from'], r['month'], r['monthday']))
+
 for name in ERAS:
   ERAS[name] = [fixup_era(era) for era in ERAS[name]]
 
@@ -360,8 +364,7 @@ for name in ERAS:
 for name, rules in sorted(RULES.iteritems()):
   if len(rules) > 0:
     print 'static const struct lc_timezone_rule %s[] = {' % name
-    for rule in sorted(rules, key=lambda r: (r['year_from'], r['month'],
-                                             r['monthday'])):
+    for rule in rules:
       assert rule['save'] in [0, 20, 30, 60, 90, 120]
       print '    {%d, %d, %d, %d, %d, %d, %s, %d, \"%s\"},' % (
           rule['year_from'], rule['year_to'], rule['month'], rule['weekday'],
