@@ -294,7 +294,6 @@ def fixup_era(era):
   # rough implementation of localtime_l().
   rules = RULES[era['rules']]
   save = 0
-  save_dst = 0
 
   # Convert end time to standard time if it's UTC.
   if era['timebase'] == 'u':
@@ -324,8 +323,6 @@ def fixup_era(era):
           if last['year_to'] < rule['year_to']:
             last = rule
         save = last['save'] * 60
-        if save != 0:
-          save_dst = save
       rules = rules[1:]
 
     # Step 2: Determine ruleset of the current year.
@@ -359,11 +356,8 @@ def fixup_era(era):
           time.hour, time.minute):
         break
       save = rule['save'] * 60
-      if save != 0:
-        save_dst = save
 
-  era['end_save_actual'] = save
-  era['end_save_dst'] = save_dst
+  era['end_save'] = save
   if era['timebase'] == 's':
     # Time should be relative to standard time.
     era['end'] -= era['gmtoff']
@@ -396,11 +390,10 @@ for name, rules in sorted(RULES.iteritems()):
 for name, eras in sorted(ERAS.iteritems()):
   print 'static const struct lc_timezone_era %s[] = {' % name
   for era in eras:
-    assert era['end_save_actual'] in [0, era['end_save_dst']]
-    print '    {%s, %d, %d, %d, %d, %d, \"%s\", \"%s\"},' % (
+    print '    {%s, %d, %d, %d, %d, \"%s\", \"%s\"},' % (
          'NULL' if len(RULES[era['rules']]) == 0 else era['rules'],
          len(RULES[era['rules']]), era['gmtoff'], era['end'],
-         era['end_save_actual'] / 600, era['end_save_dst'] / 600,
+         era['end_save'] / 600,
          era['abbreviation_std'], era['abbreviation_dst'])
   print '};'
 

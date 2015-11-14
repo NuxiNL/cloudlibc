@@ -136,7 +136,7 @@ int localtime_l(const struct timespec *restrict timer,
   for (size_t i = 1; i < timezone->eras_count; ++i) {
     if (era->end > timer->tv_sec)
       break;
-    era_start = era->end + era->gmtoff + era->end_save_actual * 600;
+    era_start = era->end + era->gmtoff + era->end_save * 600;
     era = &timezone->eras[i];
   }
 

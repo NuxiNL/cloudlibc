@@ -70,7 +70,7 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     const struct lc_timezone_era *era = &timezone->eras[0];
     time_t cmptime = result->tv_sec;
     for (size_t i = 1; i < timezone->eras_count; ++i) {
-      int save = era->end_save_actual * 600;
+      int save = era->end_save * 600;
       time_t end = result->tv_sec - era->gmtoff - save;
       if (end < era->end) {
         // The timestamp lies with the era.

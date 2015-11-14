@@ -362,8 +362,7 @@ struct lc_timezone_era {
   uint64_t rules_count : 8;              // Number of rules.
   int64_t gmtoff : 18;                   // Offset in seconds relative to GMT.
   int64_t end : 38;                      // Timestamp at which this era ends.
-  uint8_t end_save_actual : 4;           // Daylight savings at the end time.
-  uint8_t end_save_dst : 4;  // Daylight savings at end time if forced.
+  uint8_t end_save : 4;                  // Daylight savings at the end time.
   char abbreviation_std[6];  // Abbreviation of standard time (e.g., CET).
   char abbreviation_dst[4];  // Abbreviation of DST (e.g., CEST).
 };
