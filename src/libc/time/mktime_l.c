@@ -25,14 +25,13 @@ static unsigned int determine_applicable_save(
   // year.
   for (size_t i = 0; i < ruleset.rules_count; ++i) {
     const struct lc_timezone_rule *rule = ruleset.rules[i];
-    int save = match->save > rule->save ? match->save : rule->save;
     int offset = 0;
     switch (rule->timebase) {
       case TIMEBASE_STD:
-        offset = -save * 600;
+        offset = -match->save * 600;
         break;
       case TIMEBASE_UTC:
-        offset = -gmtoff - save * 600;
+        offset = -gmtoff - match->save * 600;
         break;
     }
     if (rule_is_greater_than(rule, dst, offset))
@@ -70,9 +69,7 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     bool force_dst = tm->tm_isdst > 0;
     const struct lc_timezone_era *era = &timezone->eras[0];
     for (size_t i = 1; i < timezone->eras_count; ++i) {
-      if (era->end >
-          result->tv_sec - era->gmtoff -
-              (force_dst ? era->end_save_dst : era->end_save_actual) * 600)
+      if (era->end > result->tv_sec - era->gmtoff - era->end_save_actual * 600)
         break;
       era = &timezone->eras[i];
     }
