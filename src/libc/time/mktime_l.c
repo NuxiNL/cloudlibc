@@ -11,7 +11,7 @@
 
 static unsigned int determine_applicable_save(
     const struct lc_timezone_rule *rules, size_t rules_count,
-    const struct tm *dst, int gmtoff, bool forcedst) {
+    const struct tm *dst, int gmtoff, bool force_dst) {
   // Obtain the rule that applies to the start of the current year, but
   // also the set of rules that applies to the current.
   struct ruleset ruleset = {};
@@ -44,7 +44,7 @@ static unsigned int determine_applicable_save(
   // When tm_isdst < 0, simply use the last rule that applied to this
   // time of day. When tm_isdst > 0, use the last rule that applied to
   // this time of day, having a non-zero save.
-  return forcedst ? match_dst->save : match->save;
+  return force_dst ? match_dst->save : match->save;
 }
 
 int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
@@ -68,16 +68,41 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     // needs to be inferred (tm_isdst < 0).
     bool force_dst = tm->tm_isdst > 0;
     const struct lc_timezone_era *era = &timezone->eras[0];
+    time_t cmptime = result->tv_sec;
     for (size_t i = 1; i < timezone->eras_count; ++i) {
-      if (era->end > result->tv_sec - era->gmtoff - era->end_save_actual * 600)
+      int save = era->end_save_actual * 600;
+      time_t end = result->tv_sec - era->gmtoff - save;
+      if (end < era->end) {
+        // The timestamp lies with the era.
         break;
+      } else if (end < era->end + 7200) {
+        // The timestamp lies outside of the era by just a tiny bit.
+        // This is problematic when the following conditions hold:
+        //
+        // 1. The old era ends with DST.
+        // 2. The new era starts without DST.
+        // 3. There are DST rules in the new era that would have enabled
+        //    DST right before the era's starting time.
+        //
+        // In this case determine_applicable_save() will not be able to
+        // match the initial rule at the start of the era. Increment the
+        // timestamp by two hours (the maximum DST observed) to give it
+        // just the push that it needs to always match its initial rule.
+        //
+        // This approach should be fine, as it is unlikely that there
+        // are DST changes within the first two hours of a new era.
+        cmptime = result->tv_sec + 7200;
+      } else {
+        // The timestamp lies outside of the era.
+        cmptime = result->tv_sec;
+      }
       era = &timezone->eras[i];
     }
 
     // Process daylight saving time rules.
     if (era->rules_count > 0) {
       struct tm dst;
-      __localtime_utc(result->tv_sec, &dst);
+      __localtime_utc(cmptime, &dst);
       result->tv_sec -=
           determine_applicable_save(era->rules, era->rules_count, &dst,
                                     era->gmtoff, force_dst) *
