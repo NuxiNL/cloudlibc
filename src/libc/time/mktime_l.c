@@ -79,9 +79,8 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
         // The timestamp lies outside of the era by just a tiny bit.
         // This is problematic when the following conditions hold:
         //
-        // 1. The old era ends with DST.
-        // 2. The new era starts without DST.
-        // 3. There are DST rules in the new era that would have enabled
+        // 1. The new era starts without DST.
+        // 2. There are DST rules in the new era that would have enabled
         //    DST right before the era's starting time.
         //
         // In this case determine_applicable_save() will not be able to
