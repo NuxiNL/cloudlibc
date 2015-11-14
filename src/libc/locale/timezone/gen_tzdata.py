@@ -165,6 +165,20 @@ def handle_ruleline(rname, fields):
   entry['minute'] = int(time[1])
   assert entry['hour'] >= 0 and entry['hour'] < 60
 
+  # Hack: Wrap entries for the start of the year to the year before. The
+  # conversion algorithm always limits itself to entries of the year
+  # corresponding with the standard time. This means that entries at the
+  # start of January 1st may not be taken into account.
+  if (entry['month'] == 0 and entry['monthday'] == 1 and
+      entry['hour'] == 0 and entry['minute'] == 0):
+   entry['year_from'] -= 1
+   if entry['year_to'] < 255:
+     entry['year_to'] -= 1
+   entry['month'] = 11
+   entry['monthday'] = 31
+   entry['hour'] = 24
+   entry['minute'] = 0
+
   # Amount of daylight saving.
   save = fields[6].split(':') + ['0']
   entry['save'] = int(save[0]) * 60 + int(save[1])
