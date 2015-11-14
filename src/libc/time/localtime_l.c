@@ -107,15 +107,16 @@ static void compute_zone_abbreviation(const struct lc_timezone_era *era,
     }
 
     // Era abbreviation does not contain %s. Use the abbreviation of the
-    // era or the rule, preferring the latter if non-empty.
-    if (*rule->abbreviation == '\0') {
-      if (resultsize > sizeof(era->abbreviation_std))
-        resultsize = sizeof(era->abbreviation_std) + 1;
-      strlcpy(result, era->abbreviation_std, resultsize);
-    } else {
+    // era or the rule, preferring the latter if three or more characters.
+    if (rule->abbreviation[0] != '\0' && rule->abbreviation[1] != '\0' &&
+        rule->abbreviation[2] != '\0') {
       if (resultsize > sizeof(rule->abbreviation))
         resultsize = sizeof(rule->abbreviation) + 1;
       strlcpy(result, rule->abbreviation, resultsize);
+    } else {
+      if (resultsize > sizeof(era->abbreviation_std))
+        resultsize = sizeof(era->abbreviation_std) + 1;
+      strlcpy(result, era->abbreviation_std, resultsize);
     }
   }
 }
