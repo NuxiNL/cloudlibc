@@ -42,6 +42,8 @@ static inline bool umulh_overflow(unsigned short a, unsigned short b,
 
 // Performs an addition, subtraction or multiplication operation,
 // returning whether the computation caused an overflow.
+// TODO(ed): Simplify this to use __builtin_add_overflow() and friends
+// once Clang 3.8 has been released.
 #define add_overflow(x, y, out) COMPUTE_OVERFLOW(add, x, y, out)
 #define sub_overflow(x, y, out) COMPUTE_OVERFLOW(sub, x, y, out)
 #define mul_overflow(x, y, out) COMPUTE_OVERFLOW(mul, x, y, out)
