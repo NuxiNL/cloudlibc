@@ -45,7 +45,7 @@
 // AIO_MAX: Indeterminate.
 // AIO_PRIO_DELTA_MAX: Prioritization of asynchronous I/O not implemented.
 // ARG_MAX: Indeterminate.
-// ATEXIT_MAX: atexit() not implemented.
+// ATEXIT_MAX: Indeterminate.
 // CHILD_MAX: Indeterminate.
 // DELAYTIMER_MAX: Timer interface not available.
 // HOST_NAME_MAX: System hostname not available.
