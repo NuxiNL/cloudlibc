@@ -77,11 +77,36 @@
     struct type *st_next;  \
   }
 
+#define STAILQ_EMPTY(head) ((head)->st_first == NULL)
+
+#define STAILQ_FIRST(head) ((head)->st_first)
+
 #define STAILQ_FOREACH_SAFE(var, head, field, tmpvar)         \
   for ((var) = (head)->st_first,                              \
       (tmpvar) = (var) != NULL ? (var)->field.st_next : NULL; \
        (var) != NULL; (var) = (tmpvar),                       \
       (tmpvar) = (var) != NULL ? (var)->field.st_next : NULL)
+
+#define STAILQ_REMOVE_HEAD(head, field)                 \
+  do {                                                  \
+    (head)->st_first = (head)->st_first->field.st_next; \
+    if ((head)->st_first == NULL)                       \
+      (head)->st_last = &(head)->st_first;              \
+  } while (0)
+
+#define STAILQ_SWAP(head1, head2, type)         \
+  do {                                          \
+    struct type *tmp_first = (head1)->st_first; \
+    (head1)->st_first = (head2)->st_first;      \
+    (head2)->st_first = tmp_first;              \
+    struct type **tmp_last = (head1)->st_last;  \
+    (head1)->st_last = (head2)->st_last;        \
+    (head2)->st_last = tmp_last;                \
+    if ((head1)->st_first == NULL)              \
+      (head1)->st_last = &(head1)->st_first;    \
+    if ((head2)->st_first == NULL)              \
+      (head2)->st_last = &(head2)->st_first;    \
+  } while (0)
 
 // LIST: Double-linked list.
 

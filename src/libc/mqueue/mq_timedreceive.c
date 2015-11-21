@@ -12,7 +12,7 @@
 ssize_t mq_timedreceive(mqd_t mqdes, char *restrict msg_ptr, size_t msg_len,
                         unsigned int *restrict msg_prio,
                         const struct timespec *restrict abstime) {
-  if (!mq_receive_pre(mqdes))
+  if (!mq_receive_pre(mqdes, msg_len))
     return -1;
   while (mqdes->attr.mq_curmsgs <= 0) {
     int error = pthread_cond_timedwait(&mqdes->cond, &mqdes->lock, abstime);
@@ -22,5 +22,5 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *restrict msg_ptr, size_t msg_len,
       return -1;
     }
   }
-  return mq_receive_post(mqdes, msg_ptr, msg_len, msg_prio);
+  return mq_receive_post(mqdes, msg_ptr, msg_prio);
 }
