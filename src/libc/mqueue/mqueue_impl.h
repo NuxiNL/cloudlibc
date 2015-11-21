@@ -27,26 +27,17 @@ struct message {
 
 // List of messages, all having the same priority.
 struct priority {
+  SLIST_ENTRY(priority) next;       // Next priority.
+  STAILQ_HEAD(, message) messages;  // List of messages at this priority.
   unsigned int priority;            // Priority of the messages.
-  STAILQ_HEAD(, message) messages;  // List of messages.
 };
-
-// Swaps the contents of two priority objects.
-static inline void priority_swap(struct priority *p1, struct priority *p2) {
-  unsigned int priority = p1->priority;
-  p1->priority = p2->priority;
-  p2->priority = priority;
-  STAILQ_SWAP(&p1->messages, &p2->messages, message);
-}
 
 // Message queue.
 struct __mqd {
-  pthread_mutex_t lock;   // Queue lock.
-  pthread_cond_t cond;    // Queue condition variable for sleeps.
-  struct mq_attr attr;    // Queue attributes.
-  struct priority *heap;  // Binary heap of message priorities.
-  size_t heap_length;     // Number of priorities.
-  size_t heap_size;       // Binary heap capacity.
+  pthread_mutex_t lock;               // Queue lock.
+  pthread_cond_t cond;                // Queue condition variable for sleeps.
+  struct mq_attr attr;                // Queue attributes.
+  SLIST_HEAD(, priority) priorities;  // List of priorities having messages.
 };
 
 static inline bool mq_receive_pre(mqd_t mqdes, size_t msg_len)
@@ -69,11 +60,11 @@ static inline bool mq_receive_pre(mqd_t mqdes, size_t msg_len)
   return true;
 }
 
-static inline ssize_t mq_receive_post(mqd_t mqdes, char *msg_ptr,
-                                      unsigned int *msg_prio)
+static inline size_t mq_receive_post(mqd_t mqdes, char *msg_ptr,
+                                     unsigned int *msg_prio)
     __unlocks(mqdes->lock) {
   // Determine the highest priority that has a message enqueued.
-  struct priority *p = &mqdes->heap[0];
+  struct priority *p = SLIST_FIRST(&mqdes->priorities);
   if (msg_prio != NULL)
     *msg_prio = p->priority;
 
@@ -82,12 +73,15 @@ static inline ssize_t mq_receive_post(mqd_t mqdes, char *msg_ptr,
   STAILQ_REMOVE_HEAD(&p->messages, next);
   --mqdes->attr.mq_curmsgs;
 
-  // Remove the priority from the binary heap if we no longer have any
+  // Remove the priority from the message queue if we no longer have any
   // messages under that priority.
   if (STAILQ_EMPTY(&p->messages)) {
-    // TODO(ed): Implement.
+    SLIST_REMOVE_HEAD(&mqdes->priorities, next);
+    pthread_mutex_unlock(&mqdes->lock);
+    free(p);
+  } else {
+    pthread_mutex_unlock(&mqdes->lock);
   }
-  pthread_mutex_unlock(&mqdes->lock);
 
   // Copy out the message contents and free the message.
   size_t length = m->length;

@@ -35,8 +35,6 @@ mqd_t mq_open_anon(const struct mq_attr *attr) {
   }
   mqdes->attr = *attr;
   mqdes->attr.mq_curmsgs = 0;
-  mqdes->heap = NULL;
-  mqdes->heap_length = 0;
-  mqdes->heap_size = 0;
+  SLIST_INIT(&mqdes->priorities);
   return mqdes;
 }

@@ -41,6 +41,11 @@
        (var) != NULL; (var) = (tmpvar),                       \
       (tmpvar) = (var) != NULL ? (var)->field.sl_next : NULL)
 
+#define SLIST_INIT(head)     \
+  do {                       \
+    (head)->sl_first = NULL; \
+  } while (0)
+
 #define SLIST_INSERT_HEAD(head, elm, field)  \
   do {                                       \
     (elm)->field.sl_next = (head)->sl_first; \

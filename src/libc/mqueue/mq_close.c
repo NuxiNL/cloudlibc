@@ -16,16 +16,17 @@ int mq_close(mqd_t mqdes) {
   pthread_mutex_destroy(&mqdes->lock);
   pthread_cond_destroy(&mqdes->cond);
 
-  // Free all pending messages.
-  for (size_t i = 0; i < mqdes->heap_length; ++i) {
+  // Free all pending messages for every priority.
+  struct priority *p, *ptmp;
+  SLIST_FOREACH_SAFE(p, &mqdes->priorities, next, ptmp) {
     struct message *m, *mtmp;
-    STAILQ_FOREACH_SAFE(m, &mqdes->heap[i].messages, next, mtmp) {
+    STAILQ_FOREACH_SAFE(m, &p->messages, next, mtmp) {
       free(m);
     }
+    free(p);
   }
 
-  // Free heap and mqueue object itself.
-  free(mqdes->heap);
+  // Free mqueue object itself.
   free(mqdes);
   return 0;
 }
