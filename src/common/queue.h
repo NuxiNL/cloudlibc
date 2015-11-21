@@ -46,6 +46,12 @@
     (head)->sl_first = NULL; \
   } while (0)
 
+#define SLIST_INSERT_AFTER(fieldelm, elm, field)      \
+  do {                                                \
+    (elm)->field.sl_next = (fieldelm)->field.sl_next; \
+    (fieldelm)->field.sl_next = (elm);                \
+  } while (0)
+
 #define SLIST_INSERT_HEAD(head, elm, field)  \
   do {                                       \
     (elm)->field.sl_next = (head)->sl_first; \
@@ -86,11 +92,32 @@
 
 #define STAILQ_FIRST(head) ((head)->st_first)
 
+#define STAILQ_INSERT_HEAD(head, elm, field)   \
+  do {                                         \
+    if ((head)->st_first == NULL)              \
+      (head)->st_last = &(elm)->field.st_next; \
+    (elm)->field.st_next = (head)->st_first;   \
+    (head)->st_first = (elm);                  \
+  } while (0)
+
+#define STAILQ_INSERT_TAIL(head, elm, field) \
+  do {                                       \
+    (elm)->field.st_next = NULL;             \
+    *(head)->st_last = (elm);                \
+    (head)->st_last = &(elm)->field.st_next; \
+  } while (0)
+
 #define STAILQ_FOREACH_SAFE(var, head, field, tmpvar)         \
   for ((var) = (head)->st_first,                              \
       (tmpvar) = (var) != NULL ? (var)->field.st_next : NULL; \
        (var) != NULL; (var) = (tmpvar),                       \
       (tmpvar) = (var) != NULL ? (var)->field.st_next : NULL)
+
+#define STAILQ_INIT(head)                \
+  do {                                   \
+    (head)->st_first = NULL;             \
+    (head)->st_last = &(head)->st_first; \
+  } while (0)
 
 #define STAILQ_REMOVE_HEAD(head, field)                 \
   do {                                                  \
