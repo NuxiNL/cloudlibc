@@ -21,6 +21,7 @@ long sysconf(int name) {
     case _SC_MAPPED_FILES:
     case _SC_MEMLOCK_RANGE:
     case _SC_MEMORY_PROTECTION:
+    case _SC_MESSAGE_PASSING:
     case _SC_MONOTONIC_CLOCK:
     case _SC_RAW_SOCKETS:
     case _SC_READER_WRITER_LOCKS:
@@ -50,7 +51,6 @@ long sysconf(int name) {
     case _SC_2_UPE:
     case _SC_JOB_CONTROL:
     case _SC_MEMLOCK:
-    case _SC_MESSAGE_PASSING:
     case _SC_PRIORITIZED_IO:
     case _SC_PRIORITY_SCHEDULING:
     case _SC_REALTIME_SIGNALS:

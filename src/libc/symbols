@@ -510,6 +510,14 @@ modf
 modff
 modfl
 mprotect
+mq_close
+mq_getattr
+mq_open_anon
+mq_receive
+mq_send
+mq_setattr
+mq_timedreceive
+mq_timedsend
 mrand48
 msync
 mtx_destroy

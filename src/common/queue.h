@@ -64,6 +64,25 @@
     (head2)->sl_first = tmp;               \
   } while (0)
 
+// STAILQ: Single-linked list with tail pointer.
+
+#define STAILQ_HEAD(name, type) \
+  struct name {                 \
+    struct type *st_first;      \
+    struct type **st_last;      \
+  }
+
+#define STAILQ_ENTRY(type) \
+  struct {                 \
+    struct type *st_next;  \
+  }
+
+#define STAILQ_FOREACH_SAFE(var, head, field, tmpvar)         \
+  for ((var) = (head)->st_first,                              \
+      (tmpvar) = (var) != NULL ? (var)->field.st_next : NULL; \
+       (var) != NULL; (var) = (tmpvar),                       \
+      (tmpvar) = (var) != NULL ? (var)->field.st_next : NULL)
+
 // LIST: Double-linked list.
 
 #define LIST_HEAD(name, type) \
