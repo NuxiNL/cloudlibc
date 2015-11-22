@@ -9,14 +9,14 @@
 
 TEST(mq_getattr, example) {
   // Create new queue.
+  mqd_t mqd;
   struct mq_attr attr1 = {
       .mq_flags = O_NONBLOCK,
       .mq_maxmsg = 100,
       .mq_msgsize = 200,
       .mq_curmsgs = -90210,
   };
-  mqd_t mqd;
-  ASSERT_EQ(0, mq_open_anon(&attr1, &mqd));
+  ASSERT_EQ(0, mq_init(&mqd, &attr1));
 
   // Fetch and validate attributes.
   struct mq_attr attr2;

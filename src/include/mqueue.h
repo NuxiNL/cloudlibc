@@ -24,7 +24,7 @@
 // <mqueue.h> - message queues
 //
 // Extensions:
-// - mq_open_anon():
+// - mq_init():
 //   Allows for the creation of anonymous process-local message queues.
 //
 // Features missing:
@@ -65,7 +65,7 @@ struct mq_attr {
 __BEGIN_DECLS
 int mq_close(mqd_t);
 int mq_getattr(mqd_t, struct mq_attr *);
-int mq_open_anon(const struct mq_attr *, mqd_t *);
+int mq_init(mqd_t *, const struct mq_attr *);
 ssize_t mq_receive(mqd_t, char *, size_t, unsigned int *);
 int mq_send(mqd_t, const char *, size_t, unsigned int);
 int mq_setattr(mqd_t, const struct mq_attr *__restrict,

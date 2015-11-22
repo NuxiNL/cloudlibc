@@ -9,13 +9,13 @@
 #include <stddef.h>
 #include <testing.h>
 
-TEST(mq_open_anon, bad) {
+TEST(mq_init, bad) {
   // Bad mq_flags. Only O_NONBLOCK can be passed in.
   {
     struct mq_attr attr = {
         .mq_flags = O_RDWR | O_CREAT | O_EXCL, .mq_maxmsg = 1, .mq_msgsize = 1,
     };
-    ASSERT_EQ(-1, mq_open_anon(&attr, NULL));
+    ASSERT_EQ(-1, mq_init(NULL, &attr));
     ASSERT_EQ(EINVAL, errno);
   }
 
@@ -24,7 +24,7 @@ TEST(mq_open_anon, bad) {
     struct mq_attr attr = {
         .mq_flags = 0, .mq_maxmsg = 0, .mq_msgsize = 1,
     };
-    ASSERT_EQ(-1, mq_open_anon(&attr, NULL));
+    ASSERT_EQ(-1, mq_init(NULL, &attr));
     ASSERT_EQ(EINVAL, errno);
   }
 
@@ -33,29 +33,29 @@ TEST(mq_open_anon, bad) {
     struct mq_attr attr = {
         .mq_flags = 0, .mq_maxmsg = 100, .mq_msgsize = -5,
     };
-    ASSERT_EQ(-1, mq_open_anon(&attr, NULL));
+    ASSERT_EQ(-1, mq_init(NULL, &attr));
     ASSERT_EQ(EINVAL, errno);
   }
 }
 
-TEST(mq_open_anon, example) {
+TEST(mq_init, example) {
   // Open blocking queue.
   {
+    mqd_t mqd;
     struct mq_attr attr = {
         .mq_flags = 0, .mq_maxmsg = 25, .mq_msgsize = 4096,
     };
-    mqd_t mqd;
-    ASSERT_EQ(0, mq_open_anon(&attr, &mqd));
+    ASSERT_EQ(0, mq_init(&mqd, &attr));
     ASSERT_EQ(0, mq_close(mqd));
   }
 
   // Open non-blocking queue.
   {
+    mqd_t mqd;
     struct mq_attr attr = {
         .mq_flags = O_NONBLOCK, .mq_maxmsg = 100, .mq_msgsize = 32,
     };
-    mqd_t mqd;
-    ASSERT_EQ(0, mq_open_anon(&attr, &mqd));
+    ASSERT_EQ(0, mq_init(&mqd, &attr));
     ASSERT_EQ(0, mq_close(mqd));
   }
 }

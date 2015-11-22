@@ -512,7 +512,7 @@ modfl
 mprotect
 mq_close
 mq_getattr
-mq_open_anon
+mq_init
 mq_receive
 mq_send
 mq_setattr

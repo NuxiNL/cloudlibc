@@ -11,7 +11,7 @@
 
 #include "mqueue_impl.h"
 
-int mq_open_anon(const struct mq_attr *attr, mqd_t *mqdes) {
+int mq_init(mqd_t *mqdes, const struct mq_attr *attr) {
   // Only allow O_NONBLOCK to be set. Maximum number of messages and
   // message size must be positive.
   if ((attr->mq_flags & ~O_NONBLOCK) != 0 || attr->mq_maxmsg <= 0 ||
