@@ -26,5 +26,5 @@ TEST(mq_getattr, example) {
   ASSERT_EQ(200, attr2.mq_msgsize);
   ASSERT_EQ(0, attr2.mq_curmsgs);
 
-  ASSERT_EQ(0, mq_close(mqd));
+  ASSERT_EQ(0, mq_destroy(mqd));
 }

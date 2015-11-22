@@ -24,13 +24,13 @@
 // <mqueue.h> - message queues
 //
 // Extensions:
-// - mq_init():
+// - mq_destroy() and mq_init():
 //   Allows for the creation of anonymous process-local message queues.
 //
 // Features missing:
 // - struct sigevent and mq_notify():
 //   Requires signal handling support.
-// - mq_open() and mq_unlink():
+// - mq_close(), mq_open() and mq_unlink():
 //   Requires global IPC namespace. Omitting mq_open() also means that
 //   mqd_t does not need to be an arithmetic type.
 
@@ -63,7 +63,7 @@ struct mq_attr {
 };
 
 __BEGIN_DECLS
-int mq_close(mqd_t);
+int mq_destroy(mqd_t);
 int mq_getattr(mqd_t, struct mq_attr *);
 int mq_init(mqd_t *, const struct mq_attr *);
 ssize_t mq_receive(mqd_t, char *, size_t, unsigned int *);

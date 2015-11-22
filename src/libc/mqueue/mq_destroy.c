@@ -9,7 +9,7 @@
 
 #include "mqueue_impl.h"
 
-int mq_close(mqd_t mqdes) {
+int mq_destroy(mqd_t mqdes) {
   // Destroy locking objects.
   struct __mqd *mqd = mqdes.__mqd;
   pthread_mutex_destroy(&mqd->lock);

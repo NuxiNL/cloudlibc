@@ -46,7 +46,7 @@ TEST(mq_init, example) {
         .mq_flags = 0, .mq_maxmsg = 25, .mq_msgsize = 4096,
     };
     ASSERT_EQ(0, mq_init(&mqd, &attr));
-    ASSERT_EQ(0, mq_close(mqd));
+    ASSERT_EQ(0, mq_destroy(mqd));
   }
 
   // Open non-blocking queue.
@@ -56,6 +56,6 @@ TEST(mq_init, example) {
         .mq_flags = O_NONBLOCK, .mq_maxmsg = 100, .mq_msgsize = 32,
     };
     ASSERT_EQ(0, mq_init(&mqd, &attr));
-    ASSERT_EQ(0, mq_close(mqd));
+    ASSERT_EQ(0, mq_destroy(mqd));
   }
 }

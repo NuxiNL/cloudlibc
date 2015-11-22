@@ -510,7 +510,7 @@ modf
 modff
 modfl
 mprotect
-mq_close
+mq_destroy
 mq_getattr
 mq_init
 mq_receive
