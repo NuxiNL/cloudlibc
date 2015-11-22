@@ -134,8 +134,8 @@ static inline int mq_send_post(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
         // priority and update the skip list to point to the new message
         // instead.
         m->next_receive = (*m_send)->next_receive;
-        m->next_send = (*m_send)->next_send;
         (*m_send)->next_receive = m;
+        m->next_send = (*m_send)->next_send;
         *m_send = m;
         goto inserted;
       }
