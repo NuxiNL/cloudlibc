@@ -72,7 +72,7 @@ static inline size_t mq_receive_post(struct __mqd *mqd, char *msg_ptr,
     __unlocks(mqd->lock) {
   // Extract the oldest message from the queue.
   struct message *m = mqd->queue_receive;
-  mqd->queue_receive = m->next_send;
+  mqd->queue_receive = m->next_receive;
   --mqd->attr.mq_curmsgs;
 
   // If the message is the only message at that priority, update the
@@ -121,6 +121,7 @@ static inline int mq_send_post(struct __mqd *mqd, const char *msg_ptr,
     return -1;
   }
   m->length = msg_len;
+  m->priority = msg_prio;
   memcpy(m->contents, msg_ptr, msg_len);
 
   // Scan through the list of messages to find the spot where the
