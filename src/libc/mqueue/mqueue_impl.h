@@ -140,10 +140,9 @@ static inline int mq_send_post(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
         goto inserted;
       }
       break;
-    } else {
-      m_receive = &(*m_send)->next_receive;
-      m_send = &(*m_send)->next_send;
     }
+    m_receive = &(*m_send)->next_receive;
+    m_send = &(*m_send)->next_send;
   }
 
   // First message at this priority. Insert the message into both the
