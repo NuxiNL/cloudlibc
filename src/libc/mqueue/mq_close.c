@@ -11,11 +11,12 @@
 
 int mq_close(mqd_t mqdes) {
   // Destroy locking objects.
-  pthread_mutex_destroy(&mqdes->lock);
-  pthread_cond_destroy(&mqdes->cond);
+  struct __mqd *mqd = mqdes.__mqd;
+  pthread_mutex_destroy(&mqd->lock);
+  pthread_cond_destroy(&mqd->cond);
 
   // Free all pending messages.
-  struct message *m = mqdes->queue_receive;
+  struct message *m = mqd->queue_receive;
   while (m != NULL) {
     struct message *m_next = m->next_receive;
     free(m);
@@ -23,6 +24,6 @@ int mq_close(mqd_t mqdes) {
   }
 
   // Free mqueue object itself.
-  free(mqdes);
+  free(mqd);
   return 0;
 }

@@ -47,39 +47,39 @@ struct __mqd {
   struct message *queue_send;     // Last message of the highest priority.
 };
 
-static inline bool mq_receive_pre(mqd_t mqdes, size_t msg_len)
-    __trylocks_exclusive(true, mqdes->lock) {
+static inline bool mq_receive_pre(struct __mqd *mqd, size_t msg_len)
+    __trylocks_exclusive(true, mqd->lock) {
   // Fail if the provided buffer size is less than the message size
   // attribute of the message queue.
-  pthread_mutex_lock(&mqdes->lock);
-  if (msg_len < (size_t)mqdes->attr.mq_msgsize) {
-    pthread_mutex_unlock(&mqdes->lock);
+  pthread_mutex_lock(&mqd->lock);
+  if (msg_len < (size_t)mqd->attr.mq_msgsize) {
+    pthread_mutex_unlock(&mqd->lock);
     errno = EMSGSIZE;
     return false;
   }
 
   // Fail if the queue has no messages and has the non-blocking flag set.
-  if (mqdes->attr.mq_curmsgs <= 0 && (mqdes->attr.mq_flags & O_NONBLOCK) != 0) {
-    pthread_mutex_unlock(&mqdes->lock);
+  if (mqd->attr.mq_curmsgs <= 0 && (mqd->attr.mq_flags & O_NONBLOCK) != 0) {
+    pthread_mutex_unlock(&mqd->lock);
     errno = EAGAIN;
     return false;
   }
   return true;
 }
 
-static inline size_t mq_receive_post(mqd_t mqdes, char *msg_ptr,
+static inline size_t mq_receive_post(struct __mqd *mqd, char *msg_ptr,
                                      unsigned int *msg_prio)
-    __unlocks(mqdes->lock) {
+    __unlocks(mqd->lock) {
   // Extract the oldest message from the queue.
-  struct message *m = mqdes->queue_receive;
-  mqdes->queue_receive = m->next_send;
-  --mqdes->attr.mq_curmsgs;
+  struct message *m = mqd->queue_receive;
+  mqd->queue_receive = m->next_send;
+  --mqd->attr.mq_curmsgs;
 
   // If the message is the only message at that priority, update the
   // skip list to point to the next priority.
-  if (mqdes->queue_send == m)
-    mqdes->queue_send = m->next_send;
-  pthread_mutex_unlock(&mqdes->lock);
+  if (mqd->queue_send == m)
+    mqd->queue_send = m->next_send;
+  pthread_mutex_unlock(&mqd->lock);
 
   // Copy out the message contents and free it.
   size_t length = m->length;
@@ -90,33 +90,34 @@ static inline size_t mq_receive_post(mqd_t mqdes, char *msg_ptr,
   return length;
 }
 
-static inline bool mq_send_pre(mqd_t mqdes, size_t msg_len)
-    __trylocks_exclusive(true, mqdes->lock) {
+static inline bool mq_send_pre(struct __mqd *mqd, size_t msg_len)
+    __trylocks_exclusive(true, mqd->lock) {
   // Fail if the size of the provided message is more than the message
   // size attribute of the message queue.
-  pthread_mutex_lock(&mqdes->lock);
-  if (msg_len > (size_t)mqdes->attr.mq_msgsize) {
-    pthread_mutex_unlock(&mqdes->lock);
+  pthread_mutex_lock(&mqd->lock);
+  if (msg_len > (size_t)mqd->attr.mq_msgsize) {
+    pthread_mutex_unlock(&mqd->lock);
     errno = EMSGSIZE;
     return false;
   }
 
   // Fail if the queue is full and has the non-blocking flag set.
-  if (mqdes->attr.mq_curmsgs >= mqdes->attr.mq_maxmsg &&
-      (mqdes->attr.mq_flags & O_NONBLOCK) != 0) {
-    pthread_mutex_unlock(&mqdes->lock);
+  if (mqd->attr.mq_curmsgs >= mqd->attr.mq_maxmsg &&
+      (mqd->attr.mq_flags & O_NONBLOCK) != 0) {
+    pthread_mutex_unlock(&mqd->lock);
     errno = EAGAIN;
     return false;
   }
   return true;
 }
 
-static inline int mq_send_post(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
-                               unsigned int msg_prio) __unlocks(mqdes->lock) {
+static inline int mq_send_post(struct __mqd *mqd, const char *msg_ptr,
+                               size_t msg_len, unsigned int msg_prio)
+    __unlocks(mqd->lock) {
   // Create a message object and initialize it.
   struct message *m = malloc(offsetof(struct message, contents) + msg_len);
   if (m == NULL) {
-    pthread_mutex_unlock(&mqdes->lock);
+    pthread_mutex_unlock(&mqd->lock);
     return -1;
   }
   m->length = msg_len;
@@ -124,8 +125,8 @@ static inline int mq_send_post(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 
   // Scan through the list of messages to find the spot where the
   // message needs to be inserted.
-  struct message **m_receive = &mqdes->queue_receive;
-  struct message **m_send = &mqdes->queue_send;
+  struct message **m_receive = &mqd->queue_receive;
+  struct message **m_send = &mqd->queue_send;
   while (*m_send != NULL) {
     if ((*m_send)->priority <= msg_prio) {
       if ((*m_send)->priority == msg_prio) {
@@ -154,8 +155,8 @@ static inline int mq_send_post(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
 
 inserted:
   // Successfully inserted the message into the queue.
-  ++mqdes->attr.mq_curmsgs;
-  pthread_mutex_unlock(&mqdes->lock);
+  ++mqd->attr.mq_curmsgs;
+  pthread_mutex_unlock(&mqd->lock);
   return 0;
 }
 

@@ -10,9 +10,10 @@
 
 ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
                    unsigned int *msg_prio) {
-  if (!mq_receive_pre(mqdes, msg_len))
+  struct __mqd *mqd = mqdes.__mqd;
+  if (!mq_receive_pre(mqd, msg_len))
     return -1;
-  while (mqdes->attr.mq_curmsgs <= 0)
-    pthread_cond_wait(&mqdes->cond, &mqdes->lock);
-  return mq_receive_post(mqdes, msg_ptr, msg_prio);
+  while (mqd->attr.mq_curmsgs <= 0)
+    pthread_cond_wait(&mqd->cond, &mqd->lock);
+  return mq_receive_post(mqd, msg_ptr, msg_prio);
 }

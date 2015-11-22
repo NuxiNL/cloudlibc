@@ -19,10 +19,11 @@ int mq_setattr(mqd_t mqdes, const struct mq_attr *restrict mqstat,
   }
 
   // Fetch old queue attributes and update flags.
-  pthread_mutex_lock(&mqdes->lock);
+  struct __mqd *mqd = mqdes.__mqd;
+  pthread_mutex_lock(&mqd->lock);
   if (omqstat != NULL)
-    *omqstat = mqdes->attr;
-  mqdes->attr.mq_flags = mqstat->mq_flags;
-  pthread_mutex_unlock(&mqdes->lock);
+    *omqstat = mqd->attr;
+  mqd->attr.mq_flags = mqstat->mq_flags;
+  pthread_mutex_unlock(&mqd->lock);
   return 0;
 }

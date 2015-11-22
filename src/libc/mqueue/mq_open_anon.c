@@ -11,31 +11,32 @@
 
 #include "mqueue_impl.h"
 
-mqd_t mq_open_anon(const struct mq_attr *attr) {
+int mq_open_anon(const struct mq_attr *attr, mqd_t *mqdes) {
   // Only allow O_NONBLOCK to be set. Maximum number of messages and
   // message size must be positive.
   if ((attr->mq_flags & ~O_NONBLOCK) != 0 || attr->mq_maxmsg <= 0 ||
       attr->mq_msgsize <= 0) {
     errno = EINVAL;
-    return (mqd_t)-1;
+    return -1;
   }
 
   // Allocate and initialize a new message queue object.
-  mqd_t mqdes = malloc(sizeof(*mqdes));
-  if (mqdes == NULL)
-    return (mqd_t)-1;
-  if (pthread_mutex_init(&mqdes->lock, NULL) != 0) {
-    free(mqdes);
-    return (mqd_t)-1;
+  struct __mqd *mqd = malloc(sizeof(*mqd));
+  if (mqd == NULL)
+    return -1;
+  if (pthread_mutex_init(&mqd->lock, NULL) != 0) {
+    free(mqd);
+    return -1;
   }
-  if (pthread_cond_init(&mqdes->cond, NULL) != 0) {
-    pthread_mutex_destroy(&mqdes->lock);
-    free(mqdes);
-    return (mqd_t)-1;
+  if (pthread_cond_init(&mqd->cond, NULL) != 0) {
+    pthread_mutex_destroy(&mqd->lock);
+    free(mqd);
+    return -1;
   }
-  mqdes->attr = *attr;
-  mqdes->attr.mq_curmsgs = 0;
-  mqdes->queue_receive = NULL;
-  mqdes->queue_send = NULL;
-  return mqdes;
+  mqd->attr = *attr;
+  mqd->attr.mq_curmsgs = 0;
+  mqd->queue_receive = NULL;
+  mqd->queue_send = NULL;
+  mqdes->__mqd = mqd;
+  return 0;
 }

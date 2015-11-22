@@ -10,8 +10,9 @@
 
 int mq_getattr(mqd_t mqdes, struct mq_attr *mqstat) {
   // Fetch queue attributes.
-  pthread_mutex_lock(&mqdes->lock);
-  *mqstat = mqdes->attr;
-  pthread_mutex_unlock(&mqdes->lock);
+  struct __mqd *mqd = mqdes.__mqd;
+  pthread_mutex_lock(&mqd->lock);
+  *mqstat = mqd->attr;
+  pthread_mutex_unlock(&mqd->lock);
   return 0;
 }

@@ -31,7 +31,8 @@
 // - struct sigevent and mq_notify():
 //   Requires signal handling support.
 // - mq_open() and mq_unlink():
-//   Requires global IPC namespace.
+//   Requires global IPC namespace. Omitting mq_open() also means that
+//   mqd_t does not need to be an arithmetic type.
 
 #ifndef _MQUEUE_H_
 #define _MQUEUE_H_
@@ -52,7 +53,7 @@ typedef __ssize_t ssize_t;
 #define _SSIZE_T_DECLARED
 #endif
 
-typedef struct __mqd *mqd_t;
+typedef struct { struct __mqd *__mqd; } mqd_t;
 
 struct mq_attr {
   long mq_flags;    // Message queue flags.
@@ -64,7 +65,7 @@ struct mq_attr {
 __BEGIN_DECLS
 int mq_close(mqd_t);
 int mq_getattr(mqd_t, struct mq_attr *);
-mqd_t mq_open_anon(const struct mq_attr *) __malloc_like;
+int mq_open_anon(const struct mq_attr *, mqd_t *);
 ssize_t mq_receive(mqd_t, char *, size_t, unsigned int *);
 int mq_send(mqd_t, const char *, size_t, unsigned int);
 int mq_setattr(mqd_t, const struct mq_attr *__restrict,

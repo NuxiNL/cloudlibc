@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <mqueue.h>
+#include <stddef.h>
 #include <testing.h>
 
 TEST(mq_open_anon, bad) {
@@ -14,7 +15,7 @@ TEST(mq_open_anon, bad) {
     struct mq_attr attr = {
         .mq_flags = O_RDWR | O_CREAT | O_EXCL, .mq_maxmsg = 1, .mq_msgsize = 1,
     };
-    ASSERT_EQ((mqd_t)-1, mq_open_anon(&attr));
+    ASSERT_EQ(-1, mq_open_anon(&attr, NULL));
     ASSERT_EQ(EINVAL, errno);
   }
 
@@ -23,7 +24,7 @@ TEST(mq_open_anon, bad) {
     struct mq_attr attr = {
         .mq_flags = 0, .mq_maxmsg = 0, .mq_msgsize = 1,
     };
-    ASSERT_EQ((mqd_t)-1, mq_open_anon(&attr));
+    ASSERT_EQ(-1, mq_open_anon(&attr, NULL));
     ASSERT_EQ(EINVAL, errno);
   }
 
@@ -32,7 +33,7 @@ TEST(mq_open_anon, bad) {
     struct mq_attr attr = {
         .mq_flags = 0, .mq_maxmsg = 100, .mq_msgsize = -5,
     };
-    ASSERT_EQ((mqd_t)-1, mq_open_anon(&attr));
+    ASSERT_EQ(-1, mq_open_anon(&attr, NULL));
     ASSERT_EQ(EINVAL, errno);
   }
 }
@@ -43,9 +44,9 @@ TEST(mq_open_anon, example) {
     struct mq_attr attr = {
         .mq_flags = 0, .mq_maxmsg = 25, .mq_msgsize = 4096,
     };
-    mqd_t mq = mq_open_anon(&attr);
-    ASSERT_NE((mqd_t)-1, mq);
-    ASSERT_EQ(0, mq_close(mq));
+    mqd_t mqd;
+    ASSERT_EQ(0, mq_open_anon(&attr, &mqd));
+    ASSERT_EQ(0, mq_close(mqd));
   }
 
   // Open non-blocking queue.
@@ -53,8 +54,8 @@ TEST(mq_open_anon, example) {
     struct mq_attr attr = {
         .mq_flags = O_NONBLOCK, .mq_maxmsg = 100, .mq_msgsize = 32,
     };
-    mqd_t mq = mq_open_anon(&attr);
-    ASSERT_NE((mqd_t)-1, mq);
-    ASSERT_EQ(0, mq_close(mq));
+    mqd_t mqd;
+    ASSERT_EQ(0, mq_open_anon(&attr, &mqd));
+    ASSERT_EQ(0, mq_close(mqd));
   }
 }
