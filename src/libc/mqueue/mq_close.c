@@ -3,8 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/queue.h>
-
 #include <mqueue.h>
 #include <pthread.h>
 #include <stdlib.h>
@@ -16,14 +14,12 @@ int mq_close(mqd_t mqdes) {
   pthread_mutex_destroy(&mqdes->lock);
   pthread_cond_destroy(&mqdes->cond);
 
-  // Free all pending messages for every priority.
-  struct priority *p, *ptmp;
-  SLIST_FOREACH_SAFE(p, &mqdes->priorities, next, ptmp) {
-    struct message *m, *mtmp;
-    STAILQ_FOREACH_SAFE(m, &p->messages, next, mtmp) {
-      free(m);
-    }
-    free(p);
+  // Free all pending messages.
+  struct message *m = mqdes->queue_receive;
+  while (m != NULL) {
+    struct message *m_next = m->next_receive;
+    free(m);
+    m = m_next;
   }
 
   // Free mqueue object itself.

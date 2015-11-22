@@ -6,8 +6,6 @@
 #ifndef MQUEUE_MQUEUE_IMPL_H
 #define MQUEUE_MQUEUE_IMPL_H
 
-#include <common/queue.h>
-
 #include <sys/types.h>
 
 #include <errno.h>
@@ -20,25 +18,33 @@
 #include <string.h>
 
 // Message.
+//
+// Messages are stored in a linked list, sorted in the order in which
+// they should be extracted by mq_receive(). As mq_send() has to use the
+// message priority to determine where the message needs to be inserted,
+// we make use of a skip list.
+//
+// The {queue,next}_receive pointers point to every individual message,
+// whereas the {queue_next}_send pointers only point to the last message
+// at every priority. This allows us to insert messages in O(p) time,
+// where p is the number of different message priorities used.
+//
+// In most common setups, p tends to be pretty low.
 struct message {
-  STAILQ_ENTRY(message) next;  // Next message at the same priority.
-  size_t length;               // Length of the message body.
-  char contents[];             // Message body.
-};
-
-// List of messages, all having the same priority.
-struct priority {
-  SLIST_ENTRY(priority) next;       // Next priority.
-  STAILQ_HEAD(, message) messages;  // List of messages at this priority.
-  unsigned int priority;            // Priority of the messages.
+  struct message *next_receive;  // Next message to be returned.
+  struct message *next_send;     // Last message of the next priority.
+  size_t length;                 // Length of the message body.
+  unsigned int priority;         // Priority of the message.
+  char contents[];               // Message body.
 };
 
 // Message queue.
 struct __mqd {
-  pthread_mutex_t lock;               // Queue lock.
-  pthread_cond_t cond;                // Queue condition variable for sleeps.
-  struct mq_attr attr;                // Queue attributes.
-  SLIST_HEAD(, priority) priorities;  // List of priorities having messages.
+  pthread_mutex_t lock;           // Queue lock.
+  pthread_cond_t cond;            // Queue condition variable for sleeps.
+  struct mq_attr attr;            // Queue attributes.
+  struct message *queue_receive;  // List of messages to be returned.
+  struct message *queue_send;     // Last message of the highest priority.
 };
 
 static inline bool mq_receive_pre(mqd_t mqdes, size_t msg_len)
@@ -64,29 +70,22 @@ static inline bool mq_receive_pre(mqd_t mqdes, size_t msg_len)
 static inline size_t mq_receive_post(mqd_t mqdes, char *msg_ptr,
                                      unsigned int *msg_prio)
     __unlocks(mqdes->lock) {
-  // Determine the highest priority that has a message enqueued.
-  struct priority *p = SLIST_FIRST(&mqdes->priorities);
-  if (msg_prio != NULL)
-    *msg_prio = p->priority;
-
   // Extract the oldest message from the queue.
-  struct message *m = STAILQ_FIRST(&p->messages);
-  STAILQ_REMOVE_HEAD(&p->messages, next);
+  struct message *m = mqdes->queue_receive;
+  mqdes->queue_receive = m->next_send;
   --mqdes->attr.mq_curmsgs;
 
-  // Remove the priority from the message queue if we no longer have any
-  // messages under that priority.
-  if (STAILQ_EMPTY(&p->messages)) {
-    SLIST_REMOVE_HEAD(&mqdes->priorities, next);
-    pthread_mutex_unlock(&mqdes->lock);
-    free(p);
-  } else {
-    pthread_mutex_unlock(&mqdes->lock);
-  }
+  // If the message is the only message at that priority, update the
+  // skip list to point to the next priority.
+  if (mqdes->queue_send == m)
+    mqdes->queue_send = m->next_send;
+  pthread_mutex_unlock(&mqdes->lock);
 
-  // Copy out the message contents and free the message.
+  // Copy out the message contents and free it.
   size_t length = m->length;
   memcpy(msg_ptr, m->contents, length);
+  if (msg_prio != NULL)
+    *msg_prio = m->priority;
   free(m);
   return length;
 }
@@ -123,44 +122,36 @@ static inline int mq_send_post(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
   m->length = msg_len;
   memcpy(m->contents, msg_ptr, msg_len);
 
-  // See if we can already find messages enqueued at the same priority.
-  // If so, insert the message into the queue for that priority. As the
-  // list of priorities is sorted in descending order, we can stop
-  // searching once we reach entries with a lower priority than the new
-  // message.
-  struct priority *p, *p_prev = NULL;
-  SLIST_FOREACH(p, &mqdes->priorities, next) {
-    if (p->priority <= msg_prio) {
-      if (p->priority == msg_prio) {
-        // Found other messages at the same priority.
-        STAILQ_INSERT_TAIL(&p->messages, m, next);
+  // Scan through the list of messages to find the spot where the
+  // message needs to be inserted.
+  struct message **m_receive = &mqdes->queue_receive;
+  struct message **m_send = &mqdes->queue_send;
+  while (*m_send != NULL) {
+    if ((*m_send)->priority <= msg_prio) {
+      if ((*m_send)->priority == msg_prio) {
+        // We already have other messages enqueued at the same priority.
+        // Place the message behind the currently last message at that
+        // priority and update the skip list to point to the new message
+        // instead.
+        m->next_receive = (*m_send)->next_receive;
+        m->next_send = (*m_send)->next_send;
+        (*m_send)->next_receive = m;
+        *m_send = m;
         goto inserted;
       }
       break;
+    } else {
+      m_receive = &(*m_send)->next_receive;
+      m_send = &(*m_send)->next_send;
     }
-    p_prev = p;
   }
 
-  // Allocate a new priority.
-  p = malloc(sizeof(*p));
-  if (p == NULL) {
-    free(m);
-    pthread_mutex_unlock(&mqdes->lock);
-    return -1;
-  }
-  STAILQ_INIT(&p->messages);
-  STAILQ_INSERT_HEAD(&p->messages, m, next);
-  p->priority = msg_prio;
-  if (p_prev == NULL) {
-    // Message queue is empty or only has messages with a priority lower
-    // than that of the new message. Insert the priority at the
-    // beginning of the list.
-    SLIST_INSERT_HEAD(&mqdes->priorities, p, next);
-  } else {
-    // Insert priority after the entry with the lowest priority that is
-    // higher than that of the new message.
-    SLIST_INSERT_AFTER(p_prev, p, next);
-  }
+  // First message at this priority. Insert the message into both the
+  // receive and send queue.
+  m->next_receive = *m_receive;
+  *m_receive = m;
+  m->next_send = *m_send;
+  *m_send = m;
 
 inserted:
   // Successfully inserted the message into the queue.

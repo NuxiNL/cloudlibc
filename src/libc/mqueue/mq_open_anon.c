@@ -35,6 +35,7 @@ mqd_t mq_open_anon(const struct mq_attr *attr) {
   }
   mqdes->attr = *attr;
   mqdes->attr.mq_curmsgs = 0;
-  SLIST_INIT(&mqdes->priorities);
+  mqdes->queue_receive = NULL;
+  mqdes->queue_send = NULL;
   return mqdes;
 }
