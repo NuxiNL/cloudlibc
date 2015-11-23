@@ -28,7 +28,13 @@ int mq_init(mqd_t *mqdes, const struct mq_attr *attr) {
     free(mqd);
     return -1;
   }
-  if (pthread_cond_init(&mqd->cond, NULL) != 0) {
+  if (pthread_cond_init(&mqd->cond_receive, NULL) != 0) {
+    pthread_mutex_destroy(&mqd->lock);
+    free(mqd);
+    return -1;
+  }
+  if (pthread_cond_init(&mqd->cond_send, NULL) != 0) {
+    pthread_cond_destroy(&mqd->cond_receive);
     pthread_mutex_destroy(&mqd->lock);
     free(mqd);
     return -1;

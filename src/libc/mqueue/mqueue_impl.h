@@ -41,7 +41,8 @@ struct message {
 // Message queue.
 struct __mqd {
   pthread_mutex_t lock;           // Queue lock.
-  pthread_cond_t cond;            // Queue condition variable for sleeps.
+  pthread_cond_t cond_receive;    // Queue condition variable for receive.
+  pthread_cond_t cond_send;       // Queue condition variable for send.
   struct mq_attr attr;            // Queue attributes.
   struct message *queue_receive;  // List of messages to be returned.
   struct message *queue_send;     // Last message of the highest priority.
@@ -80,6 +81,7 @@ static inline size_t mq_receive_post(struct __mqd *mqd, char *msg_ptr,
   if (mqd->queue_send == m)
     mqd->queue_send = m->next_send;
   pthread_mutex_unlock(&mqd->lock);
+  pthread_cond_signal(&mqd->cond_send);
 
   // Copy out the message contents and free it.
   size_t length = m->length;
@@ -158,6 +160,7 @@ inserted:
   // Successfully inserted the message into the queue.
   ++mqd->attr.mq_curmsgs;
   pthread_mutex_unlock(&mqd->lock);
+  pthread_cond_signal(&mqd->cond_receive);
   return 0;
 }
 

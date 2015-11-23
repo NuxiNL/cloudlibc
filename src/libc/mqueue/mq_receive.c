@@ -14,6 +14,6 @@ ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
   if (!mq_receive_pre(mqd, msg_len))
     return -1;
   while (mqd->attr.mq_curmsgs <= 0)
-    pthread_cond_wait(&mqd->cond, &mqd->lock);
+    pthread_cond_wait(&mqd->cond_receive, &mqd->lock);
   return mq_receive_post(mqd, msg_ptr, msg_prio);
 }

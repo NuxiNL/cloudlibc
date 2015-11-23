@@ -15,7 +15,7 @@ int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len,
   if (!mq_send_pre(mqd, msg_len))
     return -1;
   while (mqd->attr.mq_curmsgs >= mqd->attr.mq_maxmsg) {
-    int error = pthread_cond_timedwait(&mqd->cond, &mqd->lock, abstime);
+    int error = pthread_cond_timedwait(&mqd->cond_send, &mqd->lock, abstime);
     if (error != 0) {
       pthread_mutex_unlock(&mqd->lock);
       errno = error;

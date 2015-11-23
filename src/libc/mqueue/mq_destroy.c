@@ -13,7 +13,8 @@ int mq_destroy(mqd_t mqdes) {
   // Destroy locking objects.
   struct __mqd *mqd = mqdes.__mqd;
   pthread_mutex_destroy(&mqd->lock);
-  pthread_cond_destroy(&mqd->cond);
+  pthread_cond_destroy(&mqd->cond_receive);
+  pthread_cond_destroy(&mqd->cond_send);
 
   // Free all pending messages.
   struct message *m = mqd->queue_receive;
