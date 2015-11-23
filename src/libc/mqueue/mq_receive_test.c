@@ -45,7 +45,7 @@ TEST(mq_receive, non_blocking) {
 }
 
 static void *push_message(void *argument) {
-  // Push a message into the message queue after a slighty delay.
+  // Push a message into the message queue after a slight delay.
   ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0,
                                &(struct timespec){.tv_nsec = 250000000}));
   ASSERT_EQ(0, mq_send(*(mqd_t *)argument, "Hello", 5, 123));
