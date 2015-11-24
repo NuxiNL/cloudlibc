@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <mqueue.h>
-#include <stddef.h>
+#include <pthread.h>
 #include <testing.h>
 
 TEST(mq_timedreceive, bad) {
@@ -45,4 +45,35 @@ TEST(mq_timedreceive, bad) {
   ASSERT_EQ(0, mq_destroy(mqd));
 }
 
-// TODO(ed): Add test for blocking case.
+static void *push_message(void *argument) {
+  // Push a message into the message queue after a slight delay.
+  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0,
+                               &(struct timespec){.tv_nsec = 250000000}));
+  ASSERT_EQ(0, mq_send(*(mqd_t *)argument, "Hello", 5, 123));
+  return NULL;
+}
+
+TEST(mq_timedreceive, blocking) {
+  mqd_t mqd;
+  struct mq_attr attr = {
+      .mq_flags = 0, .mq_maxmsg = 1, .mq_msgsize = 5,
+  };
+  ASSERT_EQ(0, mq_init(&mqd, &attr));
+
+  // Spawn a background thread to send a message with a little delay.
+  pthread_t thread;
+  ASSERT_EQ(0, pthread_create(&thread, NULL, push_message, &mqd));
+
+  // Block on the message queue while receiving a message.
+  struct timespec abstime;
+  ASSERT_EQ(0, clock_gettime(CLOCK_REALTIME, &abstime));
+  ++abstime.tv_sec;
+  char buf[5];
+  unsigned int prio;
+  ASSERT_EQ(5, mq_timedreceive(mqd, buf, sizeof(buf), &prio, &abstime));
+  ASSERT_ARREQ("Hello", buf, sizeof(buf));
+  ASSERT_EQ(123, prio);
+
+  ASSERT_EQ(0, pthread_join(thread, NULL));
+  ASSERT_EQ(0, mq_destroy(mqd));
+}
