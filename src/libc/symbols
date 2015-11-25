@@ -219,6 +219,7 @@ dwprintf
 dwprintf_l
 endprotoent
 endservent
+environ
 erf
 erfc
 erfcf
