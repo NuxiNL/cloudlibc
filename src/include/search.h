@@ -1,0 +1,111 @@
+// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright
+//    notice, this list of conditions and the following disclaimer in the
+//    documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+// OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+// OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE.
+
+// <search.h> - search tables
+//
+// Features missing:
+// - ACTION, ENTRY, hcreate(), hdestroy() and hsearch():
+//   Not thread-safe.
+
+#ifndef _SEARCH_H_
+#define _SEARCH_H_
+
+#include <_/types.h>
+
+#ifndef _SIZE_T_DECLARED
+typedef __size_t size_t;
+#define _SIZE_T_DECLARED
+#endif
+
+typedef enum { preorder, postorder, endorder, leaf } VISIT;
+
+__BEGIN_DECLS
+void insque(void *, void *);
+void *lfind(const void *, const void *, size_t *, size_t,
+            int (*)(const void *, const void *));
+void *lsearch(const void *, void *, size_t *, size_t,
+              int (*)(const void *, const void *));
+void remque(void *);
+void *tdelete(const void *__restrict, void **__restrict,
+              int (*)(const void *, const void *));
+void *tfind(const void *, void *const *, int (*)(const void *, const void *));
+void *tsearch(const void *, void **, int (*)(const void *, const void *));
+void twalk(const void *, void (*)(const void *, VISIT, int));
+__END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+struct __que {
+  struct __que *__succ;
+  struct __que *__pred;
+};
+
+static __inline void __insque(void *__element, void *__pred) {
+  struct __que *__qelement, *__qsucc, *__qpred;
+
+  __qelement = __element;
+  __qpred = __pred;
+  if (__qpred == _NULL) {
+    __qelement->__succ = _NULL;
+    __qelement->__pred = _NULL;
+  } else {
+    __qsucc = __qpred->__succ;
+    __qelement->__succ = __qsucc;
+    __qelement->__pred = __qpred;
+    __qpred->__succ = __qelement;
+    if (__qsucc != _NULL)
+      __qsucc->__pred = __qelement;
+  }
+}
+#define insque(element, pred) __insque(element, pred)
+
+static __inline void __remque(void *__element) {
+  struct __que *__qelement, *__qsucc, *__qpred;
+
+  __qelement = __element;
+  __qsucc = __qelement->__succ;
+  __qpred = __qelement->__pred;
+  if (__qsucc != _NULL)
+    __qsucc->__pred = __qpred;
+  if (__qpred != _NULL)
+    __qpred->__succ = __qsucc;
+}
+#define remque(element) __remque(element)
+
+static __inline void *__lfind(const void *__key, const void *__base,
+                              size_t *__nelp, size_t __width,
+                              int (*__compar)(const void *, const void *)) {
+  size_t __nel;
+
+  __nel = *__nelp;
+  while (__nel-- > 0) {
+    if (__compar(__key, (const void *)__base) == 0)
+      return (void *)__base;
+    __base = (const void *)((const char *)__base + __width);
+  }
+  return _NULL;
+}
+#define lfind(key, base, nelp, width, compar) \
+  __lfind(key, base, nelp, width, compar)
+#endif
+
+#endif

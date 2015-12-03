@@ -371,6 +371,7 @@ in6addr_any
 in6addr_loopback
 inet_ntop
 inet_pton
+insque
 ioctl
 isalnum
 isalnum_l
@@ -433,6 +434,7 @@ ldexp
 ldexpf
 ldexpl
 ldiv
+lfind
 lgamma
 lgamma_r
 lgammaf
@@ -688,6 +690,7 @@ regwnexec
 remainder
 remainderf
 remainderl
+remque
 remquo
 remquof
 remquol
