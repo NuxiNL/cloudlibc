@@ -34,7 +34,7 @@ done
 
 ./build "$@"
 
-if [ "$1" != "fast" ]; then
+if [ "$1" != "fast" ] && type clang-format; then
   echo "=> Reformatting sources"
   # Pass all source files through clang-format.
   find src tools -name '*.[ch]' -o -name '*.cc' | sort | while read srcfile; do
