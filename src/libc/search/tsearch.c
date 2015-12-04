@@ -22,6 +22,7 @@ static struct __tnode *tsearch_recurse(const void *key, struct __tnode *n,
     n->__key = (void *)key;
     n->__left = NULL;
     n->__right = NULL;
+    n->__height = 1;
     *result = &n->__key;
     return n;
   } else {
@@ -29,10 +30,10 @@ static struct __tnode *tsearch_recurse(const void *key, struct __tnode *n,
     int cmp = compar(key, n->__key);
     if (cmp < 0) {
       n->__left = tsearch_recurse(key, n->__left, compar, result);
-      return tnode_rebalance(n);
+      return __tnode_rebalance(n);
     } else if (cmp > 0) {
       n->__right = tsearch_recurse(key, n->__right, compar, result);
-      return tnode_rebalance(n);
+      return __tnode_rebalance(n);
     } else {
       // Found an already existing entry with the same key.
       *result = &n->__key;

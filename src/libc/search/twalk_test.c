@@ -20,12 +20,14 @@ static int compar_int(const void *a, const void *b) {
 }
 
 #define NELEMENTS 1000
+#define MAXTREEHEIGHT 15
 static int numbers[NELEMENTS];
 
 static size_t next_key = 0;
 static int current_level = -1;
 
 static void traverse(const void *key, VISIT visit, int level) {
+  ASSERT_GE(MAXTREEHEIGHT, level);
   switch (visit) {
     case preorder:
       ASSERT_EQ(++current_level, level);

@@ -6,9 +6,8 @@
 #ifndef SEARCH_SEARCH_IMPL_H
 #define SEARCH_SEARCH_IMPL_H
 
-static inline struct __tnode *tnode_rebalance(struct __tnode *n) {
-  // TODO(ed): Implement this function, so that an AVL tree is used.
-  return n;
-}
+struct __tnode;
+
+struct __tnode *__tnode_rebalance(struct __tnode *);
 
 #endif

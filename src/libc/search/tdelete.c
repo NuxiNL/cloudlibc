@@ -22,7 +22,7 @@ static struct __tnode *tdelete_recombine(struct __tnode *left,
   // Node has two children. Continue recombining on the right hand side
   // of the left child.
   left->__right = tdelete_recombine(left->__right, right);
-  return tnode_rebalance(left);
+  return __tnode_rebalance(left);
 }
 
 static struct __tnode *tdelete_recurse(const void *key, struct __tnode *n,
@@ -39,11 +39,11 @@ static struct __tnode *tdelete_recurse(const void *key, struct __tnode *n,
     if (cmp < 0) {
       *result = &n->__key;
       n->__left = tdelete_recurse(key, n->__left, compar, result);
-      return tnode_rebalance(n);
+      return __tnode_rebalance(n);
     } else if (cmp > 0) {
       *result = &n->__key;
       n->__right = tdelete_recurse(key, n->__right, compar, result);
-      return tnode_rebalance(n);
+      return __tnode_rebalance(n);
     } else {
       // Found a matching node to delete. Free the entry and replace it
       // by a subtree that does not contain the node.

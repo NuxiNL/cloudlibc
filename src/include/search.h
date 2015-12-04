@@ -129,6 +129,7 @@ struct __tnode {
   void *__key;
   struct __tnode *__left;
   struct __tnode *__right;
+  unsigned int __height;
 };
 
 static __inline void *__tfind(const void *__key, void *const *__rootp,
