@@ -820,8 +820,10 @@ tanh
 tanhf
 tanhl
 tanl
+tdelete
 telldir
 testing_execute
+tfind
 tgamma
 tgammaf
 tgammal
@@ -852,10 +854,12 @@ towupper_l
 trunc
 truncf
 truncl
+tsearch
 tss_create
 tss_delete
 tss_get
 tss_set
+twalk
 tzname
 tzset
 ungetc
