@@ -81,11 +81,11 @@ static __inline void __insque(void *__element, void *__pred) {
 static __inline void *__lfind(const void *__key, const void *__base,
                               size_t *__nelp, size_t __width,
                               int (*__compar)(const void *, const void *)) {
-  size_t __nel;
+  const void *__end;
 
-  __nel = *__nelp;
-  while (__nel-- > 0) {
-    if (__compar(__key, (const void *)__base) == 0)
+  __end = (void *)((char *)__base + *__nelp * __width);
+  while (__base < __end) {
+    if (__compar(__key, __base) == 0)
       return (void *)__base;
     __base = (const void *)((const char *)__base + __width);
   }
@@ -93,6 +93,24 @@ static __inline void *__lfind(const void *__key, const void *__base,
 }
 #define lfind(key, base, nelp, width, compar) \
   __lfind(key, base, nelp, width, compar)
+
+static __inline void *__lsearch(const void *__key, void *__base, size_t *__nelp,
+                                size_t __width,
+                                int (*__compar)(const void *, const void *)) {
+  const void *__end;
+
+  __end = (void *)((char *)__base + *__nelp * __width);
+  while (__base < __end) {
+    if (__compar(__key, __base) == 0)
+      return (void *)__base;
+    __base = (void *)((char *)__base + __width);
+  }
+  __builtin_memcpy(__base, __key, __width);
+  ++*__nelp;
+  return __base;
+}
+#define lsearch(key, base, nelp, width, compar) \
+  __lsearch(key, base, nelp, width, compar)
 
 static __inline void __remque(void *__element) {
   struct __que *__qelement, *__qsucc, *__qpred;

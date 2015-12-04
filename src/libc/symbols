@@ -479,6 +479,7 @@ lrintl
 lround
 lroundf
 lroundl
+lsearch
 lseek
 malloc
 mbrlen
