@@ -62,8 +62,8 @@ struct __que {
 static __inline void __insque(void *__element, void *__pred) {
   struct __que *__qelement, *__qsucc, *__qpred;
 
-  __qelement = __element;
-  __qpred = __pred;
+  __qelement = (struct __que *)__element;
+  __qpred = (struct __que *)__pred;
   if (__qpred == _NULL) {
     __qelement->__succ = _NULL;
     __qelement->__pred = _NULL;
@@ -115,7 +115,7 @@ static __inline void *__lsearch(const void *__key, void *__base, size_t *__nelp,
 static __inline void __remque(void *__element) {
   struct __que *__qelement, *__qsucc, *__qpred;
 
-  __qelement = __element;
+  __qelement = (struct __que *)__element;
   __qsucc = __qelement->__succ;
   __qpred = __qelement->__pred;
   if (__qsucc != _NULL)
@@ -136,7 +136,7 @@ static __inline void *__tfind(const void *__key, void *const *__rootp,
   struct __tnode *__root;
   int __cmp;
 
-  __root = *__rootp;
+  __root = *(struct __tnode **)__rootp;
   while (__root != _NULL) {
     __cmp = __compar(__key, __root->__key);
     if (__cmp < 0)
@@ -144,7 +144,7 @@ static __inline void *__tfind(const void *__key, void *const *__rootp,
     else if (__cmp > 0)
       __root = __root->__right;
     else
-      return &__root->__key;
+      return (void *)&__root->__key;
   }
   return _NULL;
 }
@@ -168,7 +168,7 @@ static __inline void __twalk_recurse(const struct __tnode *__root,
 
 static __inline void __twalk(const void *__root,
                              void (*__action)(const void *, VISIT, int)) {
-  __twalk_recurse(__root, __action, 0);
+  __twalk_recurse((const struct __tnode *)__root, __action, 0);
 }
 #define twalk(root, action) __twalk(root, action)
 #endif
