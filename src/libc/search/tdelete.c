@@ -8,21 +8,18 @@
 
 #include "search_impl.h"
 
-// Recombines two children of a node into a new subtree. This operation
-// is needed when removing a node from the tree that still has children.
-static struct __tnode *tdelete_recombine(struct __tnode *left,
-                                         struct __tnode *right) {
-  // If the node only has one child, there is nothing to recombine.
-  // Simply return the node directly.
-  if (left == NULL)
-    return right;
-  if (right == NULL)
-    return left;
-
-  // Node has two children. Continue recombining on the right hand side
-  // of the left child.
-  left->__right = tdelete_recombine(left->__right, right);
-  return __tnode_rebalance(left);
+// Extracts the largest node from a tree, while maintaining its balance.
+static struct __tnode *tdelete_extract_largest(struct __tnode *n,
+                                               struct __tnode **result) {
+  if (n->__right == NULL) {
+    // Found the maximum node. Replace it by its left subtree.
+    *result = n;
+    return n->__left;
+  } else {
+    // Extract the largest node from the right subtree and rebalance.
+    n->__right = tdelete_extract_largest(n->__right, result);
+    return __tnode_rebalance(n);
+  }
 }
 
 static struct __tnode *tdelete_recurse(const void *key, struct __tnode *n,
@@ -45,11 +42,22 @@ static struct __tnode *tdelete_recurse(const void *key, struct __tnode *n,
       n->__right = tdelete_recurse(key, n->__right, compar, result);
       return __tnode_rebalance(n);
     } else {
-      // Found a matching node to delete. Free the entry and replace it
-      // by a subtree that does not contain the node.
+      // Found a matching node to delete. Free the entry.
       struct __tnode *left = n->__left, *right = n->__right;
       free(n);
-      return tdelete_recombine(left, right);
+      if (left == NULL) {
+        // No left child. Replace the node by the right subtree.
+        return right;
+      } else if (right == NULL) {
+        // No right child. Replace the node by the left subtree.
+        return left;
+      } else {
+        // Let the largest node of the left subtree be the new root.
+        left = tdelete_extract_largest(left, &n);
+        n->__left = left;
+        n->__right = right;
+        return __tnode_rebalance(n);
+      }
     }
   }
 }
