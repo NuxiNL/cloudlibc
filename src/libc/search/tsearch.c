@@ -6,27 +6,44 @@
 #include <search.h>
 #include <stdlib.h>
 
+#include "search_impl.h"
+
+static struct __tnode *tsearch_recurse(const void *key, struct __tnode *n,
+                                       int (*compar)(const void *,
+                                                     const void *),
+                                       void **result) {
+  if (n == NULL) {
+    // Did not find a matching key in the tree. Allocate a new node.
+    n = malloc(sizeof(*n));
+    if (n == NULL) {
+      *result = NULL;
+      return NULL;
+    }
+    n->__key = (void *)key;
+    n->__left = NULL;
+    n->__right = NULL;
+    *result = &n->__key;
+    return n;
+  } else {
+    // Use the comparison function to traverse the tree.
+    int cmp = compar(key, n->__key);
+    if (cmp < 0) {
+      n->__left = tsearch_recurse(key, n->__left, compar, result);
+      return tnode_rebalance(n);
+    } else if (cmp > 0) {
+      n->__right = tsearch_recurse(key, n->__right, compar, result);
+      return tnode_rebalance(n);
+    } else {
+      // Found an already existing entry with the same key.
+      *result = &n->__key;
+      return n;
+    }
+  }
+}
+
 void *tsearch(const void *key, void **rootp,
               int (*compar)(const void *, const void *)) {
-  // Search the tree for an existing entry.
-  struct __tnode **root = (struct __tnode **)rootp;
-  while (*root != NULL) {
-    int cmp = compar(key, (*root)->__key);
-    if (cmp < 0)
-      root = &(*root)->__left;
-    else if (cmp > 0)
-      root = &(*root)->__right;
-    else
-      return &(*root)->__key;
-  }
-
-  // Entry not found. Insert a new leaf node into the tree.
-  // TODO(ed): Use a self-balancing binary search tree instead.
-  *root = malloc(sizeof(**root));
-  if (*root != NULL) {
-    (*root)->__key = (void *)key;
-    (*root)->__left = NULL;
-    (*root)->__right = NULL;
-  }
-  return &(*root)->__key;
+  void *result;
+  *rootp = tsearch_recurse(key, *rootp, compar, &result);
+  return result;
 }
