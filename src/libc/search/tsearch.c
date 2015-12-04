@@ -24,9 +24,9 @@ void *tsearch(const void *key, void **rootp,
   // TODO(ed): Use a self-balancing binary search tree instead.
   *root = malloc(sizeof(**root));
   if (*root != NULL) {
+    (*root)->__key = (void *)key;
     (*root)->__left = NULL;
     (*root)->__right = NULL;
-    (*root)->__key = (void *)key;
   }
   return &(*root)->__key;
 }
