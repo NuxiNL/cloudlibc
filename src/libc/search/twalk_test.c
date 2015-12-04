@@ -41,8 +41,7 @@ static void traverse(const void *key, VISIT visit, int level) {
       break;
     case leaf:
       ASSERT_EQ(current_level + 1, level);
-      // ASSERT_EQ(&numbers[next_key++], *(int **)key);
-      ++next_key;
+      ASSERT_EQ(&numbers[next_key++], *(int **)key);
       break;
   }
 }
