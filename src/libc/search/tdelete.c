@@ -53,10 +53,11 @@ static struct __tnode *tdelete_recurse(const void *key, struct __tnode *n,
         return left;
       } else {
         // Let the largest node of the left subtree be the new root.
-        left = tdelete_extract_largest(left, &n);
-        n->__left = left;
-        n->__right = right;
-        return __tnode_rebalance(n);
+        struct __tnode *newroot;
+        left = tdelete_extract_largest(left, &newroot);
+        newroot->__left = left;
+        newroot->__right = right;
+        return __tnode_rebalance(newroot);
       }
     }
   }
