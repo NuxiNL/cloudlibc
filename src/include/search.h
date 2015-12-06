@@ -126,10 +126,10 @@ static __inline void __remque(void *__element) {
 #define remque(element) __remque(element)
 
 struct __tnode {
-  void *__key;
-  struct __tnode *__left;
-  struct __tnode *__right;
-  signed char __balance;
+  void *__key;              // Value.
+  struct __tnode *__left;   // Left child.
+  struct __tnode *__right;  // Right child.
+  signed char __balance;    // AVL tree balance, between -1 and 1.
 };
 
 static __inline void *__tfind(const void *__key, void *const *__rootp,
