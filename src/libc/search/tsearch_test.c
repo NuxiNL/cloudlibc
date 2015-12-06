@@ -31,10 +31,10 @@ TEST(tsearch, random) {
   for (int i = 0; i < (int)__arraycount(keys); ++i)
     keys[i] = i;
 
-  // Apply a million random operations on a binary tree and check the results.
+  // Apply random operations on a binary tree and check the results.
   void *root = NULL;
   bool present[__arraycount(keys)] = {};
-  for (int i = 0; i < 1000000; ++i) {
+  for (int i = 0; i < 10000; ++i) {
     int key = arc4random_uniform(__arraycount(keys));
     switch (arc4random_uniform(3)) {
       case 0:  // tdelete().
