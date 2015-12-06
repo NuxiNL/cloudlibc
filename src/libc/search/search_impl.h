@@ -34,11 +34,11 @@ static inline bool tnode_balance_increase(struct __tnode **n) {
       z->__left = y;
       x->__left = z->__right;
       z->__right = x;
+      *n = z;
 
       x->__balance = z->__balance > 0 ? -1 : 0;
       y->__balance = z->__balance < 0 ? 1 : 0;
       z->__balance = 0;
-      *n = z;
       return false;
     } else {
       // Left-left case.
@@ -50,16 +50,15 @@ static inline bool tnode_balance_increase(struct __tnode **n) {
       //    A   B           B   C
       x->__left = y->__right;
       y->__right = x;
+      *n = y;
 
       if (y->__balance > 0) {
         x->__balance = 0;
         y->__balance = 0;
-        *n = y;
         return false;
       } else {
         x->__balance = 1;
         y->__balance = -1;
-        *n = y;
         return true;
       }
     }
@@ -91,11 +90,11 @@ static inline bool tnode_balance_decrease(struct __tnode **n) {
       z->__left = x;
       y->__left = z->__right;
       z->__right = y;
+      *n = z;
 
       x->__balance = z->__balance < 0 ? 1 : 0;
       y->__balance = z->__balance > 0 ? -1 : 0;
       z->__balance = 0;
-      *n = z;
       return false;
     } else {
       // Right-right case.
@@ -107,16 +106,15 @@ static inline bool tnode_balance_decrease(struct __tnode **n) {
       //       B   C       A   B
       x->__right = y->__left;
       y->__left = x;
+      *n = y;
 
       if (y->__balance < 0) {
         x->__balance = 0;
         y->__balance = 0;
-        *n = y;
         return false;
       } else {
         x->__balance = -1;
         y->__balance = 1;
-        *n = y;
         return true;
       }
     }
