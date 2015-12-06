@@ -46,6 +46,5 @@ void *tsearch(const void *key, void **rootp,
               int (*compar)(const void *, const void *)) {
   void *result;
   tsearch_recurse(key, (struct __tnode **)rootp, compar, &result);
-  tnode_assert(*rootp);
   return result;
 }

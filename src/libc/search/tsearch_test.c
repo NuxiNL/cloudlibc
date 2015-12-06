@@ -8,6 +8,19 @@
 #include <stdlib.h>
 #include <testing.h>
 
+// Validates the integrity of an AVL tree.
+static inline unsigned int tnode_assert(const struct __tnode *n) {
+  if (n == NULL)
+    return 0;
+  unsigned int height_left = tnode_assert(n->__left);
+  unsigned int height_right = tnode_assert(n->__right);
+  int balance = (int)height_left - (int)height_right;
+  ASSERT_LE(-1, balance);
+  ASSERT_GE(1, balance);
+  ASSERT_EQ(balance, n->__balance);
+  return (height_left > height_right ? height_left : height_right) + 1;
+}
+
 static int compar(const void *a, const void *b) {
   return *(int *)a - *(int *)b;
 }
@@ -24,30 +37,31 @@ TEST(tsearch, random) {
   for (int i = 0; i < 1000000; ++i) {
     int key = arc4random_uniform(__arraycount(keys));
     switch (arc4random_uniform(3)) {
-    case 0: // tdelete().
-      if (present[key]) {
-        ASSERT_NE(NULL, tdelete(&key, &root, compar));
-        present[key] = false;
-      } else {
-        ASSERT_EQ(NULL, tdelete(&key, &root, compar));
-      }
-      break;
-    case 1: // tfind().
-      if (present[key]) {
-        ASSERT_EQ(&keys[key], *(int **)tfind(&key, &root, compar));
-      } else {
-        ASSERT_EQ(NULL, tfind(&key, &root, compar));
-      }
-      break;
-    case 2: // tsearch().
-      if (present[key]) {
-        ASSERT_EQ(&keys[key], *(int **)tsearch(&key, &root, compar));
-      } else {
-        ASSERT_EQ(&keys[key], *(int **)tsearch(&keys[key], &root, compar));
-        present[key] = true;
-      }
-      break;
+      case 0:  // tdelete().
+        if (present[key]) {
+          ASSERT_NE(NULL, tdelete(&key, &root, compar));
+          present[key] = false;
+        } else {
+          ASSERT_EQ(NULL, tdelete(&key, &root, compar));
+        }
+        break;
+      case 1:  // tfind().
+        if (present[key]) {
+          ASSERT_EQ(&keys[key], *(int **)tfind(&key, &root, compar));
+        } else {
+          ASSERT_EQ(NULL, tfind(&key, &root, compar));
+        }
+        break;
+      case 2:  // tsearch().
+        if (present[key]) {
+          ASSERT_EQ(&keys[key], *(int **)tsearch(&key, &root, compar));
+        } else {
+          ASSERT_EQ(&keys[key], *(int **)tsearch(&keys[key], &root, compar));
+          present[key] = true;
+        }
+        break;
     }
+    tnode_assert(root);
   }
 
   // Remove all entries from the tree.

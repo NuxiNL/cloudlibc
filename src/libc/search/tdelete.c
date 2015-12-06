@@ -72,6 +72,5 @@ void *tdelete(const void *restrict key, void **restrict rootp,
               int (*compar)(const void *, const void *)) {
   void *result = (void *)1;
   tdelete_recurse(key, (struct __tnode **)rootp, compar, &result);
-  tnode_assert(*rootp);
   return result;
 }
