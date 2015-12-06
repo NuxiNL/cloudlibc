@@ -52,12 +52,6 @@ static bool tdelete_recurse(const void *key, struct __tnode **n,
         free(*n);
         *n = newroot;
         return true;
-      } else if ((*n)->__right == NULL) {
-        // No right child. Replace the node by the left subtree.
-        struct __tnode *newroot = (*n)->__left;
-        free(*n);
-        *n = newroot;
-        return true;
       } else {
         // Replace this node's key by its predecessor's and deallocate
         // that node instead.
