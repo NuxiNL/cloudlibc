@@ -6,8 +6,21 @@
 #ifndef SEARCH_SEARCH_IMPL_H
 #define SEARCH_SEARCH_IMPL_H
 
-struct __tnode;
+#include <assert.h>
+#include <search.h>
 
-struct __tnode *__tnode_rebalance(struct __tnode *);
+// Validates the integrity of an AVL tree.
+static inline unsigned int tnode_assert(const struct __tnode *n) {
+#if 0
+  if (n == NULL)
+    return 0;
+  unsigned int height_left = tnode_assert(n->__left);
+  unsigned int height_right = tnode_assert(n->__right);
+  int balance = (int)height_left - (int)height_right;
+  assert(balance >= -1 && balance <= 1);
+  assert(balance == n->__balance);
+  return (height_left > height_right ? height_left : height_right) + 1;
+#endif
+}
 
 #endif
