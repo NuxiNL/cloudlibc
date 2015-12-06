@@ -20,6 +20,8 @@ static inline unsigned int tnode_assert(const struct __tnode *n) {
   assert(balance >= -1 && balance <= 1);
   assert(balance == n->__balance);
   return (height_left > height_right ? height_left : height_right) + 1;
+#else
+  return 0;
 #endif
 }
 
