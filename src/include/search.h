@@ -23,6 +23,10 @@
 
 // <search.h> - search tables
 //
+// Extensions:
+// - tdestroy():
+//   Allows for easy destruction of search trees. Also present on Linux.
+//
 // Features missing:
 // - ACTION, ENTRY, hcreate(), hdestroy() and hsearch():
 //   Not thread-safe.
@@ -48,6 +52,7 @@ void *lsearch(const void *, void *, size_t *, size_t,
 void remque(void *);
 void *tdelete(const void *__restrict, void **__restrict,
               int (*)(const void *, const void *));
+void tdestroy(void *, void (*)(void *));
 void *tfind(const void *, void *const *, int (*)(const void *, const void *));
 void *tsearch(const void *, void **, int (*)(const void *, const void *));
 void twalk(const void *, void (*)(const void *, VISIT, int));
