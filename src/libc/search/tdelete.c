@@ -66,7 +66,9 @@ void *tdelete(const void *restrict key, void **restrict rootp,
               int (*compar)(const void *, const void *)) {
   if (rootp == NULL)
     return NULL;
+  struct __tnode *root = *rootp;
   void *result = (void *)1;
-  tdelete_recurse(key, (struct __tnode **)rootp, compar, &result);
+  tdelete_recurse(key, &root, compar, &result);
+  *rootp = root;
   return result;
 }

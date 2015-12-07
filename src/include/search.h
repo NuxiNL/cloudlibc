@@ -144,7 +144,7 @@ static __inline void *__tfind(const void *__key, void *const *__rootp,
 
   if (__rootp == _NULL)
     return _NULL;
-  __root = *(struct __tnode **)__rootp;
+  __root = (struct __tnode *)*__rootp;
   while (__root != _NULL) {
     __cmp = __compar(__key, __root->__key);
     if (__cmp < 0)

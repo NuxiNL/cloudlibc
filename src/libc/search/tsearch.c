@@ -46,7 +46,9 @@ void *tsearch(const void *key, void **rootp,
               int (*compar)(const void *, const void *)) {
   if (rootp == NULL)
     return NULL;
+  struct __tnode *root = *rootp;
   void *result;
-  tsearch_recurse(key, (struct __tnode **)rootp, compar, &result);
+  tsearch_recurse(key, &root, compar, &result);
+  *rootp = root;
   return result;
 }
