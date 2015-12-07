@@ -8,6 +8,13 @@
 #include <stdlib.h>
 #include <testing.h>
 
+TEST(tsearch, null) {
+  // NULL root pointer is also allowed.
+  ASSERT_EQ(NULL, tdelete(NULL, NULL, NULL));
+  ASSERT_EQ(NULL, tfind(NULL, NULL, NULL));
+  ASSERT_EQ(NULL, tsearch(NULL, NULL, NULL));
+}
+
 // Validates the integrity of an AVL tree.
 static inline unsigned int tnode_assert(const struct __tnode *n) {
   if (n == NULL)

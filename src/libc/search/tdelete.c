@@ -64,6 +64,8 @@ static bool tdelete_recurse(const void *key, struct __tnode **n,
 
 void *tdelete(const void *restrict key, void **restrict rootp,
               int (*compar)(const void *, const void *)) {
+  if (rootp == NULL)
+    return NULL;
   void *result = (void *)1;
   tdelete_recurse(key, (struct __tnode **)rootp, compar, &result);
   return result;
