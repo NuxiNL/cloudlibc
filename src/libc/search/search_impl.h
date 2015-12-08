@@ -6,8 +6,23 @@
 #ifndef SEARCH_SEARCH_IMPL_H
 #define SEARCH_SEARCH_IMPL_H
 
+#include <limits.h>
 #include <search.h>
 #include <stdbool.h>
+
+// The maximum depth of a tree. An AVL tree's height is less than
+// log(sqrt(5) * (n + 2) / log(phi) - 2. As n can never exceed the
+// number of bytes in the address space, we can state that an AVL tree
+// will never be higher than 46 nodes on a 32-bit system or 92 nodes on
+// a 64-bit system. Approximate this bound by simply multiplying the
+// number of bits in a pointer by 1.5.
+//
+// This constant is used to store parent links in an array when
+// inserting and deleting nodes. These need to be tracked to perform
+// rebalancing. This array is 768 bytes on a 64-bit system. Though this
+// may sound like a lot at first, a simple recursive implementation
+// could easily reach such memory usage for smaller trees.
+#define TNODE_HEIGHT_MAX (sizeof(void *) * CHAR_BIT * 3 / 2)
 
 // Increases the balance of a node by one, as the result of an insertion
 // in its left subtree. If the balance becomes more than 1, rotations
