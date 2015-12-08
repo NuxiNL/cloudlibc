@@ -25,8 +25,6 @@ struct path {
 
 // Initializes the path structure with a zero-length path.
 static inline void path_init(struct path *p) {
-  p->steps[0] = 0;
-  p->steps[1] = 0;
   p->nsteps = 0;
 }
 
@@ -40,6 +38,7 @@ static inline void path_taking_left(struct path *p) {
 
 // Pushes a step to the right to the end of the path.
 static inline void path_taking_right(struct path *p) {
+  p->steps[p->nsteps / STEPS_BIT] &= ~((uintptr_t)1 << (p->nsteps % STEPS_BIT));
   ++p->nsteps;
 }
 
