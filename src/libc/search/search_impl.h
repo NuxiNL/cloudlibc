@@ -7,133 +7,51 @@
 #define SEARCH_SEARCH_IMPL_H
 
 #include <limits.h>
-#include <search.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-// The maximum depth of a tree. An AVL tree's height is less than
-// log(sqrt(5) * (n + 2) / log(phi) - 2. As n can never exceed the
-// number of bytes in the address space, we can state that an AVL tree
-// will never be higher than 46 nodes on a 32-bit system or 92 nodes on
-// a 64-bit system. Approximate this bound by simply multiplying the
-// number of bits in a pointer by 1.5.
+// Bookkeeping for storing a path in a balanced binary search tree from
+// the root to a leaf node.
 //
-// This constant is used to store parent links in an array when
-// inserting and deleting nodes. These need to be tracked to perform
-// rebalancing. This array is 768 bytes on a 64-bit system. Though this
-// may sound like a lot at first, a simple recursive implementation
-// could easily reach such memory usage for smaller trees.
-#define TNODE_HEIGHT_MAX (sizeof(void *) * CHAR_BIT * 3 / 2)
+// For an AVL tree we know that its maximum height of a tree is bounded
+// by approximately 1.44 * log2(n) - 0.328. Given that the number of
+// entries of the tree is constrained by the size of the address space,
+// two uintptr_t's provide sufficient space to store the path from the
+// root to any leaf.
+struct path {
+  uintptr_t steps[2];
+  unsigned int nsteps;
+};
 
-// Increases the balance of a node by one, as the result of an insertion
-// in its left subtree. If the balance becomes more than 1, rotations
-// are applied to restore balance. This function returns whether the
-// resulting tree has increased in height.
-static inline bool tnode_balance_increase(struct __tnode **n) {
-  struct __tnode *x = *n;
-  if (x->__balance > 0) {
-    struct __tnode *y = x->__left;
-    if (y->__balance < 0) {
-      // Left-right case.
-      //
-      //         x
-      //        / \            z
-      //       y   D          / \
-      //      / \     -->    y   x
-      //     A   z          /|   |\
-      //        / \        A B   C D
-      //       B   C
-      struct __tnode *z = y->__right;
-      y->__right = z->__left;
-      z->__left = y;
-      x->__left = z->__right;
-      z->__right = x;
-      *n = z;
-
-      x->__balance = z->__balance > 0 ? -1 : 0;
-      y->__balance = z->__balance < 0 ? 1 : 0;
-      z->__balance = 0;
-      return false;
-    } else {
-      // Left-left case.
-      //
-      //        x           y
-      //       / \         / \
-      //      y   C  -->  A   x
-      //     / \             / \
-      //    A   B           B   C
-      x->__left = y->__right;
-      y->__right = x;
-      *n = y;
-
-      if (y->__balance > 0) {
-        x->__balance = 0;
-        y->__balance = 0;
-        return false;
-      } else {
-        x->__balance = 1;
-        y->__balance = -1;
-        return true;
-      }
-    }
-  } else {
-    return ++x->__balance > 0;
-  }
+// Initializes the path structure with a zero-length path.
+static inline void path_init(struct path *p) {
+  p->steps[0] = 0;
+  p->steps[1] = 0;
+  p->nsteps = 0;
 }
 
-// Decreases the balance of a node by one, as the result of an insertion
-// in its right subtree. If the balance becomes less than -1, rotations
-// are applied to restore balance. This function returns whether the
-// resulting tree has increased in height.
-static inline bool tnode_balance_decrease(struct __tnode **n) {
-  struct __tnode *x = *n;
-  if (x->__balance < 0) {
-    struct __tnode *y = x->__right;
-    if (y->__balance > 0) {
-      // Right-left case.
-      //
-      //       x
-      //      / \              z
-      //     A   y            / \
-      //        / \   -->    x   y
-      //       z   D        /|   |\
-      //      / \          A B   C D
-      //     B   C
-      struct __tnode *z = y->__left;
-      x->__right = z->__left;
-      z->__left = x;
-      y->__left = z->__right;
-      z->__right = y;
-      *n = z;
+#define STEPS_BIT (sizeof(uintptr_t) * CHAR_BIT)
 
-      x->__balance = z->__balance < 0 ? 1 : 0;
-      y->__balance = z->__balance > 0 ? -1 : 0;
-      z->__balance = 0;
-      return false;
-    } else {
-      // Right-right case.
-      //
-      //       x               y
-      //      / \             / \
-      //     A   y    -->    x   C
-      //        / \         / \
-      //       B   C       A   B
-      x->__right = y->__left;
-      y->__left = x;
-      *n = y;
-
-      if (y->__balance < 0) {
-        x->__balance = 0;
-        y->__balance = 0;
-        return false;
-      } else {
-        x->__balance = -1;
-        y->__balance = 1;
-        return true;
-      }
-    }
-  } else {
-    return --x->__balance < 0;
-  }
+// Pushes a step to the left to the end of the path.
+static inline void path_taking_left(struct path *p) {
+  p->steps[p->nsteps / STEPS_BIT] |= (uintptr_t)1 << (p->nsteps % STEPS_BIT);
+  ++p->nsteps;
 }
+
+// Pushes a step to the right to the end of the path.
+static inline void path_taking_right(struct path *p) {
+  ++p->nsteps;
+}
+
+// Pops the first step from the path and returns whether it was a step
+// to the left.
+static inline bool path_took_left(struct path *p) {
+  bool result = p->steps[0] & 0x1;
+  p->steps[0] = (p->steps[0] >> 1) | (p->steps[1] << (STEPS_BIT - 1));
+  p->steps[1] >>= 1;
+  return result;
+}
+
+#undef STEPS_BIT
 
 #endif
