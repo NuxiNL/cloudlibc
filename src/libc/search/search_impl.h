@@ -7,8 +7,36 @@
 #define SEARCH_SEARCH_IMPL_H
 
 #include <limits.h>
+#include <search.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+
+// Private hash table entry. In addition to the information that is
+// exposed publicly, we also store the hash of the object. This allows
+// us to resize the hash table without recomputing the hashes.
+struct hentry {
+  uint64_t hash;  // FNV-1a hash of the key.
+  ENTRY entry;    // Public key and value structure.
+};
+
+// Private hash table structure.
+struct __hsearch {
+  size_t offset_basis;       // Initial value for FNV-1a hashing.
+  size_t index_mask;         // Bitmask for indexing the table.
+  size_t entries_used;       // Number of entries currently used.
+  struct hentry entries[1];  // Hash table entries.
+};
+
+static inline struct __hsearch *hsearch_alloc(size_t nel) {
+  struct __hsearch *hsearch = calloc(
+      1, offsetof(struct __hsearch, entries) + sizeof(struct hentry) * nel);
+  if (hsearch == NULL)
+    return NULL;
+  hsearch->index_mask = nel - 1;
+  return hsearch;
+}
 
 // Bookkeeping for storing a path in a balanced binary search tree from
 // the root to a leaf node.

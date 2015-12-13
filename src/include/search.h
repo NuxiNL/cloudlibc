@@ -24,11 +24,14 @@
 // <search.h> - search tables
 //
 // Extensions:
+// - struct hsearch_data, hcreate_r(), hdestroy_r() and hsearch_r():
+//   Replacements for hcreate(), hdestroy() and hsearch(). Present on
+//   many other systems.
 // - tdestroy():
 //   Allows for easy destruction of search trees. Also present on Linux.
 //
 // Features missing:
-// - ACTION, ENTRY, hcreate(), hdestroy() and hsearch():
+// - hcreate(), hdestroy() and hsearch():
 //   Not thread-safe.
 
 #ifndef _SEARCH_H_
@@ -41,9 +44,24 @@ typedef __size_t size_t;
 #define _SIZE_T_DECLARED
 #endif
 
+typedef enum { FIND, ENTER } ACTION;
 typedef enum { preorder, postorder, endorder, leaf } VISIT;
 
+typedef struct {
+  char *key;
+  void *data;
+} ENTRY;
+
+struct __hsearch;
+
+struct hsearch_data {
+  struct __hsearch *__hsearch;
+};
+
 __BEGIN_DECLS
+int hcreate_r(size_t, struct hsearch_data *);
+void hdestroy_r(struct hsearch_data *);
+int hsearch_r(ENTRY, ACTION, ENTRY **, struct hsearch_data *);
 void insque(void *, void *);
 void *lfind(const void *, const void *, size_t *, size_t,
             int (*)(const void *, const void *));

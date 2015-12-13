@@ -352,6 +352,9 @@ getwc
 getwdelim
 getwline
 gmtime_r
+hcreate_r
+hdestroy_r
+hsearch_r
 htonl
 htons
 hypot
