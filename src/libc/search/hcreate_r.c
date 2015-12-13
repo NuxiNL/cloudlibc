@@ -16,8 +16,7 @@ int hcreate_r(size_t nel, struct hsearch_data *htab) {
     return 0;
 
   // Pick a random initialization for the FNV-1a hashing. This makes it
-  // impossible to come up with a fixed set of keys to force hash
-  // collisions.
+  // hard to come up with a fixed set of keys to force hash collisions.
   arc4random_buf(&hsearch->offset_basis, sizeof(hsearch->offset_basis));
   hsearch->entries_used = 0;
   htab->__hsearch = hsearch;
