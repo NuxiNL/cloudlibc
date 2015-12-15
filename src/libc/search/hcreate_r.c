@@ -10,7 +10,9 @@
 
 int hcreate_r(size_t nel, struct hsearch_data *htab) {
   // Allocate a hash table object. Ignore the provided hint and start
-  // off with a table of sixteen entries.
+  // off with a table of sixteen entries. In most cases this hint is
+  // just a wild guess. Resizing the table dynamically if the use
+  // increases a threshold does not affect the worst-case running time.
   struct __hsearch *hsearch = hsearch_alloc(16);
   if (hsearch == NULL)
     return 0;
