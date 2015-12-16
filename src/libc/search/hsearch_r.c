@@ -6,13 +6,14 @@
 #include <errno.h>
 #include <search.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "search_impl.h"
 
 // Look up an unused entry in the hash table for a given hash. For this
-// implementation we use quadratic probing. This is done to prevent the
-// need for recomputing the keys when growing the hash table.
+// implementation we use quadratic probing. Quadratic probing has the
+// advantage of preventing primary clustering.
 static ENTRY *hsearch_lookup_free(struct __hsearch *hsearch, size_t hash) {
   for (size_t index = hash, i = 0;; index += ++i) {
     ENTRY *entry = &hsearch->entries[index & hsearch->index_mask];
@@ -61,27 +62,30 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY **retval,
   }
 
   if (hsearch->entries_used * 2 >= hsearch->index_mask) {
-    // Allocate a new hash table if insertion would yield a hash table
-    // that is more than 50% used.
-    struct __hsearch *new_hsearch =
-        hsearch_alloc((hsearch->index_mask + 1) * 2);
-    if (new_hsearch == NULL)
-      return 0;
+    // Preserve the old hash table entries.
+    size_t old_count = hsearch->index_mask + 1;
+    ENTRY *old_entries = hsearch->entries;
 
-    // Copy over attributes and all existing entries.
-    new_hsearch->offset_basis = hsearch->offset_basis;
-    new_hsearch->entries_used = hsearch->entries_used;
-    for (size_t i = 0; i <= hsearch->index_mask; ++i) {
-      const ENTRY *old_entry = &hsearch->entries[i];
+    // Allocate and install a new table if insertion would yield a hash
+    // table that is more than 50% used.
+    size_t new_count = (hsearch->index_mask + 1) * 2;
+    ENTRY *new_entries = calloc(new_count, sizeof(ENTRY));
+    if (new_entries == NULL)
+      return 0;
+    hsearch->entries = new_entries;
+    hsearch->index_mask = new_count - 1;
+
+    // Copy over the entries from the old table to the new table.
+    for (size_t i = 0; i < old_count; ++i) {
+      const ENTRY *old_entry = &old_entries[i];
       if (old_entry->key != NULL) {
         size_t old_hash = hsearch_hash(hsearch->offset_basis, old_entry->key);
-        *hsearch_lookup_free(new_hsearch, old_hash) = *old_entry;
+        *hsearch_lookup_free(hsearch, old_hash) = *old_entry;
       }
     }
 
-    // Replace and destroy the old hash table.
-    free(hsearch);
-    htab->__hsearch = new_hsearch;
+    // Destroy the old hash table entries.
+    free(old_entries);
 
     // Perform a new lookup for a free table entry, so that we insert
     // the entry into the new hash table.

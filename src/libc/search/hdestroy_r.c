@@ -6,7 +6,10 @@
 #include <search.h>
 #include <stdlib.h>
 
+#include "search_impl.h"
+
 void hdestroy_r(struct hsearch_data *htab) {
-  // Free underlying hash table.
+  // Free hash table object and its entries.
+  free(htab->__hsearch->entries);
   free(htab->__hsearch);
 }

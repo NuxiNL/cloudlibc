@@ -9,26 +9,15 @@
 #include <limits.h>
 #include <search.h>
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 // Private hash table structure.
 struct __hsearch {
   size_t offset_basis;  // Initial value for FNV-1a hashing.
   size_t index_mask;    // Bitmask for indexing the table.
   size_t entries_used;  // Number of entries currently used.
-  ENTRY entries[1];     // Hash table entries.
+  ENTRY *entries;       // Hash table entries.
 };
-
-static inline struct __hsearch *hsearch_alloc(size_t nel) {
-  struct __hsearch *hsearch =
-      calloc(1, offsetof(struct __hsearch, entries) + sizeof(ENTRY) * nel);
-  if (hsearch == NULL)
-    return NULL;
-  hsearch->index_mask = nel - 1;
-  return hsearch;
-}
 
 // Bookkeeping for storing a path in a balanced binary search tree from
 // the root to a leaf node.
