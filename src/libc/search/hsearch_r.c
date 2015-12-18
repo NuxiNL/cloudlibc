@@ -67,7 +67,8 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY **retval,
     ENTRY *old_entries = hsearch->entries;
 
     // Allocate and install a new table if insertion would yield a hash
-    // table that is more than 50% used.
+    // table that is more than 50% used. By using 50% as a threshold, a
+    // lookup will only take up to two steps on average.
     size_t new_count = (hsearch->index_mask + 1) * 2;
     ENTRY *new_entries = calloc(new_count, sizeof(ENTRY));
     if (new_entries == NULL)

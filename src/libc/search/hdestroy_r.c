@@ -10,6 +10,7 @@
 
 void hdestroy_r(struct hsearch_data *htab) {
   // Free hash table object and its entries.
-  free(htab->__hsearch->entries);
-  free(htab->__hsearch);
+  struct __hsearch *hsearch = htab->__hsearch;
+  free(hsearch->entries);
+  free(hsearch);
 }
