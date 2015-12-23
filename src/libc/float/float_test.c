@@ -36,18 +36,15 @@ TEST(float, max) {
 #define TEST_TYPE(a, b) _Generic((a)0, b : 1, default : 0)
 static_assert(FLT_EVAL_METHOD >= -1, "Value mismatch");
 static_assert(FLT_EVAL_METHOD <= 2, "Value mismatch");
-// clang-format off
 static_assert(FLT_EVAL_METHOD != 0 ||
                   (TEST_TYPE(float_t, float) && TEST_TYPE(double_t, double)),
               "float_t and double_t incorrectly defined");
 static_assert(FLT_EVAL_METHOD != 1 ||
                   (TEST_TYPE(float_t, double) && TEST_TYPE(double_t, double)),
               "float_t and double_t incorrectly defined");
-static_assert(FLT_EVAL_METHOD != 2 ||
-                  (TEST_TYPE(float_t, long double) &&
-                   TEST_TYPE(double_t, long double)),
+static_assert(FLT_EVAL_METHOD != 2 || (TEST_TYPE(float_t, long double) &&
+                                       TEST_TYPE(double_t, long double)),
               "float_t and double_t incorrectly defined");
-// clang-format on
 #undef TEST_TYPE
 
 static_assert(FLT_RADIX >= 2, "Value mismatch");
