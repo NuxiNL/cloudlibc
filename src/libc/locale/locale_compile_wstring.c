@@ -38,7 +38,7 @@ const char *__locale_compile_wstring(locale_t locale,
     return "";
 
   // See if we've requested this string before.
-  _Atomic(char *)*compiled_string_ref =
+  _Atomic(char *) *compiled_string_ref =
       (void *)((uintptr_t)compiled + compiled_offset);
   char *compiled_string = atomic_load(compiled_string_ref);
   if (compiled_string == NULL) {

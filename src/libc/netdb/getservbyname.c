@@ -95,7 +95,7 @@ static struct servent_entry *create_servent_entry(const char *entry,
 // Attempts to fetch a memoized copy of struct servent. If no copy is
 // available, it creates a new copy through create_servent().
 static struct servent *get_servent(const char *entry, uint8_t protoid) {
-  static _Atomic(struct servent_entry *)table = ATOMIC_VAR_INIT(NULL);
+  static _Atomic(struct servent_entry *) table = ATOMIC_VAR_INIT(NULL);
 
   // Search for an existing copy.
   struct servent_entry *first =

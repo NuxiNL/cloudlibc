@@ -7,8 +7,8 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <testing.h>
+#include <unistd.h>
 
 TEST(msync, bad) {
   // MS_SYNC and MS_ASYNC are mutually exclusive.

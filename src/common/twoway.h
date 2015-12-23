@@ -53,8 +53,8 @@ typedef char char_t;
     }                                                                    \
   }
 
-GENERATE_MAXIMAL_SUFFIX(1, < );
-GENERATE_MAXIMAL_SUFFIX(2, > );
+GENERATE_MAXIMAL_SUFFIX(1, <);
+GENERATE_MAXIMAL_SUFFIX(2, >);
 
 #undef GENERATE_MAXIMAL_SUFFIX
 

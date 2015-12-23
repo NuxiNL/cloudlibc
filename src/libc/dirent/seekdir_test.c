@@ -7,8 +7,8 @@
 
 #include <dirent.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <stdio.h>
+#include <testing.h>
 #include <unistd.h>
 
 TEST(seekdir, example) {

@@ -5,8 +5,8 @@
 
 #include <common/locale.h>
 
-#include <locale.h>
 #include <inttypes.h>
+#include <locale.h>
 
 intmax_t strtoimax(const char *restrict nptr, char **restrict endptr,
                    int base) {

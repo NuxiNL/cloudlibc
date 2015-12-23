@@ -17,8 +17,8 @@ void freelocale(locale_t locobj) {
     // passed to free().
     if (locobj->compiled != NULL) {
       struct lc_compiled *compiled = locobj->compiled;
-      _Atomic(void *)*end = (void *)(compiled + 1);
-      for (_Atomic(void *)*string = (void *)compiled; string < end; ++string)
+      _Atomic(void *) *end = (void *)(compiled + 1);
+      for (_Atomic(void *) *string = (void *)compiled; string < end; ++string)
         free(atomic_load_explicit(string, memory_order_relaxed));
       free(compiled);
     }

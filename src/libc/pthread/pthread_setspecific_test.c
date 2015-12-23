@@ -3,8 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <testing.h>
 #include <pthread.h>
+#include <testing.h>
 
 struct params {
   pthread_key_t tss;

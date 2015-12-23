@@ -3,8 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <time.h>
 #include <testing.h>
+#include <time.h>
 #include <wchar.h>
 
 TEST(wcsftime, years) {
