@@ -10,7 +10,6 @@
 #endif
 
 // clang-format off
-
 lldiv_t (lldiv)(long long numer, long long denom) {
   return lldiv(numer, denom);
 }
