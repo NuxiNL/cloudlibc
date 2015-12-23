@@ -34,10 +34,9 @@ int_t NAME(const char_t *restrict str, char_t **restrict endptr, int base,
   do {          \
     s += (n);   \
   } while (0)
-// clang-format off
 #include "parser_whitespace.h"
+
 #include "parser_strtoint.h"
-// clang-format on
 #undef PEEK
 #undef SKIP
 
