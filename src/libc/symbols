@@ -734,6 +734,11 @@ setservent
 setvbuf
 shm_open
 shutdown
+sigaddset
+sigdelset
+sigemptyset
+sigfillset
+sigismember
 siglongjmp
 sigsetjmp
 sin

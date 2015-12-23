@@ -40,6 +40,7 @@
 #ifndef _SIGNAL_H_
 #define _SIGNAL_H_
 
+#include <_/limits.h>
 #include <_/struct/timespec.h>
 #include <_/types.h>
 
@@ -97,10 +98,48 @@ struct __siginfo {
 };
 typedef __siginfo_t siginfo_t;
 
+typedef struct { __uint32_t __mask; } sigset_t;
+
 __BEGIN_DECLS
 void psignal(int, const char *);
 void psignal_l(int, const char *, __locale_t);
 int raise(int);
+int sigaddset(sigset_t *, int);
+int sigdelset(sigset_t *, int);
+int sigemptyset(sigset_t *);
+int sigfillset(sigset_t *);
+int sigismember(const sigset_t *, int);
 __END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline int __sigaddset(sigset_t *__set, int __signo) {
+  __set->__mask |= _UINT32_C(1) << __signo;
+  return 0;
+}
+#define sigaddset(set, signo) __sigaddset(set, signo)
+
+static __inline int __sigdelset(sigset_t *__set, int __signo) {
+  __set->__mask &= ~(_UINT32_C(1) << __signo);
+  return 0;
+}
+#define sigdelset(set, signo) __sigdelset(set, signo)
+
+static __inline int __sigemptyset(sigset_t *__set) {
+  __set->__mask = _UINT32_C(0);
+  return 0;
+}
+#define sigemptyset(set) __sigemptyset(set)
+
+static __inline int __sigfillset(sigset_t *__set) {
+  __set->__mask = ~_UINT32_C(0);
+  return 0;
+}
+#define sigfillset(set) __sigfillset(set)
+
+static __inline int __sigismember(const sigset_t *__set, int __signo) {
+  return (__set->__mask & (_UINT32_C(1) << __signo)) != 0;
+}
+#define sigismember(set, signo) __sigismember(set, signo)
+#endif
 
 #endif
