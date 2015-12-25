@@ -71,10 +71,12 @@ echo "=> Compiling sources"
 make -k -j8 -f _obj/Makefile all
 
 echo "=> Linking libraries"
-rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a
+rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a _obj/librt.a _obj/libxnet.a
 find src/libc ${DOUBLE_CONVERSION} ${JEMALLOC} ${OPENLIBM_DIRS} \
     \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
     xargs ${AR} rcs _obj/libc.a
 ${AR} rcs _obj/libm.a
 ${AR} rcs _obj/libpthread.a
+${AR} rcs _obj/librt.a
+${AR} rcs _obj/libxnet.a

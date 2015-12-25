@@ -14,8 +14,8 @@ done
 
 echo "=> Installing libraries"
 mkdir -p "${DESTDIR}${PREFIX}/lib"
-install -m 444 _obj/libc.a _obj/libm.a _obj/libpthread.a \
-    "${DESTDIR}${PREFIX}/lib/"
+install -m 444 _obj/libc.a _obj/libm.a _obj/libpthread.a _obj/librt.a \
+    _obj/libxnet.a "${DESTDIR}${PREFIX}/lib/"
 find src/crt -name "*.[cS]" |
     sed -e 's/.*\///' -e 's/\.[a-zA-Z]*$//' | while read crt; do
   install -m 444 _obj/src_crt_${crt}.o "${DESTDIR}${PREFIX}/lib/${crt}.o"
