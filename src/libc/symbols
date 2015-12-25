@@ -291,6 +291,7 @@ fminl
 fmod
 fmodf
 fmodl
+fmtmsg
 fnmatch
 fnmatch_l
 fopenat
