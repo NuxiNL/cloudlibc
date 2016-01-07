@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -908,7 +908,6 @@ static GENERATE_MBSTOC32S(gb2312_mbstoc32s, gb2312_mbtoc32);
 
 static ssize_t gb2312_c32tomb(char *restrict s, char32_t c32,
                               const void *restrict data) {
-  // clang-format off
   static const struct {
     char16_t c16;
     char b[2];
@@ -3396,7 +3395,6 @@ static ssize_t gb2312_c32tomb(char *restrict s, char32_t c32,
       {0xff5e, {0xa1, 0xab}}, {0xffe0, {0xa1, 0xe9}}, {0xffe1, {0xa1, 0xea}},
       {0xffe3, {0xa3, 0xfe}}, {0xffe5, {0xa3, 0xa4}},
   };
-  // clang-format on
 
   if (c32 < 0x80) {
     // Valid ASCII value.
