@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -9,7 +9,7 @@
 #include <testing.h>
 
 TEST_SEPARATE_PROCESS(fmtmsg, bad) {
-  /* Replace stderr by a non-writable stream. fmtmsg() should fail. */
+  // Replace stderr by a non-writable stream. fmtmsg() should fail.
   char buf;
   FILE *fp = fmemopen(&buf, 1, "r");
   ASSERT_NE(NULL, fp);
