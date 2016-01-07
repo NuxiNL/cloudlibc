@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -32,7 +32,7 @@ TEST(getnameinfo, bad) {
     /* Perform conversion. */                                                  \
     char nodebuf[sizeof(node)];                                                \
     char servicebuf[sizeof(service)];                                          \
-    ASSERT_EQ(0, getnameinfo((struct sockaddr *) & (sa), sizeof(sa), nodebuf,  \
+    ASSERT_EQ(0, getnameinfo((struct sockaddr *)&(sa), sizeof(sa), nodebuf,    \
                              sizeof(nodebuf), servicebuf, sizeof(servicebuf),  \
                              NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));     \
     ASSERT_STREQ(node, nodebuf);                                               \
@@ -40,15 +40,15 @@ TEST(getnameinfo, bad) {
                                                                                \
     /* Test what happens if the buffers are too small. */                      \
     ASSERT_EQ(EAI_FAMILY,                                                      \
-              getnameinfo((struct sockaddr *) & (sa), sizeof(sa) - 1, nodebuf, \
+              getnameinfo((struct sockaddr *)&(sa), sizeof(sa) - 1, nodebuf,   \
                           sizeof(nodebuf), servicebuf, sizeof(servicebuf),     \
                           NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));        \
     ASSERT_EQ(EAI_OVERFLOW,                                                    \
-              getnameinfo((struct sockaddr *) & (sa), sizeof(sa), nodebuf,     \
+              getnameinfo((struct sockaddr *)&(sa), sizeof(sa), nodebuf,       \
                           sizeof(nodebuf) - 1, servicebuf, sizeof(servicebuf), \
                           NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));        \
     ASSERT_EQ(EAI_OVERFLOW,                                                    \
-              getnameinfo((struct sockaddr *) & (sa), sizeof(sa), nodebuf,     \
+              getnameinfo((struct sockaddr *)&(sa), sizeof(sa), nodebuf,       \
                           sizeof(nodebuf), servicebuf, sizeof(servicebuf) - 1, \
                           NI_NUMERICHOST | NI_NUMERICSCOPE | (flags)));        \
   } while (0)

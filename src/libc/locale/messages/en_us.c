@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -49,15 +49,19 @@ const struct lc_messages __messages_en_us = {
 
     .strerror =
         {
-                [0] = "Success", [EACCES] = "Permission denied",
+                [0] = "Success",
+                [EACCES] = "Permission denied",
                 [EAFNOSUPPORT] = "Address family not supported",
                 [EAGAIN] = "Resource unavailable, try again",
                 [EBADF] = "Bad file descriptor",
                 [EBUSY] = "Device or resource busy",
                 [EDEADLK] = "Resource deadlock would occur",
-                [EEXIST] = "File exists", [EFAULT] = "Bad address",
-                [EFBIG] = "File too large", [EINVAL] = "Invalid argument",
-                [EIO] = "I/O error", [EISDIR] = "Is a directory",
+                [EEXIST] = "File exists",
+                [EFAULT] = "Bad address",
+                [EFBIG] = "File too large",
+                [EINVAL] = "Invalid argument",
+                [EIO] = "I/O error",
+                [EISDIR] = "Is a directory",
                 [ELOOP] = "Too many levels of symbolic links",
                 [EMFILE] = "File descriptor value too large",
                 [EMLINK] = "Too many links",
@@ -74,8 +78,10 @@ const struct lc_messages __messages_en_us = {
                 [ENOTSOCK] = "Not a socket",
                 [ENXIO] = "No such device or address",
                 [EOVERFLOW] = "Value too large to be stored in data type",
-                [EPERM] = "Operation not permitted", [EPIPE] = "Broken pipe",
-                [EROFS] = "Read-only file system", [ESPIPE] = "Invalid seek",
+                [EPERM] = "Operation not permitted",
+                [EPIPE] = "Broken pipe",
+                [EROFS] = "Read-only file system",
+                [ESPIPE] = "Invalid seek",
                 [EXDEV] = "Cross-device link",
         },
 
