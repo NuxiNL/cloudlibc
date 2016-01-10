@@ -36,7 +36,6 @@
       base = leaf;                                                     \
       path_init(&path);                                                \
     }                                                                  \
-    result = &(*leaf)->__key;                                          \
     path_taking_right(&path);                                          \
     leaf = &(*leaf)->__right;                                          \
   } while (0)
