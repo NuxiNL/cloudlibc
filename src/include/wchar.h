@@ -31,7 +31,7 @@
 // - getwdelim() and getwline():
 //   Analogous to getdelim() and getline().
 // - wcsfmon(), wcsfmon_l(), vwcsfmon() and vwcsfmon_l():
-//   Analogous to strfmon(), strfmon_l(), vstrfmon() and vstrftmon_l().
+//   Analogous to strfmon(), strfmon_l(), vstrfmon() and vstrfmon_l().
 // - wcslcat() and wcslcpy():
 //   Analogous to strlcat() and strlcpy().
 // - wcsndup():
