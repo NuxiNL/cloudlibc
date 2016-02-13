@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -45,8 +45,9 @@ int pthread_join(pthread_t thread, void **value_ptr) {
   if (value_ptr != NULL)
     *value_ptr = thread->return_value;
 
-  // Free the buffer associated with this thread. This buffer contains
-  // both the stack of the thread and its thread handle.
-  free(thread->buffer);
+  // Free the stack buffers associated with this thread. The safe stack
+  // buffer also contains the thread's handle.
+  free(thread->safe_stack);
+  free(thread->unsafe_stack);
   return 0;
 }

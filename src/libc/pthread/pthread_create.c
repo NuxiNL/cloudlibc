@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -35,6 +35,9 @@ static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
   pthread_t handle = data;
   __pthread_self_object = handle;
   __pthread_thread_id = tid;
+  __safestack_unsafe_stack_ptr = (void *)__rounddown(
+      (uintptr_t)handle->unsafe_stack + handle->unsafe_stacksize,
+      PTHREAD_UNSAFE_STACK_ALIGNMENT);
 
   // Initialize the the once object used for joining. This is also done
   // by the parent, but it may be the case that we call pthread_exit()
@@ -53,33 +56,29 @@ static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
 int pthread_create(pthread_t *restrict thread,
                    const pthread_attr_t *restrict attr,
                    void *(*start_routine)(void *), void *restrict arg) {
-  size_t stacksize;
-  char *stackaddr, *buffer;
-  if (attr != NULL && attr->__stackaddr != NULL) {
-    // Use the manually allocated stack that has been provided.
-    stacksize = attr->__stacksize;
-    stackaddr = attr->__stackaddr;
-    buffer = NULL;
-  } else {
-    // Allocate a new stack for the thread automatically. Make sure we
-    // also reserve space for the thread-local storage and the thread
-    // handle.
-    stacksize = (attr != NULL ? attr->__stacksize : PTHREAD_STACK_DEFAULT) +
-                __tls_total_size + sizeof(struct __pthread);
-    stackaddr = malloc(stacksize);
-    if (stackaddr == NULL)
-      return EAGAIN;
-    buffer = stackaddr;
+  size_t stacksize = attr != NULL ? attr->__stacksize : PTHREAD_STACK_DEFAULT;
+  size_t safe_stacksize =
+      stacksize + __tls_total_size + sizeof(struct __pthread);
+  char *safe_stack = malloc(safe_stacksize);
+  if (safe_stack == NULL)
+    return EAGAIN;
+  size_t unsafe_stacksize = stacksize;
+  char *unsafe_stack = malloc(unsafe_stacksize);
+  if (unsafe_stack == NULL) {
+    free(safe_stack);
+    return EAGAIN;
   }
 
   // Steal a part from the top of the stack to store the thread handle.
   pthread_t handle = (pthread_t)__rounddown(
-      (uintptr_t)stackaddr + stacksize - sizeof(struct __pthread),
+      (uintptr_t)safe_stack + safe_stacksize - sizeof(struct __pthread),
       alignof(struct __pthread));
-  stacksize = (char *)handle - stackaddr;
+  safe_stacksize = (char *)handle - safe_stack;
   *handle = (struct __pthread){
       .join = ATOMIC_VAR_INIT(CLOUDABI_LOCK_BOGUS),
-      .buffer = buffer,
+      .safe_stack = safe_stack,
+      .unsafe_stack = unsafe_stack,
+      .unsafe_stacksize = unsafe_stacksize,
 
       .detachstate = ATOMIC_VAR_INIT(
           attr != NULL && attr->__detachstate == PTHREAD_CREATE_DETACHED
@@ -96,15 +95,16 @@ int pthread_create(pthread_t *restrict thread,
   // Create thread.
   cloudabi_threadattr_t tdattr = {
       .entry_point = thread_entry,
-      .stack = stackaddr,
-      .stack_size = stacksize,
+      .stack = safe_stack,
+      .stack_size = safe_stacksize,
       .argument = handle,
   };
   cloudabi_tid_t tid;
   cloudabi_errno_t error = cloudabi_sys_thread_create(&tdattr, &tid);
   if (error != 0) {
     refcount_release(&__pthread_num_threads);
-    free(buffer);
+    free(safe_stack);
+    free(unsafe_stack);
     return error;
   }
 

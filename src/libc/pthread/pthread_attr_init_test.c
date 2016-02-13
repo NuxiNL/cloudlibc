@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -15,14 +15,6 @@ TEST(pthread_attr_init, defaults) {
     int detachstate;
     ASSERT_EQ(0, pthread_attr_getdetachstate(&attr, &detachstate));
     ASSERT_EQ(PTHREAD_CREATE_JOINABLE, detachstate);
-  }
-
-  {
-    void *stackaddr;
-    size_t stacksize;
-    ASSERT_EQ(0, pthread_attr_getstack(&attr, &stackaddr, &stacksize));
-    ASSERT_EQ(NULL, stackaddr);
-    ASSERT_LE(PTHREAD_STACK_MIN, stacksize);
   }
 
   {

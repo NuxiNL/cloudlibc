@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -11,6 +11,7 @@
 #include <common/refcount.h>
 #include <common/syscalldefs.h>
 
+#include <assert.h>
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdint.h>
@@ -19,6 +20,11 @@
 
 // Default stack size.
 #define PTHREAD_STACK_DEFAULT 65536
+
+// Alignment of the unsafe stack buffer.
+#define PTHREAD_UNSAFE_STACK_ALIGNMENT 16
+static_assert(PTHREAD_STACK_DEFAULT % PTHREAD_UNSAFE_STACK_ALIGNMENT == 0,
+              "Default stack buffer needs to be properly aligned");
 
 // Number of threads currently active. This counter is used by
 // pthread_exit() to determine whether the process should be terminated

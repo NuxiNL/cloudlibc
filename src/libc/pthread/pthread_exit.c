@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -66,7 +66,7 @@ noreturn void pthread_exit(void *value_ptr) {
   // In case the thread has an automatically allocated stack and has
   // been detached, we need to enqueue its deallocation.
   pthread_t self = __pthread_self_object;
-  if (self->buffer != NULL) {
+  if (self->safe_stack != NULL) {
     unsigned int old = atomic_fetch_or_explicit(
         &self->detachstate, DETACH_TERMINATING, memory_order_relaxed);
     assert((old & DETACH_TERMINATING) == 0 &&

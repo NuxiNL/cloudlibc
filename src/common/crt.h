@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -24,8 +24,9 @@ extern void (*__dtors_stop[])(void);
 // DSO handle. Not used, as we only support static linkage.
 extern void *__dso_handle;
 
-// Stack smashing protection.
+// Stack protection: stack smashing and LLVM SafeStack.
 extern unsigned long __stack_chk_guard;
+extern thread_local void *__safestack_unsafe_stack_ptr;
 
 // ELF program header.
 extern const ElfW(Phdr) * __elf_phdr;
@@ -48,7 +49,9 @@ noreturn void _start(const cloudabi_auxv_t *);
 struct __pthread {
   _Atomic(cloudabi_lock_t) join;  // Join queue used by pthread_join().
   void *return_value;             // Value returned by pthread_join().
-  void *buffer;                   // Stack buffer used by this thread.
+  void *safe_stack;               // Safe stack buffer used by this thread.
+  void *unsafe_stack;             // Unsafe stack buffer used by this thread.
+  size_t unsafe_stacksize;        // Size of the unsafe stack buffer.
 
   _Atomic(unsigned int) detachstate;  // Flags related to thread detaching.
 #define DETACH_DETACHED 0x1

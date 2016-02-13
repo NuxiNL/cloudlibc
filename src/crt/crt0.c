@@ -1,20 +1,25 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/argdata.h>
 #include <common/crt.h>
+#include <common/pthread.h>
 #include <common/syscalls.h>
 
 #include <program.h>
 #include <stdatomic.h>
+#include <threads.h>
 
 // DSO handle. Not used, as we only support static linkage.
 void *__dso_handle = NULL;
 
-// Stack smashing protection.
+// Stack protection: stack smashing and LLVM SafeStack.
 unsigned long __stack_chk_guard = 0xdeadc0de;
+thread_local void *__safestack_unsafe_stack_ptr;
+static alignas(PTHREAD_UNSAFE_STACK_ALIGNMENT) char initial_unsafe_stack
+    [PTHREAD_STACK_DEFAULT];
 
 // ELF program header.
 const ElfW(Phdr) *__elf_phdr = NULL;
@@ -126,6 +131,9 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 #else
 #error "Unsupported architecture"
 #endif
+
+  // Set unsafe stack for the initial thread.
+  __safestack_unsafe_stack_ptr = &initial_unsafe_stack[PTHREAD_STACK_DEFAULT];
 
   // Patch up the pthread state for the initial thread. Make sure that
   // the pthread_t for the initial thread is valid. Also adjust

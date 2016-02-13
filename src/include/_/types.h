@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -240,7 +240,6 @@ _Static_assert(sizeof(__pthread_once_t) == 4, "ABI broken");
 
 typedef struct {
   int __detachstate;
-  void *__stackaddr;
   __size_t __stacksize;
 } __pthread_attr_t;
 typedef struct { int __pshared; } __pthread_barrierattr_t;
