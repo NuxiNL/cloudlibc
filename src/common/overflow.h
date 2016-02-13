@@ -6,6 +6,25 @@
 #ifndef COMMON_OVERFLOW_H
 #define COMMON_OVERFLOW_H
 
+#include <_/cdefs.h>
+
+// Performs an addition, subtraction or multiplication operation,
+// returning whether the computation caused an overflow.
+//
+// These intrinsics are only available as of Clang 3.8 and GCC 5.
+// For previous versions of Clang we must use builtins that are not type
+// generic.
+//
+// TODO(ed): Simplify this code once we use Clang 3.8 everywhere.
+
+#if __has_builtin(__builtin_add_overflow)
+
+#define add_overflow(x, y, out) __builtin_add_overflow(x, y, out)
+#define sub_overflow(x, y, out) __builtin_sub_overflow(x, y, out)
+#define mul_overflow(x, y, out) __builtin_mul_overflow(x, y, out)
+
+#else
+
 #include <limits.h>
 #include <stdbool.h>
 
@@ -40,12 +59,10 @@ static inline bool umulh_overflow(unsigned short a, unsigned short b,
            unsigned long long: __builtin_u##op##ll_overflow)(x, y, out)
 // clang-format on
 
-// Performs an addition, subtraction or multiplication operation,
-// returning whether the computation caused an overflow.
-// TODO(ed): Simplify this to use __builtin_add_overflow() and friends
-// once Clang 3.8 has been released.
 #define add_overflow(x, y, out) COMPUTE_OVERFLOW(add, x, y, out)
 #define sub_overflow(x, y, out) COMPUTE_OVERFLOW(sub, x, y, out)
 #define mul_overflow(x, y, out) COMPUTE_OVERFLOW(mul, x, y, out)
+
+#endif
 
 #endif
