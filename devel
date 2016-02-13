@@ -11,7 +11,7 @@ export WARNFLAGS="-Werror -Werror-pointer-arith -Wall -Wsystem-headers \
 -Wold-style-definition -Wreturn-type -Wwrite-strings -Wswitch \
 -Wchar-subscripts -Wnested-externs -Wshadow -Wmissing-prototypes \
 -Wstrict-prototypes -Wmissing-variable-declarations -Wthread-safety \
--Wsign-compare -Wundef -Wno-comment"
+-Wsign-compare -Wundef -Wno-comment -Wno-null-dereference"
 export HEADERWARNFLAGS="-Werror -Weverything -Wno-c++11-compat \
 -Wno-c++98-compat-pedantic -Wno-c11-extensions -Wno-c99-extensions \
 -Wno-cast-qual -Wno-comment -Wno-complex-component-init -Wno-float-equal \
@@ -75,6 +75,7 @@ __gttf2
 __letf2
 __lttf2
 __muldc3
+__muloti4
 __mulsc3
 __multc3
 __multf3
