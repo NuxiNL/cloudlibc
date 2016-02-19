@@ -6,6 +6,7 @@
 #include <common/syscalls.h>
 
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -117,8 +118,10 @@ int scandirat(int dirfd, const char *dir, struct dirent ***namelist,
     // Load more directory entries and continue.
     cloudabi_errno_t error = cloudabi_sys_file_readdir(fd, buffer, buffer_size,
                                                        cookie, &buffer_used);
-    if (error != 0)
+    if (error != 0) {
+      errno = error;
       goto bad;
+    }
     buffer_processed = 0;
   }
 
