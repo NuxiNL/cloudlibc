@@ -38,5 +38,6 @@ TEST(listen, example) {
   ASSERT_LE(0, fd);
   ASSERT_EQ(0, bindat(fd, fd_tmp, "foo"));
   ASSERT_EQ(0, listen(fd, 0));
+  ASSERT_EQ(0, listen(fd, 0));
   ASSERT_EQ(0, close(fd));
 }
