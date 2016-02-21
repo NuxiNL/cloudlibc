@@ -81,3 +81,10 @@ ${AR} rcs _obj/libm.a
 ${AR} rcs _obj/libpthread.a
 ${AR} rcs _obj/librt.a
 ${AR} rcs _obj/libxnet.a
+cp _obj/src_crt_crt0.o _obj/crt0.o
+cp _obj/src_crt_crtbegin.o _obj/crtbegin.o
+cp _obj/src_crt_crtend.o _obj/crtend.o
+
+echo "=> Building unit tests"
+${CC} -L_obj -B_obj -o _obj/cloudlibc-unittests \
+    $(find src -name "*_test.c" | sort | sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')

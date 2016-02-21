@@ -110,7 +110,3 @@ if ! cmp -s src/libc/symbols _obj/symbols; then
 fi
 
 PREFIX="${PREFIX}" sudo -E ./install
-
-echo "=> Building unit tests"
-${CC} -o _obj/unittest $(find src -name "*_test.c" | sort |
-    sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')
