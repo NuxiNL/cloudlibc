@@ -8,6 +8,13 @@
 
 #include "search_impl.h"
 
+// Inserts an object into an AVL tree if not present.
+//
+// This algorithm is based on the non-recursive algorithm for
+// AVL tree insertion by Neil Brown:
+//
+// http://neil.brown.name/blog/20041124101820
+// http://neil.brown.name/blog/20041124141849
 void *tsearch(const void *key, void **rootp,
               int (*compar)(const void *, const void *)) {
   // POSIX requires that tsearch() returns NULL if rootp is NULL.

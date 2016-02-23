@@ -40,6 +40,13 @@
     leaf = &(*leaf)->__right;                                          \
   } while (0)
 
+// Deletes an object from an AVL tree if present.
+//
+// This algorithm is based on the non-recursive algorithm for
+// AVL tree deletion by Neil Brown:
+//
+// http://neil.brown.name/blog/20041124101820
+// http://neil.brown.name/blog/20041124141849
 void *tdelete(const void *restrict key, void **restrict rootp,
               int (*compar)(const void *, const void *)) {
   // POSIX requires that tdelete() returns NULL if rootp is NULL.
