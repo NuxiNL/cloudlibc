@@ -78,7 +78,7 @@ TEST(getsockopt, error) {
   ASSERT_EQ(sizeof(err), errlen);
   ASSERT_EQ(0, err);
 
-  // Close the receiving side. The sending side should now see ENOTCONN.
+  // Close the receiving side. The sending side should now see ECONNABORTED.
   ASSERT_EQ(0, close(fd1));
   errlen = sizeof(err);
   ASSERT_EQ(0, getsockopt(fd2, SOL_SOCKET, SO_ERROR, &err, &errlen));
