@@ -78,12 +78,12 @@ TEST(getsockopt, error) {
   ASSERT_EQ(sizeof(err), errlen);
   ASSERT_EQ(0, err);
 
-  // Close the receiving side. The sending side should now see ECONNABORTED.
+  // Close the receiving side. The sending side should now see ECONNRESET.
   ASSERT_EQ(0, close(fd1));
   errlen = sizeof(err);
   ASSERT_EQ(0, getsockopt(fd2, SOL_SOCKET, SO_ERROR, &err, &errlen));
   ASSERT_EQ(sizeof(err), errlen);
-  ASSERT_EQ(ECONNABORTED, err);
+  ASSERT_EQ(ECONNRESET, err);
 
   // Error should be cleared by getsockopt().
   errlen = sizeof(err);
