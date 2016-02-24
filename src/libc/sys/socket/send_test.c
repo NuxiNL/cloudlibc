@@ -10,7 +10,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(send, bad) {
+TEST(send, bad) {
   // Bad file descriptor.
   char b = 'A';
   ASSERT_EQ(-1, send(-1, &b, 1, 0));
@@ -35,9 +35,18 @@ TEST_SEPARATE_PROCESS(send, bad) {
   ASSERT_EQ(-1, send(fds[0], &b, 1, 0xdeadc0de));
   ASSERT_EQ(EOPNOTSUPP, errno);
 
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
+}
+
+TEST_SEPARATE_PROCESS(send, epipe) {
   // Close one side of the connection. Sending a packet should fail, but
   // should not generate a SIGPIPE.
+  int fds[2];
+  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
   ASSERT_EQ(0, close(fds[1]));
+
+  char b = 'A';
   ASSERT_EQ(-1, send(fds[0], &b, 1, 0));
   ASSERT_EQ(EPIPE, errno);
   ASSERT_EQ(0, close(fds[0]));

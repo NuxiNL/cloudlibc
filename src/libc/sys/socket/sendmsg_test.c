@@ -11,7 +11,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(sendmsg, bad) {
+TEST(sendmsg, bad) {
   // Bad file descriptor.
   char b = 'A';
   struct iovec biov = {.iov_base = &b, .iov_len = 1};
@@ -43,11 +43,6 @@ TEST_SEPARATE_PROCESS(sendmsg, bad) {
   ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
   ASSERT_EQ(-1, sendmsg(fds[0], &message, 0xdeadc0de));
   ASSERT_EQ(EOPNOTSUPP, errno);
-  ASSERT_EQ(0, close(fds[1]));
-
-  // Connection has been closed.
-  ASSERT_EQ(-1, sendmsg(fds[0], &message, 0));
-  ASSERT_EQ(EPIPE, errno);
 
   // Destination address cannot be specified in this implementation.
   struct sockaddr_un sun = {.sun_family = AF_UNIX};
@@ -55,6 +50,21 @@ TEST_SEPARATE_PROCESS(sendmsg, bad) {
   message.msg_namelen = sizeof(sun);
   ASSERT_EQ(-1, sendmsg(fds[0], &message, 0));
   ASSERT_EQ(ENOTCAPABLE, errno);
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
+}
+
+TEST_SEPARATE_PROCESS(sendmsg, epipe) {
+  // Connection has been closed.
+  int fds[2];
+  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+  ASSERT_EQ(0, close(fds[1]));
+
+  char b = 'A';
+  struct iovec biov = {.iov_base = &b, .iov_len = 1};
+  struct msghdr message = {.msg_iov = &biov, .msg_iovlen = 1};
+  ASSERT_EQ(-1, sendmsg(fds[0], &message, 0));
+  ASSERT_EQ(EPIPE, errno);
   ASSERT_EQ(0, close(fds[0]));
 }
 
