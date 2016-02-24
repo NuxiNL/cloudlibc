@@ -64,6 +64,8 @@ static void child3(void) __no_lock_analysis {
   pthread_mutex_unlock(&lock);
 }
 
+static pthread_once_t once_control = PTHREAD_ONCE_INIT;
+
 static void setup_handlers(void) {
   ASSERT_EQ(0, pthread_atfork(prepare1, parent1, child1));
   ASSERT_EQ(0, pthread_atfork(prepare2, parent2, child2));
@@ -72,7 +74,6 @@ static void setup_handlers(void) {
 
 TEST(pthread_atfork, example) {
   // Register three atfork handlers.
-  pthread_once_t once_control = PTHREAD_ONCE_INIT;
   ASSERT_EQ(0, pthread_once(&once_control, setup_handlers));
 
   // Fork process.
