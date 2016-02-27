@@ -54,4 +54,3 @@ fn(type x)			\
 
 DECL(double, nearbyint, rint)
 DECL(float, nearbyintf, rintf)
-DECL(long double, nearbyintl, rintl)
