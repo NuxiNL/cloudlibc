@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
 #include <common/syscalls.h>
 
 #include <sys/procdesc.h>
@@ -41,7 +42,7 @@ int pdwait(int fd, siginfo_t *infop, int options) {
     if (ev->type == CLOUDABI_EVENTTYPE_PROC_TERMINATE) {
       if (ev->error != 0) {
         // Invalid file descriptor.
-        return ev->error;
+        return errno_fixup_process(fd, ev->error);
       }
 
       if (ev->proc_terminate.signal != 0) {

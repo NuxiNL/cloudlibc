@@ -20,6 +20,18 @@ static inline cloudabi_errno_t errno_fixup_directory(cloudabi_fd_t fd,
   return error;
 }
 
+// Translates ENOTCAPABLE to EINVAL if not a process.
+static inline cloudabi_errno_t errno_fixup_process(cloudabi_fd_t fd,
+                                                   cloudabi_errno_t error) {
+  if (error == CLOUDABI_ENOTCAPABLE) {
+    cloudabi_fdstat_t fds;
+    if (cloudabi_sys_fd_stat_get(fd, &fds) == 0 &&
+        fds.fs_filetype != CLOUDABI_FILETYPE_PROCESS)
+      return CLOUDABI_EINVAL;
+  }
+  return error;
+}
+
 // Translates ENOTCAPABLE to ENOTSOCK if not a socket.
 static inline cloudabi_errno_t errno_fixup_socket(cloudabi_fd_t fd,
                                                   cloudabi_errno_t error) {
