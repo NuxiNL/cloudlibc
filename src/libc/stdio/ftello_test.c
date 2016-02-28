@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -8,7 +8,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST(fseeko, espipe) {
+TEST(ftello, espipe) {
   // Create a stream to read side of a pipe.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
@@ -24,7 +24,7 @@ TEST(fseeko, espipe) {
   ASSERT_EQ(0, fclose(fp));
 }
 
-TEST(fseeko, success) {
+TEST(ftello, success) {
   FILE *fp = tmpfile();
   ASSERT_NE(NULL, fp);
   ASSERT_EQ(0, ftello(fp));
