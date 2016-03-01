@@ -316,7 +316,7 @@
  * require it.
  */
 #if 0
-#if __GNUC_PREREQ__(4, 1) && !defined(__offsetof)
+#if __GNUC_PREREQ__(4, 1)
 #define __offsetof(type, field)	 __builtin_offsetof(type, field)
 #else
 #ifndef __cplusplus
@@ -328,9 +328,9 @@
                   (static_cast<type *> (0)->field))))
 #endif
 #endif
+#endif
 #define	__rangeof(type, start, end) \
 	(__offsetof(type, end) - __offsetof(type, start))
-#endif
 
 /*
  * Compiler-dependent macros to declare that functions take printf-like
