@@ -495,6 +495,7 @@ while (*format != '\0') {
             PAD_TO_FIELD_WIDTH(' ');
 #if WIDE
             // Print the string after the padding.
+            ps = (struct mbtoc32state){};
             while (string < string_end) {
               char32_t c32;
               ssize_t len =
