@@ -302,7 +302,7 @@ int NAME(int fd, locale_t locale, const char_t *format, va_list ap) {
       return -1;                                                        \
     resultstored += k;                                                  \
     while (resultstored > sizeof(result) - MB_LEN_MAX) {                \
-      ssize_t l = write(fd, result, sizeof(result));                    \
+      ssize_t l = write(fd, result, resultstored);                      \
       if (l == -1)                                                      \
         return -1;                                                      \
       memmove(result, result + l, resultstored - l);                    \
