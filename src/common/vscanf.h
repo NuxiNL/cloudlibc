@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -44,30 +44,30 @@ static bool update_input_remaining(size_t *input_remaining, const char_t *s,
 }
 #endif
 
-#define LM_SINT_MIN(length)                                               \
-  ((length) == LM_SHORT_SHORT                                             \
-       ? SCHAR_MIN                                                        \
-       : (length) == LM_SHORT ? SHRT_MIN : (length) == LM_LONG            \
-                                               ? LONG_MIN                 \
-                                               : (length) == LM_LONG_LONG \
-                                                     ? LLONG_MIN          \
-                                                     : INT_MIN)
-#define LM_SINT_MAX(length)                                               \
-  ((length) == LM_SHORT_SHORT                                             \
-       ? SCHAR_MAX                                                        \
-       : (length) == LM_SHORT ? SHRT_MAX : (length) == LM_LONG            \
-                                               ? LONG_MAX                 \
-                                               : (length) == LM_LONG_LONG \
-                                                     ? LLONG_MAX          \
-                                                     : INT_MAX)
-#define LM_UINT_MAX(length)                                                \
-  ((length) == LM_SHORT_SHORT                                              \
-       ? UCHAR_MAX                                                         \
-       : (length) == LM_SHORT ? USHRT_MAX : (length) == LM_LONG            \
-                                                ? ULONG_MAX                \
-                                                : (length) == LM_LONG_LONG \
-                                                      ? ULLONG_MAX         \
-                                                      : UINT_MAX)
+#define LM_SINT_MIN(length)        \
+  ((length) == LM_SHORT_SHORT      \
+       ? SCHAR_MIN                 \
+       : (length) == LM_SHORT      \
+             ? SHRT_MIN            \
+             : (length) == LM_LONG \
+                   ? LONG_MIN      \
+                   : (length) == LM_LONG_LONG ? LLONG_MIN : INT_MIN)
+#define LM_SINT_MAX(length)        \
+  ((length) == LM_SHORT_SHORT      \
+       ? SCHAR_MAX                 \
+       : (length) == LM_SHORT      \
+             ? SHRT_MAX            \
+             : (length) == LM_LONG \
+                   ? LONG_MAX      \
+                   : (length) == LM_LONG_LONG ? LLONG_MAX : INT_MAX)
+#define LM_UINT_MAX(length)        \
+  ((length) == LM_SHORT_SHORT      \
+       ? UCHAR_MAX                 \
+       : (length) == LM_SHORT      \
+             ? USHRT_MAX           \
+             : (length) == LM_LONG \
+                   ? ULONG_MAX     \
+                   : (length) == LM_LONG_LONG ? ULLONG_MAX : UINT_MAX)
 
 #if STYLE == VFSCANF
 static int vfscanf_locked(FILE *stream, locale_t, const char_t *, va_list)

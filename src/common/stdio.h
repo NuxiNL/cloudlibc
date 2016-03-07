@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -58,10 +58,10 @@ static inline bool ebadf(FILE *file) {
        prefix##_flush, prefix##_close},                             \
       {prefix##_read_peek, prefix##_write_peek, prefix##_seek,      \
        prefix##_setvbuf, prefix##_flush, prefix##_close}}
-#define GET_FILEOPS_ACCMODE(prefix, oflags)                               \
-  (((oflags)&O_WRONLY) == 0 ? &prefix##_ops[0] : ((oflags)&O_RDONLY) == 0 \
-                                                     ? &prefix##_ops[1]   \
-                                                     : &prefix##_ops[2])
+#define GET_FILEOPS_ACCMODE(prefix, oflags) \
+  (((oflags)&O_WRONLY) == 0                 \
+       ? &prefix##_ops[0]                   \
+       : ((oflags)&O_RDONLY) == 0 ? &prefix##_ops[1] : &prefix##_ops[2])
 
 struct __lockable _FILE {
   // Constant data.

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -150,9 +150,9 @@ size_t NAME(char_t *restrict s, size_t maxsize, const char_t *restrict format,
         }
         case L'd': {
           // Day of the month with leading zero.
-          number = timeptr->tm_mday < 1 ? 1 : timeptr->tm_mday <= 31
-                                                  ? timeptr->tm_mday
-                                                  : 31;
+          number = timeptr->tm_mday < 1
+                       ? 1
+                       : timeptr->tm_mday <= 31 ? timeptr->tm_mday : 31;
           number_precision = 2;
           break;
         }
@@ -163,9 +163,9 @@ size_t NAME(char_t *restrict s, size_t maxsize, const char_t *restrict format,
         }
         case L'e': {
           // Day of the month without leading zero.
-          number = timeptr->tm_mday < 1 ? 1 : timeptr->tm_mday <= 31
-                                                  ? timeptr->tm_mday
-                                                  : 31;
+          number = timeptr->tm_mday < 1
+                       ? 1
+                       : timeptr->tm_mday <= 31 ? timeptr->tm_mday : 31;
           number_precision = 2;
           number_padding = ' ';
           break;
@@ -216,44 +216,44 @@ size_t NAME(char_t *restrict s, size_t maxsize, const char_t *restrict format,
         }
         case L'H': {
           // 24-hour based hour with leading zero.
-          number = timeptr->tm_hour < 0 ? 0 : timeptr->tm_hour <= 23
-                                                  ? timeptr->tm_hour
-                                                  : 23;
+          number = timeptr->tm_hour < 0
+                       ? 0
+                       : timeptr->tm_hour <= 23 ? timeptr->tm_hour : 23;
           number_precision = 2;
           break;
         }
         case L'I': {
           // 12-hour based hour with leading zero.
           number =
-              timeptr->tm_hour <= 0 ? 12 : timeptr->tm_hour <= 12
-                                               ? timeptr->tm_hour
-                                               : timeptr->tm_hour <= 23
-                                                     ? timeptr->tm_hour - 12
-                                                     : 11;
+              timeptr->tm_hour <= 0
+                  ? 12
+                  : timeptr->tm_hour <= 12
+                        ? timeptr->tm_hour
+                        : timeptr->tm_hour <= 23 ? timeptr->tm_hour - 12 : 11;
           number_precision = 2;
           break;
         }
         case L'j': {
           // Day of the year with leading zero.
-          number = timeptr->tm_yday < 0 ? 1 : timeptr->tm_yday <= 365
-                                                  ? timeptr->tm_yday + 1
-                                                  : 366;
+          number = timeptr->tm_yday < 0
+                       ? 1
+                       : timeptr->tm_yday <= 365 ? timeptr->tm_yday + 1 : 366;
           number_precision = 3;
           break;
         }
         case L'm': {
           // Month number with leading zero.
-          number = timeptr->tm_mon < 0 ? 1 : timeptr->tm_mon <= 11
-                                                 ? timeptr->tm_mon + 1
-                                                 : 12;
+          number = timeptr->tm_mon < 0
+                       ? 1
+                       : timeptr->tm_mon <= 11 ? timeptr->tm_mon + 1 : 12;
           number_precision = 2;
           break;
         }
         case L'M': {
           // Minutes with leading zero.
-          number = timeptr->tm_min < 0 ? 0 : timeptr->tm_min <= 59
-                                                 ? timeptr->tm_min
-                                                 : 59;
+          number = timeptr->tm_min < 0
+                       ? 0
+                       : timeptr->tm_min <= 59 ? timeptr->tm_min : 59;
           number_precision = 2;
           break;
         }
@@ -279,9 +279,9 @@ size_t NAME(char_t *restrict s, size_t maxsize, const char_t *restrict format,
         }
         case L'S': {
           // Seconds with leading zero.
-          number = timeptr->tm_sec < 0 ? 0 : timeptr->tm_sec <= 60
-                                                 ? timeptr->tm_sec
-                                                 : 60;
+          number = timeptr->tm_sec < 0
+                       ? 0
+                       : timeptr->tm_sec <= 60 ? timeptr->tm_sec : 60;
           number_precision = 2;
           break;
         }
