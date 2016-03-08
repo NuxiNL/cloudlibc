@@ -75,7 +75,7 @@ typedef __va_list va_list;
 #endif
 
 typedef struct {
-  __off_t __offset;       // Offset within file.
+  off_t __offset;         // Offset within file.
   __mbstate_t __mbstate;  // Multibyte state at this offset.
 } fpos_t;
 
