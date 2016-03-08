@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -24,6 +24,9 @@
 // <syslog.h> - definitions for system error logging
 //
 // Extensions:
+// - LOG_UPTO():
+//   Eases creation of logging mask for setlogmask(). Present on most
+//   common operating systems.
 // - syslog_l() and vsyslog_l():
 //   syslog() and vsyslog() always use the C locale.
 // - vsyslog():
@@ -65,16 +68,17 @@
 #define LOG_LOCAL7 0  // Reserved for local use.
 
 #define LOG_MASK(pri) (1 << (pri))
+#define LOG_UPTO(pri) (LOG_MASK((pri) + 1) - 1)
 
-// Logging severities.
-#define LOG_ALERT 0    // A condition that should be corrected immediately.
-#define LOG_CRIT 1     // A critical condition.
-#define LOG_DEBUG 2    // A message useful for debugging programs.
-#define LOG_EMERG 3    // A panic condition was reported to all processes.
-#define LOG_ERR 4      // An error message.
-#define LOG_INFO 5     // A general information message.
-#define LOG_NOTICE 6   // A condition requiring special handling.
-#define LOG_WARNING 7  // A warning message.
+// Logging severities in descending order of importance.
+#define LOG_EMERG 0    // A panic condition was reported to all processes.
+#define LOG_ALERT 1    // A condition that should be corrected immediately.
+#define LOG_CRIT 2     // A critical condition.
+#define LOG_ERR 3      // An error message.
+#define LOG_WARNING 4  // A warning message.
+#define LOG_NOTICE 5   // A condition requiring special handling.
+#define LOG_INFO 6     // A general information message.
+#define LOG_DEBUG 7    // A message useful for debugging programs.
 
 __BEGIN_DECLS
 void closelog(void);

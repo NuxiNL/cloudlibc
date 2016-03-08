@@ -1,8 +1,9 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <assert.h>
 #include <errno.h>
 #include <locale.h>
 #include <stdarg.h>
@@ -13,6 +14,26 @@
 #include <time.h>
 
 #include "syslog_impl.h"
+
+static_assert(LOG_UPTO(LOG_EMERG) == LOG_MASK(LOG_EMERG),
+              "LOG_UPTO(LOG_EMERG) yields an incorrect mask");
+static_assert(LOG_UPTO(LOG_ALERT) ==
+                  (LOG_UPTO(LOG_EMERG) | LOG_MASK(LOG_ALERT)),
+              "LOG_UPTO(LOG_ALERT) yields an incorrect mask");
+static_assert(LOG_UPTO(LOG_CRIT) == (LOG_UPTO(LOG_ALERT) | LOG_MASK(LOG_CRIT)),
+              "LOG_UPTO(LOG_CRIT) yields an incorrect mask");
+static_assert(LOG_UPTO(LOG_ERR) == (LOG_UPTO(LOG_CRIT) | LOG_MASK(LOG_ERR)),
+              "LOG_UPTO(LOG_ERR) yields an incorrect mask");
+static_assert(LOG_UPTO(LOG_WARNING) ==
+                  (LOG_UPTO(LOG_ERR) | LOG_MASK(LOG_WARNING)),
+              "LOG_UPTO(LOG_WARNING) yields an incorrect mask");
+static_assert(LOG_UPTO(LOG_NOTICE) ==
+                  (LOG_UPTO(LOG_WARNING) | LOG_MASK(LOG_NOTICE)),
+              "LOG_UPTO(LOG_NOTICE) yields an incorrect mask");
+static_assert(LOG_UPTO(LOG_INFO) == (LOG_UPTO(LOG_NOTICE) | LOG_MASK(LOG_INFO)),
+              "LOG_UPTO(LOG_INFO) yields an incorrect mask");
+static_assert(LOG_UPTO(LOG_DEBUG) == (LOG_UPTO(LOG_INFO) | LOG_MASK(LOG_DEBUG)),
+              "LOG_UPTO(LOG_DEBUG) yields an incorrect mask");
 
 static const char messages[][10] = {
         [LOG_ALERT] = "ALERT    \0",  [LOG_CRIT] = "CRITICAL \0",
