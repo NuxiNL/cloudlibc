@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -52,6 +52,10 @@ typedef __pthread_attr_t pthread_attr_t;
 typedef __pthread_t pthread_t;
 #define _PTHREAD_T_DECLARED
 #endif
+#ifndef _SIGSET_T_DECLARED
+typedef __sigset_t sigset_t;
+#define _SIGSET_T_DECLARED
+#endif
 #ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
 #define _SIZE_T_DECLARED
@@ -97,8 +101,6 @@ struct __siginfo {
   int si_status;  // Exit value or signal.
 };
 typedef __siginfo_t siginfo_t;
-
-typedef struct { __uint32_t __mask; } sigset_t;
 
 __BEGIN_DECLS
 void psignal(int, const char *);

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -28,16 +28,17 @@
 //   Present on most BSD-derived systems.
 // - pselect():
 //   Last parameter may be omitted entirely.
-//
-// Features missing:
-// - sigset_t:
-//   Requires signal handling support.
 
 #ifndef _SYS_SELECT_H_
 #define _SYS_SELECT_H_
 
 #include <_/struct/timespec.h>
 #include <_/time_select.h>
+
+#ifndef _SIGSET_T_DECLARED
+typedef __sigset_t sigset_t;
+#define _SIGSET_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 int pselect(int, fd_set *__restrict, fd_set *__restrict, fd_set *__restrict,

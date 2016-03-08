@@ -204,6 +204,7 @@ typedef struct { struct __pthread_key *__key; } __pthread_key_t;
 typedef struct __pthread *__pthread_t;
 typedef __uint8_t __sa_family_t;
 typedef struct __siginfo __siginfo_t;
+typedef struct { __uint32_t __mask; } __sigset_t;
 typedef __int_least24_t __suseconds_t;
 typedef __int64_t __time_t;
 typedef __builtin_va_list __va_list;
