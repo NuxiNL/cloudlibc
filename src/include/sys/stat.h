@@ -82,7 +82,15 @@ struct stat {
 #define st_ctime st_ctim.tv_sec
 #define st_mtime st_mtim.tv_sec
 
-#define S_IFMT 0xff0000
+// Old definitions to test for the file type directly. We are unable to
+// define S_IFSOCK, because it does not use a single value.
+#define S_IFMT 0xff0000   // Type of file.
+#define S_IFBLK 0x100000  // Block device.
+#define S_IFCHR 0x110000  // Character device.
+#define S_IFDIR 0x200000  // Directory.
+#define S_IFIFO 0x300000  // FIFO.
+#define S_IFLNK 0x900000  // Symbolic link.
+#define S_IFREG 0x600000  // Regular file.
 
 // File mode bits. These flags have no effect in this environment, but
 // are purely provided to keep standards conformant code compile.
@@ -105,16 +113,16 @@ struct stat {
 #define S_ISUID 0x800
 
 // File descriptor types supported by this implementation.
-#define S_ISBLK(m) (((m)&S_IFMT) == 0x100000)
-#define S_ISCHR(m) (((m)&S_IFMT) == 0x110000)
-#define S_ISDIR(m) (((m)&S_IFMT) == 0x200000)
-#define S_ISFIFO(m) (((m)&S_IFMT) == 0x300000)
+#define S_ISBLK(m) (((m)&S_IFMT) == S_IFBLK)
+#define S_ISCHR(m) (((m)&S_IFMT) == S_IFCHR)
+#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#define S_ISFIFO(m) (((m)&S_IFMT) == S_IFIFO)
+#define S_ISLNK(m) (((m)&S_IFMT) == S_IFLNK)
+#define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
+#define S_ISSOCK(m) (((m)&0xf00000) == 0x800000)
 #define S_TYPEISPOLL(m) (((m)&S_IFMT) == 0x400000)
 #define S_TYPEISPROC(m) (((m)&S_IFMT) == 0x500000)
-#define S_ISREG(m) (((m)&S_IFMT) == 0x600000)
 #define S_TYPEISSHM(m) (((m)&S_IFMT) == 0x700000)
-#define S_ISSOCK(m) (((m)&0xf00000) == 0x800000)
-#define S_ISLNK(m) (((m)&S_IFMT) == 0x900000)
 
 // File decriptor types not supported by this implementation.
 #define S_TYPEISMQ(m) 0
