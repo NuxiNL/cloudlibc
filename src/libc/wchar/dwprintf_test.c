@@ -5,6 +5,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <locale.h>
 #include <testing.h>
 #include <unistd.h>
 #include <wchar.h>
@@ -39,12 +40,13 @@ TEST(dwprintf, example) {
   // Write a string into a pipe.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(12, dwprintf(fds[1], L"%s, %s", "Hello", "world"));
+  ASSERT_EQ(12, dwprintf_l(fds[1], LC_C_UNICODE_LOCALE, L"%ls, %s", L"H€llø",
+                           "world"));
   ASSERT_EQ(0, close(fds[1]));
 
   // Read it back again.
-  char buf[13];
-  ASSERT_EQ(12, read(fds[0], buf, sizeof(buf)));
-  ASSERT_ARREQ("Hello, world", buf, 12);
+  char buf[16];
+  ASSERT_EQ(15, read(fds[0], buf, sizeof(buf)));
+  ASSERT_ARREQ("H€llø, world", buf, 15);
   ASSERT_EQ(0, close(fds[0]));
 }
