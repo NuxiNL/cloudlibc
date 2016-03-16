@@ -18,7 +18,7 @@ TEST(kqueue, rights) {
   // Validate file type.
   struct stat sb;
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_TRUE(S_TYPEISPOLL(sb.st_mode));
+  ASSERT_TRUE(S_TYPEISPOLL(&sb));
 
   // Validate rights from a standard kqueue.
   cap_rights_t base, inheriting;

@@ -24,13 +24,7 @@ static_assert(S_ISDIR(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_DIRECTORY)),
               "Value mismatch");
 static_assert(S_ISFIFO(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_FIFO)),
               "Value mismatch");
-static_assert(S_TYPEISPOLL(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_POLL)),
-              "Value mismatch");
-static_assert(S_TYPEISPROC(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_PROCESS)),
-              "Value mismatch");
 static_assert(S_ISREG(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_REGULAR_FILE)),
-              "Value mismatch");
-static_assert(S_TYPEISSHM(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_SHARED_MEMORY)),
               "Value mismatch");
 static_assert(S_ISSOCK(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_SOCKET_DGRAM)),
               "Value mismatch");

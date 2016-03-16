@@ -22,7 +22,7 @@ TEST(cap_rights_limit, example) {
   ASSERT_LE(0, fd);
   struct stat sb;
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_TRUE(S_TYPEISPOLL(sb.st_mode));
+  ASSERT_TRUE(S_TYPEISPOLL(&sb));
 
   // Attempted to extend rights.
   cap_rights_t rights;
@@ -30,7 +30,7 @@ TEST(cap_rights_limit, example) {
   ASSERT_EQ(-1, cap_rights_limit(fd, &rights));
   ASSERT_EQ(ENOTCAPABLE, errno);
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_TRUE(S_TYPEISPOLL(sb.st_mode));
+  ASSERT_TRUE(S_TYPEISPOLL(&sb));
 
   // Limiting rights is allowed.
   ASSERT_EQ(&rights, cap_rights_init(&rights, CAP_KQUEUE));

@@ -120,9 +120,9 @@ struct stat {
 #define S_ISLNK(m) (((m)&S_IFMT) == S_IFLNK)
 #define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
 #define S_ISSOCK(m) (((m)&0xf00000) == 0x800000)
-#define S_TYPEISPOLL(m) (((m)&S_IFMT) == 0x400000)
-#define S_TYPEISPROC(m) (((m)&S_IFMT) == 0x500000)
-#define S_TYPEISSHM(m) (((m)&S_IFMT) == 0x700000)
+#define S_TYPEISPOLL(m) (((m)->st_mode & S_IFMT) == 0x400000)
+#define S_TYPEISPROC(m) (((m)->st_mode & S_IFMT) == 0x500000)
+#define S_TYPEISSHM(m) (((m)->st_mode & S_IFMT) == 0x700000)
 
 // File decriptor types not supported by this implementation.
 #define S_TYPEISMQ(m) 0

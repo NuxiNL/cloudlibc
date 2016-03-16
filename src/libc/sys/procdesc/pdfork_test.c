@@ -22,7 +22,7 @@ TEST(pdfork, rights) {
   // Validate file type.
   struct stat sb;
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_TRUE(S_TYPEISPROC(sb.st_mode));
+  ASSERT_TRUE(S_TYPEISPROC(&sb));
 
   // Validate rights from a standard process descriptor.
   cap_rights_t base, inheriting;

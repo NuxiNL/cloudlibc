@@ -28,7 +28,7 @@ TEST(shm_open, example) {
   // Shared memory should be empty.
   struct stat sb;
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_TRUE(S_TYPEISSHM(sb.st_mode));
+  ASSERT_TRUE(S_TYPEISSHM(&sb));
   ASSERT_EQ(0, sb.st_size);
 
   // Grow.
@@ -36,7 +36,7 @@ TEST(shm_open, example) {
 
   // Validate length.
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_TRUE(S_TYPEISSHM(sb.st_mode));
+  ASSERT_TRUE(S_TYPEISSHM(&sb));
   ASSERT_EQ(1000, sb.st_size);
 
   // Map shared memory and write data into it.
