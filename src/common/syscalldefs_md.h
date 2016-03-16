@@ -45,7 +45,7 @@ typedef void IDENT(threadentry_t)(cloudabi_tid_t, PTR(void));
 
 // Auxiliary vector entry, used to provide paramters on startup.
 typedef struct {
-  uint32_t a_type;
+  cloudabi_auxtype_t a_type;
   union {
     MEMBER(IDENT(size_t)) a_val;
     MEMBER(PTR(void)) a_ptr;
@@ -87,7 +87,7 @@ typedef struct {
     struct {
       MEMBER(cloudabi_filesize_t) nbytes;
       MEMBER(cloudabi_fd_t) fd;
-      MEMBER(uint16_t) flags;
+      MEMBER(cloudabi_eventrwflags_t) flags;
     } fd_readwrite;
 
     // CLOUDABI_EVENT_LOCK_RDLOCK and CLOUDABI_EVENT_LOCK_WRLOCK: Wait
@@ -176,7 +176,7 @@ ASSERT_SIZE(send_out_t, 4, 8);
 
 typedef struct {
   MEMBER(cloudabi_userdata_t) userdata;
-  MEMBER(uint16_t) flags;
+  MEMBER(cloudabi_subflags_t) flags;
   MEMBER(cloudabi_eventtype_t) type;
   union {
     // CLOUDABI_EVENTTYPE_CLOCK: Wait until the value of a clock
@@ -186,7 +186,7 @@ typedef struct {
       MEMBER(cloudabi_clockid_t) clock_id;
       MEMBER(cloudabi_timestamp_t) timeout;
       MEMBER(cloudabi_timestamp_t) precision;
-      MEMBER(uint16_t) flags;
+      MEMBER(cloudabi_subclockflags_t) flags;
     } clock;
 
     // CLOUDABI_EVENTTYPE_CONDVAR: Release a lock and wait on a
@@ -203,7 +203,7 @@ typedef struct {
     // called without blocking.
     struct {
       MEMBER(cloudabi_fd_t) fd;
-      MEMBER(uint16_t) flags;
+      MEMBER(cloudabi_subrwflags_t) flags;
     } fd_readwrite;
 
     // CLOUDABI_EVENT_LOCK_RDLOCK and CLOUDABI_EVENT_LOCK_WRLOCK: Wait

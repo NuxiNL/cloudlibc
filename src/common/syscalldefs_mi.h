@@ -27,12 +27,15 @@
 // Machine independent definitions.
 
 // Socket address families.
+typedef uint8_t cloudabi_sa_family_t;
 #define CLOUDABI_AF_UNSPEC 0
 #define CLOUDABI_AF_INET 1
 #define CLOUDABI_AF_INET6 2
 #define CLOUDABI_AF_UNIX 3
 
 // File and memory I/O advice.
+// posix_fadvise() and posix_madvise().
+typedef uint8_t cloudabi_advice_t;
 #define CLOUDABI_ADVICE_DONTNEED 1
 #define CLOUDABI_ADVICE_NOREUSE 2
 #define CLOUDABI_ADVICE_NORMAL 3
@@ -42,6 +45,7 @@
 
 // Auxiliary vector entries. All entries that are also part of the
 // x86-64 ABI use the same number. All extensions start at 256.
+typedef uint32_t cloudabi_auxtype_t;
 #define CLOUDABI_AT_ARGDATA 256
 #define CLOUDABI_AT_ARGDATALEN 257
 #define CLOUDABI_AT_CANARY 258
@@ -54,17 +58,26 @@
 #define CLOUDABI_AT_TID 261
 
 // Clocks.
+// clock_*().
+typedef uint32_t cloudabi_clockid_t;
 #define CLOUDABI_CLOCK_MONOTONIC 1
 #define CLOUDABI_CLOCK_PROCESS_CPUTIME_ID 2
 #define CLOUDABI_CLOCK_REALTIME 3
 #define CLOUDABI_CLOCK_THREAD_CPUTIME_ID 4
 
 // Condition variables.
+// pthread_cond_*().
+typedef uint32_t cloudabi_condvar_t;
 #define CLOUDABI_CONDVAR_HAS_NO_WAITERS 0
 
 // The start of a directory, to be passed to readdir().
+// readdir().
+typedef uint64_t cloudabi_dircookie_t;
 #define CLOUDABI_DIRCOOKIE_START 0
 
+// Error numbers.
+// errno.
+typedef uint16_t cloudabi_errno_t;
 // POSIX standard error numbers.
 #define CLOUDABI_E2BIG 1
 #define CLOUDABI_EACCES 2
@@ -141,13 +154,16 @@
 #define CLOUDABI_ETIMEDOUT 73
 #define CLOUDABI_ETXTBSY 74
 #define CLOUDABI_EXDEV 75
-
 // Non-standard error numbers.
 #define CLOUDABI_ENOTCAPABLE 76
 
+// cloudabi_event_t::fd_readwrite.flags.
+typedef uint16_t cloudabi_eventrwflags_t;
 #define CLOUDABI_EVENT_FD_READWRITE_HANGUP 0x1
 
 // Filter types for cloudabi_eventtype_t.
+// poll().
+typedef uint8_t cloudabi_eventtype_t;
 #define CLOUDABI_EVENTTYPE_CLOCK 1
 #define CLOUDABI_EVENTTYPE_CONDVAR 2
 #define CLOUDABI_EVENTTYPE_FD_READ 3
@@ -157,17 +173,21 @@
 #define CLOUDABI_EVENTTYPE_PROC_TERMINATE 7
 
 // File descriptor behavior flags.
+// cloudabi_fdstat_t.
+typedef uint16_t cloudabi_fdflags_t;
 #define CLOUDABI_FDFLAG_APPEND 0x1
 #define CLOUDABI_FDFLAG_DSYNC 0x2
 #define CLOUDABI_FDFLAG_NONBLOCK 0x4
 #define CLOUDABI_FDFLAG_RSYNC 0x8
 #define CLOUDABI_FDFLAG_SYNC 0x10
 
-// fdstat_put() flags.
+// fd_stat_put() flags.
+typedef uint16_t cloudabi_fdsflags_t;
 #define CLOUDABI_FDSTAT_FLAGS 0x1
 #define CLOUDABI_FDSTAT_RIGHTS 0x2
 
-// filestat_put() flags.
+// file_stat_put() flags.
+typedef uint16_t cloudabi_fsflags_t;
 #define CLOUDABI_FILESTAT_ATIM 0x1
 #define CLOUDABI_FILESTAT_ATIM_NOW 0x2
 #define CLOUDABI_FILESTAT_MTIM 0x4
@@ -175,6 +195,7 @@
 #define CLOUDABI_FILESTAT_SIZE 0x10
 
 // File types returned through struct stat::st_mode.
+typedef uint8_t cloudabi_filetype_t;
 #define CLOUDABI_FILETYPE_UNKNOWN 0
 #define CLOUDABI_FILETYPE_BLOCK_DEVICE 0x10
 #define CLOUDABI_FILETYPE_CHARACTER_DEVICE 0x11
@@ -190,38 +211,47 @@
 #define CLOUDABI_FILETYPE_SYMBOLIC_LINK 0x90
 
 // Read-write lock related constants.
+// pthread_{mutex,rwlock}_*().
+typedef uint32_t cloudabi_lock_t;
 #define CLOUDABI_LOCK_UNLOCKED 0                 // Lock is unlocked.
 #define CLOUDABI_LOCK_WRLOCKED 0x40000000        // Lock is write locked.
 #define CLOUDABI_LOCK_KERNEL_MANAGED 0x80000000  // Lock has waiters.
 #define CLOUDABI_LOCK_BOGUS 0x80000000           // Lock is broken.
 
 // Lookup properties for *at() functions.
+// openat(), linkat(), etc.
+typedef uint64_t cloudabi_lookup_t;
 #define CLOUDABI_LOOKUP_SYMLINK_FOLLOW (UINT64_C(0x1) << 32)
 
 // Open flags for openat(), etc.
+typedef uint16_t cloudabi_oflags_t;
 #define CLOUDABI_O_CREAT 0x1
 #define CLOUDABI_O_DIRECTORY 0x2
 #define CLOUDABI_O_EXCL 0x4
 #define CLOUDABI_O_TRUNC 0x8
 
+// File descriptors.
+typedef uint32_t cloudabi_fd_t;
 // File descriptor returned to pdfork()'s child process.
 #define CLOUDABI_PROCESS_CHILD 0xffffffff
+// File descriptor that must be passed in when using CLOUDABI_MAP_ANON.
+#define CLOUDABI_MAP_ANON_FD 0xffffffff
 
 // mmap() map flags.
+typedef uint8_t cloudabi_mflags_t;
 #define CLOUDABI_MAP_ANON 0x1
 #define CLOUDABI_MAP_FIXED 0x2
 #define CLOUDABI_MAP_PRIVATE 0x4
 #define CLOUDABI_MAP_SHARED 0x8
 
-// File descriptor that must be passed in when using CLOUDABI_MAP_ANON.
-#define CLOUDABI_MAP_ANON_FD 0xffffffff
-
 // msync() flags.
+typedef uint8_t cloudabi_msflags_t;
 #define CLOUDABI_MS_ASYNC 0x1
 #define CLOUDABI_MS_INVALIDATE 0x2
 #define CLOUDABI_MS_SYNC 0x4
 
 // send() and recv() flags.
+typedef uint16_t cloudabi_msgflags_t;
 #define CLOUDABI_MSG_CTRUNC 0x1    // Control data truncated.
 #define CLOUDABI_MSG_EOR 0x2       // Terminates a record.
 #define CLOUDABI_MSG_PEEK 0x4      // Leave received data in queue.
@@ -229,11 +259,13 @@
 #define CLOUDABI_MSG_WAITALL 0x10  // Attempt to fill the read buffer.
 
 // mmap()/mprotect() protection flags.
+typedef uint8_t cloudabi_mprot_t;
 #define CLOUDABI_PROT_EXEC 0x1
 #define CLOUDABI_PROT_WRITE 0x2
 #define CLOUDABI_PROT_READ 0x4
 
 // File descriptor capabilities/rights.
+typedef uint64_t cloudabi_rights_t;
 #define CLOUDABI_RIGHT_BIT(bit) (UINT64_C(1) << (bit))
 #define CLOUDABI_RIGHT_FD_DATASYNC CLOUDABI_RIGHT_BIT(0)
 #define CLOUDABI_RIGHT_FD_READ CLOUDABI_RIGHT_BIT(1)
@@ -278,10 +310,13 @@
 #define CLOUDABI_RIGHT_SOCK_STAT_GET CLOUDABI_RIGHT_BIT(40)
 
 // Socket shutdown flags.
+typedef uint8_t cloudabi_sdflags_t;
 #define CLOUDABI_SHUT_RD 0x1
 #define CLOUDABI_SHUT_WR 0x2
 
 // Signals.
+// raise().
+typedef uint8_t cloudabi_signal_t;
 #define CLOUDABI_SIGABRT 1
 #define CLOUDABI_SIGALRM 2
 #define CLOUDABI_SIGBUS 3
@@ -310,12 +345,15 @@
 #define CLOUDABI_SIGXFSZ 26
 
 // sockstat() flags.
+typedef uint8_t cloudabi_ssflags_t;
 #define CLOUDABI_SOCKSTAT_CLEAR_ERROR 0x1
 
 // sockstat() state.
+typedef uint32_t cloudabi_sstate_t;
 #define CLOUDABI_SOCKSTAT_ACCEPTCONN 0x1
 
 // cloudabi_subscription_t flags.
+typedef uint16_t cloudabi_subflags_t;
 #define CLOUDABI_SUBSCRIPTION_ADD 0x1
 #define CLOUDABI_SUBSCRIPTION_CLEAR 0x2
 #define CLOUDABI_SUBSCRIPTION_DELETE 0x4
@@ -324,55 +362,35 @@
 #define CLOUDABI_SUBSCRIPTION_ONESHOT 0x20
 
 // cloudabi_subscription_t::clock.flags.
+typedef uint16_t cloudabi_subclockflags_t;
 #define CLOUDABI_SUBSCRIPTION_CLOCK_ABSTIME 0x1
 
 // cloudabi_subscription_t::fd_readwrite.flags.
+typedef uint16_t cloudabi_subrwflags_t;
 #define CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL 0x1
 
-// unlinkat().
+// unlinkat() flags.
+typedef uint8_t cloudabi_ulflags_t;
 #define CLOUDABI_UNLINK_REMOVEDIR 0x1
 
 // Seeking.
+// lseek().
+typedef uint8_t cloudabi_whence_t;
 #define CLOUDABI_WHENCE_CUR 1
 #define CLOUDABI_WHENCE_END 2
 #define CLOUDABI_WHENCE_SET 3
 
-typedef uint8_t cloudabi_advice_t;      // posix_fadvise() and posix_madvise().
 typedef uint32_t cloudabi_backlog_t;    // listen().
-typedef uint32_t cloudabi_clockid_t;    // clock_*().
-typedef uint32_t cloudabi_condvar_t;    // pthread_cond_*().
 typedef uint64_t cloudabi_device_t;     // struct stat::st_dev.
-typedef uint64_t cloudabi_dircookie_t;  // readdir().
-typedef uint16_t cloudabi_errno_t;      // errno.
-typedef uint8_t cloudabi_eventtype_t;   // poll().
 typedef uint32_t cloudabi_exitcode_t;   // _exit() and _Exit().
-typedef uint32_t cloudabi_fd_t;         // File descriptors.
-typedef uint16_t cloudabi_fdflags_t;    // cloudabi_fdstat_t.
-typedef uint16_t cloudabi_fdsflags_t;   // fd_stat_put().
 typedef int64_t cloudabi_filedelta_t;   // lseek().
 typedef uint64_t cloudabi_filesize_t;   // ftruncate(), struct stat::st_size.
-typedef uint8_t cloudabi_filetype_t;    // struct stat::st_mode.
-typedef uint16_t cloudabi_fsflags_t;    // file_stat_put().
 typedef uint64_t cloudabi_inode_t;      // struct stat::st_ino.
 typedef uint32_t cloudabi_linkcount_t;  // struct stat::st_nlink.
-typedef uint32_t cloudabi_lock_t;       // pthread_{mutex,rwlock}_*().
-typedef uint64_t cloudabi_lookup_t;     // openat(), linkat(), etc.
-typedef uint8_t cloudabi_mflags_t;      // mmap().
-typedef uint8_t cloudabi_mprot_t;       // mmap().
-typedef uint8_t cloudabi_msflags_t;     // msync().
-typedef uint16_t cloudabi_msgflags_t;   // send() and recv().
 typedef uint32_t cloudabi_nthreads_t;   // pthread_cond_*().
-typedef uint16_t cloudabi_oflags_t;     // openat(), etc.
-typedef uint64_t cloudabi_rights_t;     // File descriptor rights.
-typedef uint8_t cloudabi_sa_family_t;   // Socket address family.
-typedef uint8_t cloudabi_sdflags_t;     // shutdown().
-typedef uint8_t cloudabi_ssflags_t;     // sockstat().
-typedef uint8_t cloudabi_signal_t;      // raise().
 typedef uint32_t cloudabi_tid_t;        // Thread ID.
 typedef uint64_t cloudabi_timestamp_t;  // clock_*(), struct stat::st_*tim.
-typedef uint8_t cloudabi_ulflags_t;     // unlinkat().
 typedef uint64_t cloudabi_userdata_t;   // User-supplied data for callbacks.
-typedef uint8_t cloudabi_whence_t;      // lseek().
 
 // Macro to force sane alignment rules.
 //
@@ -461,7 +479,7 @@ typedef struct {
   MEMBER(cloudabi_sockaddr_t) ss_sockname;  // Socket address.
   MEMBER(cloudabi_sockaddr_t) ss_peername;  // Peer address.
   MEMBER(cloudabi_errno_t) ss_error;        // Current error state.
-  MEMBER(uint32_t) ss_state;                // State flags.
+  MEMBER(cloudabi_sstate_t) ss_state;       // State flags.
 } cloudabi_sockstat_t;
 ASSERT_OFFSET(sockstat_t, ss_sockname, 0);
 ASSERT_OFFSET(sockstat_t, ss_peername, 20);
