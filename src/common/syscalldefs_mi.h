@@ -350,7 +350,7 @@ typedef uint8_t cloudabi_ssflags_t;
 
 // sockstat() state.
 typedef uint32_t cloudabi_sstate_t;
-#define CLOUDABI_SOCKSTAT_ACCEPTCONN 0x1
+#define CLOUDABI_SOCKSTATE_ACCEPTCONN 0x1
 
 // cloudabi_subscription_t flags.
 typedef uint16_t cloudabi_subflags_t;

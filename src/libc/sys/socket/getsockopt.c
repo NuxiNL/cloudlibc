@@ -29,7 +29,7 @@ int getsockopt(int socket, int level, int option_name,
         errno = errno_fixup_socket(socket, error);
         return -1;
       }
-      value = (ss.ss_state & CLOUDABI_SOCKSTAT_ACCEPTCONN) != 0;
+      value = (ss.ss_state & CLOUDABI_SOCKSTATE_ACCEPTCONN) != 0;
       break;
     }
     case SO_ERROR: {
