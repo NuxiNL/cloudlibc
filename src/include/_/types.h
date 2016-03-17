@@ -207,6 +207,7 @@ typedef struct __siginfo __siginfo_t;
 typedef struct { __uint32_t __mask; } __sigset_t;
 typedef __int_least24_t __suseconds_t;
 typedef __int64_t __time_t;
+typedef __uint64_t __useconds_t;
 typedef __builtin_va_list __va_list;
 
 // Process-shared threading objects with a fixed ABI.

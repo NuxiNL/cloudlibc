@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -26,6 +26,8 @@
 // Extensions:
 // - _SC_NPROCESSORS_ONLN:
 //   Present on most systems and used by many pieces of software.
+// - useconds_t and usleep():
+//   Still used actively, as it was part of POSIX up to issue 6.
 //
 // Features missing:
 // - _POSIX_VERSION, _POSIX2_VERSION, _XOPEN_VERSION, _SC_VERSION,
@@ -305,6 +307,10 @@ typedef __size_t size_t;
 typedef __ssize_t ssize_t;
 #define _SSIZE_T_DECLARED
 #endif
+#ifndef _USECONDS_T_DECLARED
+typedef __useconds_t useconds_t;
+#define _USECONDS_T_DECLARED
+#endif
 
 __BEGIN_DECLS
 int close(int);
@@ -327,6 +333,7 @@ void swab(const void *__restrict, void *__restrict, ssize_t);
 int symlinkat(const char *, int, const char *);
 long sysconf(int);
 int unlinkat(int, const char *, int);
+int usleep(useconds_t);
 ssize_t write(int, const void *, size_t);
 __END_DECLS
 

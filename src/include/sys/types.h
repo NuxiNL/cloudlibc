@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -22,6 +22,10 @@
 // SUCH DAMAGE.
 
 // <sys/types.h> - data types
+//
+// Extensions:
+// - useconds_t:
+//   Still used actively, as it was part of POSIX up to issue 6.
 //
 // Features missing:
 // - fsblkcnt_t and fsfilcnt_t:
@@ -133,6 +137,10 @@ typedef __suseconds_t suseconds_t;
 #ifndef _TIME_T_DECLARED
 typedef __time_t time_t;
 #define _TIME_T_DECLARED
+#endif
+#ifndef _USECONDS_T_DECLARED
+typedef __useconds_t useconds_t;
+#define _USECONDS_T_DECLARED
 #endif
 
 #endif

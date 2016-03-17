@@ -874,6 +874,7 @@ tzset
 ungetc
 ungetwc
 unlinkat
+usleep
 utimensat
 vasprintf
 vasprintf_l
