@@ -18,8 +18,11 @@
 #include <stdnoreturn.h>
 #include <threads.h>
 
-// Default stack size.
-#define PTHREAD_STACK_DEFAULT 65536
+// On Linux, the default stack size for new threads is 2 MB. On FreeBSD
+// it is either 1 MB for 32-bit systems and 2 MB for 64-bit systems.
+// As this implement requires two stacks due to SafeStack, allocate two
+// stacks that are both 1 MB in size.
+#define PTHREAD_STACK_DEFAULT (1 << 20)
 
 // Alignment of the unsafe stack buffer.
 #define PTHREAD_UNSAFE_STACK_ALIGNMENT 16
