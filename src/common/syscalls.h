@@ -56,7 +56,6 @@ typedef uint64_t register_t;
     asm volatile(                                                       \
         "\tsvc 0\n"                                                     \
         "\tcset %0, cc\n"                                               \
-        "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_value1), "=r"(reg_value2)                \
         : "r"(reg_sc)                                                   \
         : CLOBBERS);                                                    \
@@ -89,7 +88,6 @@ typedef uint64_t register_t;
     asm volatile(                                                       \
         "\tsvc 0\n"                                                     \
         "\tcset %0, cc\n"                                               \
-        "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_value1)                                  \
         : "r"(reg_sc), "r"(reg_value1)                                  \
         : CLOBBERS);                                                    \
@@ -111,7 +109,6 @@ typedef uint64_t register_t;
     asm volatile(                                                    \
         "\tsvc 0\n"                                                  \
         "\tcset %0, cc\n"                                            \
-        "1:\n"                                                       \
         : "=r"(okay), "=r"(reg_value1), "=r"(reg_value2)             \
         : "r"(reg_sc), "r"(reg_value1)                               \
         : CLOBBERS);                                                 \
@@ -147,7 +144,6 @@ typedef uint64_t register_t;
     asm volatile(                                                    \
         "\tsvc 0\n"                                                  \
         "\tcset %0, cc\n"                                            \
-        "1:\n"                                                       \
         : "=r"(okay), "=r"(reg_value1)                               \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2)              \
         : CLOBBERS);                                                 \
@@ -185,7 +181,6 @@ typedef uint64_t register_t;
     asm volatile(                                                        \
         "\tsvc 0\n"                                                      \
         "\tcset %0, cc\n"                                                \
-        "1:\n"                                                           \
         : "=r"(okay), "=r"(reg_value1)                                   \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3) \
         : CLOBBERS);                                                     \
@@ -226,7 +221,6 @@ typedef uint64_t register_t;
     asm volatile(                                                         \
         "\tsvc 0\n"                                                       \
         "\tcset %0, cc\n"                                                 \
-        "1:\n"                                                            \
         : "=r"(okay), "=r"(reg_value1)                                    \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3), \
           "r"(reg_value4)                                                 \
@@ -270,7 +264,6 @@ typedef uint64_t register_t;
     asm volatile(                                                            \
         "\tsvc 0\n"                                                          \
         "\tcset %0, cc\n"                                                    \
-        "1:\n"                                                               \
         : "=r"(okay), "=r"(reg_value1)                                       \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),    \
           "r"(reg_value4), "r"(reg_value5)                                   \
@@ -319,7 +312,6 @@ typedef uint64_t register_t;
     asm volatile(                                                           \
         "\tsvc 0\n"                                                         \
         "\tcset %0, cc\n"                                                   \
-        "1:\n"                                                              \
         : "=r"(okay), "=r"(reg_value1)                                      \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),   \
           "r"(reg_value4), "r"(reg_value5), "r"(reg_value6)                 \
@@ -355,7 +347,6 @@ typedef uint64_t register_t;
     asm volatile(                                                       \
         "\tsyscall\n"                                                   \
         "\tsetnc %0\n"                                                  \
-        "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_sc), "=r"(reg_value3)                    \
         : "r"(reg_sc)                                                   \
         : CLOBBERS);                                                    \
@@ -388,7 +379,6 @@ typedef uint64_t register_t;
     asm volatile(                                                       \
         "\tsyscall\n"                                                   \
         "\tsetnc %0\n"                                                  \
-        "1:\n"                                                          \
         : "=r"(okay), "=r"(reg_sc)                                      \
         : "r"(reg_sc), "r"(reg_value1)                                  \
         : CLOBBERS);                                                    \
@@ -410,7 +400,6 @@ typedef uint64_t register_t;
     asm volatile(                                                     \
         "\tsyscall\n"                                                 \
         "\tsetnc %0\n"                                                \
-        "1:\n"                                                        \
         : "=r"(okay), "=r"(reg_sc), "=r"(reg_value3)                  \
         : "r"(reg_sc), "r"(reg_value1)                                \
         : CLOBBERS);                                                  \
@@ -446,7 +435,6 @@ typedef uint64_t register_t;
     asm volatile(                                                     \
         "\tsyscall\n"                                                 \
         "\tsetnc %0\n"                                                \
-        "1:\n"                                                        \
         : "=r"(okay), "=r"(reg_sc)                                    \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2)               \
         : CLOBBERS);                                                  \
@@ -484,7 +472,6 @@ typedef uint64_t register_t;
     asm volatile(                                                        \
         "\tsyscall\n"                                                    \
         "\tsetnc %0\n"                                                   \
-        "1:\n"                                                           \
         : "=r"(okay), "=r"(reg_sc)                                       \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3) \
         : CLOBBERS);                                                     \
@@ -525,7 +512,6 @@ typedef uint64_t register_t;
     asm volatile(                                                         \
         "\tsyscall\n"                                                     \
         "\tsetnc %0\n"                                                    \
-        "1:\n"                                                            \
         : "=r"(okay), "=r"(reg_sc)                                        \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3), \
           "r"(reg_value4)                                                 \
@@ -569,7 +555,6 @@ typedef uint64_t register_t;
     asm volatile(                                                            \
         "\tsyscall\n"                                                        \
         "\tsetnc %0\n"                                                       \
-        "1:\n"                                                               \
         : "=r"(okay), "=r"(reg_sc)                                           \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),    \
           "r"(reg_value4), "r"(reg_value5)                                   \
@@ -618,7 +603,6 @@ typedef uint64_t register_t;
     asm volatile(                                                           \
         "\tsyscall\n"                                                       \
         "\tsetnc %0\n"                                                      \
-        "1:\n"                                                              \
         : "=r"(okay), "=r"(reg_sc)                                          \
         : "r"(reg_sc), "r"(reg_value1), "r"(reg_value2), "r"(reg_value3),   \
           "r"(reg_value4), "r"(reg_value5), "r"(reg_value6)                 \
