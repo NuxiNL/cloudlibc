@@ -14,9 +14,15 @@
 static_assert(offsetof(struct iovec, iov_base) ==
                   offsetof(cloudabi_iovec_t, iov_base),
               "Offset mismatch");
+static_assert(sizeof(((struct iovec *)0)->iov_base) ==
+                  sizeof(((cloudabi_iovec_t *)0)->iov_base),
+              "Size mismatch");
 static_assert(offsetof(struct iovec, iov_len) ==
                   offsetof(cloudabi_iovec_t, iov_len),
               "Offset mismatch");
+static_assert(sizeof(((struct iovec *)0)->iov_len) ==
+                  sizeof(((cloudabi_iovec_t *)0)->iov_len),
+              "Size mismatch");
 static_assert(sizeof(struct iovec) == sizeof(cloudabi_iovec_t),
               "Size mismatch");
 

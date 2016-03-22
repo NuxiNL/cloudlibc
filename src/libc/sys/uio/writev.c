@@ -7,14 +7,22 @@
 
 #include <sys/uio.h>
 
+#include <assert.h>
 #include <errno.h>
+#include <stddef.h>
 
 static_assert(offsetof(struct iovec, iov_base) ==
                   offsetof(cloudabi_ciovec_t, iov_base),
               "Offset mismatch");
+static_assert(sizeof(((struct iovec *)0)->iov_base) ==
+                  sizeof(((cloudabi_ciovec_t *)0)->iov_base),
+              "Size mismatch");
 static_assert(offsetof(struct iovec, iov_len) ==
                   offsetof(cloudabi_ciovec_t, iov_len),
               "Offset mismatch");
+static_assert(sizeof(((struct iovec *)0)->iov_len) ==
+                  sizeof(((cloudabi_ciovec_t *)0)->iov_len),
+              "Size mismatch");
 static_assert(sizeof(struct iovec) == sizeof(cloudabi_ciovec_t),
               "Size mismatch");
 
