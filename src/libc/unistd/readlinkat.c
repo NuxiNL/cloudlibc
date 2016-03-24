@@ -12,7 +12,7 @@
 
 ssize_t readlinkat(int fd, const char *restrict path, char *restrict buf,
                    size_t bufsize) {
-  cloudabi_size_t bufused;
+  size_t bufused;
   cloudabi_errno_t error = cloudabi_sys_file_readlink(fd, path, strlen(path),
                                                       buf, bufsize, &bufused);
   if (error != 0) {
