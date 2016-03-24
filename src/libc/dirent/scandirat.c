@@ -3,8 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/syscalls.h>
-
+#include <cloudabi_syscalls.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>

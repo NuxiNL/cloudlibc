@@ -1,12 +1,12 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/errno.h>
-#include <common/syscalls.h>
 
 #include <assert.h>
+#include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
@@ -80,9 +80,9 @@ int openat(int fd, const char *path, int oflag, ...) {
   }
 
   // Path lookup properties.
-  cloudabi_lookup_t lookup = (cloudabi_fd_t)fd;
+  cloudabi_lookup_t lookup = {.fd = fd, .flags = 0};
   if ((oflag & O_NOFOLLOW) == 0)
-    lookup |= CLOUDABI_LOOKUP_SYMLINK_FOLLOW;
+    lookup.flags |= CLOUDABI_LOOKUP_SYMLINK_FOLLOW;
 
   // Open file with appropriate rights.
   cloudabi_fdstat_t fsb_new = {
@@ -94,7 +94,7 @@ int openat(int fd, const char *path, int oflag, ...) {
   error = cloudabi_sys_file_open(lookup, path, strlen(path),
                                  (oflag >> 12) & 0xfff, &fsb_new, &newfd);
   if (error != 0) {
-    errno = errno_fixup_directory(lookup, error);
+    errno = errno_fixup_directory(lookup.fd, error);
     return -1;
   }
   return newfd;

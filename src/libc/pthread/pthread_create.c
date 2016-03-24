@@ -6,8 +6,8 @@
 #include <common/crt.h>
 #include <common/pthread.h>
 #include <common/refcount.h>
-#include <common/syscalls.h>
 
+#include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdalign.h>

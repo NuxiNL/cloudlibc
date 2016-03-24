@@ -14,7 +14,7 @@ JEMALLOC=contrib/jemalloc-4.0.0
 OPENLIBM=contrib/openlibm-f7a18b5
 
 # Additional compiler flags to include the right files, etc.
-CFLAGS="${CFLAGS} -nostdinc -Isrc -Isrc/include \
+CFLAGS="${CFLAGS} -Isrc -Isrc/include \
 -I${DOUBLE_CONVERSION} -I${JEMALLOC}/include \
 -I${OPENLIBM}/include -I${OPENLIBM}/src -I${OPENLIBM} -fno-exceptions \
 -fno-rtti -DOPENLIBM_USE_HOST_COMPLEX_H -DOPENLIBM_USE_HOST_FENV_H \

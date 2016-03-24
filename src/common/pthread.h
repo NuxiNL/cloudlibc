@@ -9,9 +9,9 @@
 #include <common/pthread.h>
 #include <common/queue.h>
 #include <common/refcount.h>
-#include <common/syscalldefs.h>
 
 #include <assert.h>
+#include <cloudabi_types.h>
 #include <pthread.h>
 #include <stdatomic.h>
 #include <stdint.h>

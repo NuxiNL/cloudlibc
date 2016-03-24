@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -6,8 +6,7 @@
 #ifndef DIRENT_DIRENT_IMPL_H
 #define DIRENT_DIRENT_IMPL_H
 
-#include <common/syscalldefs.h>
-
+#include <cloudabi_types.h>
 #include <stddef.h>
 
 struct dirent;

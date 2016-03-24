@@ -5,9 +5,9 @@
 
 #include <common/crt.h>
 #include <common/pthread.h>
-#include <common/syscalls.h>
 
 #include <assert.h>
+#include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdlib.h>

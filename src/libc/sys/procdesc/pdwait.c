@@ -4,10 +4,10 @@
 // See the LICENSE file for details.
 
 #include <common/errno.h>
-#include <common/syscalls.h>
 
 #include <sys/procdesc.h>
 
+#include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>

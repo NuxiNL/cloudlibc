@@ -1,13 +1,13 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/errno.h>
-#include <common/syscalls.h>
 
 #include <sys/stat.h>
 
+#include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
@@ -25,9 +25,9 @@ int utimensat(int fd, const char *path, const struct timespec times[2],
   }
 
   // Create lookup properties.
-  cloudabi_lookup_t lookup = (cloudabi_fd_t)fd;
+  cloudabi_lookup_t lookup = {.fd = fd, .flags = 0};
   if ((flag & AT_SYMLINK_NOFOLLOW) == 0)
-    lookup |= CLOUDABI_LOOKUP_SYMLINK_FOLLOW;
+    lookup.flags |= CLOUDABI_LOOKUP_SYMLINK_FOLLOW;
 
   // Perform system call.
   cloudabi_errno_t error =

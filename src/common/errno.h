@@ -6,7 +6,7 @@
 #ifndef COMMON_ERRNO_H
 #define COMMON_ERRNO_H
 
-#include <common/syscalls.h>
+#include <cloudabi_syscalls.h>
 
 // Translates ENOTCAPABLE to ENOTDIR if not a directory.
 static inline cloudabi_errno_t errno_fixup_directory(cloudabi_fd_t fd,
