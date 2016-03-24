@@ -9,6 +9,7 @@
 #include <sys/event.h>
 #include <sys/types.h>
 
+#include <assert.h>
 #include <errno.h>
 
 static_assert(EV_ADD == CLOUDABI_SUBSCRIPTION_ADD, "Value mismatch");

@@ -6,6 +6,7 @@
 #include <common/syscalls.h>
 
 #include <stdio.h>
+#include <stdnoreturn.h>
 
 noreturn void abort(void) {
   // Flush error messages.

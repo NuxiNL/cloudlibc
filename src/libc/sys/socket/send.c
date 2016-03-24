@@ -8,6 +8,7 @@
 
 #include <sys/socket.h>
 
+#include <assert.h>
 #include <errno.h>
 
 static_assert(MSG_EOR == CLOUDABI_MSG_EOR, "Value mismatch");

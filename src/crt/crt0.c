@@ -9,6 +9,7 @@
 #include <common/syscalls.h>
 
 #include <program.h>
+#include <stdalign.h>
 #include <stdatomic.h>
 #include <threads.h>
 
