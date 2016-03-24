@@ -31,7 +31,7 @@ ssize_t readv(int fildes, const struct iovec *iov, int iovcnt) {
     errno = EINVAL;
     return -1;
   }
-  cloudabi_size_t bytes_read;
+  size_t bytes_read;
   cloudabi_errno_t error = cloudabi_sys_fd_read(
       fildes, (const cloudabi_iovec_t *)iov, iovcnt, &bytes_read);
   if (error != 0) {

@@ -15,7 +15,7 @@ ssize_t pwritev(int fildes, const struct iovec *iov, int iovcnt, off_t offset) {
     errno = EINVAL;
     return -1;
   }
-  cloudabi_size_t bytes_written;
+  size_t bytes_written;
   cloudabi_errno_t error = cloudabi_sys_fd_pwrite(
       fildes, (const cloudabi_ciovec_t *)iov, iovcnt, offset, &bytes_written);
   if (error != 0) {
