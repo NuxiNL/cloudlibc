@@ -34,6 +34,12 @@ typedef __argdata_t argdata_t;
 #define _ARGDATA_T_DECLARED
 #endif
 
+typedef struct {
+	__size_t index;
+	int error;
+	__size_t __data[16];
+} argdata_iterator_t;
+
 struct _FILE;
 struct timespec;
 
@@ -67,11 +73,12 @@ int __argdata_get_int_u(const argdata_t *, __uintmax_t *, __uintmax_t);
 int argdata_get_str(const argdata_t *, const char **, __size_t *);
 int argdata_get_str_c(const argdata_t *, const char **);
 int argdata_get_timestamp(const argdata_t *, struct timespec *);
-int argdata_iterate_map(const argdata_t *,
-                        _Bool (*)(const argdata_t *, const argdata_t *, void *),
-                        void *);
-int argdata_iterate_seq(const argdata_t *, _Bool (*)(const argdata_t *, void *),
-                        void *);
+int argdata_map_iterate(const argdata_t *, argdata_iterator_t *);
+int argdata_seq_iterate(const argdata_t *, argdata_iterator_t *);
+_Bool argdata_map_next(argdata_iterator_t *, const argdata_t **,
+                                const argdata_t**);
+_Bool argdata_seq_next(argdata_iterator_t *, const argdata_t **);
+_Bool argdata_has_next(argdata_iterator_t *);
 void argdata_print_yaml(const argdata_t *, struct _FILE *);
 __END_DECLS
 

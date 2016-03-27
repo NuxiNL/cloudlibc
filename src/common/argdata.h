@@ -9,6 +9,7 @@
 #include <sys/types.h>
 
 #include <argdata.h>
+#include <assert.h>
 #include <errno.h>
 #include <limits.h>
 #include <locale.h>
@@ -36,6 +37,22 @@ struct __argdata {
   // Length of the resulting binary code.
   size_t length;
 };
+
+struct  __argdata_iterator {
+  size_t index;
+  int error;
+  const argdata_t *container;
+  size_t left;
+  argdata_t key;
+  argdata_t value;
+};
+
+static_assert(sizeof(struct __argdata_iterator) <=
+                  sizeof(argdata_iterator_t),
+              "Invalid size.");
+static_assert(_Alignof(struct __argdata_iterator) <=
+                  _Alignof(argdata_iterator_t),
+              "Invalid align.");
 
 enum {
   ADT_BINARY = 1,    // A sequence of zero or more octets.

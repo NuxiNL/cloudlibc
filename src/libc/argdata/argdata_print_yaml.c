@@ -16,47 +16,8 @@
 #include <wchar.h>
 #include <wctype.h>
 
-struct iterate_data {
-  bool first;
-  FILE *fp;
-  unsigned int depth;
-};
-
-static void print_yaml(const argdata_t *, FILE *, unsigned int);
-
 static void print_space(unsigned int depth, FILE *fp) {
   fprintf(fp, "\n%*s", depth, "");
-}
-
-// Prints the elements stored in a map.
-static bool iterate_map(const argdata_t *key, const argdata_t *value,
-                        void *thunk) {
-  struct iterate_data *id = thunk;
-  if (id->first) {
-    fputs("!!map {", id->fp);
-    id->first = false;
-  }
-  print_space(id->depth, id->fp);
-  fputs("? ", id->fp);
-  print_yaml(key, id->fp, id->depth);
-  print_space(id->depth, id->fp);
-  fputs(": ", id->fp);
-  print_yaml(value, id->fp, id->depth);
-  fputc(',', id->fp);
-  return true;
-}
-
-// Prints the elements stored in a sequence.
-static bool iterate_seq(const argdata_t *ad, void *thunk) {
-  struct iterate_data *id = thunk;
-  if (id->first) {
-    fputs("!!seq [", id->fp);
-    id->first = false;
-  }
-  print_space(id->depth, id->fp);
-  print_yaml(ad, id->fp, id->depth);
-  fputc(',', id->fp);
-  return true;
 }
 
 // Recursively prints a node as YAML.
@@ -178,9 +139,22 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
 
   // Maps.
   {
-    struct iterate_data id = {.first = true, .fp = fp, .depth = depth + 2};
-    if (argdata_iterate_map(ad, iterate_map, &id) == 0 || !id.first) {
-      if (id.first) {
+    argdata_iterator_t it;
+    if (argdata_map_iterate(ad, &it) == 0) {
+      const argdata_t *key;
+      const argdata_t *value;
+      while (argdata_map_next(&it, &key, &value)) {
+        if (it.index == 0)
+          fputs("!!map {", fp);
+        print_space(depth + 2, fp);
+        fputs("? ", fp);
+        print_yaml(key, fp, depth + 2);
+        print_space(depth + 2, fp);
+        fputs(": ", fp);
+        print_yaml(value, fp, depth + 2);
+        fputc(',', fp);
+      }
+      if (it.index == (size_t)-1) {
         // Empty map.
         fputs("!!map {}", fp);
       } else {
@@ -194,9 +168,17 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
 
   // Sequences.
   {
-    struct iterate_data id = {.first = true, .fp = fp, .depth = depth + 2};
-    if (argdata_iterate_seq(ad, iterate_seq, &id) == 0 || !id.first) {
-      if (id.first) {
+    argdata_iterator_t it;
+    if (argdata_seq_iterate(ad, &it) == 0) {
+      const argdata_t *value;
+      while (argdata_seq_next(&it, &value)) {
+        if (it.index == 0)
+          fputs("!!seq [", fp);
+        print_space(depth + 2, fp);
+        print_yaml(value, fp, depth + 2);
+        fputc(',', fp);
+      }
+      if (it.index == (size_t)-1) {
         // Empty sequence.
         fputs("!!seq []", fp);
       } else {
