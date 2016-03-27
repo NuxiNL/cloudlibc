@@ -1,14 +1,14 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/errno.h>
-#include <common/syscalls.h>
 
 #include <sys/socket.h>
 
 #include <assert.h>
+#include <cloudabi_syscalls.h>
 #include <errno.h>
 
 static_assert(SHUT_RD == CLOUDABI_SHUT_RD, "Value mismatch");

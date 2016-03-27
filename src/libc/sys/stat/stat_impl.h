@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -6,12 +6,12 @@
 #ifndef SYS_STAT_STAT_IMPL_H
 #define SYS_STAT_STAT_IMPL_H
 
-#include <common/syscalldefs.h>
 #include <common/time.h>
 
 #include <sys/stat.h>
 
 #include <assert.h>
+#include <cloudabi_types.h>
 #include <stdbool.h>
 
 #define TRANSLATE_FILETYPE(type) ((mode_t)(type) << 16)

@@ -1,12 +1,12 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/pthread.h>
-#include <common/syscalls.h>
 #include <common/time.h>
 
+#include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <pthread.h>
 

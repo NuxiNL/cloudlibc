@@ -10,6 +10,6 @@
 #endif
 
 // clang-format off
-int (FD_ISSET)(int fd, fd_set *fd_set) {
+int (FD_ISSET)(int fd, const fd_set *fd_set) {
   return FD_ISSET(fd, fd_set);
 }

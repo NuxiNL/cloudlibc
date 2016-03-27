@@ -6,8 +6,7 @@
 #ifndef COMMON_CRT_H
 #define COMMON_CRT_H
 
-#include <common/syscalldefs.h>
-
+#include <cloudabi_types.h>
 #include <link.h>
 #include <pthread.h>
 #include <stddef.h>

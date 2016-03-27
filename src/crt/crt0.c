@@ -6,9 +6,10 @@
 #include <common/argdata.h>
 #include <common/crt.h>
 #include <common/pthread.h>
-#include <common/syscalls.h>
 
+#include <cloudabi_syscalls.h>
 #include <program.h>
+#include <stdalign.h>
 #include <stdatomic.h>
 #include <threads.h>
 

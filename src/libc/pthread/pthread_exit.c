@@ -6,9 +6,9 @@
 #include <common/crt.h>
 #include <common/pthread.h>
 #include <common/refcount.h>
-#include <common/syscalls.h>
 
 #include <assert.h>
+#include <cloudabi_syscalls.h>
 #include <limits.h>
 #include <pthread.h>
 #include <stdatomic.h>

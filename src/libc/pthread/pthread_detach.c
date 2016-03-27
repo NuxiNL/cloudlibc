@@ -5,6 +5,7 @@
 
 #include <common/crt.h>
 
+#include <assert.h>
 #include <pthread.h>
 #include <stdatomic.h>
 

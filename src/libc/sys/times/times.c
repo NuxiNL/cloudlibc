@@ -1,14 +1,14 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/syscalls.h>
 #include <common/time.h>
 
 #include <sys/times.h>
 
 #include <assert.h>
+#include <cloudabi_syscalls.h>
 
 static_assert(CLOCKS_PER_SEC == NSEC_PER_SEC,
               "Timestamp should need no conversion");

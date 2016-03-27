@@ -35,7 +35,8 @@ attacker to compromise the process; not the entire system.
 As CloudABI is mostly legacy-free and only needs to implement the
 features that make sense in an environment that uses capability-based
 security, it is very small in comparison to other UNIX ABIs. At the time
-of writing, [CloudABI only has 58 system calls](src/common/syscalllist.h).
+of writing, [CloudABI only has 58 system
+calls](https://github.com/NuxiNL/cloudabi/blob/master/cloudabi.txt).
 The number of types, datastructures and constants shared between
 kernelspace and userspace is very low when compared to existing
 operating systems. This makes it easy to add support for CloudABI
