@@ -11,12 +11,13 @@
 #include <string.h>
 #include <testing.h>
 
-static int tmpdir = -1;
-static int logfile = -1;
-static unsigned int nthreads = 1;
-
 void program_main(const argdata_t *ad) {
-  // Fetch file descriptor numbers from arguments.
+  // Default configuration attributes.
+  int tmpdir = -1;
+  int logfile = -1;
+  unsigned int nthreads = 1;
+
+  // Fetch configuration attributes from argument data.
   argdata_map_iterator_t it;
   const argdata_t *key;
   const argdata_t *value;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -35,13 +35,13 @@ typedef __argdata_t argdata_t;
 #endif
 
 typedef struct {
-	int error;
-	__size_t __data[14];
+  _Alignas(__max_align_t) int error;
+  char __data[128];
 } argdata_map_iterator_t;
 
 typedef struct {
-	int error;
-	__size_t __data[8];
+  _Alignas(__max_align_t) int error;
+  char __data[128];
 } argdata_seq_iterator_t;
 
 struct _FILE;
@@ -80,7 +80,7 @@ int argdata_get_timestamp(const argdata_t *, struct timespec *);
 int argdata_map_iterate(const argdata_t *, argdata_map_iterator_t *);
 int argdata_seq_iterate(const argdata_t *, argdata_seq_iterator_t *);
 _Bool argdata_map_next(argdata_map_iterator_t *, const argdata_t **,
-                       const argdata_t**);
+                       const argdata_t **);
 _Bool argdata_seq_next(argdata_seq_iterator_t *, const argdata_t **);
 void argdata_print_yaml(const argdata_t *, struct _FILE *);
 __END_DECLS

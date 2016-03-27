@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -13,7 +13,9 @@
 #include <errno.h>
 #include <limits.h>
 #include <locale.h>
+#include <stdalign.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <wchar.h>
@@ -38,36 +40,40 @@ struct __argdata {
   size_t length;
 };
 
-struct  __argdata_map_iterator {
-  int error;
+struct __argdata_map_iterator {
+  alignas(max_align_t) int error;
   const argdata_t *container;
-  size_t index;
-  size_t bytes_left;
+  size_t offset;
   argdata_t key;
   argdata_t value;
 };
 
 static_assert(sizeof(struct __argdata_map_iterator) <=
                   sizeof(argdata_map_iterator_t),
-              "Invalid size.");
-static_assert(_Alignof(struct __argdata_map_iterator) <=
-                  _Alignof(argdata_map_iterator_t),
-              "Invalid align.");
+              "Invalid size");
+static_assert(alignof(struct __argdata_map_iterator) ==
+                  alignof(argdata_map_iterator_t),
+              "Invalid alignment");
+static_assert(offsetof(struct __argdata_map_iterator, error) ==
+                  offsetof(argdata_map_iterator_t, error),
+              "Invalid offset");
 
-struct  __argdata_seq_iterator {
-  int error;
+struct __argdata_seq_iterator {
+  alignas(max_align_t) int error;
   const argdata_t *container;
-  size_t index;
-  size_t bytes_left;
+  size_t offset;
   argdata_t value;
 };
 
 static_assert(sizeof(struct __argdata_seq_iterator) <=
                   sizeof(argdata_seq_iterator_t),
-              "Invalid size.");
-static_assert(_Alignof(struct __argdata_seq_iterator) <=
-                  _Alignof(argdata_seq_iterator_t),
-              "Invalid align.");
+              "Invalid size");
+static_assert(alignof(struct __argdata_seq_iterator) ==
+                  alignof(argdata_seq_iterator_t),
+              "Invalid align");
+static_assert(offsetof(struct __argdata_seq_iterator, error) ==
+                  offsetof(argdata_seq_iterator_t, error),
+              "Invalid offset");
 
 enum {
   ADT_BINARY = 1,    // A sequence of zero or more octets.
