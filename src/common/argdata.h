@@ -38,20 +38,35 @@ struct __argdata {
   size_t length;
 };
 
-struct  __argdata_iterator {
-  size_t index;
+struct  __argdata_map_iterator {
   int error;
   const argdata_t *container;
+  size_t index;
   size_t bytes_left;
   argdata_t key;
   argdata_t value;
 };
 
-static_assert(sizeof(struct __argdata_iterator) <=
-                  sizeof(argdata_iterator_t),
+static_assert(sizeof(struct __argdata_map_iterator) <=
+                  sizeof(argdata_map_iterator_t),
               "Invalid size.");
-static_assert(_Alignof(struct __argdata_iterator) <=
-                  _Alignof(argdata_iterator_t),
+static_assert(_Alignof(struct __argdata_map_iterator) <=
+                  _Alignof(argdata_map_iterator_t),
+              "Invalid align.");
+
+struct  __argdata_seq_iterator {
+  int error;
+  const argdata_t *container;
+  size_t index;
+  size_t bytes_left;
+  argdata_t value;
+};
+
+static_assert(sizeof(struct __argdata_seq_iterator) <=
+                  sizeof(argdata_seq_iterator_t),
+              "Invalid size.");
+static_assert(_Alignof(struct __argdata_seq_iterator) <=
+                  _Alignof(argdata_seq_iterator_t),
               "Invalid align.");
 
 enum {

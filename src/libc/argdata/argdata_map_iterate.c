@@ -10,8 +10,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int argdata_map_iterate(const argdata_t *ad, argdata_iterator_t *it_) {
-  struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
+int argdata_map_iterate(const argdata_t *ad, argdata_map_iterator_t *it_) {
+  struct __argdata_map_iterator *it = (struct __argdata_map_iterator*)it_;
   it->container = ad;
   it->index = (size_t)-1;
   it->error = 0;
@@ -30,10 +30,10 @@ int argdata_map_iterate(const argdata_t *ad, argdata_iterator_t *it_) {
   return it->error;
 }
 
-bool argdata_map_next(argdata_iterator_t *it_,
+bool argdata_map_next(argdata_map_iterator_t *it_,
                       const argdata_t **key,
                       const argdata_t **value) {
-  struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
+  struct __argdata_map_iterator *it = (struct __argdata_map_iterator*)it_;
   const argdata_t *ad = it->container;
 
   // Iterating already finished.

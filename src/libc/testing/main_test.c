@@ -17,7 +17,7 @@ static unsigned int nthreads = 1;
 
 void program_main(const argdata_t *ad) {
   // Fetch file descriptor numbers from arguments.
-  argdata_iterator_t it;
+  argdata_map_iterator_t it;
   const argdata_t *key;
   const argdata_t *value;
   argdata_map_iterate(ad, &it);

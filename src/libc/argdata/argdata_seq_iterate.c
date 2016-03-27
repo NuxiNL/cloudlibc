@@ -10,8 +10,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int argdata_seq_iterate(const argdata_t *ad, argdata_iterator_t *it_) {
-  struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
+int argdata_seq_iterate(const argdata_t *ad, argdata_seq_iterator_t *it_) {
+  struct __argdata_seq_iterator *it = (struct __argdata_seq_iterator*)it_;
   it->container = ad;
   it->index = (size_t)-1;
   it->error = 0;
@@ -30,9 +30,9 @@ int argdata_seq_iterate(const argdata_t *ad, argdata_iterator_t *it_) {
   return it->error;
 }
 
-bool argdata_seq_next(argdata_iterator_t *it_,
+bool argdata_seq_next(argdata_seq_iterator_t *it_,
                       const argdata_t **value) {
-  struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
+  struct __argdata_seq_iterator *it = (struct __argdata_seq_iterator*)it_;
   const argdata_t *ad = it->container;
 
   // Iterating already finished.
