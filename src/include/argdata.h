@@ -78,7 +78,6 @@ int argdata_seq_iterate(const argdata_t *, argdata_iterator_t *);
 _Bool argdata_map_next(argdata_iterator_t *, const argdata_t **,
                        const argdata_t**);
 _Bool argdata_seq_next(argdata_iterator_t *, const argdata_t **);
-_Bool argdata_has_next(argdata_iterator_t *);
 void argdata_print_yaml(const argdata_t *, struct _FILE *);
 __END_DECLS
 

@@ -10,11 +10,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-bool argdata_has_next(argdata_iterator_t *it_) {
-  struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
-  return it->left != 0;
-}
-
 int argdata_map_iterate(const argdata_t *ad, argdata_iterator_t *it_) {
   struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
   it->container = ad;
@@ -23,12 +18,11 @@ int argdata_map_iterate(const argdata_t *ad, argdata_iterator_t *it_) {
   switch (ad->type) {
     case AD_BUFFER: {
       const uint8_t *buf = ad->buffer;
-      it->left = ad->length;
-      it->error = parse_type(ADT_MAP, &buf, &it->left);
+      it->bytes_left = ad->length;
+      it->error = parse_type(ADT_MAP, &buf, &it->bytes_left);
       break;
     }
     case AD_MAP:
-      it->left = ad->map.count;
       break;
     default:
       it->error = EINVAL;
@@ -44,12 +38,11 @@ int argdata_seq_iterate(const argdata_t *ad, argdata_iterator_t *it_) {
   switch (ad->type) {
     case AD_BUFFER: {
       const uint8_t *buf = ad->buffer;
-      it->left = ad->length;
-      it->error = parse_type(ADT_SEQ, &buf, &it->left);
+      it->bytes_left = ad->length;
+      it->error = parse_type(ADT_SEQ, &buf, &it->bytes_left);
       break;
     }
     case AD_SEQ:
-      it->left = ad->seq.count;
       break;
     default:
       it->error = EINVAL;
@@ -71,36 +64,36 @@ bool argdata_map_next(argdata_iterator_t *it_,
   if (it->error != 0)
     return false;
 
-  // Reached end.
-  if (it->left == 0) {
-    ++it->index;
-    it->container = NULL;
-    return false;
-  }
+  ++it->index;
 
   switch (ad->type) {
     case AD_BUFFER: {
-      const uint8_t *buf = ad->buffer + ad->length - it->left;
-      int error = parse_subfield(&it->key, &buf, &it->left);
+      if (it->bytes_left == 0) {
+        it->container = NULL;
+        return false;
+      }
+      const uint8_t *buf = ad->buffer + ad->length - it->bytes_left;
+      int error = parse_subfield(&it->key, &buf, &it->bytes_left);
       if (error != 0) {
         it->error = error;
         return false;
       }
-      error = parse_subfield(&it->value, &buf, &it->left);
+      error = parse_subfield(&it->value, &buf, &it->bytes_left);
       if (error != 0) {
         it->error = error;
         return false;
       }
-      ++it->index;
       *key = &it->key;
       *value = &it->value;
       return true;
     }
     case AD_MAP: {
-      it->index = ad->map.count - it->left;
+      if (it->index == ad->map.count) {
+        it->container = NULL;
+        return false;
+      }
       *key = ad->map.keys[it->index];
       *value = ad->map.values[it->index];
-      --it->left;
       return true;
     }
     default:
@@ -122,27 +115,27 @@ bool argdata_seq_next(argdata_iterator_t *it_,
   if (it->error != 0)
     return false;
 
-  // Reached end.
-  if (it->left == 0) {
-    ++it->index;
-    it->container = NULL;
-    return false;
-  }
+  ++it->index;
 
   switch (ad->type) {
     case AD_BUFFER: {
-      const uint8_t *buf = ad->buffer + ad->length - it->left;
-      it->error = parse_subfield(&it->value, &buf, &it->left);
+      if (it->bytes_left == 0) {
+        it->container = NULL;
+        return false;
+      }
+      const uint8_t *buf = ad->buffer + ad->length - it->bytes_left;
+      it->error = parse_subfield(&it->value, &buf, &it->bytes_left);
       if (it->error != 0)
         return false;
-      ++it->index;
       *value = &it->value;
       return true;
     }
     case AD_SEQ: {
-      it->index = ad->seq.count - it->left;
+      if (it->index == ad->seq.count) {
+        it->container = NULL;
+        return false;
+      }
       *value = ad->seq.entries[it->index];
-      --it->left;
       return true;
     }
     default:

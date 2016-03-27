@@ -42,7 +42,7 @@ struct  __argdata_iterator {
   size_t index;
   int error;
   const argdata_t *container;
-  size_t left;
+  size_t bytes_left;
   argdata_t key;
   argdata_t value;
 };
