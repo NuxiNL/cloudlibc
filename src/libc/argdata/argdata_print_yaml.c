@@ -154,7 +154,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         print_yaml(value, fp, depth + 2);
         fputc(',', fp);
       }
-      if (it.index == (size_t)-1) {
+      if (it.index == 0) {
         // Empty map.
         fputs("!!map {}", fp);
       } else {
@@ -178,7 +178,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         print_yaml(value, fp, depth + 2);
         fputc(',', fp);
       }
-      if (it.index == (size_t)-1) {
+      if (it.index == 0) {
         // Empty sequence.
         fputs("!!seq []", fp);
       } else {

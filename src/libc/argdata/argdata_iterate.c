@@ -61,10 +61,23 @@ bool argdata_map_next(argdata_iterator_t *it_,
                       const argdata_t **key,
                       const argdata_t **value) {
   struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
-  if (it->error != 0 || it->left == 0) {
+  const argdata_t *ad = it->container;
+
+  // Iterating already finished.
+  if (ad == NULL)
+    it->error = EINVAL;
+
+  // Iterator has error.
+  if (it->error != 0)
+    return false;
+
+  // Reached end.
+  if (it->left == 0) {
+    ++it->index;
+    it->container = NULL;
     return false;
   }
-  const argdata_t *ad = it->container;
+
   switch (ad->type) {
     case AD_BUFFER: {
       const uint8_t *buf = ad->buffer + ad->length - it->left;
@@ -99,9 +112,23 @@ bool argdata_map_next(argdata_iterator_t *it_,
 bool argdata_seq_next(argdata_iterator_t *it_,
                       const argdata_t **value) {
   struct __argdata_iterator *it = (struct __argdata_iterator*)it_;
-  if (it->error != 0 || it->left == 0)
-    return false;
   const argdata_t *ad = it->container;
+
+  // Iterating already finished.
+  if (ad == NULL)
+    it->error = EINVAL;
+
+  // Iterator has error.
+  if (it->error != 0)
+    return false;
+
+  // Reached end.
+  if (it->left == 0) {
+    ++it->index;
+    it->container = NULL;
+    return false;
+  }
+
   switch (ad->type) {
     case AD_BUFFER: {
       const uint8_t *buf = ad->buffer + ad->length - it->left;
