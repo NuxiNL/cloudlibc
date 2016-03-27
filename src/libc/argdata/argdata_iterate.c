@@ -73,16 +73,12 @@ bool argdata_map_next(argdata_iterator_t *it_,
         return false;
       }
       const uint8_t *buf = ad->buffer + ad->length - it->bytes_left;
-      int error = parse_subfield(&it->key, &buf, &it->bytes_left);
-      if (error != 0) {
-        it->error = error;
+      it->error = parse_subfield(&it->key, &buf, &it->bytes_left);
+      if (it->error != 0)
         return false;
-      }
-      error = parse_subfield(&it->value, &buf, &it->bytes_left);
-      if (error != 0) {
-        it->error = error;
+      it->error = parse_subfield(&it->value, &buf, &it->bytes_left);
+      if (it->error != 0)
         return false;
-      }
       *key = &it->key;
       *value = &it->value;
       return true;
