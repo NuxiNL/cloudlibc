@@ -26,6 +26,9 @@
 // Extensions:
 // - FD_COPY():
 //   Present on most BSD-derived systems.
+// - FD_ISSET():
+//   Second argument marked const:
+//   http://austingroupbugs.net/view.php?id=220
 // - gettimeofday():
 //   Last parameter may be omitted entirely.
 //
