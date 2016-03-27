@@ -47,7 +47,8 @@ int pthread_join(pthread_t thread, void **value_ptr) {
 
   // Free the stack buffers associated with this thread. The safe stack
   // buffer also contains the thread's handle.
+  void *unsafe_stack = thread->unsafe_stack;
   free(thread->safe_stack);
-  free(thread->unsafe_stack);
+  free(unsafe_stack);
   return 0;
 }
