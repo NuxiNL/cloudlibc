@@ -31,6 +31,9 @@
 #define ElfW(type) _ElfW(__INTPTR_WIDTH__, type)
 #define _ElfW(width, type) __ElfW(width, type)
 #define __ElfW(width, type) Elf##width##_##type
+#define ELFW(type) _ELFW(__INTPTR_WIDTH__, type)
+#define _ELFW(width, type) __ELFW(width, type)
+#define __ELFW(width, type) ELF##width##_##type
 
 struct dl_phdr_info {
   ElfW(Addr) dlpi_addr;              // Base address.

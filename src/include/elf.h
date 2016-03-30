@@ -25,6 +25,7 @@
 //
 // Values obtained from:
 // - http://www.uxsglobal.com/developers/gabi/latest/contents.html
+// - http://www.x86-64.org/documentation/abi.pdf
 //
 // Extensions:
 // - PT_GNU_EH_FRAME:
@@ -507,6 +508,14 @@ typedef struct {
   Elf64_Sxword r_addend;
 } Elf64_Rela;
 
+#define ELF32_R_SYM(i) ((i) >> 8)
+#define ELF32_R_TYPE(i) ((unsigned char)(i))
+#define ELF32_R_INFO(s, t) (((s) << 8) + (unsigned char)(t))
+
+#define ELF64_R_SYM(i) ((i) >> 32)
+#define ELF64_R_TYPE(i) ((i)&0xffffffffL)
+#define ELF64_R_INFO(s, t) (((s) << 32) + ((t)&0xffffffffL))
+
 // Chapter 5 - Program Loading and Dynamic Linking: Program Header.
 
 typedef struct {
@@ -613,5 +622,41 @@ typedef struct {
 #define DF_TEXTREL 0x4
 #define DF_BIND_NOW 0x8
 #define DF_STATIC_TLS 0x10
+
+// Relocation types from the System V ABI for AMD64.
+
+#define R_X86_64_NONE 0
+#define R_X86_64_64 1
+#define R_X86_64_PC32 2
+#define R_X86_64_GOT32 3
+#define R_X86_64_PLT32 4
+#define R_X86_64_COPY 5
+#define R_X86_64_GLOB_DAT 6
+#define R_X86_64_JUMP_SLOT 7
+#define R_X86_64_RELATIVE 8
+#define R_X86_64_GOTPCREL 9
+#define R_X86_64_32 10
+#define R_X86_64_32S 11
+#define R_X86_64_16 12
+#define R_X86_64_PC16 13
+#define R_X86_64_8 14
+#define R_X86_64_PC8 15
+#define R_X86_64_DTPMOD64 16
+#define R_X86_64_DTPOFF64 17
+#define R_X86_64_TPOFF64 18
+#define R_X86_64_TLSGD 19
+#define R_X86_64_TLSLD 20
+#define R_X86_64_DTPOFF32 21
+#define R_X86_64_GOTTPOFF 22
+#define R_X86_64_TPOFF32 23
+#define R_X86_64_PC64 24
+#define R_X86_64_GOTOFF64 25
+#define R_X86_64_GOTPC32 26
+#define R_X86_64_SIZE32 32
+#define R_X86_64_SIZE64 33
+#define R_X86_64_GOTPC32_TLSDESC 34
+#define R_X86_64_TLSDESC_CALL 35
+#define R_X86_64_TLSDESC 36
+#define R_X86_64_IRELATIVE 37
 
 #endif
