@@ -58,6 +58,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // Extract parameters from the auxiliary vector.
   const void *arg = NULL;
   size_t arglen = 0;
+  const void *base = NULL;
   const void *canary = NULL;
   size_t canarylen = 0;
   cloudabi_tid_t tid = 1;
@@ -68,6 +69,9 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
         break;
       case CLOUDABI_AT_ARGDATALEN:
         arglen = auxv->a_val;
+        break;
+      case CLOUDABI_AT_BASE:
+        base = auxv->a_ptr;
         break;
       case CLOUDABI_AT_CANARY:
         canary = auxv->a_ptr;
@@ -109,7 +113,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
         // TLS header. This process uses variables stored in
         // thread-local storage. Extract the location and the size of
         // the initial TLS data.
-        __tls_init_data = (const void *)phdr->p_vaddr;
+        __tls_init_data = (const char *)base + phdr->p_vaddr;
         __tls_init_size = phdr->p_filesz;
         __tls_total_size = __roundup(phdr->p_memsz, phdr->p_align);
         __tls_alignment = phdr->p_align;
