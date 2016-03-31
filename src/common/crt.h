@@ -27,22 +27,35 @@ extern void *__dso_handle;
 extern unsigned long __stack_chk_guard;
 extern thread_local void *__safestack_unsafe_stack_ptr;
 
-// ELF program header.
-extern const ElfW(Phdr) * __elf_phdr;
-extern ElfW(Half) __elf_phnum;
+// Values preserved from the auxiliary vector.
+extern const void *__at_base;         // Process base address.
+extern uint32_t __at_ncpus;           // Number of CPUs.
+extern uint32_t __at_pagesz;          // Page size.
+extern const ElfW(Phdr) * __at_phdr;  // ELF program headers.
+extern ElfW(Half) __at_phnum;         // Number of ELF program headers.
 
-// Machine properties.
-extern uint32_t __ncpus;
-extern uint32_t __pagesize;
-
-// Initial thread-local storage data.
-extern const void *__tls_init_data;
-extern size_t __tls_init_size;
-extern size_t __tls_total_size;
-extern size_t __tls_alignment;
+// Values preserved from the ELF program headers.
+extern const void *__pt_tls_vaddr_abs;  // Initial TLS data (absolute address).
+extern size_t __pt_tls_filesz;          // Size of initial TLS data.
+extern size_t __pt_tls_memsz_aligned;   // Size of full TLS data (aligned).
+extern size_t __pt_tls_align;           // Alignment of TLS data.
 
 // Executable entry point.
 noreturn void _start(const cloudabi_auxv_t *);
+
+// Dynamic TLS handler. If object files that use TLS are compiled with
+// -fPIC, access to TLS is replaced by calls to __tls_get_addr(). This
+// function may then be used to dynamically allocate TLS if needed. We
+// don't support dynamic allocation, but still need this function to
+// keep code happy.
+#if defined(__x86_64__)
+struct tls_index {
+  size_t module;
+  size_t offset;
+};
+
+void *__tls_get_addr(const struct tls_index *);
+#endif
 
 // Multi-threading: pthread_t handle and thread ID.
 struct __pthread {

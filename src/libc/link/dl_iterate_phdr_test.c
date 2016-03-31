@@ -1,11 +1,11 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <link.h>
-#include <stddef.h>
 #include <testing.h>
+#include <unistd.h>
 
 static int callback(struct dl_phdr_info *pinfo, size_t len, void *data) {
   int *invocation = data;
@@ -13,7 +13,7 @@ static int callback(struct dl_phdr_info *pinfo, size_t len, void *data) {
   ++*invocation;
 
   // Validate values that this implementation should provide.
-  ASSERT_EQ(0x0, pinfo->dlpi_addr);
+  ASSERT_EQ(0x0, pinfo->dlpi_addr % sysconf(_SC_PAGESIZE));
   ASSERT_STREQ("unknown", pinfo->dlpi_name);
   ASSERT_NE(NULL, pinfo->dlpi_phdr);
   ASSERT_LT(0, pinfo->dlpi_phnum);

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -80,10 +80,10 @@ long sysconf(int name) {
 
     case _SC_NPROCESSORS_ONLN:
       // Number of processors online.
-      return __ncpus;
+      return __at_ncpus;
     case _SC_PAGESIZE:
       // Page size.
-      return __pagesize;
+      return __at_pagesz;
 
     default:
       // Unknown option.
