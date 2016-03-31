@@ -24,10 +24,9 @@
 // <elf.h> - Executable and Linkable Format
 //
 // Values obtained from:
-// - http://www.uxsglobal.com/developers/gabi/latest/contents.html
-// -
+// http://www.uxsglobal.com/developers/gabi/latest/contents.html
 // http://infocenter.arm.com/help/topic/com.arm.doc.ihi0056b/IHI0056B_aaelf64.pdf
-// - http://www.x86-64.org/documentation/abi.pdf
+// http://www.x86-64.org/documentation/abi.pdf
 //
 // Extensions:
 // - PT_GNU_EH_FRAME:
