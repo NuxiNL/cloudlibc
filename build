@@ -5,7 +5,7 @@ set -e
 # Variables that can be provided externally.
 : ${CC:=x86_64-unknown-cloudabi-cc}
 : ${AR:=x86_64-unknown-cloudabi-ar}
-: ${CFLAGS:=-O3 -fomit-frame-pointer -g}
+: ${CFLAGS:=-O3 -fomit-frame-pointer -g -fpie}
 : ${WARNFLAGS:=}
 
 # Contributed sources.
