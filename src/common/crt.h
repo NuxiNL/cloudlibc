@@ -43,25 +43,6 @@ extern size_t __pt_tls_align;           // Alignment of TLS data.
 // Executable entry point.
 noreturn void _start(const cloudabi_auxv_t *);
 
-// Dynamic TLS handler. If object files that use TLS are compiled with
-// -fPIC, access to TLS is replaced by calls to __tls_get_addr(). This
-// function may then be used to dynamically allocate TLS if needed. We
-// don't support dynamic allocation, but still need this function to
-// keep code happy.
-//
-// TODO(ed): This function shouldn't be needed if we could just use
-// -fPIE instead of -fPIC. -fPIE currently emits 32-bits relocations,
-// which it should likely never do:
-// https://llvm.org/bugs/show_bug.cgi?id=17058
-#if defined(__x86_64__)
-struct tls_index {
-  size_t module;
-  size_t offset;
-};
-
-void *__tls_get_addr(const struct tls_index *);
-#endif
-
 // Multi-threading: pthread_t handle and thread ID.
 struct __pthread {
   _Atomic(cloudabi_lock_t) join;  // Join queue used by pthread_join().

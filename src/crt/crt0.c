@@ -168,25 +168,14 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
             sym[ELFW(R_SYM)(rela->r_info)].st_value + rela->r_addend;
         break;
 #elif defined(__x86_64__)
+      case R_X86_64_64:
+        // Base + Symbol + Addend.
+        *(char **)obj =
+            at_base + sym[ELFW(R_SYM)(rela->r_info)].st_value + rela->r_addend;
+        break;
       case R_X86_64_RELATIVE:
         // Base + Addend.
-        *(uint64_t *)obj = (uintptr_t)at_base + rela->r_addend;
-        break;
-      case R_X86_64_DTPMOD64:
-        // TLS module number. In this environment this is always zero.
-        *(uint64_t *)obj = 0;
-        break;
-      case R_X86_64_DTPOFF64:
-        // Offset within a TLS symbol, relative to the start of the TLS area.
-        // Obtain the symbol address from the symbol table.
-        *(uint64_t *)obj =
-            sym[ELFW(R_SYM)(rela->r_info)].st_value + rela->r_addend;
-        break;
-      case R_X86_64_TPOFF64:
-        // Offset within a TLS symbol, relative to the end of the TLS area.
-        // Obtain the symbol address from the symbol table.
-        *(uint64_t *)obj = sym[ELFW(R_SYM)(rela->r_info)].st_value +
-                           rela->r_addend - pt_tls_memsz_aligned;
+        *(char **)obj = at_base + rela->r_addend;
         break;
 #else
 #error "Unsupported architecture"
@@ -259,11 +248,3 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   argdata_init_buffer(&ad, at_argdata, at_argdatalen);
   program_main(&ad);
 }
-
-#if defined(__x86_64__)
-void *__tls_get_addr(const struct tls_index *index) {
-  char *tls_base;
-  asm volatile("movq %%fs:0, %0" : "=r"(tls_base));
-  return tls_base - __pt_tls_memsz_aligned + index->offset;
-}
-#endif
