@@ -103,6 +103,8 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 
   // Iterate through the program header to obtain values of interest.
   const ElfW(Dyn) *dyn = NULL;
+  uintptr_t relro_start;
+  size_t relro_size = 0;
   const void *pt_tls_vaddr_abs = 0;
   size_t pt_tls_filesz = 0;
   size_t pt_tls_memsz_aligned = 0;
@@ -113,6 +115,17 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
       case PT_DYNAMIC:
         // Dynamic Section.
         dyn = (const ElfW(Dyn) *)(at_base + phdr->p_vaddr);
+        break;
+      case PT_GNU_RELRO:
+        // Read-only relocations. Some parts of executable are marked
+        // writable in the ELF header, even though they only need to be
+        // writable to apply relocations. Determine which exact pages
+        // can be made write protected once we've finished relocating.
+        relro_start = __roundup((uintptr_t)at_base + phdr->p_vaddr, at_pagesz);
+        relro_size =
+            __rounddown((uintptr_t)at_base + phdr->p_vaddr + phdr->p_memsz,
+                        at_pagesz) -
+            relro_start;
         break;
       case PT_TLS:
         // TLS header. This process uses variables stored in
@@ -194,6 +207,11 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
     }
     ++rela;
   }
+
+  // Mark memory that was only made writable to apply relocations read-only.
+  if (relro_size > 0)
+    cloudabi_sys_mem_protect((void *)relro_start, relro_size,
+                             CLOUDABI_PROT_READ);
 
   // Now that we've relocated, we can write to global memory. Preserve
   // some of the values from the auxiliary vector and program header.
