@@ -48,6 +48,11 @@ noreturn void _start(const cloudabi_auxv_t *);
 // function may then be used to dynamically allocate TLS if needed. We
 // don't support dynamic allocation, but still need this function to
 // keep code happy.
+//
+// TODO(ed): This function shouldn't be needed if we could just use
+// -fPIE instead of -fPIC. -fPIE currently emits 32-bits relocations,
+// which it should likely never do:
+// https://llvm.org/bugs/show_bug.cgi?id=17058
 #if defined(__x86_64__)
 struct tls_index {
   size_t module;

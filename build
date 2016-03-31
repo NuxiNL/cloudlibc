@@ -5,7 +5,7 @@ set -e
 # Variables that can be provided externally.
 : ${CC:=x86_64-unknown-cloudabi-cc}
 : ${AR:=x86_64-unknown-cloudabi-ar}
-: ${CFLAGS:=-O3 -fomit-frame-pointer -g}
+: ${CFLAGS:=-O3 -fomit-frame-pointer -g -fpic}
 : ${WARNFLAGS:=}
 
 # Contributed sources.
@@ -86,5 +86,5 @@ cp _obj/src_crt_crtbegin.o _obj/crtbegin.o
 cp _obj/src_crt_crtend.o _obj/crtend.o
 
 echo "=> Building unit tests"
-${CC} -L_obj -B_obj -o _obj/cloudlibc-unittests \
+${CC} -Wl,-shared -Wl,-Bstatic -Wl,-Bsymbolic -L_obj -B_obj -o _obj/cloudlibc-unittests \
     $(find src -name "*_test.c" | sort | sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')
