@@ -159,7 +159,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 #if defined(__aarch64__)
       case R_AARCH64_RELATIVE:
         // Base + Addend.
-        *(uint64_t *)obj = (uintptr_t)at_base + rela->r_addend;
+        *(char **)obj = at_base + rela->r_addend;
         break;
       case R_AARCH64_TLS_TPREL64:
         // Offset within a TLS symbol, relative to the start of the TLS area.
