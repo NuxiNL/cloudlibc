@@ -141,7 +141,6 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 
   // Iterate through the Dynamic Section to obtain values of interest.
   const ElfW(Rela) *rela = NULL;
-  const ElfW(Sym) *sym = NULL;
   size_t rela_size = 0;
   if (dyn != NULL) {
     while (dyn->d_tag != DT_NULL) {
@@ -154,11 +153,6 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
           // The number of relocations.
           rela_size = dyn->d_un.d_val;
           break;
-        case DT_SYMTAB:
-          // The symbol table that we have to use while applying some of the
-          // relocations.
-          sym = (const ElfW(Sym) *)(at_base + dyn->d_un.d_ptr);
-          break;
       }
       ++dyn;
     }
@@ -170,28 +164,11 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
     char *obj = at_base + rela->r_offset;
     switch (ELFW(R_TYPE)(rela->r_info)) {
 #if defined(__aarch64__)
-      case R_AARCH64_ABS64:
-        // Base + Symbol + Addend.
-        *(char **)obj =
-            at_base + sym[ELFW(R_SYM)(rela->r_info)].st_value + rela->r_addend;
-        break;
       case R_AARCH64_RELATIVE:
         // Base + Addend.
         *(char **)obj = at_base + rela->r_addend;
         break;
-      case R_AARCH64_TLS_TPREL64:
-        // Offset within a TLS symbol, relative to the start of the TLS area.
-        // Obtain the symbol address from the symbol table.
-        // TODO(ed): Do we really need to handle this?
-        *(uint64_t *)obj =
-            sym[ELFW(R_SYM)(rela->r_info)].st_value + rela->r_addend;
-        break;
 #elif defined(__x86_64__)
-      case R_X86_64_64:
-        // Base + Symbol + Addend.
-        *(char **)obj =
-            at_base + sym[ELFW(R_SYM)(rela->r_info)].st_value + rela->r_addend;
-        break;
       case R_X86_64_RELATIVE:
         // Base + Addend.
         *(char **)obj = at_base + rela->r_addend;
