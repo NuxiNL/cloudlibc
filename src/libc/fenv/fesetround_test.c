@@ -7,6 +7,10 @@
 #include <float.h>
 #include <testing.h>
 
+// TODO(ed): Re-enable this test on aarch64 once Clang's
+// __builtin_flt_rounds() is fixed.
+// https://llvm.org/bugs/show_bug.cgi?id=25191
+#if !defined(__aarch64__)
 TEST(fesetround, flt_rounds) {
   // FLT_ROUNDS should be in sync with fesetround().
   ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
@@ -25,3 +29,4 @@ TEST(fesetround, flt_rounds) {
   ASSERT_EQ(FE_DOWNWARD, fegetround());
   ASSERT_EQ(3, FLT_ROUNDS);
 }
+#endif
