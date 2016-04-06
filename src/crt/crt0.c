@@ -6,6 +6,7 @@
 #include <common/argdata.h>
 #include <common/crt.h>
 #include <common/pthread.h>
+#include <common/tls.h>
 
 #include <cloudabi_syscalls.h>
 #include <program.h>
@@ -211,19 +212,12 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 
   // Set up TLS space for the main thread. Instead of calling malloc()
   // or mmap(), simply allocate a buffer on the stack of this thread.
-  char tls_space[pt_tls_memsz_aligned + pt_tls_align - 1];
-  char *tls_start = (char *)__roundup((uintptr_t)tls_space, pt_tls_align);
+  char tls_space[tls_size()];
+  char *tls_start = tls_addr(tls_space);
   crt_memcpy(tls_start, pt_tls_vaddr_abs, pt_tls_filesz);
   crt_memset(tls_start + pt_tls_filesz, 0,
              pt_tls_memsz_aligned - pt_tls_filesz);
-#if defined(__aarch64__)
-  asm volatile("msr tpidr_el0, %0" : : "r"(tls_start - 16));
-#elif defined(__x86_64__)
-  char *tls_end = tls_start + pt_tls_memsz_aligned;
-  cloudabi_sys_thread_tcb_set(&tls_end);
-#else
-#error "Unsupported architecture"
-#endif
+  tls_replace(tls_space);
 
   // Set unsafe stack for the initial thread.
   __safestack_unsafe_stack_ptr = &initial_unsafe_stack[PTHREAD_STACK_DEFAULT];

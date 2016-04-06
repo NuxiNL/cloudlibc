@@ -6,6 +6,7 @@
 #include <common/crt.h>
 #include <common/pthread.h>
 #include <common/refcount.h>
+#include <common/tls.h>
 
 #include <cloudabi_syscalls.h>
 #include <errno.h>
@@ -18,19 +19,12 @@
 
 static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
   // Set up TLS space.
-  char tls_space[__pt_tls_memsz_aligned + __pt_tls_align - 1];
-  char *tls_start = (char *)__roundup((uintptr_t)tls_space, __pt_tls_align);
+  char tls_space[tls_size()];
+  char *tls_start = tls_addr(tls_space);
   memcpy(tls_start, __pt_tls_vaddr_abs, __pt_tls_filesz);
   memset(tls_start + __pt_tls_filesz, '\0',
          __pt_tls_memsz_aligned - __pt_tls_filesz);
-#if defined(__aarch64__)
-  asm volatile("msr tpidr_el0, %0" : : "r"(tls_start - 16));
-#elif defined(__x86_64__)
-  char *tls_end = tls_start + __pt_tls_memsz_aligned;
-  cloudabi_sys_thread_tcb_set(&tls_end);
-#else
-#error "Unsupported architecture"
-#endif
+  tls_replace(tls_space);
 
   // Fix up some of the variables stored in TLS.
   pthread_t handle = data;
