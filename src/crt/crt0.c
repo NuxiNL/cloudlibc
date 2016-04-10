@@ -126,17 +126,19 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
   const ElfW(Dyn) *dyn = (const ElfW(Dyn) *)(base + phdr->p_vaddr);
   const char *str = NULL;
   const ElfW(Sym) *sym = NULL;
-  size_t syment = 0;
+  size_t symsz = 0;
   while (dyn->d_tag != DT_NULL) {
     switch (dyn->d_tag) {
+      case DT_HASH:
+        // Number of symbols in the symbol table can only be extracted
+        // by fetching the number of chains in the symbol hash table.
+        symsz = ((const Elf32_Word *)(base + dyn->d_un.d_ptr))[1];
+        break;
       case DT_STRTAB:
         str = base + dyn->d_un.d_ptr;
         break;
       case DT_SYMTAB:
         sym = (const ElfW(Sym) *)(base + dyn->d_un.d_ptr);
-        break;
-      case DT_SYMENT:
-        syment = dyn->d_un.d_val;
         break;
     }
     ++dyn;
@@ -144,7 +146,7 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
 
   // Scan through all of the symbols and find the implementations of the
   // system calls.
-  for (; syment >= sizeof(*sym); syment -= sizeof(*sym)) {
+  while (symsz-- > 0) {
     if (ELFW(ST_BIND)(sym->st_info) == STB_GLOBAL &&
         ELFW(ST_TYPE)(sym->st_info) == STT_FUNC &&
         ELFW(ST_VISIBILITY)(sym->st_other) == STV_DEFAULT && sym->st_name > 0) {
