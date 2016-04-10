@@ -57,17 +57,116 @@ thread_local pthread_t __pthread_self_object;
 thread_local cloudabi_tid_t __pthread_thread_id;
 
 // Simple string functions so we don't depend on libc.
-static void crt_memcpy(void *s1, const void *s2, size_t n) {
+#define memcmp(s1, s2, n) crt_memcmp(s1, s2, n)
+static int memcmp(const void *s1, const void *s2, size_t n) {
+  const char *sb1 = s1, *sb2 = s2;
+  while (n-- > 0) {
+    if (*sb1 != *sb2)
+      return (int)(unsigned char)*sb2 - (int)(unsigned char)*sb1;
+    ++sb1;
+    ++sb2;
+  }
+  return 0;
+}
+
+#define memcpy(s1, s2, n) crt_memcpy(s1, s2, n)
+static void memcpy(void *s1, const void *s2, size_t n) {
   char *sb1 = s1;
   const char *sb2 = s2;
   while (n-- > 0)
     *sb1++ = *sb2++;
 }
 
-static void crt_memset(void *s, int c, size_t n) {
+#define memset(s, c, n) crt_memset(s, c, n)
+static void memset(void *s, int c, size_t n) {
   char *sb = s;
   while (n-- > 0)
     *sb++ = c;
+}
+
+#define strcmp(s1, s2) crt_strcmp(s1, s2)
+static int strcmp(const char *s1, const char *s2) {
+  while (*s1 == *s2) {
+    if (*s1 == '\0')
+      return 0;
+    ++s1;
+    ++s2;
+  }
+  return (int)(unsigned char)*s2 - (int)(unsigned char)*s1;
+}
+
+#define strlen(s) crt_strlen(s)
+static size_t strlen(const char *s) {
+  const char *end = s;
+  while (*end != '\0')
+    ++end;
+  return end - s;
+}
+
+// Links program to the vDSO.
+//
+// The vDSO provides a function for every system call. This function
+// scans the headers of the vDSO, looking for the symbol table and its
+// corresponding string table. It then extracts all globally visible
+// functions starting with "cloudabi_sys_" and patches those into the
+// global system call table.
+static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
+  // Extract the Dynamic Section of the vDSO.
+  const char *base = (const char *)ehdr;
+  const ElfW(Phdr) *phdr = (const ElfW(Phdr) *)(base + ehdr->e_phoff);
+  size_t phnum = ehdr->e_phnum;
+  for (;;) {
+    if (phnum-- == 0)
+      return;
+    if (phdr->p_type == PT_DYNAMIC)
+      break;
+  }
+
+  // Extract the symbol and string tables.
+  const ElfW(Dyn) *dyn = (const ElfW(Dyn) *)(base + phdr->p_vaddr);
+  const char *str = NULL;
+  const ElfW(Sym) *sym = NULL;
+  size_t syment = 0;
+  while (dyn->d_tag != DT_NULL) {
+    switch (dyn->d_tag) {
+      case DT_STRTAB:
+        str = base + dyn->d_un.d_ptr;
+        break;
+      case DT_SYMTAB:
+        sym = (const ElfW(Sym) *)(base + dyn->d_un.d_ptr);
+        break;
+      case DT_SYMENT:
+        syment = dyn->d_un.d_val;
+        break;
+    }
+    ++dyn;
+  }
+
+  // Scan through all of the symbols and find the implementations of the
+  // system calls.
+  for (; syment >= sizeof(*sym); syment -= sizeof(*sym)) {
+    if (ELFW(ST_BIND)(sym->st_info) == STB_GLOBAL &&
+        ELFW(ST_TYPE)(sym->st_info) == STT_FUNC &&
+        ELFW(ST_VISIBILITY)(sym->st_other) == STV_DEFAULT && sym->st_name > 0) {
+      const char *name = str + sym->st_name;
+      if (memcmp(name, "cloudabi_sys_", 13) == 0) {
+#define entry(name) #name "\0"
+        const char *names = CLOUDABI_SYSCALL_NAMES(entry);
+#undef entry
+        const void **syscall = (const void **)syscalls;
+        while (*names != '\0') {
+          if (strcmp(name + 13, names) == 0) {
+            // Found a matching system call.
+            *syscall = base + sym->st_value;
+            break;
+          }
+          names += strlen(names) + 1;
+          ++syscall;
+        }
+      }
+    }
+    ++sym;
+  }
 }
 
 noreturn void _start(const cloudabi_auxv_t *auxv) {
@@ -81,6 +180,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   uint32_t at_pagesz = 1;
   const ElfW(Phdr) *at_phdr = NULL;
   ElfW(Half) at_phnum = 0;
+  const ElfW(Ehdr) *at_sysinfo_ehdr = NULL;
   cloudabi_tid_t at_tid = 1;
   while (auxv->a_type != CLOUDABI_AT_NULL) {
     switch (auxv->a_type) {
@@ -111,6 +211,8 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
       case CLOUDABI_AT_PHNUM:
         at_phnum = auxv->a_val;
         break;
+      case CLOUDABI_AT_SYSINFO_EHDR:
+        at_sysinfo_ehdr = auxv->a_ptr;
       case CLOUDABI_AT_TID:
         at_tid = auxv->a_val;
         break;
@@ -175,8 +277,8 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
     }
   }
 
-  // Perform relocations. The type of relocations that are performed is machine
-  // dependent.
+  // Perform relocations. The type of relocations that are performed is
+  // machine dependent.
   for (; rela_size >= sizeof(*rela); rela_size -= sizeof(*rela)) {
     char *obj = at_base + rela->r_offset;
     switch (ELFW(R_TYPE)(rela->r_info)) {
@@ -196,11 +298,17 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
       default:
         // Terminate immediately if there is a relocation that we don't
         // support. Otherwise we end up having hard to debug crashes.
+        // TODO(ed): We can't do this when using vDSO system calls.
         cloudabi_sys_proc_raise(CLOUDABI_SIGABRT);
         cloudabi_sys_proc_exit(127);
     }
     ++rela;
   }
+
+  // Make it possible to invoke system calls by attaching the
+  // implementations provided by the vDSO.
+  if (at_sysinfo_ehdr != NULL)
+    link_vdso(&cloudabi_syscalls, at_sysinfo_ehdr);
 
   // Mark memory that was only made writable to apply relocations read-only.
   if (relro_size > 0)
@@ -224,15 +332,14 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // Set stack smashing guard.
   if (at_canarylen > sizeof(__stack_chk_guard))
     at_canarylen = sizeof(__stack_chk_guard);
-  crt_memcpy(&__stack_chk_guard, at_canary, at_canarylen);
+  memcpy(&__stack_chk_guard, at_canary, at_canarylen);
 
   // Set up TLS space for the main thread. Instead of calling malloc()
   // or mmap(), simply allocate a buffer on the stack of this thread.
   char tls_space[tls_size()];
   char *tls_start = tls_addr(tls_space);
-  crt_memcpy(tls_start, pt_tls_vaddr_abs, pt_tls_filesz);
-  crt_memset(tls_start + pt_tls_filesz, 0,
-             pt_tls_memsz_aligned - pt_tls_filesz);
+  memcpy(tls_start, pt_tls_vaddr_abs, pt_tls_filesz);
+  memset(tls_start + pt_tls_filesz, 0, pt_tls_memsz_aligned - pt_tls_filesz);
   tls_replace(tls_space);
 
   // Set unsafe stack for the initial thread.
