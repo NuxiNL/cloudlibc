@@ -9,10 +9,26 @@
 #include <common/tls.h>
 
 #include <cloudabi_syscalls.h>
+#include <cloudabi_syscalls_names.h>
+#include <cloudabi_syscalls_native.h>
+#include <cloudabi_syscalls_struct.h>
 #include <program.h>
 #include <stdalign.h>
 #include <stdatomic.h>
 #include <threads.h>
+
+// Default system call table.
+//
+// TODO(ed): Once our work on switching over to a vDSO for providing the
+// system call handlers has finished, this table will simply contain a
+// list of pointers to a function that returns ENOSYS. For now, fill it
+// up with functions that use inline assembly to call into the kernel
+// using the "syscall" instruction.
+cloudabi_syscalls_t cloudabi_syscalls = {
+#define entry(name) .name = cloudabi_native_sys_##name,
+    CLOUDABI_SYSCALL_NAMES(entry)
+#undef entry
+};
 
 // DSO handle. Not used, as we only support static linkage.
 void *__dso_handle = NULL;
