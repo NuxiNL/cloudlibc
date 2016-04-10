@@ -215,6 +215,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
         break;
       case CLOUDABI_AT_SYSINFO_EHDR:
         at_sysinfo_ehdr = auxv->a_ptr;
+        break;
       case CLOUDABI_AT_TID:
         at_tid = auxv->a_val;
         break;
