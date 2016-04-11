@@ -282,6 +282,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 
   // Perform relocations. The type of relocations that are performed is
   // machine dependent.
+  bool fully_relocated = true;
   for (; rela_size >= sizeof(*rela); rela_size -= sizeof(*rela)) {
     char *obj = at_base + rela->r_offset;
     switch (ELFW(R_TYPE)(rela->r_info)) {
@@ -299,11 +300,9 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 #error "Unsupported architecture"
 #endif
       default:
-        // Terminate immediately if there is a relocation that we don't
-        // support. Otherwise we end up having hard to debug crashes.
-        // TODO(ed): We can't do this when using vDSO system calls.
-        cloudabi_sys_proc_raise(CLOUDABI_SIGABRT);
-        cloudabi_sys_proc_exit(127);
+        // Spotted an unsupported relocation.
+        fully_relocated = false;
+        break;
     }
     ++rela;
   }
@@ -312,6 +311,13 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // implementations provided by the vDSO.
   if (at_sysinfo_ehdr != NULL)
     link_vdso(&cloudabi_syscalls, at_sysinfo_ehdr);
+
+  // Terminate immediately if there was a relocation that we didn't
+  // support. Otherwise we end up having hard to debug crashes.
+  if (!fully_relocated) {
+    cloudabi_sys_proc_raise(CLOUDABI_SIGABRT);
+    cloudabi_sys_proc_exit(127);
+  }
 
   // Mark memory that was only made writable to apply relocations read-only.
   if (relro_size > 0)
