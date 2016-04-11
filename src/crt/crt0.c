@@ -59,10 +59,10 @@ thread_local cloudabi_tid_t __pthread_thread_id;
 // Simple string functions so we don't depend on libc.
 #define memcmp(s1, s2, n) crt_memcmp(s1, s2, n)
 static int memcmp(const void *s1, const void *s2, size_t n) {
-  const char *sb1 = s1, *sb2 = s2;
+  const unsigned char *sb1 = s1, *sb2 = s2;
   while (n-- > 0) {
     if (*sb1 != *sb2)
-      return (int)(unsigned char)*sb2 - (int)(unsigned char)*sb1;
+      return (int)*sb2 - (int)*sb1;
     ++sb1;
     ++sb2;
   }
