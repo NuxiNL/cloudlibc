@@ -84,6 +84,7 @@ __netf2
 __subtf3
 __trunctfdf2
 __trunctfsf2
+__unorddf2
 __unordtf2
 main
 EOF
