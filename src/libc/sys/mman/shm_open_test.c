@@ -34,10 +34,12 @@ TEST(shm_open, example) {
   // Grow.
   ASSERT_EQ(0, ftruncate(fd, 1000));
 
-  // Validate length.
+  // Validate the length. It should be at least 1000, but some
+  // implementations round it up to the nearest page boundary.
   ASSERT_EQ(0, fstat(fd, &sb));
   ASSERT_TRUE(S_TYPEISSHM(&sb));
-  ASSERT_EQ(1000, sb.st_size);
+  ASSERT_LE(1000, sb.st_size);
+  ASSERT_GE(__roundup(1000, sysconf(_SC_PAGESIZE)), sb.st_size);
 
   // Map shared memory and write data into it.
   void *mapping = mmap(NULL, 1000, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
