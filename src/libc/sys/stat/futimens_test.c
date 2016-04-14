@@ -11,6 +11,14 @@
 
 #define TIME_PASSED 1416225136
 
+// File systems like HFS+ only provide one-second timestamp granularity.
+// Also allow tv_nsec to remain zero.
+#define TIMESPEC_EQ(sec, nsec, ts)                            \
+  do {                                                        \
+    ASSERT_EQ(sec, (ts).tv_sec);                              \
+    ASSERT_TRUE((ts).tv_nsec == (nsec) || (ts).tv_nsec == 0); \
+  } while (0);
+
 TEST(futimens, example) {
   // Create a FIFO and a symlink pointing to it.
   int fd = openat(fd_tmp, "file", O_CREAT | O_RDWR);
@@ -27,10 +35,8 @@ TEST(futimens, example) {
   struct stat sb;
   ASSERT_EQ(0, fstat(fd, &sb));
   ASSERT_TRUE(S_ISREG(sb.st_mode));
-  ASSERT_EQ(123, sb.st_atim.tv_sec);
-  ASSERT_EQ(456, sb.st_atim.tv_nsec);
-  ASSERT_EQ(234, sb.st_mtim.tv_sec);
-  ASSERT_EQ(567, sb.st_mtim.tv_nsec);
+  TIMESPEC_EQ(123, 456, sb.st_atim);
+  TIMESPEC_EQ(234, 567, sb.st_mtim);
 
   // UTIME_OMIT.
   {
@@ -40,10 +46,8 @@ TEST(futimens, example) {
   }
 
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_EQ(777, sb.st_atim.tv_sec);
-  ASSERT_EQ(888, sb.st_atim.tv_nsec);
-  ASSERT_EQ(234, sb.st_mtim.tv_sec);
-  ASSERT_EQ(567, sb.st_mtim.tv_nsec);
+  TIMESPEC_EQ(777, 888, sb.st_atim);
+  TIMESPEC_EQ(234, 567, sb.st_mtim);
 
   // UTIME_NOW.
   {
@@ -53,8 +57,7 @@ TEST(futimens, example) {
   }
 
   ASSERT_EQ(0, fstat(fd, &sb));
-  ASSERT_EQ(777, sb.st_atim.tv_sec);
-  ASSERT_EQ(888, sb.st_atim.tv_nsec);
+  TIMESPEC_EQ(777, 888, sb.st_atim);
   ASSERT_LE(TIME_PASSED, sb.st_mtime);
 
   // Null pointer.

@@ -11,6 +11,14 @@
 
 #define TIME_PASSED 1416225136
 
+// File systems like HFS+ only provide one-second timestamp granularity.
+// Also allow tv_nsec to remain zero.
+#define TIMESPEC_EQ(sec, nsec, ts)                            \
+  do {                                                        \
+    ASSERT_EQ(sec, (ts).tv_sec);                              \
+    ASSERT_TRUE((ts).tv_nsec == (nsec) || (ts).tv_nsec == 0); \
+  } while (0);
+
 TEST(utimensat, example) {
   // Create a FIFO and a symlink pointing to it.
   ASSERT_EQ(0, symlinkat("fifo", fd_tmp, "symlink"));
@@ -32,17 +40,13 @@ TEST(utimensat, example) {
   struct stat sb;
   ASSERT_EQ(0, fstatat(fd_tmp, "symlink", &sb, AT_SYMLINK_NOFOLLOW));
   ASSERT_TRUE(S_ISLNK(sb.st_mode));
-  ASSERT_EQ(123, sb.st_atim.tv_sec);
-  ASSERT_EQ(456, sb.st_atim.tv_nsec);
-  ASSERT_EQ(234, sb.st_mtim.tv_sec);
-  ASSERT_EQ(567, sb.st_mtim.tv_nsec);
+  TIMESPEC_EQ(123, 456, sb.st_atim);
+  TIMESPEC_EQ(234, 567, sb.st_mtim);
 
   ASSERT_EQ(0, fstatat(fd_tmp, "fifo", &sb, 0));
   ASSERT_TRUE(S_ISFIFO(sb.st_mode));
-  ASSERT_EQ(345, sb.st_atim.tv_sec);
-  ASSERT_EQ(678, sb.st_atim.tv_nsec);
-  ASSERT_EQ(901, sb.st_mtim.tv_sec);
-  ASSERT_EQ(234, sb.st_mtim.tv_nsec);
+  TIMESPEC_EQ(345, 678, sb.st_atim);
+  TIMESPEC_EQ(901, 234, sb.st_mtim);
 
   // UTIME_OMIT.
   {
@@ -57,16 +61,12 @@ TEST(utimensat, example) {
   }
 
   ASSERT_EQ(0, fstatat(fd_tmp, "symlink", &sb, AT_SYMLINK_NOFOLLOW));
-  ASSERT_EQ(777, sb.st_atim.tv_sec);
-  ASSERT_EQ(888, sb.st_atim.tv_nsec);
-  ASSERT_EQ(234, sb.st_mtim.tv_sec);
-  ASSERT_EQ(567, sb.st_mtim.tv_nsec);
+  TIMESPEC_EQ(777, 888, sb.st_atim);
+  TIMESPEC_EQ(234, 567, sb.st_mtim);
 
   ASSERT_EQ(0, fstatat(fd_tmp, "fifo", &sb, 0));
-  ASSERT_EQ(345, sb.st_atim.tv_sec);
-  ASSERT_EQ(678, sb.st_atim.tv_nsec);
-  ASSERT_EQ(555, sb.st_mtim.tv_sec);
-  ASSERT_EQ(666, sb.st_mtim.tv_nsec);
+  TIMESPEC_EQ(345, 678, sb.st_atim);
+  TIMESPEC_EQ(555, 666, sb.st_mtim);
 
   // UTIME_NOW.
   {
@@ -81,14 +81,12 @@ TEST(utimensat, example) {
   }
 
   ASSERT_EQ(0, fstatat(fd_tmp, "symlink", &sb, AT_SYMLINK_NOFOLLOW));
-  ASSERT_EQ(777, sb.st_atim.tv_sec);
-  ASSERT_EQ(888, sb.st_atim.tv_nsec);
+  TIMESPEC_EQ(777, 888, sb.st_atim);
   ASSERT_LE(TIME_PASSED, sb.st_mtime);
 
   ASSERT_EQ(0, fstatat(fd_tmp, "fifo", &sb, 0));
   ASSERT_LE(TIME_PASSED, sb.st_atime);
-  ASSERT_EQ(555, sb.st_mtim.tv_sec);
-  ASSERT_EQ(666, sb.st_mtim.tv_nsec);
+  TIMESPEC_EQ(555, 666, sb.st_mtim);
 
   // Null pointer.
   ASSERT_EQ(0, utimensat(fd_tmp, "symlink", NULL, AT_SYMLINK_NOFOLLOW));
