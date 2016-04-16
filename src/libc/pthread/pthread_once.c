@@ -47,7 +47,7 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
       // Once object has other threads waiting on its completion. Call into the
       // kernel to unblock the waiting threads.
       cloudabi_errno_t error = cloudabi_sys_lock_unlock(&once_control->__state,
-                                                        CLOUDABI_MAP_PRIVATE);
+                                                        CLOUDABI_SCOPE_PRIVATE);
       if (error != 0)
         __pthread_terminate(error,
                             "Failed to wake up threads blocked on once object");
@@ -59,7 +59,7 @@ int pthread_once(pthread_once_t *once_control, void (*init_routine)(void)) {
     cloudabi_subscription_t subscription = {
         .type = CLOUDABI_EVENTTYPE_LOCK_RDLOCK,
         .lock.lock = &once_control->__state,
-        .lock.lock_scope = CLOUDABI_MAP_PRIVATE,
+        .lock.lock_scope = CLOUDABI_SCOPE_PRIVATE,
     };
     size_t triggered;
     cloudabi_event_t event;
