@@ -9,7 +9,7 @@
 #include <common/tls.h>
 
 #include <cloudabi_syscalls.h>
-#include <cloudabi_syscalls_names.h>
+#include <cloudabi_syscalls_info.h>
 #include <cloudabi_syscalls_native.h>
 #include <cloudabi_syscalls_struct.h>
 #include <program.h>
