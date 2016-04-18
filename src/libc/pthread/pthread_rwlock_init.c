@@ -10,7 +10,8 @@
 
 static_assert(PTHREAD_PROCESS_PRIVATE == CLOUDABI_SCOPE_PRIVATE,
               "Value mismatch");
-static_assert(PTHREAD_PROCESS_SHARED == CLOUDABI_SCOPE_SHARED, "Value mismatch");
+static_assert(PTHREAD_PROCESS_SHARED == CLOUDABI_SCOPE_SHARED,
+              "Value mismatch");
 
 int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,
                         const pthread_rwlockattr_t *restrict attr) {
