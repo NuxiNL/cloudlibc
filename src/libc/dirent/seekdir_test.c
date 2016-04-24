@@ -21,16 +21,18 @@ TEST(seekdir, example) {
 
   // seekdir(telldir()) should restore to the right location.
   DIR *dirp = fdopendir(fd_tmp);
-  size_t count = 0;
+  size_t dirs = 0, files = 0;
   struct dirent *de;
   while ((de = readdir(dirp)) != NULL) {
     if (de->d_name[0] == '.') {
       ASSERT_TRUE(S_ISDIR(de->d_type));
+      ++dirs;
     } else {
       ASSERT_TRUE(S_ISREG(de->d_type));
+      ++files;
     }
     seekdir(dirp, telldir(dirp));
-    ++count;
   }
-  ASSERT_EQ(102, count);
+  ASSERT_EQ(2, dirs);
+  ASSERT_EQ(100, files);
 }
