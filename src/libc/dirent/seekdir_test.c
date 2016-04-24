@@ -13,7 +13,7 @@
 
 TEST(seekdir, example) {
   // Create some example files.
-  for (int i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 100; ++i) {
     char filename[8];
     snprintf(filename, sizeof(filename), "file%03d", i);
     ASSERT_EQ(0, close(openat(fd_tmp, filename, O_RDWR | O_CREAT)));
@@ -32,5 +32,5 @@ TEST(seekdir, example) {
     seekdir(dirp, telldir(dirp));
     ++count;
   }
-  ASSERT_EQ(1002, count);
+  ASSERT_EQ(102, count);
 }
