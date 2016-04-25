@@ -14,49 +14,65 @@
 #include <cloudabi_types.h>
 #include <stdbool.h>
 
-#define TRANSLATE_FILETYPE(type) ((mode_t)(type) << 16)
-
-static_assert(S_ISBLK(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_BLOCK_DEVICE)),
-              "Value mismatch");
-static_assert(S_ISCHR(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_CHARACTER_DEVICE)),
-              "Value mismatch");
-static_assert(S_ISDIR(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_DIRECTORY)),
-              "Value mismatch");
-static_assert(S_ISFIFO(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_FIFO)),
-              "Value mismatch");
-static_assert(S_ISREG(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_REGULAR_FILE)),
-              "Value mismatch");
-static_assert(S_ISSOCK(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_SOCKET_DGRAM)),
-              "Value mismatch");
-static_assert(S_ISSOCK(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_SOCKET_SEQPACKET)),
-              "Value mismatch");
-static_assert(S_ISSOCK(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_SOCKET_STREAM)),
-              "Value mismatch");
-static_assert(S_ISLNK(TRANSLATE_FILETYPE(CLOUDABI_FILETYPE_SYMBOLIC_LINK)),
-              "Value mismatch");
+static_assert(S_ISBLK(S_IFBLK), "Value mismatch");
+static_assert(S_ISCHR(S_IFCHR), "Value mismatch");
+static_assert(S_ISDIR(S_IFDIR), "Value mismatch");
+static_assert(S_ISFIFO(S_IFIFO), "Value mismatch");
+static_assert(S_ISLNK(S_IFLNK), "Value mismatch");
+static_assert(S_ISREG(S_IFREG), "Value mismatch");
+static_assert(S_ISSOCK(S_IFSOCK), "Value mismatch");
 
 static inline void to_public_stat(const cloudabi_filestat_t *in,
                                   struct stat *out) {
   // Ensure that we don't truncate any values.
   static_assert(sizeof(in->st_dev) == sizeof(out->st_dev), "Size mismatch");
   static_assert(sizeof(in->st_ino) == sizeof(out->st_ino), "Size mismatch");
+  static_assert(sizeof(in->st_filetype) == sizeof(out->__st_filetype),
+                "Size mismatch");
   static_assert(sizeof(in->st_nlink) == sizeof(out->st_nlink), "Size mismatch");
   static_assert(sizeof(in->st_size) == sizeof(out->st_size), "Size mismatch");
 
   *out = (struct stat){
 #define COPY_FIELD(field) .field = in->field
-#define COPY_TIMESPEC(field) .field = timestamp_to_timespec(in->field)
       COPY_FIELD(st_dev),
       COPY_FIELD(st_ino),
-      .st_mode = TRANSLATE_FILETYPE(in->st_filetype),
+      .__st_filetype = in->st_filetype,
       COPY_FIELD(st_nlink),
       COPY_FIELD(st_size),
+#undef COPY_FIELD
+#define COPY_TIMESPEC(field) .field = timestamp_to_timespec(in->field)
       COPY_TIMESPEC(st_atim),
       COPY_TIMESPEC(st_mtim),
       COPY_TIMESPEC(st_ctim),
-#undef COPY_FIELD
 #undef COPY_TIMESPEC
   };
+
+  // Convert file type to legacy types encoded in st_mode.
+  switch (in->st_filetype) {
+    case CLOUDABI_FILETYPE_BLOCK_DEVICE:
+      out->st_mode |= S_IFBLK;
+      break;
+    case CLOUDABI_FILETYPE_CHARACTER_DEVICE:
+      out->st_mode |= S_IFCHR;
+      break;
+    case CLOUDABI_FILETYPE_DIRECTORY:
+      out->st_mode |= S_IFDIR;
+      break;
+    case CLOUDABI_FILETYPE_FIFO:
+      out->st_mode |= S_IFIFO;
+      break;
+    case CLOUDABI_FILETYPE_REGULAR_FILE:
+      out->st_mode |= S_IFREG;
+      break;
+    case CLOUDABI_FILETYPE_SOCKET_DGRAM:
+    case CLOUDABI_FILETYPE_SOCKET_SEQPACKET:
+    case CLOUDABI_FILETYPE_SOCKET_STREAM:
+      out->st_mode |= S_IFSOCK;
+      break;
+    case CLOUDABI_FILETYPE_SYMBOLIC_LINK:
+      out->st_mode |= S_IFLNK;
+      break;
+  }
 }
 
 static inline bool utimens_get_timestamps(const struct timespec *times,

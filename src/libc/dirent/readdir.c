@@ -15,22 +15,13 @@
 
 #include "dirent_impl.h"
 
-static_assert(DT_BLK == CLOUDABI_FILETYPE_BLOCK_DEVICE << 16, "Value mismatch");
-static_assert(DT_CHR == CLOUDABI_FILETYPE_CHARACTER_DEVICE << 16,
-              "Value mismatch");
-static_assert(DT_DIR == CLOUDABI_FILETYPE_DIRECTORY << 16, "Value mismatch");
-static_assert(DT_FIFO == CLOUDABI_FILETYPE_FIFO << 16, "Value mismatch");
-static_assert(DT_LNK == CLOUDABI_FILETYPE_SYMBOLIC_LINK << 16,
-              "Value mismatch");
-static_assert(DT_REG == CLOUDABI_FILETYPE_REGULAR_FILE << 16, "Value mismatch");
-static_assert(DT_UNKNOWN == CLOUDABI_FILETYPE_UNKNOWN << 16, "Value mismatch");
-
-static_assert(S_ISBLK(DT_BLK), "Value mismatch");
-static_assert(S_ISCHR(DT_CHR), "Value mismatch");
-static_assert(S_ISDIR(DT_DIR), "Value mismatch");
-static_assert(S_ISFIFO(DT_FIFO), "Value mismatch");
-static_assert(S_ISLNK(DT_LNK), "Value mismatch");
-static_assert(S_ISREG(DT_REG), "Value mismatch");
+static_assert(DT_BLK == CLOUDABI_FILETYPE_BLOCK_DEVICE, "Value mismatch");
+static_assert(DT_CHR == CLOUDABI_FILETYPE_CHARACTER_DEVICE, "Value mismatch");
+static_assert(DT_DIR == CLOUDABI_FILETYPE_DIRECTORY, "Value mismatch");
+static_assert(DT_FIFO == CLOUDABI_FILETYPE_FIFO, "Value mismatch");
+static_assert(DT_LNK == CLOUDABI_FILETYPE_SYMBOLIC_LINK, "Value mismatch");
+static_assert(DT_REG == CLOUDABI_FILETYPE_REGULAR_FILE, "Value mismatch");
+static_assert(DT_UNKNOWN == CLOUDABI_FILETYPE_UNKNOWN, "Value mismatch");
 
 // Grows a buffer to be large enough to hold a certain amount of data.
 #define GROW(buffer, buffer_size, target_size)      \
@@ -88,7 +79,7 @@ struct dirent *readdir(DIR *dirp) {
          offsetof(struct dirent, d_name) + entry.d_namlen + 1);
     struct dirent *dirent = dirp->dirent;
     dirent->d_ino = entry.d_ino;
-    dirent->d_type = entry.d_type << 16;
+    dirent->d_type = entry.d_type;
     memcpy(dirent->d_name, name, entry.d_namlen);
     dirent->d_name[entry.d_namlen] = '\0';
     dirp->cookie = entry.d_next;

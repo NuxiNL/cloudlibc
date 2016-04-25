@@ -56,18 +56,18 @@ typedef __ino_t ino_t;
 #endif
 
 struct dirent {
-  ino_t d_ino;      // File serial number.
-  __mode_t d_type;  // File type.
-  char d_name[];    // Filename string of entry.
+  ino_t d_ino;          // File serial number.
+  __filetype_t d_type;  // File type.
+  char d_name[];        // Filename string of entry.
 };
 
-#define DT_UNKNOWN 0      // File type unknown.
-#define DT_BLK 0x100000   // Block device.
-#define DT_CHR 0x110000   // Character device.
-#define DT_DIR 0x200000   // Directory.
-#define DT_FIFO 0x300000  // FIFO.
-#define DT_LNK 0x900000   // Symbolic link.
-#define DT_REG 0x600000   // Regular file.
+#define DT_UNKNOWN 0  // File type unknown.
+#define DT_BLK 0x10   // Block device.
+#define DT_CHR 0x11   // Character device.
+#define DT_DIR 0x20   // Directory.
+#define DT_FIFO 0x30  // FIFO.
+#define DT_LNK 0x90   // Symbolic link.
+#define DT_REG 0x60   // Regular file.
 
 __BEGIN_DECLS
 int alphasort(const struct dirent **, const struct dirent **);

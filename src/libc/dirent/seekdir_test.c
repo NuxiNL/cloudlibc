@@ -3,8 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/stat.h>
-
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -25,10 +23,10 @@ TEST(seekdir, example) {
   struct dirent *de;
   while ((de = readdir(dirp)) != NULL) {
     if (de->d_name[0] == '.') {
-      ASSERT_TRUE(S_ISDIR(de->d_type));
+      ASSERT_EQ(DT_DIR, de->d_type);
       ++dirs;
     } else {
-      ASSERT_TRUE(S_ISREG(de->d_type));
+      ASSERT_EQ(DT_REG, de->d_type);
       ++files;
     }
     seekdir(dirp, telldir(dirp));

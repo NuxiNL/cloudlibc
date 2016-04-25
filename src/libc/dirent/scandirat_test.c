@@ -3,8 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/stat.h>
-
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -44,9 +42,9 @@ TEST(scandirat, empty) {
   ASSERT_EQ(2, scandirat(fd_tmp, ".", &namelist, NULL, alphasort));
 
   // Validate results.
-  ASSERT_TRUE(S_ISDIR(namelist[0]->d_type));
+  ASSERT_EQ(DT_DIR, namelist[0]->d_type);
   ASSERT_STREQ(".", namelist[0]->d_name);
-  ASSERT_TRUE(S_ISDIR(namelist[1]->d_type));
+  ASSERT_EQ(DT_DIR, namelist[1]->d_type);
   ASSERT_STREQ("..", namelist[1]->d_name);
 
   // Free entries.
@@ -73,13 +71,13 @@ TEST(scandirat, even_files) {
   ASSERT_EQ(502, scandirat(fd_tmp, ".", &namelist, sel_even, versionsort));
 
   // Validate results.
-  ASSERT_TRUE(S_ISDIR(namelist[0]->d_type));
+  ASSERT_EQ(DT_DIR, namelist[0]->d_type);
   ASSERT_STREQ(".", namelist[0]->d_name);
-  ASSERT_TRUE(S_ISDIR(namelist[1]->d_type));
+  ASSERT_EQ(DT_DIR, namelist[1]->d_type);
   ASSERT_STREQ("..", namelist[1]->d_name);
   for (int i = 0; i < 500; ++i) {
     struct dirent *de = namelist[i + 2];
-    ASSERT_TRUE(S_ISREG(de->d_type));
+    ASSERT_EQ(DT_REG, de->d_type);
     char filename[8];
     snprintf(filename, sizeof(filename), "file%03d", i * 2);
     ASSERT_STREQ(filename, de->d_name);

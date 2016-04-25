@@ -89,7 +89,7 @@ int scandirat(int dirfd, const char *dir, struct dirent ***namelist,
     if (dirent == NULL)
       goto bad;
     dirent->d_ino = entry.d_ino;
-    dirent->d_type = entry.d_type << 16;
+    dirent->d_type = entry.d_type;
     memcpy(dirent->d_name, name, entry.d_namlen);
     dirent->d_name[entry.d_namlen] = '\0';
     cookie = entry.d_next;

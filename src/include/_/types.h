@@ -192,6 +192,7 @@ typedef __uint_least32_t __char32_t;
 typedef __uint64_t __clock_t;
 typedef __uint32_t __clockid_t;
 typedef __uint64_t __dev_t;
+typedef __uint8_t __filetype_t;
 typedef __uint32_t __in_addr_t;
 typedef __uint16_t __in_port_t;
 typedef __uint64_t __ino_t;
