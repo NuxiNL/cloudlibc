@@ -136,4 +136,23 @@
 #define __guarded_by(x) __lock_annotate(guarded_by(x))
 #define __pt_guarded_by(x) __lock_annotate(pt_guarded_by(x))
 
+// Const preservation.
+//
+// Functions like strchr() allow you to silently discard a const
+// qualifier from a string. This macro can be used to wrap such
+// functions to propagate the const keyword where possible.
+//
+// This macro has many limitations, such as only being able to detect
+// constness for void, char and wchar_t. For Clang, it also doesn't seem
+// to work on string literals.
+
+#define __preserve_const(type, name, arg, ...) \
+  _Generic(arg,                                                    \
+           const void *: (const type *)name(__VA_ARGS__),          \
+           const char *: (const type *)name(__VA_ARGS__),          \
+           const signed char *: (const type *)name(__VA_ARGS__),   \
+           const unsigned char *: (const type *)name(__VA_ARGS__), \
+           const __wchar_t *: (const type *)name(__VA_ARGS__),     \
+           default: name(__VA_ARGS__))
+
 #endif

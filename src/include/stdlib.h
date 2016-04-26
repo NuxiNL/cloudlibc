@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -259,7 +259,7 @@ static __inline void *__bsearch(const void *__key, const void *__base,
   return NULL;
 }
 #define bsearch(key, base, nel, width, compar) \
-  __bsearch(key, base, nel, width, compar)
+  __preserve_const(void, __bsearch, base, key, base, nel, width, compar)
 
 // qsort_r() implementation from Bentley and McIlroy's
 // "Engineering a Sort Function".

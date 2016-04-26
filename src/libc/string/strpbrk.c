@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -9,7 +9,7 @@
 #define INDEX(c) ((unsigned char)(c) / LONG_BIT)
 #define BIT(c) (1UL << ((unsigned char)(c) % LONG_BIT))
 
-char *strpbrk(const char *s1, const char *s2) {
+char *(strpbrk)(const char *s1, const char *s2) {
   // Construct span bitmask.
   unsigned long span[(UCHAR_MAX + 1) / LONG_BIT] = {};
   do {

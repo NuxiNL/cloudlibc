@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -11,5 +11,5 @@
 
 void *(lfind)(const void *key, const void *base, size_t *nelp, size_t width,
               int (*compar)(const void *, const void *)) {
-  return lfind(key, base, nelp, width, compar);
+  return (void *)lfind(key, base, nelp, width, compar);
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -90,6 +90,17 @@ int strverscmp(const char *, const char *) __pure;
 size_t strxfrm(char *__restrict, const char *__restrict, size_t);
 size_t strxfrm_l(char *__restrict, const char *__restrict, size_t, locale_t);
 __END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+#define memchr(s, c, n) __preserve_const(void, memchr, s, s, c, n)
+#define memmem(s1, s1len, s2, s2len) \
+  __preserve_const(void, memmem, s1, s1, s1len, s2, s2len)
+#define memrchr(s, c, n) __preserve_const(void, memrchr, s, s, c, n)
+#define strchr(s, n) __preserve_const(char, strchr, s, s, n)
+#define strpbrk(s1, s2) __preserve_const(char, strpbrk, s1, s1, s2)
+#define strrchr(s, n) __preserve_const(char, strrchr, s, s, n)
+#define strstr(s1, s2) __preserve_const(char, strstr, s1, s1, s2)
+#endif
 
 #endif
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -115,7 +115,7 @@ static __inline void *__lfind(const void *__key, const void *__base,
   return _NULL;
 }
 #define lfind(key, base, nelp, width, compar) \
-  __lfind(key, base, nelp, width, compar)
+  __preserve_const(void, __lfind, base, key, base, nelp, width, compar)
 
 static __inline void *__lsearch(const void *__key, void *__base, size_t *__nelp,
                                 size_t __width,

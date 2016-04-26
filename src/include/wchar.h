@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -231,6 +231,16 @@ wchar_t *wmemmem(const wchar_t *, size_t, const wchar_t *, size_t) __pure;
 wchar_t *wmemmove(wchar_t *, const wchar_t *, size_t);
 wchar_t *wmemset(wchar_t *, wchar_t, size_t);
 __END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+#define wcschr(ws, wc) __preserve_const(wchar_t, wcschr, ws, ws, wc)
+#define wcspbrk(ws1, ws2) __preserve_const(wchar_t, wcspbrk, ws1, ws1, ws2)
+#define wcsrchr(ws, wc) __preserve_const(wchar_t, wcsrchr, ws, ws, wc)
+#define wcsstr(ws1, ws2) __preserve_const(wchar_t, wcsstr, ws1, ws1, ws2)
+#define wmemchr(ws, wc, n) __preserve_const(wchar_t, wmemchr, ws, ws, wc, n)
+#define wmemmem(ws1, ws1len, ws2, ws2len) \
+  __preserve_const(wchar_t, wmemmem, ws1, ws1, ws1len, ws2, ws2len)
+#endif
 
 #endif
 

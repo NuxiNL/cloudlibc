@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -8,7 +8,7 @@
 
 #define BIT(c) (1UL << ((unsigned int)(c) % LONG_BIT))
 
-wchar_t *wcspbrk(const wchar_t *ws1, const wchar_t *ws2) {
+wchar_t *(wcspbrk)(const wchar_t *ws1, const wchar_t *ws2) {
   // Construct span bloom filter.
   unsigned long span = 0;
   {
