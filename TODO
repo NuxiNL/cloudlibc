@@ -11,7 +11,7 @@ sys/event.h	70%	Needs more tests
 stdio.h		80%	scanf() still brittle. Needs more tests.
 string.h	80%	strcoll() and strxfrm() still missing
 sys/socket.h	90%	File descriptor passing missing
-unistd.h	90%	fpathconf() and sysconf() still missing
+unistd.h	90%	fpathconf() still missing
 
 Done:
 -----

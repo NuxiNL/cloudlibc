@@ -24,7 +24,7 @@
 // <unistd.h> - standard symbolic constants and types
 //
 // Extensions:
-// - _SC_NPROCESSORS_ONLN:
+// - _SC_NPROCESSORS_CONF and _SC_NPROCESSORS_ONLN:
 //   Present on most systems and used by many pieces of software.
 // - useconds_t and usleep():
 //   Still used actively, as it was part of POSIX up to issue 6.
@@ -117,7 +117,7 @@
 #define _POSIX_SPORADIC_SERVER (-1)
 #define _POSIX_SYNCHRONIZED_IO 200809L
 #define _POSIX_THREADS 200809L
-#define _POSIX_THREAD_ATTR_STACKADDR 200809L
+#define _POSIX_THREAD_ATTR_STACKADDR (-1)
 #define _POSIX_THREAD_ATTR_STACKSIZE 200809L
 #define _POSIX_THREAD_CPUTIME 200809L
 #define _POSIX_THREAD_PRIORITY_SCHEDULING (-1)
@@ -288,6 +288,7 @@
 #define _SC_XOPEN_STREAMS 116
 #define _SC_XOPEN_UNIX 117
 #define _SC_XOPEN_UUCP 118
+#define _SC_NPROCESSORS_CONF 119
 
 #define _SC_PAGE_SIZE _SC_PAGESIZE
 
