@@ -24,6 +24,7 @@
 #ifndef ___TIME_SELECT_H_
 #define ___TIME_SELECT_H_
 
+#include <_/struct/timeval.h>
 #include <_/types.h>
 
 #ifndef _SUSECONDS_T_DECLARED
@@ -34,11 +35,6 @@ typedef __suseconds_t suseconds_t;
 typedef __time_t time_t;
 #define _TIME_T_DECLARED
 #endif
-
-struct timeval {
-  time_t tv_sec;        // Seconds.
-  suseconds_t tv_usec;  // Microseconds.
-};
 
 // File descriptor sets for select().
 //
