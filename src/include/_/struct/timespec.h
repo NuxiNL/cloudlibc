@@ -27,8 +27,8 @@
 #include <_/types.h>
 
 struct timespec {
-  __time_t tv_sec;
-  long tv_nsec;
+  __time_t tv_sec;  // Seconds.
+  long tv_nsec;     // Nanoseconds.
 };
 
 #endif
