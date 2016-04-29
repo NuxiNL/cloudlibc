@@ -68,7 +68,7 @@
 // - getopt(), optarg, opterr, optind and optopt:
 //   Not thread-safe.
 // - nice():
-//   Use <sched.h> and pthread scheduling options instead.
+//   Scheduler interaction not available.
 // - sync():
 //   Use fsync() and fdatasync() instead.
 
