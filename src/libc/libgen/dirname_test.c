@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -19,6 +19,7 @@ TEST(dirname, example) {
   }
   EXAMPLE("///", "/");
   EXAMPLE("/usr//lib//", "/usr");
+  EXAMPLE("usr//lib//", "usr");
 
   // Examples from POSIX.
   EXAMPLE("/usr/lib", "/usr");
@@ -28,5 +29,13 @@ TEST(dirname, example) {
   EXAMPLE(".", ".");
   EXAMPLE("..", ".");
   EXAMPLE("//foo", "/");
+
+  // Extension: path sanitization. Redundant slashes are discarded. Dot
+  // pathname components are not retained in the output, but do count as
+  // path components, as they may be returned by basename().
+  EXAMPLE("//foo//bar//baz//", "/foo/bar");
+  EXAMPLE("//a//.//b//.//c//", "/a/b");
+  EXAMPLE("//foo//.//bar//.//", "/foo/bar");
+  EXAMPLE(".//foo//.//bar//.//", "foo/bar");
 #undef EXAMPLE
 }

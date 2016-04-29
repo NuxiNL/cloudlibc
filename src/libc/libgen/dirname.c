@@ -1,9 +1,10 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <libgen.h>
+#include <stdbool.h>
 #include <string.h>
 
 char *dirname(char *path) {
@@ -12,29 +13,39 @@ char *dirname(char *path) {
   if (path == NULL || *path == '\0')
     return (char *)".";
 
-  // Find end of last pathname component.
-  char *end = strchr(path, '\0');
-  while (end > path + 1 && *(end - 1) == '/')
-    --end;
+  // Retain at least one leading slash character.
+  char *out = *path == '/' ? path + 1 : path;
+  const char *in = out;
 
-  // Strip off the last pathname component.
-  while (end > path && *(end - 1) != '/')
-    --end;
+  bool skipslash = true;
+  const char *prev = ".";
+  size_t prevlen = 1;
+  while (*in != '\0') {
+    // Extract the next pathname element.
+    const char *begin = in = in + strspn(in, "/");
+    const char *end = in = in + strcspn(in, "/");
+    if (begin == end)
+      break;
+
+    // Copy over the previous pathname element, except if it's dot.
+    // There is no point in retaining those.
+    if (prevlen != 1 || *prev != '.') {
+      if (!skipslash)
+        *out++ = '/';
+      skipslash = false;
+      memmove(out, prev, prevlen);
+      out += prevlen;
+    }
+
+    // Preserve the pathname element for the next iteration.
+    prev = begin;
+    prevlen = end - begin;
+  }
 
   // If path does not contain a '/', then dirname() shall return a
   // pointer to the string ".".
-  if (end == path) {
-    path[0] = '.';
-    path[1] = '\0';
-    return path;
-  }
-
-  // Remove trailing slashes from the resulting directory name. Ensure
-  // that at least one character remains.
-  while (end > path + 1 && *(end - 1) == '/')
-    --end;
-
-  // Null terminate directory name and return it.
-  *end = '\0';
+  if (out == path)
+    *out++ = '.';
+  *out = '\0';
   return path;
 }
