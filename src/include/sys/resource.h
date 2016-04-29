@@ -21,10 +21,11 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <sys/procdesc.h> - definitions for XSI resource operations
+// <sys/resource.h> - definitions for XSI resource operations
 //
 // Features missing:
-// - PRIO_PROCESS, PRIO_PGRP, PRIO_USER, getpriority() and setpriority():
+// - PRIO_PROCESS, PRIO_PGRP, PRIO_USER, getpriority(), setpriority()
+//   and id_t:
 //   Scheduler interaction not available.
 // - rlim_t, RLIM_INFINITY, RLIM_SAVED_MAX, RLIM_SAVED_CUR,
 //   struct rlimit, RLIMIT_CORE, RLIMIT_CPU, RLIMIT_DATA, RLIMIT_FSIZE,
