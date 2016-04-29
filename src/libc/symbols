@@ -344,6 +344,7 @@ getnameinfo
 getpeername
 getprotobyname
 getprotobynumber
+getrusage
 getservbyname
 getservbyport
 getsockname
