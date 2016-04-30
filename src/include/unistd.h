@@ -53,7 +53,7 @@
 //   Requires global process namespace. Use pdfork() instead.
 // - access(), chown(), execl(), execle(), execlp(), execv(), execve(),
 //   execvp(), lchown(), link(), pathconf(), readlink(),
-//   rmdir(), symlink(), truncate(), unlink()
+//   rmdir(), symlink(), truncate() and unlink():
 //   Requires global filesystem namespace.
 // - alarm() and pause():
 //   Signal handling not available.
