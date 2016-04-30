@@ -22,8 +22,12 @@ char *dirname(char *path) {
   size_t prevlen = 1;
   for (;;) {
     // Extract the next pathname component.
-    const char *begin = in = in + strspn(in, "/");
-    const char *end = in = in + strcspn(in, "/");
+    while (*in == '/')
+      ++in;
+    const char *begin = in;
+    while (*in != '/' && *in != '\0')
+      ++in;
+    const char *end = in;
     if (begin == end)
       break;
 
