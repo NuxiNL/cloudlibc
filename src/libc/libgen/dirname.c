@@ -20,7 +20,7 @@ char *dirname(char *path) {
   bool skipslash = true;
   const char *prev = ".";
   size_t prevlen = 1;
-  while (*in != '\0') {
+  for (;;) {
     // Extract the next pathname component.
     const char *begin = in = in + strspn(in, "/");
     const char *end = in = in + strcspn(in, "/");
