@@ -21,13 +21,13 @@ char *dirname(char *path) {
   const char *prev = ".";
   size_t prevlen = 1;
   while (*in != '\0') {
-    // Extract the next pathname element.
+    // Extract the next pathname component.
     const char *begin = in = in + strspn(in, "/");
     const char *end = in = in + strcspn(in, "/");
     if (begin == end)
       break;
 
-    // Copy over the previous pathname element, except if it's dot.
+    // Copy over the previous pathname component, except if it's dot.
     // There is no point in retaining those.
     if (prevlen != 1 || *prev != '.') {
       if (!skipslash)
@@ -37,7 +37,7 @@ char *dirname(char *path) {
       out += prevlen;
     }
 
-    // Preserve the pathname element for the next iteration.
+    // Preserve the pathname component for the next iteration.
     prev = begin;
     prevlen = end - begin;
   }
