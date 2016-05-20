@@ -65,7 +65,7 @@ static void test_locale(const char *locale, const struct testvector *vectors,
 #define TEST_BEGIN(name, tzname)                 \
   TEST(localtime_l, name) {                      \
     static const char localename[] = "@" tzname; \
-  struct testvector testvectors[] = {
+    struct testvector testvectors[] = {
 #define TESTVECTOR(t, year, mon, wday, mday, hour, min, sec, isdst, gmtoff, \
                    zone, consistency)                                       \
   {                                                                         \
