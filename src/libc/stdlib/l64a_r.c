@@ -8,9 +8,7 @@
 
 int l64a_r(long value, char *buffer, int buflen) {
   uint32_t v = value;
-  for (;;) {
-    if (buflen <= 0)
-      return -1;
+  while (buflen-- > 0) {
     if (v == 0) {
       *buffer = '\0';
       return 0;
@@ -18,7 +16,7 @@ int l64a_r(long value, char *buffer, int buflen) {
     *buffer++ =
         "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
             [v & 0x3f];
-    --buflen;
     v >>= 6;
   }
+  return -1;
 }
