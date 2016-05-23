@@ -437,6 +437,7 @@ j1
 jn
 kevent
 kqueue
+l64a_r
 labs
 ldexp
 ldexpf

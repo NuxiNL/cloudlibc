@@ -32,6 +32,8 @@
 // - arc4random(), arc4random_buf() and arc4random_uniform():
 //   Secure random number generator. Available on many other operating
 //   systems.
+// - l64a_r():
+//   Thread-safe replacement for l64a(). Part of the SVID, 4th edition.
 // - mbstowcs_l() and wcstombs_l():
 //   mbstowcs() and wcstombs() always use the C locale.
 // - qsort_r():
@@ -52,7 +54,7 @@
 //   WSTOPSIG(), WTERMSIG(), WUNTRACED:
 //   Only useful if system() would actually work.
 // - l64a():
-//   Not thread-safe.
+//   Not thread-safe. Use l64a_r() instead.
 // - putenv(), setenv() and unsetenv():
 //   Environment variables are not available.
 // - grantpt(), posix_openpt(), ptsname() and unlockpt():
@@ -137,6 +139,7 @@ _Noreturn void exit(int);
 void free(void *);
 char *getenv(const char *);
 int getsubopt(char **, char *const *, char **);
+int l64a_r(long, char *, int);
 long labs(long) __pure2;
 ldiv_t ldiv(long, long) __pure2;
 long long llabs(long long) __pure2;

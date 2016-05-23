@@ -3,30 +3,52 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <testing.h>
 
 TEST(a64l, examples) {
+#define TEST_BASE64(v, str)                         \
+  do {                                              \
+    ASSERT_EQ(v, a64l(str));                        \
+    ASSERT_EQ(v, a64l(str "| Trailing garbage"));   \
+                                                    \
+    char buf[sizeof(str)];                          \
+    ASSERT_EQ(-1, l64a_r(v, buf, sizeof(buf) - 1)); \
+    ASSERT_EQ(0, l64a_r(v, buf, sizeof(buf)));      \
+    ASSERT_STREQ(str, buf);                         \
+  } while (0)
   // Individual characters.
-  ASSERT_EQ(0, a64l(""));
-  ASSERT_EQ(0, a64l("."));
-  ASSERT_EQ(1, a64l("/"));
-  ASSERT_EQ(2, a64l("0"));
-  ASSERT_EQ(11, a64l("9"));
-  ASSERT_EQ(12, a64l("A"));
-  ASSERT_EQ(37, a64l("Z"));
-  ASSERT_EQ(38, a64l("a"));
-  ASSERT_EQ(63, a64l("z"));
+  TEST_BASE64(0, "");
+  TEST_BASE64(1, "/");
+  TEST_BASE64(2, "0");
+  TEST_BASE64(11, "9");
+  TEST_BASE64(12, "A");
+  TEST_BASE64(37, "Z");
+  TEST_BASE64(38, "a");
+  TEST_BASE64(63, "z");
 
   // Random test vectors.
-  ASSERT_EQ(-798039413, a64l("98iPE1Trailing garbage"));
-  ASSERT_EQ(-457520467, a64l("hegiY1"));
-  ASSERT_EQ(-130063910, a64l("O5qDs1"));
-  ASSERT_EQ(1146677630, a64l("yZCK2/"));
-  ASSERT_EQ(1378758273, a64l("/uW9G/"));
-  ASSERT_EQ(1388004411, a64l("vEoiG/"));
-  ASSERT_EQ(1464607185, a64l("F50HL/"));
-  ASSERT_EQ(1717698504, a64l("6zTMa/"));
-  ASSERT_EQ(1783681590, a64l("q6BIe/"));
-  ASSERT_EQ(1812451478, a64l("K0x/g/"));
+  TEST_BASE64(-798039413, "98iPE1");
+  TEST_BASE64(-457520467, "hegiY1");
+  TEST_BASE64(-130063910, "O5qDs1");
+  TEST_BASE64(1146677630, "yZCK2/");
+  TEST_BASE64(1378758273, "/uW9G/");
+  TEST_BASE64(1388004411, "vEoiG/");
+  TEST_BASE64(1464607185, "F50HL/");
+  TEST_BASE64(1717698504, "6zTMa/");
+  TEST_BASE64(1783681590, "q6BIe/");
+  TEST_BASE64(1812451478, "K0x/g/");
+#undef TEST_BASE64
+}
+
+TEST(a64l, random) {
+  // The low 32 bits should be preserved when converting back and forth.
+  for (int i = 0; i < 1000; ++i) {
+    long v;
+    arc4random_buf(&v, sizeof(v));
+    char buf[7];
+    ASSERT_EQ(0, l64a_r(v, buf, sizeof(buf)));
+    ASSERT_EQ((int32_t)v, a64l(buf));
+  }
 }
