@@ -51,7 +51,7 @@
 // - WEXITSTATUS(), WIFEXITED(), WIFSIGNALED(), WIFSTOPPED(),
 //   WSTOPSIG(), WTERMSIG(), WUNTRACED:
 //   Only useful if system() would actually work.
-// - a64l() and l64a():
+// - l64a():
 //   Not thread-safe.
 // - putenv(), setenv() and unsetenv():
 //   Environment variables are not available.
@@ -115,6 +115,7 @@ typedef __wchar_t wchar_t;
 __BEGIN_DECLS
 _Noreturn void _Exit(int);
 size_t MB_CUR_MAX_L(__locale_t);
+long a64l(const char *);
 _Noreturn void abort(void);
 int abs(int) __pure2;
 int at_quick_exit(void (*)(void));

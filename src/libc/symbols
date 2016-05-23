@@ -8,6 +8,7 @@ FD_SET
 FD_ZERO
 MB_CUR_MAX_L
 _exit
+a64l
 abort
 abs
 accept
