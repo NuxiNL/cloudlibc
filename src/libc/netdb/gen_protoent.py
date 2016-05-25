@@ -20,6 +20,8 @@ with open('protocol-numbers-1.csv', 'r') as ufile:
       continue
     number = int(entry[0])
     name = entry[1].lower().replace(' ', '-')
+    if name.endswith('-(deprecated)'):
+        name = name[:-13]
     if number in names:
       aliases[number].add(name)
     else:
