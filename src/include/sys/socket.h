@@ -107,14 +107,15 @@ struct cmsghdr {
   (CMSG_DATA(cmsg) <=                                                    \
            (unsigned char *)(mhdr)->msg_control + (mhdr)->msg_controllen \
        ? (cmsg)                                                          \
-       : (struct cmsghdr *)NULL)
+       : (struct cmsghdr *)0)
 
 #define CMSG_DATA(cmsg) (&(cmsg)->__cmsg_data[0])
 #define CMSG_LEN(len) ((__size_t)__offsetof(struct cmsghdr, __cmsg_data[len]))
-#define CMSG_NXTHDR(mhdr, cmsg)                                            \
-  ((cmsg) == NULL ? CMSG_FIRSTHDR(mhdr)                                    \
-                  : _CMSG_VALIDATE(mhdr, _CMSG_ALIGN((__uintptr_t)(cmsg) + \
-                                                     (cmsg)->cmsg_len)))
+#define CMSG_NXTHDR(mhdr, cmsg)  \
+  ((cmsg) == (struct cmsghdr *)0 \
+       ? CMSG_FIRSTHDR(mhdr)     \
+       : _CMSG_VALIDATE(mhdr,    \
+                        _CMSG_ALIGN((__uintptr_t)(cmsg) + (cmsg)->cmsg_len)))
 #define CMSG_FIRSTHDR(mhdr) \
   _CMSG_VALIDATE(mhdr, _CMSG_ALIGN((mhdr)->msg_control))
 #define CMSG_SPACE(len) (CMSG_LEN(len) + _Alignof(struct cmsghdr) - 1)
