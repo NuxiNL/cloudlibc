@@ -99,10 +99,10 @@ struct tm {
 
 #define CLOCKS_PER_SEC 1000000000
 
-#define CLOCK_MONOTONIC 1
-#define CLOCK_PROCESS_CPUTIME_ID 2
-#define CLOCK_REALTIME 3
-#define CLOCK_THREAD_CPUTIME_ID 4
+#define CLOCK_MONOTONIC ((clockid_t)1)
+#define CLOCK_PROCESS_CPUTIME_ID ((clockid_t)2)
+#define CLOCK_REALTIME ((clockid_t)3)
+#define CLOCK_THREAD_CPUTIME_ID ((clockid_t)4)
 
 #define TIMER_ABSTIME 1
 
