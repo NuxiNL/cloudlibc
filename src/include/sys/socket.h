@@ -110,7 +110,7 @@ struct cmsghdr {
        : (struct cmsghdr *)0)
 
 #define CMSG_DATA(cmsg) (&(cmsg)->__cmsg_data[0])
-#define CMSG_LEN(len) ((__size_t)__offsetof(struct cmsghdr, __cmsg_data[len]))
+#define CMSG_LEN(len) __offsetof(struct cmsghdr, __cmsg_data[len])
 #define CMSG_NXTHDR(mhdr, cmsg)  \
   ((cmsg) == (struct cmsghdr *)0 \
        ? CMSG_FIRSTHDR(mhdr)     \
