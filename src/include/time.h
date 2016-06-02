@@ -108,6 +108,8 @@ struct tm {
 
 #define TIME_UTC CLOCK_REALTIME
 
+extern int daylight;
+extern long timezone;
 extern char *tzname[];
 
 __BEGIN_DECLS

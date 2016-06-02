@@ -204,6 +204,7 @@ ctanhf
 ctanhl
 ctanl
 ctime_r
+daylight
 dgettext
 difftime
 dirfd
@@ -853,6 +854,7 @@ time
 timegm
 times
 timespec_get
+timezone
 tmpfile
 tmpfile_l
 tolower
