@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -100,24 +100,8 @@ struct cmsghdr {
 
 #define SCM_RIGHTS 1  // File descriptor passing for UNIX sockets.
 
-// Utility macros.
-#define _CMSG_ALIGN(ptr) \
-  ((struct cmsghdr *)__roundup((__uintptr_t)(ptr), _Alignof(struct cmsghdr)))
-#define _CMSG_VALIDATE(mhdr, cmsg)                                       \
-  (CMSG_DATA(cmsg) <=                                                    \
-           (unsigned char *)(mhdr)->msg_control + (mhdr)->msg_controllen \
-       ? (cmsg)                                                          \
-       : (struct cmsghdr *)0)
-
-#define CMSG_DATA(cmsg) (&(cmsg)->__cmsg_data[0])
+#define CMSG_DATA(cmsg) (cmsg)->__cmsg_data
 #define CMSG_LEN(len) __offsetof(struct cmsghdr, __cmsg_data[len])
-#define CMSG_NXTHDR(mhdr, cmsg)  \
-  ((cmsg) == (struct cmsghdr *)0 \
-       ? CMSG_FIRSTHDR(mhdr)     \
-       : _CMSG_VALIDATE(mhdr,    \
-                        _CMSG_ALIGN((__uintptr_t)(cmsg) + (cmsg)->cmsg_len)))
-#define CMSG_FIRSTHDR(mhdr) \
-  _CMSG_VALIDATE(mhdr, _CMSG_ALIGN((mhdr)->msg_control))
 #define CMSG_SPACE(len) (CMSG_LEN(len) + _Alignof(struct cmsghdr) - 1)
 
 #define SO_ACCEPTCONN 1  // Socket is accepting connections.
@@ -150,6 +134,8 @@ struct cmsghdr {
 #define SHUT_RDWR (SHUT_RD | SHUT_WR)  // Disables send and receive operations.
 
 __BEGIN_DECLS
+struct cmsghdr *CMSG_FIRSTHDR(const struct msghdr *);
+struct cmsghdr *CMSG_NXTHDR(const struct msghdr *, const struct cmsghdr *);
 int accept(int, struct sockaddr *__restrict, size_t *__restrict);
 int bindat(int, int, const char *);
 int connectat(int, int, const char *);
@@ -169,6 +155,29 @@ int socketpair(int, int, int, int *);
 __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline struct cmsghdr *_CMSG_GET(const struct msghdr *__mhdr,
+                                          __uintptr_t __addr) {
+  struct cmsghdr *__cmsg =
+      (struct cmsghdr *)__roundup(__addr, _Alignof(struct cmsghdr));
+  return CMSG_DATA(__cmsg) <=
+                 (unsigned char *)__mhdr->msg_control + __mhdr->msg_controllen
+             ? __cmsg
+             : _NULL;
+}
+
+static __inline struct cmsghdr *_CMSG_FIRSTHDR(const struct msghdr *__mhdr) {
+  return _CMSG_GET(__mhdr, (__uintptr_t)__mhdr->msg_control);
+}
+#define CMSG_FIRSTHDR(mhdr) _CMSG_FIRSTHDR(mhdr)
+
+static __inline struct cmsghdr *_CMSG_NXTHDR(const struct msghdr *__mhdr,
+                                             const struct cmsghdr *__cmsg) {
+  return _CMSG_GET(__mhdr, __cmsg == _NULL
+                               ? (__uintptr_t)__mhdr->msg_controllen
+                               : (__uintptr_t)__cmsg + __cmsg->cmsg_len);
+}
+#define CMSG_NXTHDR(mhdr, cmsg) _CMSG_NXTHDR(mhdr, cmsg)
+
 static __inline ssize_t __recv(int __socket, void *__buffer, size_t __length,
                                int __flags) {
   return recvfrom(__socket, __buffer, __length, __flags, _NULL, _NULL);

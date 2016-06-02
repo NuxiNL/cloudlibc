@@ -1,0 +1,14 @@
+// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+//
+// This file is distributed under a 2-clause BSD license.
+// See the LICENSE file for details.
+
+#include <sys/socket.h>
+
+#ifndef CMSG_FIRSTHDR
+#error "CMSG_FIRSTHDR is supposed to be a macro as well"
+#endif
+
+struct cmsghdr *(CMSG_FIRSTHDR)(const struct msghdr *mhdr) {
+  return CMSG_FIRSTHDR(mhdr);
+}
