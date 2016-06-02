@@ -130,14 +130,14 @@ int localtime_l(const struct timespec *restrict timer,
 
   // Obtain the last era from the timezone that does not end before the
   // provided timestamp.
-  const struct lc_timezone *timezone = locale->timezone;
-  const struct lc_timezone_era *era = &timezone->eras[0];
+  const struct lc_timezone *tz = locale->timezone;
+  const struct lc_timezone_era *era = &tz->eras[0];
   time_t era_start = NUMERIC_MIN(time_t);
-  for (size_t i = 1; i < timezone->eras_count; ++i) {
+  for (size_t i = 1; i < tz->eras_count; ++i) {
     if (era->end > timer->tv_sec)
       break;
     era_start = era->end + era->gmtoff + era->end_save * 600;
-    era = &timezone->eras[i];
+    era = &tz->eras[i];
   }
 
   int error;

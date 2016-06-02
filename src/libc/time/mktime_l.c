@@ -52,24 +52,24 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
   // Approximate the time by assuming UTC.
   __mktime_utc(tm, result);
 
-  const struct lc_timezone *timezone = locale->timezone;
+  const struct lc_timezone *tz = locale->timezone;
   if (tm->tm_isdst == 0) {
     // Fast path: no daylight saving time. Simply find the first era
     // that contains this timestamp and subtract its offset.
-    const struct lc_timezone_era *era = &timezone->eras[0];
-    for (size_t i = 1; i < timezone->eras_count; ++i) {
+    const struct lc_timezone_era *era = &tz->eras[0];
+    for (size_t i = 1; i < tz->eras_count; ++i) {
       if (era->end > result->tv_sec - era->gmtoff)
         break;
-      era = &timezone->eras[i];
+      era = &tz->eras[i];
     }
     result->tv_sec -= era->gmtoff;
   } else {
     // Slow path: time has daylight saving time (tm_isdst > 0) or it
     // needs to be inferred (tm_isdst < 0).
     bool force_dst = tm->tm_isdst > 0;
-    const struct lc_timezone_era *era = &timezone->eras[0];
+    const struct lc_timezone_era *era = &tz->eras[0];
     time_t cmptime = result->tv_sec;
-    for (size_t i = 1; i < timezone->eras_count; ++i) {
+    for (size_t i = 1; i < tz->eras_count; ++i) {
       int save = era->end_save * 600;
       time_t end = result->tv_sec - era->gmtoff - save;
       if (end < era->end) {
@@ -95,7 +95,7 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
         // The timestamp lies outside of the era.
         cmptime = result->tv_sec;
       }
-      era = &timezone->eras[i];
+      era = &tz->eras[i];
     }
 
     // Process daylight saving time rules.
