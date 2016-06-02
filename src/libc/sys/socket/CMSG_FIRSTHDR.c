@@ -5,10 +5,10 @@
 
 #include <sys/socket.h>
 
-#ifndef CMSG_FIRSTHDR
-#error "CMSG_FIRSTHDR is supposed to be a macro as well"
-#endif
+#include <stdint.h>
 
-struct cmsghdr *(CMSG_FIRSTHDR)(const struct msghdr *mhdr) {
-  return CMSG_FIRSTHDR(mhdr);
+#include "socket_impl.h"
+
+struct cmsghdr *CMSG_FIRSTHDR(const struct msghdr *mhdr) {
+  return CMSG_GET(mhdr, (uintptr_t)mhdr->msg_control);
 }

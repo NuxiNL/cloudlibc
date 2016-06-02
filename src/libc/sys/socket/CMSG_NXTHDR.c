@@ -5,11 +5,12 @@
 
 #include <sys/socket.h>
 
-#ifndef CMSG_NXTHDR
-#error "CMSG_NXTHDR is supposed to be a macro as well"
-#endif
+#include <stdint.h>
 
-struct cmsghdr *(CMSG_NXTHDR)(const struct msghdr *mhdr,
-                              const struct cmsghdr *cmsg) {
-  return CMSG_NXTHDR(mhdr, cmsg);
+#include "socket_impl.h"
+
+struct cmsghdr *CMSG_NXTHDR(const struct msghdr *mhdr,
+                            const struct cmsghdr *cmsg) {
+  return CMSG_GET(mhdr, cmsg == NULL ? (uintptr_t)mhdr->msg_controllen
+                                     : (uintptr_t)cmsg + cmsg->cmsg_len);
 }

@@ -101,6 +101,8 @@ struct cmsghdr {
 #define SCM_RIGHTS 1  // File descriptor passing for UNIX sockets.
 
 #define CMSG_DATA(cmsg) (cmsg)->__cmsg_data
+#define CMSG_NXTHDR CMSG_NXTHDR
+#define CMSG_FIRSTHDR CMSG_FIRSTHDR
 #define CMSG_LEN(len) __offsetof(struct cmsghdr, __cmsg_data[len])
 #define CMSG_SPACE(len) (CMSG_LEN(len) + _Alignof(struct cmsghdr) - 1)
 
@@ -155,29 +157,6 @@ int socketpair(int, int, int, int *);
 __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
-static __inline struct cmsghdr *_CMSG_GET(const struct msghdr *__mhdr,
-                                          __uintptr_t __addr) {
-  struct cmsghdr *__cmsg =
-      (struct cmsghdr *)__roundup(__addr, _Alignof(struct cmsghdr));
-  return CMSG_DATA(__cmsg) <=
-                 (unsigned char *)__mhdr->msg_control + __mhdr->msg_controllen
-             ? __cmsg
-             : _NULL;
-}
-
-static __inline struct cmsghdr *_CMSG_FIRSTHDR(const struct msghdr *__mhdr) {
-  return _CMSG_GET(__mhdr, (__uintptr_t)__mhdr->msg_control);
-}
-#define CMSG_FIRSTHDR(mhdr) _CMSG_FIRSTHDR(mhdr)
-
-static __inline struct cmsghdr *_CMSG_NXTHDR(const struct msghdr *__mhdr,
-                                             const struct cmsghdr *__cmsg) {
-  return _CMSG_GET(__mhdr, __cmsg == _NULL
-                               ? (__uintptr_t)__mhdr->msg_controllen
-                               : (__uintptr_t)__cmsg + __cmsg->cmsg_len);
-}
-#define CMSG_NXTHDR(mhdr, cmsg) _CMSG_NXTHDR(mhdr, cmsg)
-
 static __inline ssize_t __recv(int __socket, void *__buffer, size_t __length,
                                int __flags) {
   return recvfrom(__socket, __buffer, __length, __flags, _NULL, _NULL);

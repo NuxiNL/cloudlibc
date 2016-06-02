@@ -15,6 +15,7 @@
 #include <cloudabi_types.h>
 #include <errno.h>
 #include <stdalign.h>
+#include <stdint.h>
 #include <string.h>
 
 static_assert(sizeof(struct sockaddr_storage) >= sizeof(struct sockaddr),
@@ -109,6 +110,29 @@ static inline size_t convert_sockaddr(const cloudabi_sockaddr_t *in,
 
   memcpy(out, &ret, len < outlen ? len : outlen);
   return len;
+}
+
+// Returns the control message header stored at a provided memory
+// address, ensuring that it is stored within the ancillary data buffer
+// of a message header.
+static inline struct cmsghdr *CMSG_GET(const struct msghdr *mhdr,
+                                       uintptr_t addr) {
+  // Apply the alignment of the control message header.
+  unsigned char *pos =
+      (unsigned char *)__roundup(addr, _Alignof(struct cmsghdr));
+
+  // Safety belt: the computed starting address of the control message
+  // header may only lie inside the ancillary data buffer, or right
+  // after it in case we've reached the end of the buffer.
+  const unsigned char *begin = mhdr->msg_control;
+  const unsigned char *end = begin + mhdr->msg_controllen;
+  assert(pos >= begin && pos < end + _Alignof(struct cmsghdr) &&
+         "Computed object outside of buffer boundaries");
+
+  // Only return the control message header in case all of its fields
+  // lie within the ancillary data buffer.
+  struct cmsghdr *cmsg = (struct cmsghdr *)pos;
+  return CMSG_DATA(cmsg) <= end ? cmsg : NULL;
 }
 
 #endif
