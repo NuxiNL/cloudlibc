@@ -585,6 +585,8 @@ program_exec
 program_main
 program_spawn
 pselect
+psiginfo
+psiginfo_l
 psignal
 psignal_l
 pthread_atfork

@@ -103,6 +103,8 @@ struct __siginfo {
 typedef __siginfo_t siginfo_t;
 
 __BEGIN_DECLS
+void psiginfo(const siginfo_t *, const char *);
+void psiginfo_l(const siginfo_t *, const char *, __locale_t);
 void psignal(int, const char *);
 void psignal_l(int, const char *, __locale_t);
 int raise(int);
