@@ -67,7 +67,7 @@ typedef __ssize_t ssize_t;
 
 struct sockaddr {
   _Alignas(__max_align_t) sa_family_t sa_family;
-  char sa_data[1];
+  char sa_data[];
 };
 
 struct sockaddr_storage {
@@ -89,7 +89,7 @@ struct cmsghdr {
   size_t cmsg_len;  // Data byte count, including the cmsghdr.
   int cmsg_level;   // Originating protocol.
   int cmsg_type;    // Protocol-specific type.
-  _Alignas(__max_align_t) unsigned char __cmsg_data[1];  // Data.
+  _Alignas(__max_align_t) unsigned char __cmsg_data[];  // Data.
 };
 
 #define SOCK_DGRAM 0x80      // Datagram socket.
