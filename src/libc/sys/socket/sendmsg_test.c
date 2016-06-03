@@ -8,6 +8,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <stdalign.h>
 #include <testing.h>
 #include <unistd.h>
 
@@ -76,14 +77,11 @@ TEST(sendmsg, example) {
   {
     struct iovec iov[2] = {{.iov_base = (void *)"Hello ", .iov_len = 6},
                            {.iov_base = (void *)"world!", .iov_len = 6}};
-    union {
-      char buf[CMSG_SPACE(2 * sizeof(int))];
-      struct cmsghdr hdr;
-    } control;
+    alignas(struct cmsghdr) char control[CMSG_SPACE(2 * sizeof(int))];
     struct msghdr message = {
         .msg_iov = iov,
         .msg_iovlen = __arraycount(iov),
-        .msg_control = &control,
+        .msg_control = control,
         .msg_controllen = sizeof(control),
         .msg_flags = 0xdeadc0de,
     };
