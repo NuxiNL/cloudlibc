@@ -42,7 +42,6 @@ ssize_t sendmsg(int socket, const struct msghdr *message, int flags) {
   // Process ancillary data.
   for (struct cmsghdr *cmsg = CMSG_FIRSTHDR(message); cmsg != NULL;
        cmsg = CMSG_NXTHDR(message, cmsg)) {
-    const size_t data_offset = CMSG_DATA(cmsg) - (unsigned char *)cmsg;
     if (cmsg->cmsg_level == SOL_SOCKET && cmsg->cmsg_type == SCM_RIGHTS) {
       // File descriptor passing. Only allow up to one of these.
       if (si.si_fds != NULL) {
@@ -51,7 +50,7 @@ ssize_t sendmsg(int socket, const struct msghdr *message, int flags) {
       }
       // Extract file descriptor list.
       si.si_fds = (const cloudabi_fd_t *)CMSG_DATA(cmsg);
-      si.si_fdslen = (cmsg->cmsg_len - data_offset) / sizeof(cloudabi_fd_t);
+      si.si_fdslen = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(cloudabi_fd_t);
     } else {
       // Invalid control message type.
       errno = EINVAL;
