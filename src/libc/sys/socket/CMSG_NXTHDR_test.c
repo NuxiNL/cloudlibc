@@ -64,9 +64,26 @@ TEST(CMSG_NXTHDR, second) {
           .msg_control = cmsg, .msg_controllen = firstlen + CMSG_LEN(0),
       };
       struct cmsghdr *first = CMSG_NXTHDR(&mhdr, NULL);
-      first->cmsg_len = CMSG_LEN(i);
       ASSERT_EQ(cmsg, first);
+      first->cmsg_len = CMSG_LEN(i);
       ASSERT_EQ(cmsg + firstlen, CMSG_NXTHDR(&mhdr, first));
     }
   }
+}
+
+TEST(CMSG_NXTHDR, hundred) {
+  // Create a message containing 100 control message headers.
+  alignas(struct cmsghdr) char cmsg[100][CMSG_SPACE(10)];
+  struct msghdr mhdr = {
+      .msg_control = cmsg, .msg_controllen = sizeof(cmsg),
+  };
+
+  // Iterate through all of them.
+  struct cmsghdr *cur = NULL;
+  for (size_t i = 0; i < 100; ++i) {
+    cur = CMSG_NXTHDR(&mhdr, cur);
+    ASSERT_EQ(cmsg[i], cur);
+    cur->cmsg_len = CMSG_LEN(10);
+  }
+  ASSERT_EQ(NULL, CMSG_NXTHDR(&mhdr, cur));
 }
