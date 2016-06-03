@@ -104,7 +104,7 @@ struct cmsghdr {
 #define CMSG_NXTHDR CMSG_NXTHDR
 #define CMSG_FIRSTHDR CMSG_FIRSTHDR
 #define CMSG_LEN(len) __offsetof(struct cmsghdr, __cmsg_data[len])
-#define CMSG_SPACE(len) (CMSG_LEN(len) + _Alignof(struct cmsghdr) - 1)
+#define CMSG_SPACE(len) __roundup(CMSG_LEN(len), _Alignof(struct cmsghdr))
 
 #define SO_ACCEPTCONN 1  // Socket is accepting connections.
 #define SO_ERROR 2       // Socket error status.

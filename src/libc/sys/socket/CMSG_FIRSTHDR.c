@@ -5,10 +5,8 @@
 
 #include <sys/socket.h>
 
-#include <stdint.h>
-
 #include "socket_impl.h"
 
 struct cmsghdr *CMSG_FIRSTHDR(const struct msghdr *mhdr) {
-  return CMSG_GET(mhdr, (uintptr_t)mhdr->msg_control);
+  return CMSG_GET(mhdr, mhdr->msg_control);
 }
