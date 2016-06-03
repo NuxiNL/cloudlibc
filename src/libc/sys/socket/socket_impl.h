@@ -115,24 +115,23 @@ static inline size_t convert_sockaddr(const cloudabi_sockaddr_t *in,
 // Returns the control message header stored at a provided memory
 // address, ensuring that it is stored within the ancillary data buffer
 // of a message header.
-static inline struct cmsghdr *CMSG_GET(const struct msghdr *mhdr, void *addr) {
+static inline struct cmsghdr *CMSG_GET(const struct msghdr *mhdr, void *cmsg) {
   // Safety belt: require that the returned object is properly aligned.
-  assert((uintptr_t)addr % alignof(struct cmsghdr) == 0 &&
+  assert((uintptr_t)cmsg % alignof(struct cmsghdr) == 0 &&
          "Attempted to access unaligned control message header");
-  unsigned char *pos = (unsigned char *)addr;
 
   // Safety belt: the computed starting address of the control message
   // header may only lie inside the ancillary data buffer, or right
   // after it in case we've reached the end of the buffer.
   const unsigned char *begin = mhdr->msg_control;
   const unsigned char *end = begin + mhdr->msg_controllen;
-  assert(pos >= begin && pos < end + alignof(struct cmsghdr) &&
+  assert((unsigned char *)cmsg >= begin &&
+         (unsigned char *)cmsg < end + alignof(struct cmsghdr) &&
          "Computed object outside of buffer boundaries");
 
   // Only return the control message header in case all of its fields
   // lie within the ancillary data buffer.
-  struct cmsghdr *cmsg = (struct cmsghdr *)pos;
-  return CMSG_DATA(cmsg) <= end ? cmsg : NULL;
+  return CMSG_DATA((struct cmsghdr *)cmsg) <= end ? cmsg : NULL;
 }
 
 #endif
