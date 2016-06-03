@@ -123,6 +123,8 @@ TEST(sendmsg, example) {
     ASSERT_ARREQ("Hell", strings[0], 4);
     ASSERT_ARREQ("o wo", strings[1], 4);
     ASSERT_ARREQ("rld!", strings[2], 4);
+
+    // TODO(ed): Test sent file descriptors!
   }
 
   ASSERT_EQ(0, close(fds[0]));
