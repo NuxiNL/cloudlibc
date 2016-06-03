@@ -14,7 +14,7 @@
 
 struct cmsghdr *CMSG_NXTHDR(const struct msghdr *mhdr,
                             const struct cmsghdr *cmsg) {
-  // RFC 2292:if the value of the cmsg pointer is NULL, a pointer to
+  // RFC 2292: if the value of the cmsg pointer is NULL, a pointer to
   // the cmsghdr structure describing the first ancillary data object
   // is returned.
   if (cmsg == NULL)
