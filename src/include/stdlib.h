@@ -65,6 +65,8 @@
 //   Requires global filesystem namespace.
 // - setkey():
 //   Password database and encryption schemes not available.
+// - system():
+//   Requires a command shell.
 
 #ifndef _STDLIB_H_
 #define _STDLIB_H_
@@ -175,7 +177,6 @@ unsigned long strtoul_l(const char *__restrict, char **__restrict, int,
 unsigned long long strtoull(const char *__restrict, char **__restrict, int);
 unsigned long long strtoull_l(const char *__restrict, char **__restrict, int,
                               __locale_t);
-int system(const char *);
 size_t wcstombs(char *__restrict, const wchar_t *__restrict, size_t);
 size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
                   __locale_t);

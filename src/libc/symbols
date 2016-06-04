@@ -831,7 +831,6 @@ symlinkat
 sysconf
 syslog
 syslog_l
-system
 tan
 tanf
 tanh
