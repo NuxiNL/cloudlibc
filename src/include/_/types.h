@@ -175,8 +175,8 @@ typedef __intn_t(__WINT_WIDTH__) __wint_t;
 #undef __uintn_t
 
 typedef struct {
-  __intmax_t __a;
-  long double __b;
+  _Alignas(_Alignof(__intmax_t)) __intmax_t __a;
+  _Alignas(_Alignof(long double)) long double __b;
 } __max_align_t;
 
 // Machine-independent definitions.
