@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -117,56 +117,108 @@ _Static_assert(INET6_ADDRSTRLEN ==
                    sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"),
                "INET6_ADDRSTRLEN is defined incorrectly.");
 
-#define IN6_IS_ADDR_UNSPECIFIED(a)                         \
-  ((a)->s6_addr[0] == 0x00 && (a)->s6_addr[1] == 0x00 &&   \
-   (a)->s6_addr[2] == 0x00 && (a)->s6_addr[3] == 0x00 &&   \
-   (a)->s6_addr[4] == 0x00 && (a)->s6_addr[5] == 0x00 &&   \
-   (a)->s6_addr[6] == 0x00 && (a)->s6_addr[7] == 0x00 &&   \
-   (a)->s6_addr[8] == 0x00 && (a)->s6_addr[9] == 0x00 &&   \
-   (a)->s6_addr[10] == 0x00 && (a)->s6_addr[11] == 0x00 && \
-   (a)->s6_addr[12] == 0x00 && (a)->s6_addr[13] == 0x00 && \
-   (a)->s6_addr[14] == 0x00 && (a)->s6_addr[15] == 0x00)
-#define IN6_IS_ADDR_LOOPBACK(a)                            \
-  ((a)->s6_addr[0] == 0x00 && (a)->s6_addr[1] == 0x00 &&   \
-   (a)->s6_addr[2] == 0x00 && (a)->s6_addr[3] == 0x00 &&   \
-   (a)->s6_addr[4] == 0x00 && (a)->s6_addr[5] == 0x00 &&   \
-   (a)->s6_addr[6] == 0x00 && (a)->s6_addr[7] == 0x00 &&   \
-   (a)->s6_addr[8] == 0x00 && (a)->s6_addr[9] == 0x00 &&   \
-   (a)->s6_addr[10] == 0x00 && (a)->s6_addr[11] == 0x00 && \
-   (a)->s6_addr[12] == 0x00 && (a)->s6_addr[13] == 0x00 && \
-   (a)->s6_addr[14] == 0x00 && (a)->s6_addr[15] == 0x01)
-#define IN6_IS_ADDR_MULTICAST(a) ((a)->s6_addr[0] == 0xff)
-#define IN6_IS_ADDR_LINKLOCAL(a) \
-  ((a)->s6_addr[0] == 0xfe && ((a)->s6_addr[1] & 0xc0) == 0x80)
-#define IN6_IS_ADDR_SITELOCAL(a) \
-  ((a)->s6_addr[0] == 0xfe && ((a)->s6_addr[1] & 0xc0) == 0xc0)
-#define IN6_IS_ADDR_V4MAPPED(a)                          \
-  ((a)->s6_addr[0] == 0x00 && (a)->s6_addr[1] == 0x00 && \
-   (a)->s6_addr[2] == 0x00 && (a)->s6_addr[3] == 0x00 && \
-   (a)->s6_addr[4] == 0x00 && (a)->s6_addr[5] == 0x00 && \
-   (a)->s6_addr[6] == 0x00 && (a)->s6_addr[7] == 0x00 && \
-   (a)->s6_addr[8] == 0x00 && (a)->s6_addr[9] == 0x00 && \
-   (a)->s6_addr[10] == 0xff && (a)->s6_addr[11] == 0xff)
-#define IN6_IS_ADDR_V4COMPAT(a)                             \
-  ((a)->s6_addr[0] == 0x00 && (a)->s6_addr[1] == 0x00 &&    \
-   (a)->s6_addr[2] == 0x00 && (a)->s6_addr[3] == 0x00 &&    \
-   (a)->s6_addr[4] == 0x00 && (a)->s6_addr[5] == 0x00 &&    \
-   (a)->s6_addr[6] == 0x00 && (a)->s6_addr[7] == 0x00 &&    \
-   (a)->s6_addr[8] == 0x00 && (a)->s6_addr[9] == 0x00 &&    \
-   (a)->s6_addr[10] == 0x00 && (a)->s6_addr[11] == 0x00 &&  \
-   ((a)->s6_addr[12] != 0x00 || (a)->s6_addr[13] != 0x00 || \
-    (a)->s6_addr[14] != 0x00 ||                             \
-    ((a)->s6_addr[15] != 0x00 && (a)->s6_addr[15] != 0x01)))
+__BEGIN_DECLS
+int IN6_IS_ADDR_UNSPECIFIED(const struct in6_addr *);
+int IN6_IS_ADDR_LOOPBACK(const struct in6_addr *);
+int IN6_IS_ADDR_MULTICAST(const struct in6_addr *);
+int IN6_IS_ADDR_LINKLOCAL(const struct in6_addr *);
+int IN6_IS_ADDR_SITELOCAL(const struct in6_addr *);
+int IN6_IS_ADDR_V4MAPPED(const struct in6_addr *);
+int IN6_IS_ADDR_V4COMPAT(const struct in6_addr *);
+int IN6_IS_ADDR_MC_NODELOCAL(const struct in6_addr *);
+int IN6_IS_ADDR_MC_LINKLOCAL(const struct in6_addr *);
+int IN6_IS_ADDR_MC_SITELOCAL(const struct in6_addr *);
+int IN6_IS_ADDR_MC_ORGLOCAL(const struct in6_addr *);
+int IN6_IS_ADDR_MC_GLOBAL(const struct in6_addr *);
+__END_DECLS
 
-#define IN6_IS_ADDR_MC_NODELOCAL(a) \
-  (IN6_IS_ADDR_MULTICAST(a) && ((a)->s6_addr[1] & 0xf) == 0x1)
-#define IN6_IS_ADDR_MC_LINKLOCAL(a) \
-  (IN6_IS_ADDR_MULTICAST(a) && ((a)->s6_addr[1] & 0xf) == 0x2)
-#define IN6_IS_ADDR_MC_SITELOCAL(a) \
-  (IN6_IS_ADDR_MULTICAST(a) && ((a)->s6_addr[1] & 0xf) == 0x5)
-#define IN6_IS_ADDR_MC_ORGLOCAL(a) \
-  (IN6_IS_ADDR_MULTICAST(a) && ((a)->s6_addr[1] & 0xf) == 0x8)
-#define IN6_IS_ADDR_MC_GLOBAL(a) \
-  (IN6_IS_ADDR_MULTICAST(a) && ((a)->s6_addr[1] & 0xf) == 0xe)
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline int _IN6_IS_ADDR_UNSPECIFIED(const struct in6_addr *__a) {
+  return __a->s6_addr[0] == 0x00 && __a->s6_addr[1] == 0x00 &&
+         __a->s6_addr[2] == 0x00 && __a->s6_addr[3] == 0x00 &&
+         __a->s6_addr[4] == 0x00 && __a->s6_addr[5] == 0x00 &&
+         __a->s6_addr[6] == 0x00 && __a->s6_addr[7] == 0x00 &&
+         __a->s6_addr[8] == 0x00 && __a->s6_addr[9] == 0x00 &&
+         __a->s6_addr[10] == 0x00 && __a->s6_addr[11] == 0x00 &&
+         __a->s6_addr[12] == 0x00 && __a->s6_addr[13] == 0x00 &&
+         __a->s6_addr[14] == 0x00 && __a->s6_addr[15] == 0x00;
+}
+#define IN6_IS_ADDR_UNSPECIFIED(a) _IN6_IS_ADDR_UNSPECIFIED(a)
+
+static __inline int _IN6_IS_ADDR_LOOPBACK(const struct in6_addr *__a) {
+  return __a->s6_addr[0] == 0x00 && __a->s6_addr[1] == 0x00 &&
+         __a->s6_addr[2] == 0x00 && __a->s6_addr[3] == 0x00 &&
+         __a->s6_addr[4] == 0x00 && __a->s6_addr[5] == 0x00 &&
+         __a->s6_addr[6] == 0x00 && __a->s6_addr[7] == 0x00 &&
+         __a->s6_addr[8] == 0x00 && __a->s6_addr[9] == 0x00 &&
+         __a->s6_addr[10] == 0x00 && __a->s6_addr[11] == 0x00 &&
+         __a->s6_addr[12] == 0x00 && __a->s6_addr[13] == 0x00 &&
+         __a->s6_addr[14] == 0x00 && __a->s6_addr[15] == 0x01;
+}
+#define IN6_IS_ADDR_LOOPBACK(a) _IN6_IS_ADDR_LOOPBACK(a)
+
+static __inline int _IN6_IS_ADDR_MULTICAST(const struct in6_addr *__a) {
+  return __a->s6_addr[0] == 0xff;
+}
+#define IN6_IS_ADDR_MULTICAST(a) _IN6_IS_ADDR_MULTICAST(a)
+
+static __inline int _IN6_IS_ADDR_LINKLOCAL(const struct in6_addr *__a) {
+  return __a->s6_addr[0] == 0xfe && (__a->s6_addr[1] & 0xc0) == 0x80;
+}
+#define IN6_IS_ADDR_LINKLOCAL(a) _IN6_IS_ADDR_LINKLOCAL(a)
+
+static __inline int _IN6_IS_ADDR_SITELOCAL(const struct in6_addr *__a) {
+  return __a->s6_addr[0] == 0xfe && (__a->s6_addr[1] & 0xc0) == 0xc0;
+}
+#define IN6_IS_ADDR_SITELOCAL(a) _IN6_IS_ADDR_SITELOCAL(a)
+
+static __inline int _IN6_IS_ADDR_V4MAPPED(const struct in6_addr *__a) {
+  return __a->s6_addr[0] == 0x00 && __a->s6_addr[1] == 0x00 &&
+         __a->s6_addr[2] == 0x00 && __a->s6_addr[3] == 0x00 &&
+         __a->s6_addr[4] == 0x00 && __a->s6_addr[5] == 0x00 &&
+         __a->s6_addr[6] == 0x00 && __a->s6_addr[7] == 0x00 &&
+         __a->s6_addr[8] == 0x00 && __a->s6_addr[9] == 0x00 &&
+         __a->s6_addr[10] == 0xff && __a->s6_addr[11] == 0xff;
+}
+#define IN6_IS_ADDR_V4MAPPED(a) _IN6_IS_ADDR_V4MAPPED(a)
+
+static __inline int _IN6_IS_ADDR_V4COMPAT(const struct in6_addr *__a) {
+  return __a->s6_addr[0] == 0x00 && __a->s6_addr[1] == 0x00 &&
+         __a->s6_addr[2] == 0x00 && __a->s6_addr[3] == 0x00 &&
+         __a->s6_addr[4] == 0x00 && __a->s6_addr[5] == 0x00 &&
+         __a->s6_addr[6] == 0x00 && __a->s6_addr[7] == 0x00 &&
+         __a->s6_addr[8] == 0x00 && __a->s6_addr[9] == 0x00 &&
+         __a->s6_addr[10] == 0x00 && __a->s6_addr[11] == 0x00 &&
+         (__a->s6_addr[12] != 0x00 || __a->s6_addr[13] != 0x00 ||
+          __a->s6_addr[14] != 0x00 ||
+          (__a->s6_addr[15] != 0x00 && __a->s6_addr[15] != 0x01));
+}
+#define IN6_IS_ADDR_V4COMPAT(a) _IN6_IS_ADDR_V4COMPAT(a)
+
+static __inline int _IN6_IS_ADDR_MC_NODELOCAL(const struct in6_addr *__a) {
+  return IN6_IS_ADDR_MULTICAST(__a) && (__a->s6_addr[1] & 0xf) == 0x1;
+}
+#define IN6_IS_ADDR_MC_NODELOCAL(a) _IN6_IS_ADDR_MC_NODELOCAL(a)
+
+static __inline int _IN6_IS_ADDR_MC_LINKLOCAL(const struct in6_addr *__a) {
+  return IN6_IS_ADDR_MULTICAST(__a) && (__a->s6_addr[1] & 0xf) == 0x2;
+}
+#define IN6_IS_ADDR_MC_LINKLOCAL(a) _IN6_IS_ADDR_MC_LINKLOCAL(a)
+
+static __inline int _IN6_IS_ADDR_MC_SITELOCAL(const struct in6_addr *__a) {
+  return IN6_IS_ADDR_MULTICAST(__a) && (__a->s6_addr[1] & 0xf) == 0x5;
+}
+#define IN6_IS_ADDR_MC_SITELOCAL(a) _IN6_IS_ADDR_MC_SITELOCAL(a)
+
+static __inline int _IN6_IS_ADDR_MC_ORGLOCAL(const struct in6_addr *__a) {
+  return IN6_IS_ADDR_MULTICAST(__a) && (__a->s6_addr[1] & 0xf) == 0x8;
+}
+#define IN6_IS_ADDR_MC_ORGLOCAL(a) _IN6_IS_ADDR_MC_ORGLOCAL(a)
+
+static __inline int _IN6_IS_ADDR_MC_GLOBAL(const struct in6_addr *__a) {
+  return IN6_IS_ADDR_MULTICAST(__a) && (__a->s6_addr[1] & 0xf) == 0xe;
+}
+#define IN6_IS_ADDR_MC_GLOBAL(a) _IN6_IS_ADDR_MC_GLOBAL(a)
+#endif
 
 #endif
