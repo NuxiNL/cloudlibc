@@ -117,7 +117,7 @@ struct stat {
 #define S_ISGID 0x400
 #define S_ISUID 0x800
 
-// File descriptor types supported by this implementation.
+// Tests for traditional file descriptor types.
 #define S_ISBLK(m) (((m)&S_IFBLK) != 0)
 #define S_ISCHR(m) (((m)&S_IFCHR) != 0)
 #define S_ISDIR(m) (((m)&S_IFDIR) != 0)
@@ -125,18 +125,16 @@ struct stat {
 #define S_ISLNK(m) (((m)&S_IFLNK) != 0)
 #define S_ISREG(m) (((m)&S_IFREG) != 0)
 #define S_ISSOCK(m) (((m)&S_IFSOCK) != 0)
-#define S_TYPEISPOLL(m) ((m)->__st_filetype == 0x40)
-#define S_TYPEISPROC(m) ((m)->__st_filetype == 0x50)
-#define S_TYPEISSHM(m) ((m)->__st_filetype == 0x70)
-
-// File decriptor types not supported by this implementation.
-#define S_TYPEISMQ(m) 0
-#define S_TYPEISSEM(m) 0
 
 #define UTIME_NOW (-1)
 #define UTIME_OMIT (-2)
 
 __BEGIN_DECLS
+_Bool S_TYPEISMQ(const struct stat *);
+_Bool S_TYPEISPOLL(const struct stat *);
+_Bool S_TYPEISPROC(const struct stat *);
+_Bool S_TYPEISSEM(const struct stat *);
+_Bool S_TYPEISSHM(const struct stat *);
 int fstat(int, struct stat *);
 int fstatat(int, const char *__restrict, struct stat *__restrict, int);
 int futimens(int, const struct timespec *);
@@ -144,5 +142,32 @@ int mkdirat(int, const char *, ...);
 int mkfifoat(int, const char *, ...);
 int utimensat(int, const char *, const struct timespec *, int);
 __END_DECLS
+
+#if _CLOUDLIBC_INLINE_FUNCTIONS
+static __inline _Bool _S_TYPEISMQ(const struct stat *__buf __unused) {
+  return 0;
+}
+#define S_TYPEISMQ(buf) _S_TYPEISMQ(buf)
+
+static __inline _Bool _S_TYPEISPOLL(const struct stat *__buf) {
+  return __buf->__st_filetype == 0x40;
+}
+#define S_TYPEISPOLL(buf) _S_TYPEISPOLL(buf)
+
+static __inline _Bool _S_TYPEISPROC(const struct stat *__buf) {
+  return __buf->__st_filetype == 0x50;
+}
+#define S_TYPEISPROC(buf) _S_TYPEISPROC(buf)
+
+static __inline _Bool _S_TYPEISSEM(const struct stat *__buf __unused) {
+  return 0;
+}
+#define S_TYPEISSEM(buf) _S_TYPEISSEM(buf)
+
+static __inline _Bool _S_TYPEISSHM(const struct stat *__buf) {
+  return __buf->__st_filetype == 0x70;
+}
+#define S_TYPEISSHM(buf) _S_TYPEISSHM(buf)
+#endif
 
 #endif
