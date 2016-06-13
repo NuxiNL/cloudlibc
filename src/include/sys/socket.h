@@ -29,7 +29,7 @@
 //   global filesystem namespace. Also present on FreeBSD, though having
 //   a different prototype.
 // - CMSG_LEN() and CMSG_SPACE():
-//   Part of RFC 2292.
+//   Part of RFC 2292 and upcoming versions of POSIX.
 // - PF_*:
 //   Present on most other systems.
 //
