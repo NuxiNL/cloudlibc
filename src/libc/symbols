@@ -511,6 +511,8 @@ lroundl
 lsearch
 lseek
 malloc
+mblen
+mblen_l
 mbrlen
 mbrlen_l
 mbrtoc16
@@ -525,6 +527,8 @@ mbsrtowcs
 mbsrtowcs_l
 mbstowcs
 mbstowcs_l
+mbtowc
+mbtowc_l
 memccpy
 memchr
 memcmp
@@ -989,6 +993,8 @@ wcsxfrm
 wcsxfrm_l
 wctob
 wctob_l
+wctomb
+wctomb_l
 wctrans
 wctrans_l
 wctype

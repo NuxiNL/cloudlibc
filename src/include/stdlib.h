@@ -34,8 +34,8 @@
 //   systems.
 // - l64a_r():
 //   Thread-safe replacement for l64a(). Part of the SVID, 4th edition.
-// - mbstowcs_l() and wcstombs_l():
-//   mbstowcs() and wcstombs() always use the C locale.
+// - mblen_l(), mbstowcs_l(), mbtowc_l(), wcstombs_l() and wctomb_l():
+//   Regular functions always use the C locale.
 // - qsort_r():
 //   Available on many other operating systems, although the prototype
 //   is not consistent. This implementation is compatible with glibc.
@@ -59,8 +59,6 @@
 //   Environment variables are not available.
 // - grantpt(), posix_openpt(), ptsname() and unlockpt():
 //   Pseudo-terminals are not available.
-// - mblen(), mbtowc(), wctomb():
-//   Not thread-safe. Use mbrlen(), mbrtowc() and wcrtomb() instead.
 // - mkdtemp(), mkstemp() and realpath():
 //   Requires global filesystem namespace.
 // - setkey():
@@ -148,9 +146,13 @@ long long llabs(long long) __pure2;
 lldiv_t lldiv(long long, long long) __pure2;
 long lrand48(void);
 void *malloc(size_t);
+int mblen(const char *, size_t);
+int mblen_l(const char *, size_t, __locale_t);
 size_t mbstowcs(wchar_t *__restrict, const char *__restrict, size_t);
 size_t mbstowcs_l(wchar_t *__restrict, const char *__restrict, size_t,
                   __locale_t);
+int mbtowc(wchar_t *__restrict, const char *__restrict, size_t);
+int mbtowc_l(wchar_t *__restrict, const char *__restrict, size_t, __locale_t);
 long mrand48(void);
 int posix_memalign(void **, size_t, size_t);
 void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
@@ -180,6 +182,8 @@ unsigned long long strtoull_l(const char *__restrict, char **__restrict, int,
 size_t wcstombs(char *__restrict, const wchar_t *__restrict, size_t);
 size_t wcstombs_l(char *__restrict, const wchar_t *__restrict, size_t,
                   __locale_t);
+int wctomb(char *, wchar_t);
+int wctomb_l(char *, wchar_t, __locale_t);
 __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
