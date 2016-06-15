@@ -24,9 +24,10 @@
 // <stdlib.h> - standard library definitions
 //
 // Extensions:
-// - MB_CUR_MAX_L():
-//   Replacement for MB_CUR_MAX. Available on many other operating
-//   systems.
+// - MB_CUR_MAX_L(), mblen_l(), mbstowcs_l(), mbtowc_l(), wcstombs_l()
+//   and wctomb_l():
+//   Regular functions always use the C locale. Available on many other
+//   operating systems.
 // - alloca():
 //   Present on most other operating systems.
 // - arc4random(), arc4random_buf() and arc4random_uniform():
@@ -34,8 +35,6 @@
 //   systems.
 // - l64a_r():
 //   Thread-safe replacement for l64a(). Part of the SVID, 4th edition.
-// - mblen_l(), mbstowcs_l(), mbtowc_l(), wcstombs_l() and wctomb_l():
-//   Regular functions always use the C locale.
 // - qsort_r():
 //   Available on many other operating systems, although the prototype
 //   is not consistent. This implementation is compatible with glibc.
