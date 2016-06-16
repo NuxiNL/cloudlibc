@@ -200,27 +200,30 @@ def handle_endtime(fields):
   # Workaround: In a couple of places, directives like 'lastSun' and
   # 'Sun>=1' are being used, even in Zone directives. Translate these to
   # exact dates.
-  quirkmap = {
-      ('1946', 'Apr', 'lastSun'): 28,
-      ('1960', 'Apr', 'lastSun'): 24,
-      ('1972', 'Apr', 'lastSun'): 30,
-      ('1979', 'Apr', 'lastSun'): 29,
-      ('1989', 'Mar', 'lastSun'): 26,
-      ('1989', 'Sep', 'lastSun'): 24,
-      ('1992', 'Sep', 'lastSat'): 26,
-      ('1992', 'Sep', 'lastSun'): 27,
-      ('1994', 'Sep', 'lastSun'): 25,
-      ('1995', 'Mar', 'lastSun'): 26,
-      ('1995', 'Apr', 'Sun>=1'): 2,
-      ('1996', 'Oct', 'lastSun'): 27,
-      ('1997', 'Mar', 'lastSun'): 30,
-      ('1998', 'Apr', 'Sun>=1'): 5,
-      ('2005', 'Mar', 'lastSun'): 27,
-      ('2015', 'Nov', 'Sun>=1'): 1,
-  }
-  q = tuple(fields[:3])
-  if q in quirkmap:
-    fields = fields[:2] + [str(quirkmap[q])] + fields[3:]
+  if len(fields) > 2:
+    daymap = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    daystr = fields[2]
+    greater_than = daystr.split('>=')
+    if len(greater_than) == 2:
+      # "Sun>=1". Start at the specified date and increment until the
+      # constraint has been met.
+      weekday = daymap.index(greater_than[0])
+      d = datetime.datetime.strptime(
+          ' '.join((fields[0], fields[1], greater_than[1])), '%Y %b %d')
+      while d.weekday() != weekday:
+        d = d + datetime.timedelta(days=1)
+      fields[2] = str(d.day)
+    elif daystr.startswith('last'):
+      # "lastSun". Start at the last day of the next month and decrement
+      # until the constraint has been met.
+      d = datetime.datetime.strptime(' '.join(fields[:2]), '%Y %b')
+      d = datetime.datetime(d.year, d.month + 1, 1)
+      weekday = daymap.index(daystr[4:])
+      while True:
+        d = d - datetime.timedelta(days=1)
+        if d.weekday() == weekday:
+          break
+      fields[2] = str(d.day)
 
   timebase = 'c'
   if len(fields) == 1:
