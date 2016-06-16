@@ -10,6 +10,7 @@
 
 #include "ctype/asciiplus.h"
 #include "ctype/gb2312.h"
+#include "ctype/ibm037.h"
 #include "ctype/iso_8859_1.h"
 #include "ctype/iso_8859_15.h"
 
@@ -21,6 +22,14 @@ const struct lc_ctype *__lookup_ctype(const char *name, size_t len) {
       // IANA names and aliases for character sets.
       {"GB2312\0", &ctype_gb2312},
       {"csGB2312\0", &ctype_gb2312},
+
+      {"IBM037\0", &ctype_ibm037},
+      {"cp037\0", &ctype_ibm037},
+      {"ebcdic-cp-us\0", &ctype_ibm037},
+      {"ebcdic-cp-ca\0", &ctype_ibm037},
+      {"ebcdic-cp-wt\0", &ctype_ibm037},
+      {"ebcdic-cp-nl\0", &ctype_ibm037},
+      {"csIBM037\0", &ctype_ibm037},
 
       {"ISO-8859-1\0", &ctype_iso_8859_1},
       {"ISO_8859-1:1987\0", &ctype_iso_8859_1},

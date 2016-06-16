@@ -128,6 +128,30 @@ TEST(iconv, example3) {
   ASSERT_EQ(0, iconv_close(cd));
 }
 
+TEST(iconv, example4) {
+  iconv_t cd = iconv_open("UTF-8", "IBM037");
+  ASSERT_NE((iconv_t)-1, cd);
+
+  // Buffers.
+  static const char in[] = "\xc8\x85\x93\x93\x96\x6b\x40\xa6\x96\x99\x93\x84";
+  char out[sizeof(in) - 1];
+
+  // Pointers.
+  char *inbuf = (char *)in;
+  size_t inbytesleft = sizeof(in) - 1;
+  char *outbuf = out;
+  size_t outbytesleft = sizeof(out);
+
+  ASSERT_EQ(0, iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft));
+  ASSERT_EQ(in + sizeof(in) - 1, inbuf);
+  ASSERT_EQ(0, inbytesleft);
+  ASSERT_EQ(out + sizeof(out), outbuf);
+  ASSERT_EQ(0, outbytesleft);
+  ASSERT_ARREQ("Hello, world", out, __arraycount(out));
+
+  ASSERT_EQ(0, iconv_close(cd));
+}
+
 TEST(iconv, bad_input) {
   iconv_t cd = iconv_open("ISO-8859-1", "UTF-8");
   ASSERT_NE((iconv_t)-1, cd);
