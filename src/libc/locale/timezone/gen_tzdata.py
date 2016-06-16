@@ -270,11 +270,6 @@ for datafile in DATAFILES:
       if fields[0] == 'Rule':
         handle_ruleline(get_rules_name(fields[1]), fields[2:])
       elif fields[0] == 'Link':
-        # Workaround: Eliminate transitive links. Africa/Asmera points
-        # to Africa/Asmara, whereas Africa/Asmara is aready a link to
-        # Africa/Nairobi.
-        if fields[1] == 'Africa/Asmara':
-          fields[1] = 'Africa/Nairobi'
         LINKS[fields[2]] = get_eras_name(fields[1])
       elif fields[0] == 'Zone':
         ename = get_eras_name(fields[1])
