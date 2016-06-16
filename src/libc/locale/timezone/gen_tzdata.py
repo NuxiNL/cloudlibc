@@ -208,6 +208,7 @@ def handle_endtime(fields):
       ('1989', 'Mar', 'lastSun'): 26,
       ('1989', 'Sep', 'lastSun'): 24,
       ('1992', 'Sep', 'lastSat'): 26,
+      ('1992', 'Sep', 'lastSun'): 27,
       ('1994', 'Sep', 'lastSun'): 25,
       ('1995', 'Mar', 'lastSun'): 26,
       ('1995', 'Apr', 'Sun>=1'): 2,
