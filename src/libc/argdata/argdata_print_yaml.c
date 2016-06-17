@@ -201,8 +201,8 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
     if (argdata_get_str(ad, &buf, &len) == 0) {
       fputs("!!str \"", fp);
       locale_t locale = LC_C_UNICODE_LOCALE;
-      mbstate_t mbs;
-      memset(&mbs, '\0', sizeof(mbs));
+      static const mbstate_t initial_mbstate;
+      mbstate_t mbs = initial_mbstate;
       while (len > 0) {
         wchar_t wc;
         ssize_t clen = mbrtowc_l(&wc, buf, len, &mbs, locale);

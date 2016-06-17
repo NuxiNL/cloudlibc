@@ -1,9 +1,10 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <stdbool.h>
 #include <wctype.h>
@@ -18,7 +19,8 @@ static bool parse_string(const char *restrict *buf,
     // Translate multibyte characters from the input to wide characters
     // before comparing.
     const struct lc_ctype *lc_ctype = locale->ctype;
-    struct mbtoc32state mbs = {};
+    mbstate_t mbs;
+    mbstate_set_init(&mbs);
     for (;;) {
       if (*a == L'\0') {
         *buf = b;
@@ -41,7 +43,8 @@ static bool parse_string(const char *restrict *buf,
 static bool parse_whitespace(const char *restrict *buf, locale_t locale) {
   bool nonzero = false;
   const struct lc_ctype *lc_ctype = locale->ctype;
-  struct mbtoc32state mbs = {};
+  mbstate_t mbs;
+  mbstate_set_init(&mbs);
   for (;;) {
     char32_t c32;
     ssize_t len = lc_ctype->mbtoc32(&c32, *buf, SIZE_MAX, &mbs, lc_ctype->data);

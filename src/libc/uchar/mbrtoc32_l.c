@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -23,8 +23,7 @@ size_t mbrtoc32_l(char32_t *restrict pc32, const char *restrict s, size_t n,
   }
 
   const struct lc_ctype *ctype = locale->ctype;
-  ssize_t l =
-      ctype->mbtoc32(pc32, s, n, (struct mbtoc32state *)ps, ctype->data);
+  ssize_t l = ctype->mbtoc32(pc32, s, n, ps, ctype->data);
   if (l >= 0 && *pc32 == U'\0')
     return 0;
   return l;

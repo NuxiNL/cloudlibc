@@ -197,7 +197,12 @@ typedef __uint32_t __in_addr_t;
 typedef __uint16_t __in_port_t;
 typedef __uint64_t __ino_t;
 typedef struct __locale *__locale_t;
-typedef struct { _Alignas(__max_align_t) char __data[16]; } __mbstate_t;
+typedef struct {
+  __char16_t __surrogate;    // UTF-16: Leading or trailing surrogate.
+  unsigned int __bytesleft;  // UTF-8/GB 2312: Number of bytes until completion.
+  __char32_t __partial;      // UTF-8/GB 2312: Partially completed character.
+  __char32_t __lowerbound;   // UTF-8: Lowerbound on character.
+} __mbstate_t;
 typedef __uint32_t __mode_t;
 typedef __uint32_t __nlink_t;
 typedef __int64_t __off_t;

@@ -1,16 +1,17 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
 
 static ssize_t utf_8_mbtoc32(char32_t *restrict pc32, const char *restrict s,
-                             size_t n, struct mbtoc32state *restrict ps,
+                             size_t n, mbstate_t *restrict ps,
                              const void *restrict data) {
   const unsigned char *sb = (const unsigned char *)s;
 
@@ -19,26 +20,30 @@ static ssize_t utf_8_mbtoc32(char32_t *restrict pc32, const char *restrict s,
     return -2;
 
   // Parse the leading byte in case we are in the initial state.
-  if (ps->want == 0) {
+  unsigned int bytesleft;
+  char32_t partial, lowerbound;
+  mbstate_get_multibyte(ps, &bytesleft, &partial, &lowerbound);
+  if (bytesleft == 0) {
     if ((*sb & 0x80) == 0) {
       // Start of 1-byte sequence.
       *pc32 = *sb;
+      mbstate_set_init(ps);
       return 1;
     } else if ((*sb & 0xe0) == 0xc0) {
       // Start of 2-byte sequence.
-      ps->want = 1;
-      ps->lowerbound = 0x80;
-      ps->intermediate = *sb++ & 0x1f;
+      bytesleft = 1;
+      partial = *sb++ & 0x1f;
+      lowerbound = 0x80;
     } else if ((*sb & 0xf0) == 0xe0) {
       // Start of 3-byte sequence.
-      ps->want = 2;
-      ps->lowerbound = 0x800;
-      ps->intermediate = *sb++ & 0xf;
+      bytesleft = 2;
+      partial = *sb++ & 0xf;
+      lowerbound = 0x800;
     } else if ((*sb & 0xf8) == 0xf0) {
       // Start of 4-byte sequence.
-      ps->want = 3;
-      ps->lowerbound = 0x10000;
-      ps->intermediate = *sb++ & 0x7;
+      bytesleft = 3;
+      partial = *sb++ & 0x7;
+      lowerbound = 0x10000;
     } else {
       errno = EILSEQ;
       return -1;
@@ -54,22 +59,23 @@ static ssize_t utf_8_mbtoc32(char32_t *restrict pc32, const char *restrict s,
     }
 
     // Valid continuation byte.
-    ps->intermediate <<= 6;
-    ps->intermediate |= *sb++ & 0x3f;
+    partial <<= 6;
+    partial |= *sb++ & 0x3f;
 
-    if (--ps->want == 0) {
+    if (--bytesleft == 0) {
       // Ensure that the character was not overlong encoded or outside
       // of range.
-      if (ps->intermediate < ps->lowerbound ||
-          (ps->intermediate >= 0xd800 && ps->intermediate <= 0xdfff) ||
-          ps->intermediate > 0x10ffff) {
+      if (partial < lowerbound || (partial >= 0xd800 && partial <= 0xdfff) ||
+          partial > 0x10ffff) {
         errno = EILSEQ;
         return -1;
       }
-      *pc32 = ps->intermediate;
+      *pc32 = partial;
+      mbstate_set_init(ps);
       return sb - (const unsigned char *)s;
     }
   }
+  mbstate_set_multibyte(ps, bytesleft, partial, lowerbound);
   return -2;
 }
 

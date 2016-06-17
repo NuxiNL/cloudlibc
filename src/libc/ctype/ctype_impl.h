@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -7,6 +7,7 @@
 #define CTYPE_CTYPE_IMPL_H
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <limits.h>
 #include <wctype.h>
@@ -21,7 +22,8 @@ static inline int isctype_l(int c, wctype_t wctype, locale_t locale) {
   char32_t c32;
   {
     char buf = c;
-    struct mbtoc32state ps = {};
+    mbstate_t ps;
+    mbstate_set_init(&ps);
     if (ctype->mbtoc32(&c32, &buf, 1, &ps, ctype->data) != 1)
       return 0;
   }
@@ -40,7 +42,8 @@ static inline int toctrans_l(int c, wctrans_t wctrans, locale_t locale) {
   char32_t c32;
   {
     char buf = c;
-    struct mbtoc32state ps = {};
+    mbstate_t ps;
+    mbstate_set_init(&ps);
     if (ctype->mbtoc32(&c32, &buf, 1, &ps, ctype->data) != 1)
       return c;
   }

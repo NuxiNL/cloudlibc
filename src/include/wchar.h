@@ -48,8 +48,6 @@
 // Features missing:
 // - getwchar(), putwchar(), vprintf(), vscanf(), wprintf() and wscanf():
 //   Standard descriptors are not available.
-// - mbsinit():
-//   Assumes encoding and decoding state share the same layout.
 // - open_wmemstream():
 //   Streams are currently byte-oriented.
 
@@ -124,6 +122,7 @@ size_t mbrtowc(wchar_t *__restrict, const char *__restrict, size_t,
                mbstate_t *__restrict);
 size_t mbrtowc_l(wchar_t *__restrict, const char *__restrict, size_t,
                  mbstate_t *__restrict, locale_t);
+int mbsinit(const mbstate_t *);
 size_t mbsnrtowcs(wchar_t *__restrict, const char **__restrict, size_t, size_t,
                   mbstate_t *__restrict);
 size_t mbsnrtowcs_l(wchar_t *__restrict, const char **__restrict, size_t,

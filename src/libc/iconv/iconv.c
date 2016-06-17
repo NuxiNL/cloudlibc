@@ -1,7 +1,10 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
+
+#include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <iconv.h>
 #include <limits.h>
@@ -13,7 +16,7 @@ size_t iconv(iconv_t cd, char **restrict inbuf, size_t *restrict inbytesleft,
              char **restrict outbuf, size_t *restrict outbytesleft) {
   // Switch back to initial conversion state.
   if (inbuf == NULL || *inbuf == NULL) {
-    cd->from_state = (struct mbtoc32state){};
+    mbstate_set_init(&cd->from_state);
     return 0;
   }
 
@@ -22,7 +25,7 @@ size_t iconv(iconv_t cd, char **restrict inbuf, size_t *restrict inbytesleft,
     // Convert next character to Unicode.
     char32_t c32;
     const struct lc_ctype *from = cd->from;
-    struct mbtoc32state from_state = cd->from_state;
+    mbstate_t from_state = cd->from_state;
     ssize_t inlen =
         from->mbtoc32(&c32, *inbuf, *inbytesleft, &from_state, from->data);
     if (inlen == -1) {
@@ -32,7 +35,7 @@ size_t iconv(iconv_t cd, char **restrict inbuf, size_t *restrict inbytesleft,
       have_ilseq = true;
 
       // Skip offending byte and reset to the initial conversion state.
-      cd->from_state = (struct mbtoc32state){};
+      mbstate_set_init(&cd->from_state);
       ++*inbuf;
       --*inbytesleft;
       continue;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -16,7 +16,7 @@ struct __iconv {
   const struct lc_ctype *to;
 
   // Decoding state.
-  struct mbtoc32state from_state;
+  mbstate_t from_state;
 
   // Whether to ignore decoding/encoding errors.
   bool ignore;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -10,7 +10,7 @@
 
 struct inputbuf {
   const struct lc_ctype *ctype;
-  struct mbtoc32state mbs;
+  mbstate_t mbs;
   const char *buf;
   size_t len;
 };

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -10,7 +10,8 @@
 TEST(mbrtowc, euro) {
   // Parse all bytes of a Euro symbol separately.
   char euro[] = "€";
-  mbstate_t mbs = {};
+  static const mbstate_t initial_mbstate;
+  mbstate_t mbs = initial_mbstate;
   wchar_t wc = 123;
   ASSERT_EQ((size_t)-2, mbrtowc_l(&wc, &euro[0], 1, &mbs, LC_C_UNICODE_LOCALE));
   ASSERT_EQ(123, wc);

@@ -521,6 +521,7 @@ mbrtoc32
 mbrtoc32_l
 mbrtowc
 mbrtowc_l
+mbsinit
 mbsnrtowcs
 mbsnrtowcs_l
 mbsrtowcs

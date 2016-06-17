@@ -451,7 +451,8 @@ while (*format != '\0') {
             // string until the precision is reached.
             size_t width = 0;
 #if WIDE
-            struct mbtoc32state ps = {};
+            mbstate_t ps;
+            mbstate_set_init(&ps);
             while (width < (size_t)precision) {
               char32_t c32;
               ssize_t len =
@@ -476,7 +477,8 @@ while (*format != '\0') {
             // String is right-justified. First compute the length to
             // determine how much padding we can write on the left.
             size_t width = 0;
-            struct mbtoc32state ps = {};
+            mbstate_t ps;
+            mbstate_set_init(&ps);
             const char *string_end = string;
             while (width < (size_t)precision) {
               char32_t c32;
@@ -495,7 +497,7 @@ while (*format != '\0') {
             PAD_TO_FIELD_WIDTH(' ');
 #if WIDE
             // Print the string after the padding.
-            ps = (struct mbtoc32state){};
+            mbstate_set_init(&ps);
             while (string < string_end) {
               char32_t c32;
               ssize_t len =

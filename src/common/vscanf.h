@@ -6,6 +6,7 @@
 #include <common/float10.h>
 #include <common/float16.h>
 #include <common/locale.h>
+#include <common/mbstate.h>
 #include <common/stdio.h>
 
 #include <assert.h>

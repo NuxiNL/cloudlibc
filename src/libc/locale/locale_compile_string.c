@@ -1,9 +1,10 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <assert.h>
 #include <limits.h>
@@ -22,7 +23,8 @@ static bool string_has_same_representation(const char *str,
     return true;
 
   // Decode/encode characters one by one.
-  struct mbtoc32state mbs = {};
+  mbstate_t mbs;
+  mbstate_set_init(&mbs);
   while (*str != '\0') {
     char32_t ch;
     ssize_t len = from->mbtoc32(&ch, str, MB_LEN_MAX, &mbs, from->data);

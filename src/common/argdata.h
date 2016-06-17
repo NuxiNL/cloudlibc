@@ -201,8 +201,8 @@ static inline void encode_fd(int value, uint8_t **buf) {
 static inline int validate_string(const char *buf, size_t len) {
   // TODO(ed): Any way we can prevent pulling in the entire locale?
   locale_t locale = LC_C_UNICODE_LOCALE;
-  mbstate_t mbs;
-  memset(&mbs, '\0', sizeof(mbs));
+  static const mbstate_t initial_mbstate;
+  mbstate_t mbs = initial_mbstate;
   while (len > 0) {
     ssize_t clen = mbrtowc_l(NULL, buf, len, &mbs, locale);
     if (clen <= 0) {

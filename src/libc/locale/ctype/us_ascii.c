@@ -1,16 +1,17 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
 
 static ssize_t us_ascii_mbtoc32(char32_t *restrict pc32, const char *restrict s,
-                                size_t n, struct mbtoc32state *restrict ps,
+                                size_t n, mbstate_t *restrict ps,
                                 const void *restrict data) {
   // Return next ASCII byte if it's valid.
   if (n < 1)
@@ -21,6 +22,7 @@ static ssize_t us_ascii_mbtoc32(char32_t *restrict pc32, const char *restrict s,
     return -1;
   }
   *pc32 = b;
+  mbstate_set_init(ps);
   return 1;
 }
 

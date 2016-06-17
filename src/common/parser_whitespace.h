@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -11,7 +11,8 @@ while (iswspace(PEEK(0)))
 #else
 {
   const struct lc_ctype *ctype = locale->ctype;
-  struct mbtoc32state mbs = {};
+  mbstate_t mbs;
+  mbstate_set_init(&mbs);
   for (;;) {
     // Parse bytes until the next wide character is complete.
     ssize_t peeklen = 0;

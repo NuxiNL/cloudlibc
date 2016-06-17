@@ -4,13 +4,14 @@
 // See the LICENSE file for details.
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
 
 static ssize_t ibm037_mbtoc32(char32_t *restrict pc32, const char *restrict s,
-                              size_t n, struct mbtoc32state *restrict ps,
+                              size_t n, mbstate_t *restrict ps,
                               const void *restrict data) {
   if (n < 1)
     return -2;
@@ -42,6 +43,7 @@ static ssize_t ibm037_mbtoc32(char32_t *restrict pc32, const char *restrict s,
   };
   static_assert(sizeof(map) == UCHAR_MAX + 1, "Bad table size");
   *pc32 = map[(unsigned char)*s];
+  mbstate_set_init(ps);
   return 1;
 }
 

@@ -4,13 +4,14 @@
 // See the LICENSE file for details.
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
 
 static ssize_t gb2312_mbtoc32(char32_t *restrict pc32, const char *restrict s,
-                              size_t n, struct mbtoc32state *restrict ps,
+                              size_t n, mbstate_t *restrict ps,
                               const void *restrict data) {
   static const char16_t table[] = {
       0x3000, 0x3001, 0x3002, 0x30fb, 0x02c9, 0x02c7, 0x00a8, 0x3003, 0x3005,
@@ -864,21 +865,25 @@ static ssize_t gb2312_mbtoc32(char32_t *restrict pc32, const char *restrict s,
   const unsigned char *sb = (const unsigned char *)s;
 
   // Parse the leading byte in case we are in the initial state.
-  if (ps->want == 0) {
+  unsigned int bytesleft;
+  char32_t partial, lowerbound;
+  mbstate_get_multibyte(ps, &bytesleft, &partial, &lowerbound);
+  if (bytesleft == 0) {
     if (n < 1)
       return -2;
     if (*sb < 0x80) {
       // ASCII value.
       *pc32 = *sb;
+      mbstate_set_init(ps);
       return 1;
     } else if (*sb >= 0xa1 && *sb < 0xa1 + 10) {
       // Leading byte of one of the first ten rows.
-      ps->want = 1;
-      ps->intermediate = *sb++ - 0xa1;
+      bytesleft = 1;
+      partial = *sb++ - 0xa1;
     } else if (*sb >= 0xa1 + 16 && *sb <= 0xa1 + 87) {
       // Leading byte of one of the rows past 16.
-      ps->want = 1;
-      ps->intermediate = *sb++ - (0xa1 + 16) + 10;
+      bytesleft = 1;
+      partial = *sb++ - (0xa1 + 16) + 10;
     } else {
       errno = EILSEQ;
       return -1;
@@ -887,20 +892,22 @@ static ssize_t gb2312_mbtoc32(char32_t *restrict pc32, const char *restrict s,
   }
 
   // Parse the second byte of a pair.
-  if (n < 1)
+  if (n < 1) {
+    mbstate_set_multibyte(ps, bytesleft, partial, 0);
     return -2;
+  }
   if (*sb < 0xa1 || *sb >= 0xa1 + 94) {
     errno = EILSEQ;
     return -1;
   }
 
-  char16_t c16 = table[ps->intermediate * 94 + *sb++ - 0xa1];
+  char16_t c16 = table[partial * 94 + *sb++ - 0xa1];
   if (c16 == u'\0') {
     errno = EILSEQ;
     return -1;
   }
   *pc32 = c16;
-  ps->want = 0;
+  mbstate_set_init(ps);
   return sb - (const unsigned char *)s;
 }
 

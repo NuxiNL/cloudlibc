@@ -1,16 +1,16 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/locale.h>
+#include <common/mbstate.h>
 
 #include <stdint.h>
 #include <strings.h>
 #include <wctype.h>
 
-static wint_t fetchchar(const char **s, struct mbtoc32state *mb,
-                        locale_t locale) {
+static wint_t fetchchar(const char **s, mbstate_t *mb, locale_t locale) {
   const struct lc_ctype *ctype = locale->ctype;
   char32_t c32;
   ssize_t l = ctype->mbtoc32(&c32, *s, SIZE_MAX, mb, ctype->data);
@@ -22,7 +22,9 @@ static wint_t fetchchar(const char **s, struct mbtoc32state *mb,
 }
 
 int strcasecmp_l(const char *s1, const char *s2, locale_t locale) {
-  struct mbtoc32state mb1 = {}, mb2 = {};
+  mbstate_t mb1, mb2;
+  mbstate_set_init(&mb1);
+  mbstate_set_init(&mb2);
   for (;;) {
     wint_t c1 = towlower(fetchchar(&s1, &mb1, locale));
     wint_t c2 = towlower(fetchchar(&s2, &mb2, locale));

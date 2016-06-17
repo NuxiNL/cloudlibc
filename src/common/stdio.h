@@ -83,7 +83,7 @@ struct __lockable _FILE {
 
   char *readbuf;
   size_t readbuflen;
-  struct mbtoc32state readstate;
+  mbstate_t readstate;
 
   char *writebuf;
   size_t writebuflen;
