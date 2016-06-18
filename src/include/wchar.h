@@ -123,7 +123,6 @@ size_t mbrtowc(wchar_t *__restrict, const char *__restrict, size_t,
 size_t mbrtowc_l(wchar_t *__restrict, const char *__restrict, size_t,
                  mbstate_t *__restrict, locale_t);
 int mbsinit(const mbstate_t *);
-int mbsinit_l(const mbstate_t *, locale_t);
 size_t mbsnrtowcs(wchar_t *__restrict, const char **__restrict, size_t, size_t,
                   mbstate_t *__restrict);
 size_t mbsnrtowcs_l(wchar_t *__restrict, const char **__restrict, size_t,
