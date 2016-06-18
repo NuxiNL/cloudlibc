@@ -32,6 +32,7 @@
 #define offsetof(type, member) __offsetof(type, member)
 
 typedef __max_align_t max_align_t;
+#define __CLANG_MAX_ALIGN_T_DEFINED
 typedef __ptrdiff_t ptrdiff_t;
 #ifndef _SIZE_T_DECLARED
 typedef __size_t size_t;
