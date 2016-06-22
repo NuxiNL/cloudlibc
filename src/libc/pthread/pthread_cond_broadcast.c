@@ -9,7 +9,6 @@
 #include <cloudabi_syscalls.h>
 #include <pthread.h>
 #include <stdatomic.h>
-#include <stdint.h>
 
 int pthread_cond_broadcast(pthread_cond_t *cond) {
   if (atomic_load_explicit(&cond->__waiters, memory_order_relaxed) !=
