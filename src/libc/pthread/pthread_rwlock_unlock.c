@@ -32,7 +32,7 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
 
     // Attempt to unlock from userspace.
     if ((old & CLOUDABI_LOCK_KERNEL_MANAGED) != 0 ||
-        atomic_compare_exchange_strong_explicit(
+        !atomic_compare_exchange_strong_explicit(
             state, &old, CLOUDABI_LOCK_UNLOCKED,
             memory_order_release | __memory_order_hle_release,
             memory_order_relaxed)) {
