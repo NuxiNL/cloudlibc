@@ -29,7 +29,7 @@ TEST(wmemmem, examples) {
 
 // Fills a buffer with random letters between A and D.
 static void fill_random(wchar_t *buf, size_t len) {
-  arc4random_buf(buf, len);
+  arc4random_buf(buf, len * sizeof(wchar_t));
   for (size_t i = 0; i < len; ++i)
     buf[i] = (buf[i] & 0x3) + L'A';
 }
