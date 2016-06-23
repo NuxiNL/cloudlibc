@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <common/crt.h>
+#include <common/pthread.h>
 
 #include <cloudabi_syscalls.h>
 #include <stdatomic.h>
@@ -14,6 +15,12 @@
 #include "stdlib_impl.h"
 
 noreturn void exit(int ret) {
+  // Invoke cleanup routines registered by __cxa_thread_atexit().
+  for (struct thread_atexit *entry =
+           atomic_load_explicit(&__thread_atexit_last, memory_order_relaxed);
+       entry != NULL; entry = entry->previous)
+    entry->func(entry->arg);
+
   // Invoke global destructors.
   void (**dtor)(void) = __dtors_start;
   while (dtor < __dtors_stop)

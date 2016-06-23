@@ -18,6 +18,12 @@
 void __malloc_thread_cleanup(void);
 
 noreturn void pthread_exit(void *value_ptr) {
+  // Invoke cleanup routines registered by __cxa_thread_atexit().
+  for (struct thread_atexit *entry =
+           atomic_load_explicit(&__thread_atexit_last, memory_order_relaxed);
+       entry != NULL; entry = entry->previous)
+    entry->func(entry->arg);
+
   // Invoke cleanup routines registered by pthread_cleanup_push().
   const struct __pthread_cleanup *cleanup = __pthread_cleanup_stack;
   __pthread_cleanup_stack = NULL;
@@ -56,9 +62,12 @@ noreturn void pthread_exit(void *value_ptr) {
          "Attempted to terminate thread while holding read locks");
 
   // Instead of terminating the thread, terminate the process regularly
-  // if we're the last remaining thread.
-  if (refcount_release(&__pthread_num_threads))
+  // if we're the last remaining thread. Prevent calling the
+  // __cxa_thread_exit() cleanup routines twice.
+  if (refcount_release(&__pthread_num_threads)) {
+    atomic_store(&__thread_atexit_last, NULL);
     exit(0);
+  }
 
   // Deinitialize malloc().
   __malloc_thread_cleanup();

@@ -119,4 +119,16 @@ extern thread_local unsigned int __pthread_rdlocks;
 // Terminate the process due to a locking error.
 noreturn void __pthread_terminate(cloudabi_errno_t, const char *);
 
+struct thread_atexit {
+  // Handler registered by __cxa_thread_atexit().
+  void (*func)(void *);
+  void *arg;
+
+  // Previous list element.
+  struct thread_atexit *previous;
+};
+
+// Pointer to last __cxa_thread_atexit() handler.
+extern _Atomic(struct thread_atexit *) __thread_atexit_last;
+
 #endif
