@@ -60,8 +60,8 @@ TEST(wmemmem, random) {
     wchar_t needle[8];
     size_t needlelen = arc4random_uniform(__arraycount(needle));
     SCOPED_NOTE(needlelen, {
-      fill_random(haystack, sizeof(haystack));
-      fill_random(needle, sizeof(needle));
+      fill_random(haystack, __arraycount(haystack));
+      fill_random(needle, needlelen);
       ASSERT_EQ(
           naive_memmem(haystack, __arraycount(haystack), needle, needlelen),
           wmemmem(haystack, __arraycount(haystack), needle, needlelen));
