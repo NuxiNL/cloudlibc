@@ -58,12 +58,13 @@ TEST(wmemmem, random) {
   for (size_t i = 0; i < 1000; ++i) {
     wchar_t haystack[40000];
     wchar_t needle[8];
-    size_t needlelen = arc4random_uniform(sizeof(needle));
+    size_t needlelen = arc4random_uniform(__arraycount(needle));
     SCOPED_NOTE(needlelen, {
       fill_random(haystack, sizeof(haystack));
-      fill_random(needle, needlelen);
-      ASSERT_EQ(naive_memmem(haystack, sizeof(haystack), needle, needlelen),
-                wmemmem(haystack, sizeof(haystack), needle, needlelen));
+      fill_random(needle, sizeof(needle));
+      ASSERT_EQ(
+          naive_memmem(haystack, __arraycount(haystack), needle, needlelen),
+          wmemmem(haystack, __arraycount(haystack), needle, needlelen));
     });
   }
 }
