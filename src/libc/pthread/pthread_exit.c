@@ -65,7 +65,7 @@ noreturn void pthread_exit(void *value_ptr) {
   // if we're the last remaining thread. Prevent calling the
   // __cxa_thread_exit() cleanup routines twice.
   if (refcount_release(&__pthread_num_threads)) {
-    atomic_store(&__thread_atexit_last, NULL);
+    atomic_store_explicit(&__thread_atexit_last, NULL, memory_order_relaxed);
     exit(0);
   }
 
