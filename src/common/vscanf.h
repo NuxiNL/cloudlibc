@@ -145,7 +145,21 @@ int NAME(const char_t *restrict s, locale_t locale,
     if (*format == '%') {
       // Escaped percent symbol.
       if (*++format == '%') {
-        // TODO(ed): Implement.
+        // Skip leading whitespace, as required by the standard.
+        size_t idx = 0;
+#define SKIP(n) \
+  do {          \
+    idx += (n); \
+  } while (0)
+#define PEEK(n) (INPUT_REMAINING(idx + (n) + 1) ? INPUT_PEEK(idx + (n)) : '\0')
+#include "parser_whitespace.h"
+#undef PEEK
+#undef SKIP
+
+        // Match percent symbol.
+        if (!INPUT_REMAINING(idx + 1) || INPUT_PEEK(idx) != *format++)
+          return conversions_performed;
+        INPUT_SKIP(idx + 1);
         continue;
       }
 
