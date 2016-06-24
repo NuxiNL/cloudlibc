@@ -19,7 +19,8 @@ while (iswspace(PEEK(0)))
     char32_t c32;
     ssize_t ret;
     do {
-      char b = PEEK(peeklen++);
+      char b = PEEK(peeklen);
+      ++peeklen;
       ret = ctype->mbtoc32(&c32, &b, 1, &mbs, ctype->data);
     } while (ret == -2);
 
