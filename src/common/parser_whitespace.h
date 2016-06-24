@@ -15,7 +15,7 @@ while (iswspace(PEEK(0)))
   mbstate_set_init(&mbs);
   for (;;) {
     // Parse bytes until the next wide character is complete.
-    ssize_t peeklen = 0;
+    size_t peeklen = 0;
     char32_t c32;
     ssize_t ret;
     do {
