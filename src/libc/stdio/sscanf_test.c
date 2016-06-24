@@ -50,3 +50,13 @@ TEST(sscanf, http_version) {
   ASSERT_EQ(1, major);
   ASSERT_EQ(0, minor);
 }
+
+TEST(sscanf, n2033) {
+  // WG14's N2033: %% should always skip leading whitespace. For literal
+  // characters, this should only be done when also preceded by
+  // whitespace.
+  int i;
+  ASSERT_EQ(0, sscanf("foo  %  bar  42", "foo%%bar%d", &i));
+  ASSERT_EQ(1, sscanf("foo  %  bar  42", "foo%% bar%d", &i));
+  ASSERT_EQ(42, i);
+}
