@@ -361,10 +361,31 @@ int NAME(const char_t *restrict s, locale_t locale,
         }
       }
     } else {
-      // Perform exact match against character in format string.
-      if (!INPUT_REMAINING(1) || INPUT_PEEK(0) != *format++)
-        return conversions_performed;
-      INPUT_SKIP(1);
+      // See if the format contains any whitespace characters. If so,
+      // trim whitespace from the input.
+      bool have_whitespace = false;
+#define SKIP(n)             \
+  do {                      \
+    format += (n);          \
+    have_whitespace = true; \
+  } while (0)
+#define PEEK(n) format[n]
+#include "parser_whitespace.h"
+#undef PEEK
+#undef SKIP
+      if (have_whitespace) {
+#define SKIP(n) INPUT_SKIP(n)
+#define PEEK(n) (INPUT_REMAINING((n) + 1) ? INPUT_PEEK(n) : '\0')
+#include "parser_whitespace.h"
+#undef PEEK
+#undef SKIP
+      } else {
+        // No whitespace. Perform exact match against character in
+        // format string.
+        if (!INPUT_REMAINING(1) || INPUT_PEEK(0) != *format++)
+          return conversions_performed;
+        INPUT_SKIP(1);
+      }
     }
   }
   return conversions_performed;
