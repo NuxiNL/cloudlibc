@@ -119,6 +119,10 @@ struct addrinfo {
 
 // Size limits.
 #define NI_MAXHOST 57  // Largest hostname returned by getnameinfo().
+_Static_assert(
+    NI_MAXHOST ==
+        sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255%4294967295"),
+    "NI_MAXHOST is defined incorrectly.");
 #define NI_MAXSERV 64  // Largest service name returned by getnameinfo().
 
 __BEGIN_DECLS
