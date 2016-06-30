@@ -5,13 +5,13 @@ rm -Rf tmp
 mkdir tmp
 cd tmp
 
-tar -xf ../tzdata2015g.tar.gz
-tar -xf ../tzcode2015g.tar.gz
+tar -xf ../tzdata2016e.tar.gz
+tar -xf ../tzcode2016e.tar.gz
 
-make zdump > /dev/null
+make zdump zic > /dev/null
 
 mkdir output
-zic -d output africa antarctica asia australasia backward etcetera europe \
+./zic -d output africa antarctica asia australasia backward etcetera europe \
     northamerica pacificnew southamerica
 
 cd output
