@@ -58,7 +58,8 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     // that contains this timestamp and subtract its offset.
     const struct lc_timezone_era *era = &tz->eras[0];
     for (size_t i = 1; i < tz->eras_count; ++i) {
-      if (era->end > result->tv_sec - era->gmtoff)
+      time_t end = result->tv_sec - era->gmtoff + era->end_save * 600;
+      if (end < era->end)
         break;
       era = &tz->eras[i];
     }
@@ -70,8 +71,7 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     const struct lc_timezone_era *era = &tz->eras[0];
     time_t cmptime = result->tv_sec;
     for (size_t i = 1; i < tz->eras_count; ++i) {
-      int save = era->end_save * 600;
-      time_t end = result->tv_sec - era->gmtoff - save;
+      time_t end = result->tv_sec - era->gmtoff - era->end_save * 600;
       if (end < era->end) {
         // The timestamp lies with the era.
         break;
