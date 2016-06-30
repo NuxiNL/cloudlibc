@@ -69,13 +69,14 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     // needs to be inferred (tm_isdst < 0).
     bool force_dst = tm->tm_isdst > 0;
     const struct lc_timezone_era *era = &tz->eras[0];
-    time_t cmptime = result->tv_sec;
+    time_t dsttime = result->tv_sec;
     for (size_t i = 1; i < tz->eras_count; ++i) {
-      time_t end = result->tv_sec - era->gmtoff - era->end_save * 600;
+      unsigned int save = era->end_save * 600;
+      time_t end = result->tv_sec - era->gmtoff - save;
       if (end < era->end) {
-        // The timestamp lies with the era.
+        // The timestamp lies within the era.
         break;
-      } else if (end < era->end + 7200) {
+      } else if (end < era->end + save) {
         // The timestamp lies outside of the era by just a tiny bit.
         // This is problematic when the following conditions hold:
         //
@@ -85,15 +86,12 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
         //
         // In this case determine_applicable_save() will not be able to
         // match the initial rule at the start of the era. Increment the
-        // timestamp by two hours (the maximum DST observed) to give it
+        // timestamp by the amount of DST of the previous era to give it
         // just the push that it needs to always match its initial rule.
-        //
-        // This approach should be fine, as it is unlikely that there
-        // are DST changes within the first two hours of a new era.
-        cmptime = result->tv_sec + 7200;
+        dsttime = result->tv_sec + save;
       } else {
         // The timestamp lies outside of the era.
-        cmptime = result->tv_sec;
+        dsttime = result->tv_sec;
       }
       era = &tz->eras[i];
     }
@@ -101,7 +99,7 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     // Process daylight saving time rules.
     if (era->rules_count > 0) {
       struct tm dst;
-      __localtime_utc(cmptime, &dst);
+      __localtime_utc(dsttime, &dst);
       result->tv_sec -=
           determine_applicable_save(era->rules, era->rules_count, &dst,
                                     era->gmtoff, force_dst) *
