@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -48,7 +48,7 @@ static const struct lc_timezone_rule *determine_applicable_rule(
     int offset = 0;
     switch (rule->timebase) {
       case TIMEBASE_CUR:
-        offset = match != NULL ? match->save * 600 : 0;
+        offset = match->save * 600;
         break;
       case TIMEBASE_UTC:
         offset = -gmtoff;
