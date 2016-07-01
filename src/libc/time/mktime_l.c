@@ -58,10 +58,11 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     // that contains this timestamp and subtract its offset.
     const struct lc_timezone_era *era = &tz->eras[0];
     for (size_t i = 1; i < tz->eras_count; ++i) {
-      time_t end = result->tv_sec - era->gmtoff + era->end_save * 600;
-      if (end < era->end)
+      time_t end = era->end;
+      unsigned int save = era->end_save * 600;
+      if (result->tv_sec < end + era->gmtoff - save)
         break;
-      era = &tz->eras[i];
+      ++era;
     }
     result->tv_sec -= era->gmtoff;
   } else {
@@ -71,29 +72,18 @@ int mktime_l(const struct tm *restrict tm, struct timespec *restrict result,
     const struct lc_timezone_era *era = &tz->eras[0];
     time_t dsttime = result->tv_sec;
     for (size_t i = 1; i < tz->eras_count; ++i) {
+      time_t end = era->end;
       unsigned int save = era->end_save * 600;
-      time_t end = result->tv_sec - era->gmtoff - save;
-      if (end < era->end) {
-        // The timestamp lies within the era.
+      if (result->tv_sec < end + era->gmtoff + save)
         break;
-      } else if (end < era->end + save) {
-        // The timestamp lies outside of the era by just a tiny bit.
-        // This is problematic when the following conditions hold:
-        //
-        // 1. The new era starts without DST.
-        // 2. There are DST rules in the new era that would have enabled
-        //    DST right before the era's starting time.
-        //
-        // In this case determine_applicable_save() will not be able to
-        // match the initial rule at the start of the era. Increment the
-        // timestamp by the amount of DST of the previous era to give it
-        // just the push that it needs to always match its initial rule.
-        dsttime = result->tv_sec + save;
-      } else {
-        // The timestamp lies outside of the era.
-        dsttime = result->tv_sec;
-      }
-      era = &tz->eras[i];
+      ++era;
+
+      // Switching to the next era causes daylight saving time rules to
+      // be matched against the start time of the new era, but with
+      // daylight saving time from the previous era still enabled.
+      dsttime = result->tv_sec > end + era->gmtoff + save
+                    ? result->tv_sec
+                    : end + era->gmtoff + save;
     }
 
     // Process daylight saving time rules.
