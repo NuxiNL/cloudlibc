@@ -110,11 +110,9 @@ int NAME(const char_t *restrict s, locale_t locale,
   size_t input_read = 0;
   size_t conversions_performed = 0;
 
-  // TODO(ed): Implement argument handling properly.
-  void *arguments[10];
-  for (size_t i = 0; i < 10; ++i)
-    arguments[i] = va_arg(ap, void *);
-  size_t argument_count = 0;
+  // Copy of the arguments list, used for looking up numbered arguments.
+  va_list numargs;
+  va_copy(numargs, ap);
 
   while (*format != '\0') {
     if (*format == '%') {
@@ -133,14 +131,43 @@ int NAME(const char_t *restrict s, locale_t locale,
 
         // Match percent symbol.
         if (!INPUT_REMAINING(idx + 1) || INPUT_PEEK(idx) != *format++)
-          return conversions_performed;
+          goto done;
         INPUT_SKIP(idx + 1);
         continue;
       }
 
       // Field number, in case of numbered arguments.
       size_t numarg = get_numarg(&format);
-      void *argument = arguments[numarg > 0 ? numarg - 1 : argument_count++];
+
+      // Suppress assignment.
+      bool suppress = false;
+      if (*format == '*') {
+        suppress = true;
+        ++format;
+      }
+
+      // Fetch the appropriate argument value.
+      void *argument;
+      union {
+        long double x;
+        uintmax_t y;
+      } discard;
+      if (suppress) {
+        // Assign a scratch space to the argument, so that assignments
+        // of scalar are discarded.
+        argument = &discard;
+      } else if (numarg > 0) {
+        // Numbered arguments. Fetch the argument at the right index.
+        va_list n;
+        va_copy(n, numargs);
+        while (numarg-- > 0)
+          argument = va_arg(n, void *);
+        va_end(n);
+      } else {
+        // Non-numbered argument. Simply fetch the next argument.
+        argument = va_arg(ap, void *);
+      }
+
 #define ARGUMENT_SET_INT(value)           \
   do {                                    \
     switch (length) {                     \
@@ -161,13 +188,6 @@ int NAME(const char_t *restrict s, locale_t locale,
         break;                            \
     }                                     \
   } while (0)
-
-      // Suppress assignment.
-      bool suppress = false;
-      if (*format == '*') {
-        suppress = true;
-        ++format;
-      }
 
       // Maximum field width.
       size_t field_width = get_number(&format);
@@ -217,7 +237,7 @@ int NAME(const char_t *restrict s, locale_t locale,
 #undef SKIP
 
           if (!have_number)
-            return conversions_performed;
+            goto done;
           INPUT_SKIP(idx);
           ARGUMENT_SET_INT(number);
           ++conversions_performed;
@@ -265,7 +285,7 @@ int NAME(const char_t *restrict s, locale_t locale,
 #undef SKIP
 
           if (!have_number)
-            return conversions_performed;
+            goto done;
           INPUT_SKIP(idx);
           ARGUMENT_SET_INT(number);
           ++conversions_performed;
@@ -299,7 +319,7 @@ int NAME(const char_t *restrict s, locale_t locale,
 #undef SKIP
 
           if (!have_number)
-            return conversions_performed;
+            goto done;
           INPUT_SKIP(idx);
           // TODO(ed): Store value.
           ++conversions_performed;
@@ -330,14 +350,14 @@ int NAME(const char_t *restrict s, locale_t locale,
           if (field_width == 0)
             field_width = 1;
           if (!INPUT_REMAINING(field_width))
-            return conversions_performed;
+            goto done;
           if (!suppress) {
             char_t *out;
             if (allocate) {
               // Allocate buffer for characters.
               out = malloc(field_width);
               if (out == NULL)
-                return EOF;
+                goto bad;
               *(void **)argument = out;
             } else {
               // Store data directly.
@@ -380,10 +400,15 @@ int NAME(const char_t *restrict s, locale_t locale,
         // No whitespace. Perform exact match against character in
         // format string.
         if (!INPUT_REMAINING(1) || INPUT_PEEK(0) != *format++)
-          return conversions_performed;
+          goto done;
         INPUT_SKIP(1);
       }
     }
   }
+done:
+  va_end(numargs);
   return conversions_performed;
+bad:
+  va_end(numargs);
+  return EOF;
 }
