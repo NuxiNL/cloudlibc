@@ -10,6 +10,7 @@
 #include <common/stdio.h>
 
 #include <assert.h>
+#include <ctype.h>  // TODO(ed): Remove!
 #include <fenv.h>
 #include <float.h>
 #include <limits.h>
@@ -308,20 +309,41 @@ int NAME(const char_t *restrict s, locale_t locale,
 #include "parser_whitespace.h"
 #undef PEEK
 
-          // Determine up to where we can parse.
+          // Parse floating point number, taking the limits of the
+          // requested type into account.
           size_t end = field_width == 0 ? SIZE_MAX : idx + field_width;
-          typedef long double flt_t;
 #define PEEK(n)                                                              \
   (idx + (n) < end && INPUT_REMAINING(idx + (n) + 1) ? INPUT_PEEK(idx + (n)) \
                                                      : '\0')
+          switch (length) {
+            case LM_LONG: {
+              typedef double flt_t;
 #include "parser_strtofloat.h"
+              if (!have_number)
+                goto done;
+              *(double *)argument = number;
+              break;
+            }
+            case LM_LONG_DOUBLE: {
+              typedef long double flt_t;
+#include "parser_strtofloat.h"
+              if (!have_number)
+                goto done;
+              *(long double *)argument = number;
+              break;
+            }
+            default: {
+              typedef float flt_t;
+#include "parser_strtofloat.h"
+              if (!have_number)
+                goto done;
+              *(float *)argument = number;
+              break;
+            }
+          }
 #undef PEEK
 #undef SKIP
-
-          if (!have_number)
-            goto done;
           INPUT_SKIP(idx);
-          // TODO(ed): Store value.
           ++conversions_performed;
           break;
         }
@@ -331,13 +353,52 @@ int NAME(const char_t *restrict s, locale_t locale,
           length = LM_LONG;
         case 's': {
           // String.
-          // TODO(ed): Implement.
+
+          // Skip leading whitespace.
+          size_t idx = 0;
+#define SKIP(n) \
+  do {          \
+    idx += (n); \
+  } while (0)
+#define PEEK(n) (INPUT_REMAINING(idx + (n) + 1) ? INPUT_PEEK(idx + (n)) : '\0')
+#include "parser_whitespace.h"
+#undef PEEK
+#undef SKIP
+
+#if WIDE
+          assert(0 && "Not implemented");
+#else
+          if (allocate) {
+            // TODO(ed): Implement.
+            assert(0 && "Not implemented");
+          } else {
+            // TODO(ed): Support wide strings.
+            size_t end = field_width == 0 ? SIZE_MAX : field_width;
+            size_t i = 0;
+            char *out = argument;
+            while (i < end) {
+              if (!INPUT_REMAINING(idx + i + 1))
+                break;
+              char c = INPUT_PEEK(idx + i);
+              // TODO(ed): Use mbstate_t.
+              if (isspace(c))
+                break;
+              *out++ = c;
+              ++i;
+            }
+            if (i == 0)
+              goto done;
+            *out = '\0';
+            ++conversions_performed;
+          }
+#endif
           break;
         }
 
         case '[': {
           // Set of characters.
           // TODO(ed): Implement.
+          assert(0 && "Not implemented");
           break;
         }
 
