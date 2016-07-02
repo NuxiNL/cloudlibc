@@ -18,6 +18,24 @@ static size_t get_number(const char_t *restrict *format) {
   return value;
 }
 
+// Parses the "n$" part of a numerical argument reference of a format
+// string. Upon success, this function returns a number greater than
+// zero indicating the index of the numerical argument. Upon failure it
+// returns zero.
+static size_t get_numarg(const char_t *restrict *format) {
+  const char_t *s = *format;
+  if (*s < '1' || *s > '9')
+    return 0;
+  size_t value = 0;
+  do {
+    value = value * 10 + *s++ - '0';
+  } while (*s >= '0' && *s <= '9');
+  if (*s++ != '$')
+    return 0;
+  *format = s;
+  return value;
+}
+
 enum length_modifier {
   LM_SHORT_SHORT,
   LM_SHORT,

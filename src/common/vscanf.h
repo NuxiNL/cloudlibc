@@ -115,31 +115,6 @@ int NAME(const char_t *restrict s, locale_t locale,
   for (size_t i = 0; i < 10; ++i)
     arguments[i] = va_arg(ap, void *);
   size_t argument_count = 0;
-#define ARGUMENT_GET arguments[argument_count++]
-#define ARGUMENT_SET_POINTER(value)   \
-  do {                                \
-    *(void **)ARGUMENT_GET = (value); \
-  } while (0)
-#define ARGUMENT_SET_INT(value)               \
-  do {                                        \
-    switch (length) {                         \
-      case LM_SHORT_SHORT:                    \
-        *(char *)ARGUMENT_GET = (value);      \
-        break;                                \
-      case LM_SHORT:                          \
-        *(short *)ARGUMENT_GET = (value);     \
-        break;                                \
-      case LM_LONG:                           \
-        *(long *)ARGUMENT_GET = (value);      \
-        break;                                \
-      case LM_LONG_LONG:                      \
-        *(long long *)ARGUMENT_GET = (value); \
-        break;                                \
-      default:                                \
-        *(int *)ARGUMENT_GET = (value);       \
-        break;                                \
-    }                                         \
-  } while (0)
 
   while (*format != '\0') {
     if (*format == '%') {
@@ -163,7 +138,29 @@ int NAME(const char_t *restrict s, locale_t locale,
         continue;
       }
 
-      // TODO(ed): Add support for numbered arguments.
+      // Field number, in case of numbered arguments.
+      size_t numarg = get_numarg(&format);
+      void *argument = arguments[numarg > 0 ? numarg - 1 : argument_count++];
+#define ARGUMENT_SET_INT(value)           \
+  do {                                    \
+    switch (length) {                     \
+      case LM_SHORT_SHORT:                \
+        *(char *)argument = (value);      \
+        break;                            \
+      case LM_SHORT:                      \
+        *(short *)argument = (value);     \
+        break;                            \
+      case LM_LONG:                       \
+        *(long *)argument = (value);      \
+        break;                            \
+      case LM_LONG_LONG:                  \
+        *(long long *)argument = (value); \
+        break;                            \
+      default:                            \
+        *(int *)argument = (value);       \
+        break;                            \
+    }                                     \
+  } while (0)
 
       // Suppress assignment.
       bool suppress = false;
@@ -341,10 +338,10 @@ int NAME(const char_t *restrict s, locale_t locale,
               out = malloc(field_width);
               if (out == NULL)
                 return EOF;
-              ARGUMENT_SET_POINTER(out);
+              *(void **)argument = out;
             } else {
               // Store data directly.
-              out = ARGUMENT_GET;
+              out = argument;
             }
             for (size_t i = 0; i < field_width; ++i)
               out[i] = INPUT_PEEK(i);

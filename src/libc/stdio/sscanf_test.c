@@ -60,3 +60,14 @@ TEST(sscanf, n2033) {
   ASSERT_EQ(1, sscanf("foo  %  bar  42", "foo%% bar%d", &i));
   ASSERT_EQ(42, i);
 }
+
+TEST(sscanf, numbered_arguments) {
+  int value1, value2;
+  ASSERT_EQ(2, sscanf("12345 67890", "%1$d%2$d", &value1, &value2));
+  ASSERT_EQ(12345, value1);
+  ASSERT_EQ(67890, value2);
+
+  ASSERT_EQ(2, sscanf("23456 78901", "%2$d%1$d", &value1, &value2));
+  ASSERT_EQ(78901, value1);
+  ASSERT_EQ(23456, value2);
+}
