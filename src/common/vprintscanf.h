@@ -56,8 +56,7 @@ enum length_modifier {
            : LM_LONG, unsigned long           \
            : LM_LONG, signed long long        \
            : LM_LONG_LONG, unsigned long long \
-           : LM_LONG_LONG, default            \
-           : (void)0)
+           : LM_LONG_LONG)
 
 #define LM_CHAR LM_INFERRED(unsigned char)
 #define LM_MAX LM_INFERRED(intmax_t)
