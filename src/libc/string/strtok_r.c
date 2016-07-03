@@ -1,13 +1,11 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <limits.h>
-#include <string.h>
+#include <common/byteset.h>
 
-#define INDEX(c) ((unsigned char)(c) / LONG_BIT)
-#define BIT(c) (1UL << ((unsigned char)(c) % LONG_BIT))
+#include <string.h>
 
 char *strtok_r(char *restrict s, const char *restrict sep,
                char **restrict lasts) {
@@ -19,14 +17,15 @@ char *strtok_r(char *restrict s, const char *restrict sep,
   }
 
   // Construct span bitmask.
-  unsigned long span[(UCHAR_MAX + 1) / LONG_BIT] = {};
+  byteset_t bs;
+  byteemptyset(&bs);
   while (*sep != '\0') {
-    span[INDEX(*sep)] |= BIT(*sep);
+    byteaddset(&bs, *sep);
     ++sep;
   }
 
   // Skip leading delimiters.
-  while ((span[INDEX(*s)] & BIT(*s)) != 0)
+  while (byteismember(&bs, *s))
     ++s;
   if (*s == '\0') {
     *lasts = NULL;
@@ -35,8 +34,8 @@ char *strtok_r(char *restrict s, const char *restrict sep,
 
   // Find end of token.
   char *end = s + 1;
-  span[INDEX('\0')] |= BIT('\0');
-  while ((span[INDEX(*end)] & BIT(*end)) == 0)
+  byteaddset(&bs, '\0');
+  while (!byteismember(&bs, *end))
     ++end;
 
   if (*end == '\0') {
