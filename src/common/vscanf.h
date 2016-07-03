@@ -389,6 +389,7 @@ int NAME(const char_t *restrict s, locale_t locale,
             if (i == 0)
               goto done;
             *out = '\0';
+            INPUT_SKIP(idx + i);
             ++conversions_performed;
           }
 #endif
