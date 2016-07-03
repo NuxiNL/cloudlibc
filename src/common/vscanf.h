@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/byteset.h>
 #include <common/float10.h>
 #include <common/float16.h>
 #include <common/locale.h>
@@ -146,48 +147,49 @@ int NAME(const char_t *restrict s, locale_t locale,
         suppress = true;
         ++format;
       }
+#define CONVERSION_PERFORMED() \
+  do {                         \
+    if (!suppress)             \
+      ++conversions_performed; \
+  } while (0)
 
       // Fetch the appropriate argument value.
       void *argument;
-      union {
-        long double x;
-        uintmax_t y;
-      } discard;
-      if (suppress) {
-        // Assign a scratch space to the argument, so that assignments
-        // of scalar are discarded.
-        argument = &discard;
-      } else if (numarg > 0) {
-        // Numbered arguments. Fetch the argument at the right index.
-        va_list n;
-        va_copy(n, numargs);
-        while (numarg-- > 0)
-          argument = va_arg(n, void *);
-        va_end(n);
-      } else {
-        // Non-numbered argument. Simply fetch the next argument.
-        argument = va_arg(ap, void *);
+      if (!suppress) {
+        if (numarg > 0) {
+          // Numbered arguments. Fetch the argument at the right index.
+          va_list n;
+          va_copy(n, numargs);
+          while (numarg-- > 0)
+            argument = va_arg(n, void *);
+          va_end(n);
+        } else {
+          // Non-numbered argument. Simply fetch the next argument.
+          argument = va_arg(ap, void *);
+        }
       }
 
-#define ARGUMENT_SET_INT(value)           \
-  do {                                    \
-    switch (length) {                     \
-      case LM_SHORT_SHORT:                \
-        *(char *)argument = (value);      \
-        break;                            \
-      case LM_SHORT:                      \
-        *(short *)argument = (value);     \
-        break;                            \
-      case LM_LONG:                       \
-        *(long *)argument = (value);      \
-        break;                            \
-      case LM_LONG_LONG:                  \
-        *(long long *)argument = (value); \
-        break;                            \
-      default:                            \
-        *(int *)argument = (value);       \
-        break;                            \
-    }                                     \
+#define ARGUMENT_SET_INT(value)             \
+  do {                                      \
+    if (!suppress) {                        \
+      switch (length) {                     \
+        case LM_SHORT_SHORT:                \
+          *(char *)argument = (value);      \
+          break;                            \
+        case LM_SHORT:                      \
+          *(short *)argument = (value);     \
+          break;                            \
+        case LM_LONG:                       \
+          *(long *)argument = (value);      \
+          break;                            \
+        case LM_LONG_LONG:                  \
+          *(long long *)argument = (value); \
+          break;                            \
+        default:                            \
+          *(int *)argument = (value);       \
+          break;                            \
+      }                                     \
+    }                                       \
   } while (0)
 
       // Maximum field width.
@@ -241,7 +243,7 @@ int NAME(const char_t *restrict s, locale_t locale,
             goto done;
           INPUT_SKIP(idx);
           ARGUMENT_SET_INT(number);
-          ++conversions_performed;
+          CONVERSION_PERFORMED();
           break;
         }
 
@@ -289,7 +291,7 @@ int NAME(const char_t *restrict s, locale_t locale,
             goto done;
           INPUT_SKIP(idx);
           ARGUMENT_SET_INT(number);
-          ++conversions_performed;
+          CONVERSION_PERFORMED();
           break;
         }
 
@@ -321,7 +323,8 @@ int NAME(const char_t *restrict s, locale_t locale,
 #include "parser_strtofloat.h"
               if (!have_number)
                 goto done;
-              *(double *)argument = number;
+              if (!suppress)
+                *(double *)argument = number;
               break;
             }
             case LM_LONG_DOUBLE: {
@@ -329,7 +332,8 @@ int NAME(const char_t *restrict s, locale_t locale,
 #include "parser_strtofloat.h"
               if (!have_number)
                 goto done;
-              *(long double *)argument = number;
+              if (!suppress)
+                *(long double *)argument = number;
               break;
             }
             default: {
@@ -337,14 +341,15 @@ int NAME(const char_t *restrict s, locale_t locale,
 #include "parser_strtofloat.h"
               if (!have_number)
                 goto done;
-              *(float *)argument = number;
+              if (!suppress)
+                *(float *)argument = number;
               break;
             }
           }
 #undef PEEK
 #undef SKIP
           INPUT_SKIP(idx);
-          ++conversions_performed;
+          CONVERSION_PERFORMED();
           break;
         }
 
@@ -383,23 +388,65 @@ int NAME(const char_t *restrict s, locale_t locale,
               // TODO(ed): Use mbstate_t.
               if (isspace(c))
                 break;
-              *out++ = c;
+              if (!suppress)
+                *out++ = c;
               ++i;
             }
             if (i == 0)
               goto done;
             *out = '\0';
             INPUT_SKIP(idx + i);
-            ++conversions_performed;
+            CONVERSION_PERFORMED();
           }
 #endif
           break;
         }
 
         case '[': {
-          // Set of characters.
+// Set of characters.
+#if WIDE
           // TODO(ed): Implement.
           assert(0 && "Not implemented");
+#else
+          // Convert provided list of characters into a bitmask.
+          byteset_t bs;
+          if (*format == '^') {
+            // Leading circumflex: negative matching.
+            ++format;
+            bytefillset(&bs);
+            do {
+              bytedelset(&bs, *format++);
+            } while (*format != ']');
+          } else {
+            // No leading circumflex: positive matching.
+            byteemptyset(&bs);
+            do {
+              byteaddset(&bs, *format++);
+            } while (*format != ']');
+          }
+          ++format;
+
+          // Get sequence from input, only allowing bytes from the
+          // bitmask.
+          size_t end = field_width == 0 ? SIZE_MAX : field_width;
+          size_t i = 0;
+          char *out = argument;
+          while (i < end) {
+            if (!INPUT_REMAINING(i + 1))
+              break;
+            char c = INPUT_PEEK(i);
+            if (!byteismember(&bs, c))
+              break;
+            if (!suppress)
+              *out++ = c;
+            ++i;
+          }
+          if (i == 0)
+            goto done;
+          *out = '\0';
+          INPUT_SKIP(i);
+          CONVERSION_PERFORMED();
+#endif
           break;
         }
 
@@ -429,7 +476,7 @@ int NAME(const char_t *restrict s, locale_t locale,
               out[i] = INPUT_PEEK(i);
           }
           INPUT_SKIP(field_width);
-          ++conversions_performed;
+          CONVERSION_PERFORMED();
           break;
         }
 

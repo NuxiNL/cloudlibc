@@ -27,9 +27,19 @@ static inline void byteaddset(byteset_t *bs, unsigned char c) {
   bs->bits[c / LONG_BIT] |= 1UL << (c % LONG_BIT);
 }
 
+// Removes a byte from the set if present.
+static inline void bytedelset(byteset_t *bs, unsigned char c) {
+  bs->bits[c / LONG_BIT] &= ~(1UL << (c % LONG_BIT));
+}
+
 // Clears the set.
 static inline void byteemptyset(byteset_t *bs) {
   memset(&bs->bits, 0, sizeof(bs->bits));
+}
+
+// Fills the set.
+static inline void bytefillset(byteset_t *bs) {
+  memset(&bs->bits, ~0, sizeof(bs->bits));
 }
 
 // Tests whether a byte is a member of the set.

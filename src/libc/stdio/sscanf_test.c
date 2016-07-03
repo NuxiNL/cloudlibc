@@ -74,7 +74,6 @@ TEST(sscanf, c11_examples) {
     ASSERT_STREQ("thompson", name);
   }
 
-#if 0  // TODO(ed): Enable!
   // Example 2.
   {
     int i;
@@ -86,7 +85,6 @@ TEST(sscanf, c11_examples) {
     ASSERT_EQ(789.0f, x);
     ASSERT_STREQ("56", name);
   }
-#endif
 
   // Example 3.
   {
