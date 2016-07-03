@@ -86,6 +86,7 @@ TEST(sscanf, c11_examples) {
     ASSERT_EQ(789.0f, x);
     ASSERT_STREQ("56", name);
   }
+#endif
 
   // Example 3.
   {
@@ -110,10 +111,15 @@ TEST(sscanf, c11_examples) {
     ASSERT_STREQ("LBS", units);
     ASSERT_STREQ("dirt", item);
 
+    // For some reason, the standard requires that this fails to parse,
+    // but our floating point literal parser is smart enough to only
+    // parse the "100" part.
     ASSERT_EQ(
-        0, sscanf("100ergs of energy", "%f%20s of %20s", &quant, units, item));
+        3, sscanf("100ergs of energy", "%f%20s of %20s", &quant, units, item));
+    ASSERT_EQ(100, quant);
+    ASSERT_STREQ("ergs", units);
+    ASSERT_STREQ("energy", item);
   }
-#endif
 
   // Example 4.
   {
