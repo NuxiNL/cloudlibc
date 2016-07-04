@@ -169,6 +169,8 @@ int NAME(const char_t *restrict s, locale_t locale,
         }
       }
 
+// Assigns a value to an integer argument, taking the size of the
+// argument into consideration.
 #define ARGUMENT_SET_INT(value)             \
   do {                                      \
     if (!suppress) {                        \
@@ -191,17 +193,57 @@ int NAME(const char_t *restrict s, locale_t locale,
       }                                     \
     }                                       \
   } while (0)
-#define ARGUMENT_STR_START() char_t *out = argument
-#define ARGUMENT_STR_APPEND(c) \
-  do {                         \
-    if (!suppress)             \
-      *out++ = (c);            \
+
+// Prepare for writing string output into an argument, either by
+// providing a buffer or using the assignment-allocation flag 'm'.
+// Use SIZE_MAX as a buffer size for non-allocated buffers to prevent
+// ARGUMENT_STR_APPEND() from reallocating.
+#define ARGUMENT_STR_START() \
+  char_t *out;               \
+  size_t outlen;             \
+  size_t outused;            \
+  do {                       \
+    if (!suppress) {         \
+      if (allocate) {        \
+        out = NULL;          \
+        outlen = 0;          \
+      } else {               \
+        out = argument;      \
+        outlen = SIZE_MAX;   \
+      }                      \
+      outused = 0;           \
+    }                        \
   } while (0)
-#define ARGUMENT_STR_FINISH() \
-  do {                        \
-    if (!suppress)            \
-      *out = '\0';            \
-    CONVERSION_PERFORMED();   \
+
+// Appends a character to a string argument buffer.
+#define ARGUMENT_STR_APPEND(c)                                      \
+  do {                                                              \
+    if (!suppress) {                                                \
+      if (outused + 2 > outlen) {                                   \
+        size_t newoutlen = outlen < 16 ? 16 : outlen * 2;           \
+        char_t *newout = reallocarray(out, outlen, sizeof(char_t)); \
+        if (newout == NULL) {                                       \
+          free(out);                                                \
+          goto bad;                                                 \
+        }                                                           \
+        *(char_t **)argument = out = newout;                        \
+        outlen = newoutlen;                                         \
+      }                                                             \
+      out[outused++] = (c);                                         \
+    }                                                               \
+  } while (0)
+
+// Finalize writing the string argument, either null terminating it or
+// leaving it unterminated.
+#define ARGUMENT_STR_FINISH_NULL() \
+  do {                             \
+    if (!suppress)                 \
+      out[outused] = '\0';         \
+    CONVERSION_PERFORMED();        \
+  } while (0)
+#define ARGUMENT_STR_FINISH_NONULL() \
+  do {                               \
+    CONVERSION_PERFORMED();          \
   } while (0)
 
       // Maximum field width.
@@ -402,7 +444,7 @@ int NAME(const char_t *restrict s, locale_t locale,
           }
           if (i == 0)
             goto done;
-          ARGUMENT_STR_FINISH();
+          ARGUMENT_STR_FINISH_NULL();
           INPUT_SKIP(idx + i);
           break;
         }
@@ -449,7 +491,7 @@ int NAME(const char_t *restrict s, locale_t locale,
           }
           if (i == 0)
             goto done;
-          ARGUMENT_STR_FINISH();
+          ARGUMENT_STR_FINISH_NULL();
           INPUT_SKIP(i);
           break;
         }
@@ -459,28 +501,15 @@ int NAME(const char_t *restrict s, locale_t locale,
           length = LM_LONG;
         case 'c': {
           // Fixed-size string of characters.
-          // TODO(ed): Add support for %lc.
           if (field_width == 0)
             field_width = 1;
           if (!INPUT_REMAINING(field_width))
             goto done;
-          if (!suppress) {
-            char_t *out;
-            if (allocate) {
-              // Allocate buffer for characters.
-              out = malloc(field_width);
-              if (out == NULL)
-                goto bad;
-              *(void **)argument = out;
-            } else {
-              // Store data directly.
-              out = argument;
-            }
-            for (size_t i = 0; i < field_width; ++i)
-              out[i] = INPUT_PEEK(i);
-          }
+          ARGUMENT_STR_START();
+          for (size_t i = 0; i < field_width; ++i)
+            ARGUMENT_STR_APPEND(INPUT_PEEK(i));
+          ARGUMENT_STR_FINISH_NONULL();
           INPUT_SKIP(field_width);
-          CONVERSION_PERFORMED();
           break;
         }
 
@@ -522,6 +551,7 @@ done:
   va_end(numargs);
   return conversions_performed;
 bad:
+  // TODO(ed): This should also free any assignment-allocation strings.
   va_end(numargs);
   return EOF;
 }
