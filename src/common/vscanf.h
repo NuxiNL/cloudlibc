@@ -191,6 +191,18 @@ int NAME(const char_t *restrict s, locale_t locale,
       }                                     \
     }                                       \
   } while (0)
+#define ARGUMENT_STR_START() char_t *out = argument
+#define ARGUMENT_STR_APPEND(c) \
+  do {                         \
+    if (!suppress)             \
+      *out++ = (c);            \
+  } while (0)
+#define ARGUMENT_STR_FINISH() \
+  do {                        \
+    if (!suppress)            \
+      *out = '\0';            \
+    CONVERSION_PERFORMED();   \
+  } while (0)
 
       // Maximum field width.
       size_t field_width = get_number(&format);
@@ -370,44 +382,33 @@ int NAME(const char_t *restrict s, locale_t locale,
 #undef PEEK
 #undef SKIP
 
+          size_t end = field_width == 0 ? SIZE_MAX : field_width;
+          size_t i = 0;
+          ARGUMENT_STR_START();
+          while (i < end) {
+            if (!INPUT_REMAINING(idx + i + 1))
+              break;
+            char_t c = INPUT_PEEK(idx + i);
 #if WIDE
-          assert(0 && "Not implemented");
+            if (iswspace(c))
+              break;
 #else
-          if (allocate) {
-            // TODO(ed): Implement.
-            assert(0 && "Not implemented");
-          } else {
-            // TODO(ed): Support wide strings.
-            size_t end = field_width == 0 ? SIZE_MAX : field_width;
-            size_t i = 0;
-            char *out = argument;
-            while (i < end) {
-              if (!INPUT_REMAINING(idx + i + 1))
-                break;
-              char c = INPUT_PEEK(idx + i);
-              // TODO(ed): Use mbstate_t.
-              if (isspace(c))
-                break;
-              if (!suppress)
-                *out++ = c;
-              ++i;
-            }
-            if (i == 0)
-              goto done;
-            *out = '\0';
-            INPUT_SKIP(idx + i);
-            CONVERSION_PERFORMED();
-          }
+            // TODO(ed): Use mbrtowc() and iswspace()!
+            if (isspace(c))
+              break;
 #endif
+            ARGUMENT_STR_APPEND(c);
+            ++i;
+          }
+          if (i == 0)
+            goto done;
+          ARGUMENT_STR_FINISH();
+          INPUT_SKIP(idx + i);
           break;
         }
 
         case '[': {
-// Set of characters.
-#if WIDE
-          // TODO(ed): Implement.
-          assert(0 && "Not implemented");
-#else
+#if !WIDE
           // Convert provided list of characters into a bitmask.
           byteset_t bs;
           if (*format == '^') {
@@ -425,28 +426,31 @@ int NAME(const char_t *restrict s, locale_t locale,
             } while (*format != ']');
           }
           ++format;
+#endif
 
-          // Get sequence from input, only allowing bytes from the
-          // bitmask.
+          // Get sequence from input, only allowing characters from the
+          // provided set.
           size_t end = field_width == 0 ? SIZE_MAX : field_width;
           size_t i = 0;
-          char *out = argument;
+          ARGUMENT_STR_START();
           while (i < end) {
             if (!INPUT_REMAINING(i + 1))
               break;
-            char c = INPUT_PEEK(i);
+            char_t c = INPUT_PEEK(i);
+#if WIDE
+            // TODO(ed): Implement.
+            assert(0 && "Not implemented");
+#else
             if (!byteismember(&bs, c))
               break;
-            if (!suppress)
-              *out++ = c;
+#endif
+            ARGUMENT_STR_APPEND(c);
             ++i;
           }
           if (i == 0)
             goto done;
-          *out = '\0';
+          ARGUMENT_STR_FINISH();
           INPUT_SKIP(i);
-          CONVERSION_PERFORMED();
-#endif
           break;
         }
 
