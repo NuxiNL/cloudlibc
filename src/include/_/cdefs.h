@@ -63,10 +63,15 @@
 #define __unused __attribute__((__unused__))
 #define __used __attribute__((__used__))
 
+// Format string argument type checking.
 #define __printflike(format, va) \
   __attribute__((__format__(__printf__, format, va)))
 #define __scanflike(format, va) \
   __attribute__((__format__(__scanf__, format, va)))
+// TODO(ed): Enable this once supported by LLVM:
+// https://llvm.org/bugs/show_bug.cgi?id=16810
+#define __wprintflike(format, va)
+#define __wscanflike(format, va)
 
 #define __strong_reference(oldsym, newsym) \
   extern __typeof__(oldsym) newsym __attribute__((__alias__(#oldsym)))

@@ -96,21 +96,28 @@ struct tm;
 #define NULL _NULL
 
 __BEGIN_DECLS
-int aswprintf(wchar_t **__restrict, const wchar_t *__restrict, ...);
-int aswprintf_l(wchar_t **__restrict, locale_t, const wchar_t *__restrict, ...);
+int aswprintf(wchar_t **__restrict, const wchar_t *__restrict, ...)
+    __wprintflike(2, 3);
+int aswprintf_l(wchar_t **__restrict, locale_t, const wchar_t *__restrict, ...)
+    __wprintflike(3, 4);
 wint_t btowc(int) __pure2;
 wint_t btowc_l(int, locale_t) __pure;
-int dwprintf(int, const wchar_t *__restrict, ...);
-int dwprintf_l(int, locale_t, const wchar_t *__restrict, ...);
+int dwprintf(int, const wchar_t *__restrict, ...) __wprintflike(2, 3);
+int dwprintf_l(int, locale_t, const wchar_t *__restrict, ...)
+    __wprintflike(3, 4);
 wint_t fgetwc(FILE *);
 wchar_t *fgetws(wchar_t *__restrict, int, FILE *__restrict);
 wint_t fputwc(wchar_t, FILE *);
 int fputws(const wchar_t *__restrict, FILE *__restrict);
 int fwide(FILE *, int);
-int fwprintf(FILE *__restrict, const wchar_t *__restrict, ...);
-int fwprintf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, ...);
-int fwscanf(FILE *__restrict, const wchar_t *__restrict, ...);
-int fwscanf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, ...);
+int fwprintf(FILE *__restrict, const wchar_t *__restrict, ...)
+    __wprintflike(2, 3);
+int fwprintf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, ...)
+    __wprintflike(3, 4);
+int fwscanf(FILE *__restrict, const wchar_t *__restrict, ...)
+    __wscanflike(2, 3);
+int fwscanf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, ...)
+    __wscanflike(3, 4);
 wint_t getwc(FILE *);
 __ssize_t getwdelim(wchar_t **__restrict, size_t *__restrict, wint_t,
                     FILE *__restrict);
@@ -132,12 +139,14 @@ size_t mbsrtowcs(wchar_t *__restrict, const char **__restrict, size_t,
 size_t mbsrtowcs_l(wchar_t *__restrict, const char **__restrict, size_t,
                    mbstate_t *__restrict, locale_t);
 wint_t putwc(wchar_t, FILE *);
-int swprintf(wchar_t *__restrict, size_t, const wchar_t *__restrict, ...);
+int swprintf(wchar_t *__restrict, size_t, const wchar_t *__restrict, ...)
+    __wprintflike(3, 4);
 int swprintf_l(wchar_t *__restrict, size_t, locale_t, const wchar_t *__restrict,
-               ...);
-int swscanf(const wchar_t *__restrict, const wchar_t *__restrict, ...);
+               ...) __wprintflike(4, 5);
+int swscanf(const wchar_t *__restrict, const wchar_t *__restrict, ...)
+    __wscanflike(2, 3);
 int swscanf_l(const wchar_t *__restrict, locale_t, const wchar_t *__restrict,
-              ...);
+              ...) __wscanflike(3, 4);
 wint_t ungetwc(wint_t, FILE *);
 int vaswprintf(wchar_t **__restrict, const wchar_t *__restrict, va_list);
 int vaswprintf_l(wchar_t **__restrict, locale_t, const wchar_t *__restrict,
