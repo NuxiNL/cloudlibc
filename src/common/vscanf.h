@@ -198,6 +198,8 @@ int NAME(const char_t *restrict s, locale_t locale,
 // providing a buffer or using the assignment-allocation flag 'm'.
 // Use SIZE_MAX as a buffer size for non-allocated buffers to prevent
 // ARGUMENT_STR_APPEND() from reallocating.
+//
+// TODO(ed): Add support for wide/narrow string conversion.
 #define ARGUMENT_STR_START() \
   char_t *out;               \
   size_t outlen;             \
