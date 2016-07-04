@@ -131,8 +131,9 @@ int fprintf_l(FILE *__restrict, __locale_t, const char *__restrict, ...)
 int fputc(int, FILE *);
 int fputs(const char *__restrict, FILE *__restrict);
 size_t fread(void *__restrict, size_t, size_t, FILE *__restrict);
-int fscanf(FILE *__restrict, const char *__restrict, ...);
-int fscanf_l(FILE *__restrict, __locale_t, const char *__restrict, ...);
+int fscanf(FILE *__restrict, const char *__restrict, ...) __scanflike(2, 3);
+int fscanf_l(FILE *__restrict, __locale_t, const char *__restrict, ...)
+    __scanflike(3, 4);
 #if _LONG_BIT == 64
 int fseek(FILE *, long, int);
 #endif
@@ -164,8 +165,10 @@ int snprintf(char *__restrict, size_t, const char *__restrict, ...)
     __printflike(3, 4);
 int snprintf_l(char *__restrict, size_t, __locale_t, const char *__restrict,
                ...) __printflike(4, 5);
-int sscanf(const char *__restrict, const char *__restrict, ...);
-int sscanf_l(const char *__restrict, __locale_t, const char *__restrict, ...);
+int sscanf(const char *__restrict, const char *__restrict, ...)
+    __scanflike(2, 3);
+int sscanf_l(const char *__restrict, __locale_t, const char *__restrict, ...)
+    __scanflike(3, 4);
 FILE *tmpfile(void);
 FILE *tmpfile_l(__locale_t);
 int ungetc(int, FILE *);
@@ -200,7 +203,7 @@ static __inline void __setbuf(FILE *__restrict __stream,
 
 __BEGIN_DECLS
 int sprintf(char *__restrict, const char *__restrict, ...)
-    __extname("__sprintf");
+    __extname("__sprintf") __printflike(2, 3);
 int vsprintf(char *__restrict, const char *__restrict, va_list)
     __extname("__vsprintf");
 __END_DECLS

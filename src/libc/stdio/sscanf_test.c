@@ -46,7 +46,8 @@ TEST(sscanf, characters_malloc) {
 TEST(sscanf, http_version) {
   // HTTP version number extraction performed by libevent's HTTP server.
   int major, minor;
-  ASSERT_EQ(2, sscanf("HTTP/1.0", "HTTP/%d.%d%c", &major, &minor, NULL));
+  ASSERT_EQ(2,
+            sscanf("HTTP/1.0", "HTTP/%d.%d%c", &major, &minor, (char *)NULL));
   ASSERT_EQ(1, major);
   ASSERT_EQ(0, minor);
 }

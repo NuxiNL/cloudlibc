@@ -65,6 +65,8 @@
 
 #define __printflike(format, va) \
   __attribute__((__format__(__printf__, format, va)))
+#define __scanflike(format, va) \
+  __attribute__((__format__(__scanf__, format, va)))
 
 #define __strong_reference(oldsym, newsym) \
   extern __typeof__(oldsym) newsym __attribute__((__alias__(#oldsym)))

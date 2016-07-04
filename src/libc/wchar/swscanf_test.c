@@ -23,7 +23,7 @@ TEST(swscanf, c11_examples) {
     int i;
     float x;
     double y;
-    ASSERT_EQ( 3, swscanf(L"56789 0123 56a72", L"%2d%f%*d %lf", &i, &x, &y));
+    ASSERT_EQ(3, swscanf(L"56789 0123 56a72", L"%2d%f%*d %lf", &i, &x, &y));
     ASSERT_EQ(56, i);
     ASSERT_EQ(789.0f, x);
     ASSERT_EQ(56.0, y);
