@@ -172,20 +172,27 @@ int sscanf_l(const char *__restrict, __locale_t, const char *__restrict, ...)
 FILE *tmpfile(void);
 FILE *tmpfile_l(__locale_t);
 int ungetc(int, FILE *);
-int vasprintf(char **, const char *, va_list);
-int vasprintf_l(char **, __locale_t, const char *, va_list);
-int vdprintf(int, const char *__restrict, va_list);
-int vdprintf_l(int, __locale_t, const char *__restrict, va_list);
-int vfprintf(FILE *__restrict, const char *__restrict, va_list);
-int vfprintf_l(FILE *__restrict, __locale_t, const char *__restrict, va_list);
-int vfscanf(FILE *__restrict, const char *__restrict, va_list);
-int vfscanf_l(FILE *__restrict, __locale_t, const char *__restrict, va_list);
-int vsnprintf(char *__restrict, size_t, const char *__restrict, va_list);
+int vasprintf(char **, const char *, va_list) __printflike(2, 0);
+int vasprintf_l(char **, __locale_t, const char *, va_list) __printflike(3, 0);
+int vdprintf(int, const char *__restrict, va_list) __printflike(2, 0);
+int vdprintf_l(int, __locale_t, const char *__restrict, va_list)
+    __printflike(3, 0);
+int vfprintf(FILE *__restrict, const char *__restrict, va_list)
+    __printflike(2, 0);
+int vfprintf_l(FILE *__restrict, __locale_t, const char *__restrict, va_list)
+    __printflike(3, 0);
+int vfscanf(FILE *__restrict, const char *__restrict, va_list)
+    __scanflike(2, 0);
+int vfscanf_l(FILE *__restrict, __locale_t, const char *__restrict, va_list)
+    __scanflike(3, 0);
+int vsnprintf(char *__restrict, size_t, const char *__restrict, va_list)
+    __scanflike(3, 0);
 int vsnprintf_l(char *__restrict, size_t, __locale_t, const char *__restrict,
-                va_list);
-int vsscanf(const char *__restrict, const char *__restrict, va_list);
+                va_list) __scanflike(4, 0);
+int vsscanf(const char *__restrict, const char *__restrict, va_list)
+    __scanflike(2, 0);
 int vsscanf_l(const char *__restrict, __locale_t, const char *__restrict,
-              va_list);
+              va_list) __scanflike(3, 0);
 __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
@@ -205,7 +212,7 @@ __BEGIN_DECLS
 int sprintf(char *__restrict, const char *__restrict, ...)
     __extname("__sprintf") __printflike(2, 3);
 int vsprintf(char *__restrict, const char *__restrict, va_list)
-    __extname("__vsprintf");
+    __extname("__vsprintf") __printflike(2, 0);
 __END_DECLS
 
 #endif

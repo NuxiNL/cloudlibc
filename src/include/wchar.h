@@ -148,21 +148,29 @@ int swscanf(const wchar_t *__restrict, const wchar_t *__restrict, ...)
 int swscanf_l(const wchar_t *__restrict, locale_t, const wchar_t *__restrict,
               ...) __wscanflike(3, 4);
 wint_t ungetwc(wint_t, FILE *);
-int vaswprintf(wchar_t **__restrict, const wchar_t *__restrict, va_list);
+int vaswprintf(wchar_t **__restrict, const wchar_t *__restrict, va_list)
+    __wprintflike(2, 0);
 int vaswprintf_l(wchar_t **__restrict, locale_t, const wchar_t *__restrict,
-                 va_list);
-int vdwprintf(int, const wchar_t *__restrict, va_list);
-int vdwprintf_l(int, locale_t, const wchar_t *__restrict, va_list);
-int vfwprintf(FILE *__restrict, const wchar_t *__restrict, va_list);
-int vfwprintf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, va_list);
-int vfwscanf(FILE *__restrict, const wchar_t *__restrict, va_list);
-int vfwscanf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, va_list);
-int vswprintf(wchar_t *__restrict, size_t, const wchar_t *__restrict, va_list);
+                 va_list) __wprintflike(3, 0);
+int vdwprintf(int, const wchar_t *__restrict, va_list) __wprintflike(2, 0);
+int vdwprintf_l(int, locale_t, const wchar_t *__restrict, va_list)
+    __wprintflike(3, 0);
+int vfwprintf(FILE *__restrict, const wchar_t *__restrict, va_list)
+    __wprintflike(2, 0);
+int vfwprintf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, va_list)
+    __wprintflike(3, 0);
+int vfwscanf(FILE *__restrict, const wchar_t *__restrict, va_list)
+    __wscanflike(2, 0);
+int vfwscanf_l(FILE *__restrict, locale_t, const wchar_t *__restrict, va_list)
+    __wscanflike(3, 0);
+int vswprintf(wchar_t *__restrict, size_t, const wchar_t *__restrict, va_list)
+    __wprintflike(3, 0);
 int vswprintf_l(wchar_t *__restrict, size_t, locale_t,
-                const wchar_t *__restrict, va_list);
-int vswscanf(const wchar_t *__restrict, const wchar_t *__restrict, va_list);
+                const wchar_t *__restrict, va_list) __wprintflike(3, 0);
+int vswscanf(const wchar_t *__restrict, const wchar_t *__restrict, va_list)
+    __wscanflike(2, 0);
 int vswscanf_l(const wchar_t *__restrict, locale_t, const wchar_t *__restrict,
-               va_list);
+               va_list) __wscanflike(3, 0);
 __ssize_t vwcsfmon(wchar_t *__restrict, size_t, const wchar_t *__restrict,
                    va_list);
 __ssize_t vwcsfmon_l(wchar_t *__restrict, size_t, locale_t,
