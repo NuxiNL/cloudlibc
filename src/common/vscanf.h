@@ -450,13 +450,14 @@ int NAME(const char_t *restrict s, locale_t locale,
 #undef PEEK
 #undef SKIP
 
-          size_t end = field_width == 0 ? SIZE_MAX : field_width;
+          if (field_width == 0)
+            field_width = SIZE_MAX;
           size_t i = 0;
           ARGUMENT_STR_START();
           for (;;) {
 #if WIDE
             // Respect field width.
-            if (i >= end)
+            if (i >= field_width)
               break;
             // Fetch next character.
             if (!INPUT_REMAINING(idx + i + 1))
@@ -475,7 +476,7 @@ int NAME(const char_t *restrict s, locale_t locale,
             size_t peeklen = 0;
             for (;;) {
               // Respect field width.
-              if (i + peeklen >= end)
+              if (i + peeklen >= field_width)
                 break;
               // Fetch next byte.
               if (!INPUT_REMAINING(idx + i + peeklen + 1))
@@ -540,7 +541,8 @@ int NAME(const char_t *restrict s, locale_t locale,
 
           // Get sequence from input, only allowing characters from the
           // provided set.
-          size_t end = field_width == 0 ? SIZE_MAX : field_width;
+          if (field_width == 0)
+            field_width = SIZE_MAX;
           size_t i = 0;
           ARGUMENT_STR_START();
           do {
@@ -569,7 +571,7 @@ int NAME(const char_t *restrict s, locale_t locale,
 #endif
             ARGUMENT_STR_APPEND(c);
             ++i;
-          } while (i < end);
+          } while (i < field_width);
         scanset_mismatch:
           if (i == 0)
             goto done;
