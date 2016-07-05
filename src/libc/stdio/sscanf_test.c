@@ -141,3 +141,31 @@ TEST(sscanf, c11_examples) {
     ASSERT_EQ(42, i);
   }
 }
+
+TEST(sscanf, scanset) {
+  // Positive matching.
+  {
+    char p1[8], p2;
+    ASSERT_EQ(2, sscanf("Hello there!", "%[Helo t]here%c", p1, &p2));
+    ASSERT_STREQ("Hello t", p1);
+    ASSERT_EQ('!', p2);
+
+    ASSERT_EQ(1, sscanf("Hell[o] there!", "%[][Helot]here%c", p1, &p2));
+    ASSERT_STREQ("Hell[o]", p1);
+    ASSERT_EQ(1, sscanf("Hello there!", "%[Helo t]ere%c", p1, &p2));
+    ASSERT_STREQ("Hello t", p1);
+  }
+
+  // Negative matching.
+  {
+    char p1[8], p2;
+    ASSERT_EQ(2, sscanf("Hello there!", "%[^]h]here%c", p1, &p2));
+    ASSERT_STREQ("Hello t", p1);
+    ASSERT_EQ('!', p2);
+
+    ASSERT_EQ(1, sscanf("Hell[o] there!", "%[^!@#)$(*# ]here%c", p1, &p2));
+    ASSERT_STREQ("Hell[o]", p1);
+    ASSERT_EQ(1, sscanf("Hello there!", "%[^abcdfgh]ere%c", p1, &p2));
+    ASSERT_STREQ("Hello t", p1);
+  }
+}

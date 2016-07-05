@@ -29,3 +29,31 @@ TEST(swscanf, c11_examples) {
     ASSERT_EQ(56.0, y);
   }
 }
+
+TEST(swscanf, scanset) {
+  // Positive matching.
+  {
+    wchar_t p1[8], p2;
+    ASSERT_EQ(2, swscanf(L"Hello there!", L"%[Helo t]here%c", p1, &p2));
+    ASSERT_STREQ(L"Hello t", p1);
+    ASSERT_EQ('!', p2);
+
+    ASSERT_EQ(1, swscanf(L"Hell[o] there!", L"%[][Helot]here%c", p1, &p2));
+    ASSERT_STREQ(L"Hell[o]", p1);
+    ASSERT_EQ(1, swscanf(L"Hello there!", L"%[Helo t]ere%c", p1, &p2));
+    ASSERT_STREQ(L"Hello t", p1);
+  }
+
+  // Negative matching.
+  {
+    wchar_t p1[8], p2;
+    ASSERT_EQ(2, swscanf(L"Hello there!", L"%[^]h]here%c", p1, &p2));
+    ASSERT_STREQ(L"Hello t", p1);
+    ASSERT_EQ('!', p2);
+
+    ASSERT_EQ(1, swscanf(L"Hell[o] there!", L"%[^!@#)$(*# ]here%c", p1, &p2));
+    ASSERT_STREQ(L"Hell[o]", p1);
+    ASSERT_EQ(1, swscanf(L"Hello there!", L"%[^abcdfgh]ere%c", p1, &p2));
+    ASSERT_STREQ(L"Hello t", p1);
+  }
+}

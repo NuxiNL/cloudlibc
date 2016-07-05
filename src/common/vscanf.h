@@ -429,7 +429,7 @@ int NAME(const char_t *restrict s, locale_t locale,
           size_t end = field_width == 0 ? SIZE_MAX : field_width;
           size_t i = 0;
           ARGUMENT_STR_START();
-          while (i < end) {
+          do {
             if (!INPUT_REMAINING(idx + i + 1))
               break;
             char_t c = INPUT_PEEK(idx + i);
@@ -443,7 +443,7 @@ int NAME(const char_t *restrict s, locale_t locale,
 #endif
             ARGUMENT_STR_APPEND(c);
             ++i;
-          }
+          } while (i < end);
           if (i == 0)
             goto done;
           ARGUMENT_STR_FINISH_NULL();
@@ -452,8 +452,19 @@ int NAME(const char_t *restrict s, locale_t locale,
         }
 
         case '[': {
-#if !WIDE
-          // Convert provided list of characters into a bitmask.
+#if WIDE
+          // For wide characters, we cannot (easily) use linear-time
+          // string matching. Store the start of the scanset and skip
+          // past it.
+          const wchar_t *scanset = format;
+          if (*format == '^')
+            ++format;
+          do {
+            ++format;
+          } while (*format != ']');
+#else
+          // Convert provided list of characters into a bitmask, so we
+          // can perform O(m+n) string matching, like strspn().
           byteset_t bs;
           if (*format == '^') {
             // Leading circumflex: negative matching.
@@ -469,28 +480,42 @@ int NAME(const char_t *restrict s, locale_t locale,
               byteaddset(&bs, *format++);
             } while (*format != ']');
           }
-          ++format;
 #endif
+          ++format;
 
           // Get sequence from input, only allowing characters from the
           // provided set.
           size_t end = field_width == 0 ? SIZE_MAX : field_width;
           size_t i = 0;
           ARGUMENT_STR_START();
-          while (i < end) {
+          do {
             if (!INPUT_REMAINING(i + 1))
               break;
             char_t c = INPUT_PEEK(i);
 #if WIDE
-            // TODO(ed): Implement.
-            assert(0 && "Not implemented");
+            const wchar_t *ss = scanset;
+            if (*ss == '^') {
+              // Leading circumflex: negative matching.
+              ++ss;
+              do {
+                if (*ss++ == c)
+                  goto scanset_mismatch;
+              } while (*ss != ']');
+            } else {
+              // No leading circumflex: positive matching.
+              while (*ss != c) {
+                if (*++ss == ']')
+                  goto scanset_mismatch;
+              }
+            }
 #else
             if (!byteismember(&bs, c))
-              break;
+              goto scanset_mismatch;
 #endif
             ARGUMENT_STR_APPEND(c);
             ++i;
-          }
+          } while (i < end);
+        scanset_mismatch:
           if (i == 0)
             goto done;
           ARGUMENT_STR_FINISH_NULL();
