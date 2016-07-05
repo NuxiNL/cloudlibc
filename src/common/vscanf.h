@@ -111,6 +111,27 @@ int NAME(const char_t *restrict s, locale_t locale,
   size_t input_read = 0;
   size_t conversions_performed = 0;
 
+  // Freelist of objects that are allocated by this function and need to
+  // be freed in case this function doesn't terminate successfully.
+  void **freelist = NULL;
+  size_t freelistused = 0;
+  size_t freelistlen = 0;
+#define FREELIST_APPEND(ptr)                                         \
+  do {                                                               \
+    if (freelistused + 1 > freelistlen) {                            \
+      size_t newfreelistlen = freelistlen < 4 ? 4 : freelistlen * 2; \
+      void **newfreelist =                                           \
+          reallocarray(freelist, newfreelistlen, sizeof(void *));    \
+      if (newfreelist == NULL) {                                     \
+        free(ptr);                                                   \
+        goto bad;                                                    \
+      }                                                              \
+      freelist = newfreelist;                                        \
+      freelistlen = newfreelistlen;                                  \
+    }                                                                \
+    freelist[freelistused++] = (ptr);                                \
+  } while (0)
+
   // Copy of the arguments list, used for looking up numbered arguments.
   va_list numargs;
   va_copy(numargs, ap);
@@ -217,21 +238,21 @@ int NAME(const char_t *restrict s, locale_t locale,
   } while (0)
 
 // Appends a character to a string argument buffer.
-#define ARGUMENT_STR_APPEND(c)                                      \
-  do {                                                              \
-    if (!suppress) {                                                \
-      if (outused + 2 > outlen) {                                   \
-        size_t newoutlen = outlen < 16 ? 16 : outlen * 2;           \
-        char_t *newout = reallocarray(out, outlen, sizeof(char_t)); \
-        if (newout == NULL) {                                       \
-          free(out);                                                \
-          goto bad;                                                 \
-        }                                                           \
-        *(char_t **)argument = out = newout;                        \
-        outlen = newoutlen;                                         \
-      }                                                             \
-      out[outused++] = (c);                                         \
-    }                                                               \
+#define ARGUMENT_STR_APPEND(c)                                         \
+  do {                                                                 \
+    if (!suppress) {                                                   \
+      if (outused + 2 > outlen) {                                      \
+        size_t newoutlen = outlen < 16 ? 16 : outlen * 2;              \
+        char_t *newout = reallocarray(out, newoutlen, sizeof(char_t)); \
+        if (newout == NULL) {                                          \
+          free(out);                                                   \
+          goto bad;                                                    \
+        }                                                              \
+        out = newout;                                                  \
+        outlen = newoutlen;                                            \
+      }                                                                \
+      out[outused++] = (c);                                            \
+    }                                                                  \
   } while (0)
 
 // Finalize writing the string argument, either null terminating it or
@@ -240,10 +261,14 @@ int NAME(const char_t *restrict s, locale_t locale,
   do {                             \
     if (!suppress)                 \
       out[outused] = '\0';         \
-    CONVERSION_PERFORMED();        \
+    ARGUMENT_STR_FINISH_NONULL();  \
   } while (0)
 #define ARGUMENT_STR_FINISH_NONULL() \
   do {                               \
+    if (!suppress && allocate) {     \
+      FREELIST_APPEND(out);          \
+      *(char_t **)argument = out;    \
+    }                                \
     CONVERSION_PERFORMED();          \
   } while (0)
 
@@ -604,10 +629,17 @@ int NAME(const char_t *restrict s, locale_t locale,
     }
   }
 done:
+  // Terminate successfully. Free the freelist, but not the objects
+  // contained.
+  free(freelist);
   va_end(numargs);
   return conversions_performed;
 bad:
-  // TODO(ed): This should also free any assignment-allocation strings.
+  // Terminate unsuccessfully. Free the freelist and also the objects
+  // contained.
+  for (size_t i = 0; i < freelistused; ++i)
+    free(freelist[i]);
+  free(freelist);
   va_end(numargs);
   return EOF;
 }
