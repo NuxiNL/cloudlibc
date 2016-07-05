@@ -456,7 +456,7 @@ int NAME(const char_t *restrict s, locale_t locale,
           // For wide characters, we cannot (easily) use linear-time
           // string matching. Store the start of the scanset and skip
           // past it.
-          const wchar_t *scanset = format;
+          const char_t *scanset = format;
           if (*format == '^')
             ++format;
           do {
@@ -493,7 +493,7 @@ int NAME(const char_t *restrict s, locale_t locale,
               break;
             char_t c = INPUT_PEEK(i);
 #if WIDE
-            const wchar_t *ss = scanset;
+            const char_t *ss = scanset;
             if (*ss == '^') {
               // Leading circumflex: negative matching.
               ++ss;
