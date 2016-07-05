@@ -518,7 +518,8 @@ int NAME(const char_t *restrict s, locale_t locale,
           } while (*format != ']');
 #else
           // Convert provided list of characters into a bitmask, so we
-          // can perform O(m+n) string matching, like strspn().
+          // can perform O(m+n) string matching, like strcspn() and
+          // strspn().
           byteset_t bs;
           if (*format == '^') {
             // Leading circumflex: negative matching.
