@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <locale.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <testing.h>
@@ -168,4 +169,17 @@ TEST(sscanf, scanset) {
     ASSERT_EQ(1, sscanf("Hello there!", "%[^abcdfgh]ere%c", p1, &p2));
     ASSERT_STREQ("Hello t", p1);
   }
+}
+
+TEST(sscanf, whitespace) {
+  // U+2028 should not be considered a whitespace character by default.
+  char str1[20], str2[20];
+  ASSERT_EQ(1, sscanf("Hello\xe2\x80\xa8World", "%s%s", str1, str2));
+  ASSERT_STREQ("Hello\xe2\x80\xa8World", str1);
+
+  // Using an UTF-8 locale should cause the string to be split.
+  ASSERT_EQ(2, sscanf_l("Hello\xe2\x80\xa8World", LC_C_UNICODE_LOCALE, "%s%s",
+                        str1, str2));
+  ASSERT_STREQ("Hello", str1);
+  ASSERT_STREQ("World", str2);
 }

@@ -11,7 +11,6 @@
 #include <common/stdio.h>
 
 #include <assert.h>
-#include <ctype.h>  // TODO(ed): Remove!
 #include <fenv.h>
 #include <float.h>
 #include <limits.h>
@@ -429,21 +428,51 @@ int NAME(const char_t *restrict s, locale_t locale,
           size_t end = field_width == 0 ? SIZE_MAX : field_width;
           size_t i = 0;
           ARGUMENT_STR_START();
-          do {
-            if (!INPUT_REMAINING(idx + i + 1))
-              break;
-            char_t c = INPUT_PEEK(idx + i);
+          for (;;) {
 #if WIDE
+            // Respect field width.
+            if (i >= end)
+              break;
+            // Fetch next character.
+            if (!INPUT_REMAINING(idx + i + 1))
+              goto string_end;
+            char_t c = INPUT_PEEK(idx + i);
+            // Terminate if whitespace.
             if (iswspace(c))
-              break;
-#else
-            // TODO(ed): Use mbrtowc() and iswspace()!
-            if (isspace(c))
-              break;
-#endif
+              goto string_end;
+            // Append character to output.
             ARGUMENT_STR_APPEND(c);
             ++i;
-          } while (i < end);
+#else
+            const struct lc_ctype *ctype = locale->ctype;
+            mbstate_t mbs;
+            mbstate_set_init(&mbs);
+            size_t peeklen = 0;
+            for (;;) {
+              // Respect field width.
+              if (i + peeklen >= end)
+                break;
+              // Fetch next byte.
+              if (!INPUT_REMAINING(idx + i + peeklen + 1))
+                goto string_end;
+              char_t b = INPUT_PEEK(idx + i + peeklen);
+              ++peeklen;
+              char32_t c32;
+              ssize_t ret = ctype->mbtoc32(&c32, &b, 1, &mbs, ctype->data);
+              if (ret != -2) {
+                // Multibyte sequence complete. Terminate if whitespace.
+                if (ret >= 0 && iswspace(c32))
+                  goto string_end;
+                break;
+              }
+            }
+            // Append multibyte sequence to output.
+            for (size_t j = 0; j < peeklen; ++j)
+              ARGUMENT_STR_APPEND(INPUT_PEEK(idx + i + j));
+            i += peeklen;
+#endif
+          }
+        string_end:
           if (i == 0)
             goto done;
           ARGUMENT_STR_FINISH_NULL();
