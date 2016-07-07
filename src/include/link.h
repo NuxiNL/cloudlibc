@@ -36,14 +36,14 @@
 #define __ELFW(width, type) ELF##width##_##type
 
 struct dl_phdr_info {
-  ElfW(Addr) dlpi_addr;              // Base address.
-  const char *dlpi_name;             // Pathname of the object.
-  const ElfW(Phdr) * dlpi_phdr;      // Program headers.
-  ElfW(Half) dlpi_phnum;             // Number of program headers.
-  unsigned long long int dlpi_adds;  // Object loads.
-  unsigned long long int dlpi_subs;  // Object unloads.
-  __size_t dlpi_tls_modid;           // TLS index.
-  void *dlpi_tls_data;               // TLS initialization data.
+  ElfW(Addr) dlpi_addr;          // Base address.
+  const char *dlpi_name;         // Pathname of the object.
+  const ElfW(Phdr) * dlpi_phdr;  // Program headers.
+  ElfW(Half) dlpi_phnum;         // Number of program headers.
+  unsigned long long dlpi_adds;  // Object loads.
+  unsigned long long dlpi_subs;  // Object unloads.
+  __size_t dlpi_tls_modid;       // TLS index.
+  void *dlpi_tls_data;           // TLS initialization data.
 };
 
 __BEGIN_DECLS
