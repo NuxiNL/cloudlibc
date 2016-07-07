@@ -35,6 +35,8 @@ while (*format != '\0') {
       }
       ++format;
     }
+    if (left_justified)
+      zero_padding = false;
 
     // Minimum field width.
     size_t field_width;
@@ -327,12 +329,16 @@ while (*format != '\0') {
           // Print the prefix of the number, followed by zero padding if
           // a precision is specified, followed by the digits, followed
           // by padding if left-justified.
-          if (!left_justified) {
-            char padding = zero_padding && precision < 0 ? '0' : ' ';
-            PAD_TO_FIELD_WIDTH(padding);
+          if (zero_padding && precision < 0) {
+            for (size_t i = 0; i < number_prefixlen; ++i)
+              PUTCHAR(number_prefix[i]);
+            PAD_TO_FIELD_WIDTH('0');
+          } else {
+            if (!left_justified)
+              PAD_TO_FIELD_WIDTH(' ');
+            for (size_t i = 0; i < number_prefixlen; ++i)
+              PUTCHAR(number_prefix[i]);
           }
-          for (size_t i = 0; i < number_prefixlen; ++i)
-            PUTCHAR(number_prefix[i]);
           while (precision-- > digitsbuf + sizeof(digitsbuf) - digits)
             PUTCHAR('0');
           while (digits < digitsbuf + sizeof(digitsbuf)) {
