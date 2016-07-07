@@ -344,8 +344,8 @@ while (*format != '\0') {
           while (digits < digitsbuf + sizeof(digitsbuf)) {
             if (numeric_grouping_step(&numeric_grouping)) {
               // Add thousands separator.
-              // TODO(ed): Add proper value from the locale.
-              PUTCHAR(',');
+              // TODO(ed): Deal with multibyte!
+              PUTCHAR(locale->numeric->thousands_sep[0]);
             }
             PUTCHAR(*digits++);
           }
@@ -430,9 +430,9 @@ while (*format != '\0') {
               PUTCHAR(number_prefix[i]);
           }
           PUTCHAR(number_charset[float_digits[0]]);
-          // TODO(ed): Use radix character from LC_NUMERIC.
+          // TODO(ed): Deal with multibyte!
           if (print_radixchar)
-            PUTCHAR('.');
+            PUTCHAR(locale->numeric->decimal_point[0]);
           for (size_t i = 1; i < float_ndigits; ++i)
             PUTCHAR(number_charset[float_digits[i]]);
           while (precision-- >= (ssize_t)float_ndigits)

@@ -48,7 +48,6 @@ TEST(snprintf, grouping_en_us) {
   freelocale(locale);
 }
 
-#if 0
 TEST(snprintf, grouping_ru_ru) {
   locale_t locale = newlocale(LC_NUMERIC_MASK, "ru_RU", 0);
   ASSERT_NE(0, locale);
@@ -57,7 +56,6 @@ TEST(snprintf, grouping_ru_ru) {
   ASSERT_STREQ("-00000000123 456 789", buf);
   freelocale(locale);
 }
-#endif
 
 TEST(snprintf, numbered_arguments) {
   char buf[4];
