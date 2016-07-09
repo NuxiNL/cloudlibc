@@ -102,8 +102,7 @@
       list.v[j] = cmp.v[j];                            \
       ASSERT_EQ(0, memcmp(&cmp, &list, sizeof(list))); \
     }                                                  \
-  }                                                    \
-  while (0)
+  }
 
 TEST(atomic_random, integer_types) {
   TEST_TYPE(int8_t, INTEGER_TESTS);
@@ -120,17 +119,17 @@ TEST(atomic_random, float_types) {
   TEST_TYPE(float, COMMON_TESTS);
   TEST_TYPE(double, COMMON_TESTS);
 #if 0  // TODO(ed): Clang bug: wrong intrinsics functions.
-    TEST_TYPE(long double, COMMON_TESTS);
+  TEST_TYPE(long double, COMMON_TESTS);
 #endif
 }
 
 TEST(atomic_random, complex_types) {
   TEST_TYPE(float complex, COMMON_TESTS);
 #if 0  // TODO(ed): Clang bug: wrong intrinsics functions.
-    TEST_TYPE(double complex, COMMON_TESTS);
+  TEST_TYPE(double complex, COMMON_TESTS);
 #endif
 #if 0  // TODO(ed): Clang bug: causes Clang to crash.
-    TEST_TYPE(long double complex, COMMON_TESTS);
+  TEST_TYPE(long double complex, COMMON_TESTS);
 #endif
 }
 
