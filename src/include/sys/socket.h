@@ -67,7 +67,7 @@ typedef __ssize_t ssize_t;
 
 struct sockaddr {
   _Alignas(__max_align_t) sa_family_t sa_family;
-  char sa_data[];
+  char sa_data[0];  // Contains nothing meaningful.
 };
 
 struct sockaddr_storage {
