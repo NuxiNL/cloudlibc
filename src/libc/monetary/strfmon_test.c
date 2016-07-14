@@ -37,6 +37,8 @@ TEST(strfmon, en_us) {
   TEST_STRFMON("% Value: $3,456.78!", "%% Value: %n!", 3456.781);
 
   TEST_STRFMON("      $0.00", "%11n", 0.0);
+  TEST_STRFMON("      $0.00", "%11n", 0.004);
+  TEST_STRFMON("      $0.01", "%11n", 0.005);
   TEST_STRFMON("      $0.01", "%11n", 0.01);
   TEST_STRFMON("     -$0.42", "%11n", -0.42);
   TEST_STRFMON("    $123.45", "%11n", 123.45);
