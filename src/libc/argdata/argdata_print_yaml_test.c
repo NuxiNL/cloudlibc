@@ -67,29 +67,29 @@ TEST(argdata_print_yaml, buffer) {
   TEST_BUFFER("\x04\xff\xf8\x00\x00\x00\x00\x00\x00", "!!float \".nan\"");
   TEST_BUFFER("\x04\xff\xf0\x00\x00\x00\x00\x00\x00", "!!float \"-.inf\"");
   TEST_BUFFER("\x04\xf4\xd6\x3b\xd6\xd8\x2c\x9f\xbc",
-              "!!float \"-6.5203214800351063e+254\"");
+              "!!float \"-6.520321480035106e+254\"");
   TEST_BUFFER("\x04\xe7\xa7\x02\x9f\x9e\x47\x68\xc8",
-              "!!float \"-2.0504470794756101e+191\"");
+              "!!float \"-2.05044707947561e+191\"");
   TEST_BUFFER("\x04\xc9\x58\x49\x5b\xc1\x67\x27\x02",
               "!!float \"-2.1664332176389768e+45\"");
   TEST_BUFFER("\x04\xb6\xf8\x3a\xfc\x88\x42\x44\x57",
-              "!!float \"-6.7908089003290734e-44\"");
+              "!!float \"-6.790808900329073e-44\"");
   TEST_BUFFER("\x04\x8d\x7b\x0a\x8a\xba\x77\xbe\x3e",
               "!!float \"-9.900774043221159e-244\"");
   TEST_BUFFER("\x04\x80\x00\x00\x00\x00\x00\x00\x00", "!!float \"0\"");
   TEST_BUFFER("\x04\x00\x00\x00\x00\x00\x00\x00\x00", "!!float \"0\"");
   TEST_BUFFER("\x04\x11\xb6\x10\xcf\xc6\x59\x40\x9e",
-              "!!float \"2.3845166132655779e-223\"");
+              "!!float \"2.384516613265578e-223\"");
   TEST_BUFFER("\x04\x15\xd4\xa2\x9d\x7e\x09\x28\xd1",
-              "!!float \"1.6454017373100151e-203\"");
+              "!!float \"1.645401737310015e-203\"");
   TEST_BUFFER("\x04\x3f\xf0\x00\x00\x00\x00\x00\x00", "!!float \"1\"");
   TEST_BUFFER("\x04\x3f\xf8\x00\x00\x00\x00\x00\x00", "!!float \"1.5\"");
   TEST_BUFFER("\x04\x70\xcd\xe9\x27\xa4\x0f\x39\xf0",
               "!!float \"2.3775742871338425e+235\"");
   TEST_BUFFER("\x04\x74\x8e\x1a\xe1\xa2\x3f\xf6\xfc",
-              "!!float \"2.7589579426224098e+253\"");
+              "!!float \"2.75895794262241e+253\"");
   TEST_BUFFER("\x04\x75\xaa\xe8\x5c\x1c\x37\x89\x00",
-              "!!float \"6.4643096453844246e+258\"");
+              "!!float \"6.464309645384425e+258\"");
   TEST_BUFFER("\x04\x7f\xf0\x00\x00\x00\x00\x00\x00", "!!float \".inf\"");
   TEST_BUFFER("\x04\x7f\xf8\x00\x00\x00\x00\x00\x00", "!!float \".nan\"");
 

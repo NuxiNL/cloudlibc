@@ -4,6 +4,7 @@
 // See the LICENSE file for details.
 
 #include <errno.h>
+#include <float.h>
 #include <locale.h>
 #include <monetary.h>
 #include <testing.h>
@@ -28,6 +29,21 @@ TEST(strfmon, en_us) {
   TEST_STRFMON("$123.45", "%n", 123.45);
   TEST_STRFMON("-$123.45", "%n", -123.45);
   TEST_STRFMON("$3,456.78", "%n", 3456.781);
+#if DBL_MANT_DIG == 53
+  // In case the number of digits is larger than the precision of the
+  // floating point type, this implementation will just print trailing
+  // zeroes.
+  TEST_STRFMON(
+      "$179,769,313,486,231,570,000,000,000,000,000,000,000,000,000,000,000,"
+      "000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,"
+      "000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,"
+      "000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,"
+      "000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000,"
+      "000,000,000,000,000,000,000,000,000,000,000,000,000,000.00",
+      "%n", DBL_MAX);
+#else
+#error "Unsupported test"
+#endif
 
   TEST_STRFMON("% Value: $0.00!", "%% Value: %n!", 0.0);
   TEST_STRFMON("% Value: $0.01!", "%% Value: %n!", 0.01);

@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <fenv.h>
 #include <float.h>
 #include <limits.h>
 #include <math.h>
@@ -336,7 +337,8 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         unsigned char digits[DECIMAL_DIG];
         size_t ndigits = sizeof(digits);
         int exponent;
-        __f10dec_fixed(value, right_precision, digits, &ndigits, &exponent);
+        __f10dec(value, right_precision, digits, &ndigits, &exponent,
+                 fegetround());
 
         // Determine the number of characters printed before the decimal point.
         struct numeric_grouping numeric_grouping;

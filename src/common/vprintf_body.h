@@ -5,6 +5,7 @@
 
 const struct lc_ctype *ctype = locale->ctype;
 const struct lc_messages *messages = locale->messages;
+const struct lc_numeric *numeric = locale->numeric;
 
 while (*format != '\0') {
   if (*format == '%') {
@@ -13,12 +14,12 @@ while (*format != '\0') {
     PARSE_ARGNUM(arg_value);
 
     // Parse flags.
+    const signed char *grouping = NULL;
     char positive_sign = '\0';
-    bool grouping = false, left_justified = false, alternative_form = false,
-         zero_padding = false;
+    bool left_justified = false, alternative_form = false, zero_padding = false;
     for (;;) {
       if (*format == '\'') {
-        grouping = true;
+        grouping = numeric->grouping;
       } else if (*format == '-') {
         left_justified = true;
       } else if (*format == '+') {
@@ -186,7 +187,9 @@ while (*format != '\0') {
               PRINT_FIXED_STRING("nan");
           default:
             switch (specifier) {
-              case 'f':  // TODO(ed): Implement!
+              case 'f':
+                // Decimal floating point, without exponent.
+                goto LABEL(float10);
               case 'e':
               case 'g':  // TODO(ed): Implement!
                 // Decimal floating point, exponential notation, lowercase.
@@ -221,7 +224,9 @@ while (*format != '\0') {
               PRINT_FIXED_STRING("NAN");
           default:
             switch (specifier) {
-              case 'F':  // TODO(ed): Implement!
+              case 'F':
+                // Decimal floating point, without exponent.
+                goto LABEL(float10);
               case 'E':
               case 'G':  // TODO(ed): Implement!
                 // Decimal floating point, exponential notation, uppercase.
@@ -317,11 +322,8 @@ while (*format != '\0') {
           // into the number.
           size_t width = digitsbuf + sizeof(digitsbuf) - digits;
           struct numeric_grouping numeric_grouping;
-          width +=
-              numeric_grouping_init(&numeric_grouping,
-                                    grouping ? locale->numeric->grouping : NULL,
-                                    width) *
-              1;  // TODO(ed): Use the proper width.
+          width += numeric_grouping_init(&numeric_grouping, grouping, width) *
+                   1;  // TODO(ed): Use the proper width.
           if ((ssize_t)width < precision)
             width = precision;
           width += number_prefixlen;
@@ -345,11 +347,31 @@ while (*format != '\0') {
             if (numeric_grouping_step(&numeric_grouping)) {
               // Add thousands separator.
               // TODO(ed): Deal with multibyte!
-              PUTCHAR(locale->numeric->thousands_sep[0]);
+              PUTCHAR(numeric->thousands_sep[0]);
             }
             PUTCHAR(*digits++);
           }
           PAD_TO_FIELD_WIDTH(' ');
+          break;
+        }
+
+        // Decimal floating point, without exponent.
+        LABEL(float10) : {
+          if (precision < 0)
+            precision = 6;
+          float_ndigits = sizeof(float_digits);
+          __f10dec(float_value, precision, float_digits, &float_ndigits,
+                   &float_exponent, fegetround());
+
+          // Determine the number of characters printed before the decimal
+          // point.
+          struct numeric_grouping numeric_grouping;
+          size_t left_digits_with_grouping =
+              float_exponent >= 1 ? float_exponent : 1;
+          left_digits_with_grouping +=
+              numeric_grouping_init(&numeric_grouping, grouping,
+                                    left_digits_with_grouping) *
+              1;  // TODO(ed): Use the proper width.
           break;
         }
 
@@ -361,8 +383,8 @@ while (*format != '\0') {
           float_ndigits = precision < (int)sizeof(float_digits)
                               ? precision + 1
                               : sizeof(float_digits);
-          __f10dec_exp(float_value, float_digits, &float_ndigits,
-                       &float_exponent);
+          __f10dec(float_value, UINT_MAX, float_digits, &float_ndigits,
+                   &float_exponent, fegetround());
           --float_exponent;
           float_exponent_mindigits = 2;
           goto LABEL(float_exponential);
@@ -432,7 +454,7 @@ while (*format != '\0') {
           PUTCHAR(number_charset[float_digits[0]]);
           // TODO(ed): Deal with multibyte!
           if (print_radixchar)
-            PUTCHAR(locale->numeric->decimal_point[0]);
+            PUTCHAR(numeric->decimal_point[0]);
           for (size_t i = 1; i < float_ndigits; ++i)
             PUTCHAR(number_charset[float_digits[i]]);
           while (precision-- >= (ssize_t)float_ndigits)

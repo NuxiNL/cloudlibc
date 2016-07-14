@@ -15,9 +15,7 @@ __BEGIN_DECLS
 float __f10enc_get_float(const char *, size_t, int);
 double __f10enc_get_double(const char *, size_t, int);
 long double __f10enc_get_long_double(const char *, size_t, int);
-void __f10dec_exp(long double, unsigned char *, size_t *, int *);
-void __f10dec_fixed(long double, unsigned int, unsigned char *, size_t *,
-                    int *);
+void __f10dec(long double, unsigned int, unsigned char *, size_t *, int *, int);
 __END_DECLS
 
 #endif
