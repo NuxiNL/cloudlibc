@@ -201,13 +201,14 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
 
       // Parse flags.
       char_t fill_character = ' ';
-      bool use_grouping = true, use_parentheses = false,
-           use_currency_symbol = true, left_justified = false;
+      const signed char *mon_grouping = monetary->mon_grouping;
+      bool use_parentheses = false, use_currency_symbol = true,
+           left_justified = false;
       for (;;) {
         if (*format == '=') {
           fill_character = *++format;
         } else if (*format == '^') {
-          use_grouping = false;
+          mon_grouping = NULL;
         } else if (*format == '+') {
           use_parentheses = false;
         } else if (*format == '(') {
@@ -252,18 +253,12 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
         bool negative = signbit(value);
         bool international = *format == 'i';
 
-        // Extract formatting attributes from the locale.
-        const signed char *mon_grouping = monetary->mon_grouping;
-        if (!use_grouping) {
-          // Turn off grouping.
-          mon_grouping = NULL;
-        }
-        char frac_digits =
-            international ? monetary->int_frac_digits : monetary->frac_digits;
         if (!have_right_precision) {
           // Use number of fractional digits from the locale if not
           // specified. If the locale does not offer a sane value, fall
           // back to using two.
+          char frac_digits =
+              international ? monetary->int_frac_digits : monetary->frac_digits;
           right_precision =
               frac_digits >= 0 && frac_digits != CHAR_MAX ? frac_digits : 2;
         }
