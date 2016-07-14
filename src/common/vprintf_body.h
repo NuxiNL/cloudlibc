@@ -191,11 +191,15 @@ while (*format != '\0') {
                 // Decimal floating point, without exponent.
                 goto LABEL(float10);
               case 'e':
-              case 'g':  // TODO(ed): Implement!
                 // Decimal floating point, exponential notation, lowercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
                 float_exponent_char = 'e';
                 goto LABEL(float10_exponential);
+              case 'g':
+                // Decimal floating point, with or without exponent, lowercase.
+                SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
+                float_exponent_char = 'e';
+                goto LABEL(float10_auto);
               case 'a':
                 // Hexadecimal floating point, lowercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'x'});
@@ -228,11 +232,15 @@ while (*format != '\0') {
                 // Decimal floating point, without exponent.
                 goto LABEL(float10);
               case 'E':
-              case 'G':  // TODO(ed): Implement!
                 // Decimal floating point, exponential notation, uppercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
                 float_exponent_char = 'E';
                 goto LABEL(float10_exponential);
+              case 'G':
+                // Decimal floating point, with or without exponent, uppercase.
+                SET_NUMBER_PREFIX({negative ? '-' : positive_sign});
+                float_exponent_char = 'E';
+                goto LABEL(float10_auto);
               case 'A':
                 // Hexadecimal floating point, uppercase.
                 SET_NUMBER_PREFIX({negative ? '-' : positive_sign, '0', 'X'});
@@ -386,6 +394,30 @@ while (*format != '\0') {
           __f10dec(float_value, UINT_MAX, float_digits, &float_ndigits,
                    &float_exponent, fegetround());
           --float_exponent;
+          float_exponent_mindigits = 2;
+          goto LABEL(float_exponential);
+        }
+
+        // Decimal floating point, with or without exponent.
+        LABEL(float10_auto) : {
+          // See what the exponent would be if converted with %e.
+          if (precision < 0)
+            precision = 6;
+          else if (precision == 0)
+            precision = 1;
+          --precision;
+          float_ndigits = precision < (int)sizeof(float_digits)
+                              ? precision + 1
+                              : sizeof(float_digits);
+          __f10dec(float_value, UINT_MAX, float_digits, &float_ndigits,
+                   &float_exponent, fegetround());
+          --float_exponent;
+          if (precision > float_exponent && float_exponent >= -4) {
+            // Switch over to %f.
+            precision -= float_exponent;
+            goto LABEL(float10);
+          }
+          // Continue with %e.
           float_exponent_mindigits = 2;
           goto LABEL(float_exponential);
         }
