@@ -232,7 +232,7 @@ extern const struct lc_numeric __numeric_posix;
 // should be inserted. Example code:
 //
 //   char digits[7] = "1234567";
-//   struct numeric grouping ng;
+//   struct numeric_grouping ng;
 //   size_t n = numeric_grouping_init(&ng, "\x03", sizeof(digits));
 //   char grouped_digits[sizeof(digits) + n];
 //   char *out = grouped_digits;
@@ -242,7 +242,7 @@ extern const struct lc_numeric __numeric_posix;
 //     *out++ = digits[i];
 //   }
 //
-// The numeric_grouping array will now contain "1,234,567".
+// The grouped_digits array will now contain "1,234,567".
 
 struct numeric_grouping {
   const signed char *grouping;
