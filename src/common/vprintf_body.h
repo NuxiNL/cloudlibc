@@ -369,6 +369,7 @@ while (*format != '\0') {
           if (precision < 0)
             precision = 6;
           float_ndigits = sizeof(float_digits);
+          SET_NUMBER_PREFIX({signbit(float_value) ? '-' : positive_sign});
           __f10dec(float_value, precision, float_digits, &float_ndigits,
                    &float_exponent, fegetround());
 
@@ -381,16 +382,31 @@ while (*format != '\0') {
             else if (precision > (int)float_ndigits - float_exponent)
               precision = float_ndigits - float_exponent;
           }
+          bool print_radixchar = alternative_form || precision > 0;
 
           // Determine the number of characters printed before the decimal
           // point.
           struct numeric_grouping numeric_grouping;
           size_t left_digits_with_grouping =
               float_exponent >= 1 ? float_exponent : 1;
-          numeric_grouping_init(&numeric_grouping, grouping,
-                                left_digits_with_grouping);
+          left_digits_with_grouping +=
+              numeric_grouping_init(&numeric_grouping, grouping,
+                                    left_digits_with_grouping) *
+              1;  // TODO(ed): Use the proper width.
+          size_t width = number_prefixlen + left_digits_with_grouping +
+                         (print_radixchar ? 1 : 0) + precision;
 
-          // Print digits from the value.
+          // Print the number.
+          if (zero_padding) {
+            for (size_t i = 0; i < number_prefixlen; ++i)
+              PUTCHAR(number_prefix[i]);
+            PAD_TO_FIELD_WIDTH('0');
+          } else {
+            if (!left_justified)
+              PAD_TO_FIELD_WIDTH(' ');
+            for (size_t i = 0; i < number_prefixlen; ++i)
+              PUTCHAR(number_prefix[i]);
+          }
           ssize_t position;
           ssize_t idx;
           if (float_exponent >= 1) {
@@ -404,26 +420,26 @@ while (*format != '\0') {
             idx = float_exponent - 1;
           }
           while (position < precision) {
-            unsigned char digit =
-                idx >= 0 && (size_t)idx < float_ndigits ? float_digits[idx] : 0;
             if (position < 0) {
               // Print the grouping character.
               if (numeric_grouping_step(&numeric_grouping)) {
                 // TODO(ed): Deal with multibyte!
                 PUTCHAR(numeric->thousands_sep[0]);
               }
-            } else if (position == 0) {
+            }
+            unsigned char digit =
+                idx >= 0 && (size_t)idx < float_ndigits ? float_digits[idx] : 0;
+            PUTCHAR(digit + '0');
+            ++idx;
+            if (++position == 0 && print_radixchar) {
               // Print the radix character.
               // TODO(ed): Deal with multibyte!
-              // TODO(ed): Take the alternative form into account!
               PUTCHAR(numeric->decimal_point[0]);
             }
-            PUTCHAR(digit + '0');
-            ++position;
-            ++idx;
           }
           assert(idx >= (ssize_t)float_ndigits &&
                  "Not all digits have been printed");
+          PAD_TO_FIELD_WIDTH(' ');
           break;
         }
 
@@ -456,7 +472,7 @@ while (*format != '\0') {
           __f10dec(float_value, UINT_MAX, float_digits, &float_ndigits,
                    &float_exponent, fegetround());
           --float_exponent;
-          if (precision > float_exponent && float_exponent >= -4) {
+          if (precision >= float_exponent && float_exponent >= -4) {
             // Switch over to %f.
             precision -= float_exponent;
             if (!alternative_form)

@@ -85,7 +85,6 @@ TEST(snprintf, float10_f_g) {
   TEST_OUTPUT("|1|", "|%g|", 1.0);
   TEST_OUTPUT("|1.00000|", "|%#g|", 1.0);
 
-#if 0  // TODO(ed): Enable!
   // Field width.
   TEST_OUTPUT("|  1.000000|", "|%10f|", 1.0);
   TEST_OUTPUT("|  1.000000|", "|%#10f|", 1.0);
@@ -98,6 +97,12 @@ TEST(snprintf, float10_f_g) {
   TEST_OUTPUT("|1         |", "|%-10g|", 1.0);
   TEST_OUTPUT("|1.00000   |", "|%#-10g|", 1.0);
 
+  // Zero padded.
+  TEST_OUTPUT("|001.000000|", "|%010f|", 1.0);
+  TEST_OUTPUT("|001.000000|", "|%#010f|", 1.0);
+  TEST_OUTPUT("|0000000001|", "|%010g|", 1.0);
+  TEST_OUTPUT("|0001.00000|", "|%#010g|", 1.0);
+
   // No decimals.
   TEST_OUTPUT("|         1|", "|%10.0f|", 1.0);
   TEST_OUTPUT("|        1.|", "|%#10.0f|", 1.0);
@@ -109,7 +114,12 @@ TEST(snprintf, float10_f_g) {
   TEST_OUTPUT("|1.        |", "|%#-10.0f|", 1.0);
   TEST_OUTPUT("|1         |", "|%-10.0g|", 1.0);
   TEST_OUTPUT("|1.        |", "|%#-10.0g|", 1.0);
-#endif
+
+  // No decimals, zero padded.
+  TEST_OUTPUT("|0000000001|", "|%010.0f|", 1.0);
+  TEST_OUTPUT("|000000001.|", "|%#010.0f|", 1.0);
+  TEST_OUTPUT("|0000000001|", "|%010.0g|", 1.0);
+  TEST_OUTPUT("|000000001.|", "|%#010.0g|", 1.0);
 }
 
 TEST(snprintf, float10_e_zero) {
