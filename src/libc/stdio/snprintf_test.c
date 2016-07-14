@@ -78,7 +78,6 @@ TEST(snprintf, octal2) {
   TEST_OUTPUT("01", "%#o", 1);
 }
 
-#if 0  // TODO(ed): Enable!
 TEST(snprintf, float10_f_g) {
   // No modifiers.
   TEST_OUTPUT("|1.000000|", "|%f|", 1.0);
@@ -86,6 +85,7 @@ TEST(snprintf, float10_f_g) {
   TEST_OUTPUT("|1|", "|%g|", 1.0);
   TEST_OUTPUT("|1.00000|", "|%#g|", 1.0);
 
+#if 0  // TODO(ed): Enable!
   // Field width.
   TEST_OUTPUT("|  1.000000|", "|%10f|", 1.0);
   TEST_OUTPUT("|  1.000000|", "|%#10f|", 1.0);
@@ -109,8 +109,8 @@ TEST(snprintf, float10_f_g) {
   TEST_OUTPUT("|1.        |", "|%#-10.0f|", 1.0);
   TEST_OUTPUT("|1         |", "|%-10.0g|", 1.0);
   TEST_OUTPUT("|1.        |", "|%#-10.0g|", 1.0);
-}
 #endif
+}
 
 TEST(snprintf, float10_e_zero) {
   TEST_OUTPUT("0.000000e+00", "%e", 0.0);

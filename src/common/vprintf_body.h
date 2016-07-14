@@ -76,6 +76,7 @@ while (*format != '\0') {
     size_t float_ndigits;
     int float_exponent;
     int float_exponent_mindigits;
+    bool float_strip_trailing = false;
 
     // Shared parameters for integer and floating point printing.
     char number_prefix[3] = {};  // "-", "0", "0x" or "-0x".
@@ -371,15 +372,58 @@ while (*format != '\0') {
           __f10dec(float_value, precision, float_digits, &float_ndigits,
                    &float_exponent, fegetround());
 
+          // %g without #: strip trailing zeroes. Implement this by
+          // decreasing the precision to the last non-zero decimal, or
+          // zero if there are none.
+          if (float_strip_trailing) {
+            if (float_exponent > (int)float_ndigits)
+              precision = 0;
+            else if (precision > (int)float_ndigits - float_exponent)
+              precision = float_ndigits - float_exponent;
+          }
+
           // Determine the number of characters printed before the decimal
           // point.
           struct numeric_grouping numeric_grouping;
           size_t left_digits_with_grouping =
               float_exponent >= 1 ? float_exponent : 1;
-          left_digits_with_grouping +=
-              numeric_grouping_init(&numeric_grouping, grouping,
-                                    left_digits_with_grouping) *
-              1;  // TODO(ed): Use the proper width.
+          numeric_grouping_init(&numeric_grouping, grouping,
+                                left_digits_with_grouping);
+
+          // Print digits from the value.
+          ssize_t position;
+          ssize_t idx;
+          if (float_exponent >= 1) {
+            // At least one digit is placed before the radix character.
+            position = -float_exponent;
+            idx = 0;
+          } else {
+            // None of the digits are placed before the radix character.
+            // Force zero padding.
+            position = -1;
+            idx = float_exponent - 1;
+          }
+          while (position < precision) {
+            unsigned char digit =
+                idx >= 0 && (size_t)idx < float_ndigits ? float_digits[idx] : 0;
+            if (position < 0) {
+              // Print the grouping character.
+              if (numeric_grouping_step(&numeric_grouping)) {
+                // TODO(ed): Deal with multibyte!
+                PUTCHAR(numeric->thousands_sep[0]);
+              }
+            } else if (position == 0) {
+              // Print the radix character.
+              // TODO(ed): Deal with multibyte!
+              // TODO(ed): Take the alternative form into account!
+              PUTCHAR(numeric->decimal_point[0]);
+            }
+            PUTCHAR(digit + '0');
+            ++position;
+            ++idx;
+          }
+          assert(idx >= (ssize_t)float_ndigits &&
+                 "Not all digits have been printed");
           break;
         }
 
@@ -415,6 +459,8 @@ while (*format != '\0') {
           if (precision > float_exponent && float_exponent >= -4) {
             // Switch over to %f.
             precision -= float_exponent;
+            if (!alternative_form)
+              float_strip_trailing = true;
             goto LABEL(float10);
           }
           // Continue with %e.
