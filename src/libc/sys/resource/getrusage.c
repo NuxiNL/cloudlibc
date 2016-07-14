@@ -18,7 +18,7 @@ int getrusage(int who, struct rusage *r_usage) {
                                   &usertime);
       *r_usage = (struct rusage){
           .ru_utime.tv_sec = usertime / NSEC_PER_SEC,
-          .ru_utime.tv_usec = (usertime / NSEC_PER_SEC) / 1000,
+          .ru_utime.tv_usec = (usertime % NSEC_PER_SEC) / 1000,
       };
       return 0;
     }
