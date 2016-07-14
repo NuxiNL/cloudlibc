@@ -17,8 +17,7 @@ int getrusage(int who, struct rusage *r_usage) {
       cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_PROCESS_CPUTIME_ID, 1000,
                                   &usertime);
       *r_usage = (struct rusage){
-          .ru_utime.tv_sec = usertime / NSEC_PER_SEC,
-          .ru_utime.tv_usec = (usertime % NSEC_PER_SEC) / 1000,
+          .ru_utime = timestamp_to_timeval(usertime),
       };
       return 0;
     }

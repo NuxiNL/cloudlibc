@@ -9,6 +9,8 @@
 #include <common/limits.h>
 #include <common/overflow.h>
 
+#include <sys/time.h>
+
 #include <cloudabi_types.h>
 #include <stdbool.h>
 #include <time.h>
@@ -72,6 +74,12 @@ static inline struct timespec timestamp_to_timespec(
   // Decompose timestamp into seconds and nanoseconds.
   return (struct timespec){.tv_sec = timestamp / NSEC_PER_SEC,
                            .tv_nsec = timestamp % NSEC_PER_SEC};
+}
+
+static inline struct timeval timestamp_to_timeval(
+    cloudabi_timestamp_t timestamp) {
+  struct timespec ts = timestamp_to_timespec(timestamp);
+  return (struct timeval){.tv_sec = ts.tv_sec, ts.tv_nsec / 1000};
 }
 
 #endif

@@ -12,7 +12,6 @@
 int gettimeofday(struct timeval *restrict tp, ...) {
   cloudabi_timestamp_t ts = 0;
   cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_REALTIME, 1000, &ts);
-  tp->tv_sec = ts / NSEC_PER_SEC;
-  tp->tv_usec = (ts % NSEC_PER_SEC) / 1000;
+  *tp = timestamp_to_timeval(ts);
   return 0;
 }
