@@ -131,7 +131,7 @@ while (*format != '\0') {
           SET_NUMBER_PREFIX({positive_sign});
           integer_value = value;
         } else {
-          SET_NUMBER_PREFIX({'-'});
+          SET_NUMBER_PREFIX("-");
           integer_value = -value;
         }
         goto LABEL(integer);
@@ -141,7 +141,7 @@ while (*format != '\0') {
         integer_base = 8;
         integer_value = GET_ARG_UINT_LM(length, arg_value);
         if (alternative_form && integer_value != 0)
-          SET_NUMBER_PREFIX({'0'});
+          SET_NUMBER_PREFIX("0");
         goto LABEL(integer);
       }
       case 'u': {
@@ -155,7 +155,7 @@ while (*format != '\0') {
         integer_base = 16;
         integer_value = GET_ARG_UINT_LM(length, arg_value);
         if (alternative_form && integer_value != 0)
-          SET_NUMBER_PREFIX({'0', 'x'});
+          SET_NUMBER_PREFIX("0x");
         goto LABEL(integer);
       }
       case 'X': {
@@ -163,7 +163,7 @@ while (*format != '\0') {
         integer_base = 16;
         integer_value = GET_ARG_UINT_LM(length, arg_value);
         if (alternative_form && integer_value != 0)
-          SET_NUMBER_PREFIX({'0', 'X'});
+          SET_NUMBER_PREFIX("0X");
         goto LABEL(integer);
       }
       case 'f':
