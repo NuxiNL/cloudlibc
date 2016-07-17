@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -34,14 +34,6 @@ TEST(newlocale, valid_timezone) {
   locale_t locale =
       newlocale(LC_TIMEZONE_MASK, "zz_ZZ.ZZZZ@Europe/Amsterdam", 0);
   ASSERT_NE(LC_GLOBAL_LOCALE, locale);
-  freelocale(locale);
-}
-
-TEST(newlocale, deduplication) {
-  // en_US uses the same date/time formatting as the C locale. There's
-  // no need to allocate a new locale object.
-  locale_t locale = newlocale(LC_TIME_MASK, "en_US", 0);
-  ASSERT_EQ(LC_GLOBAL_LOCALE, locale);
   freelocale(locale);
 }
 

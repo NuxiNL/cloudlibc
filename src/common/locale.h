@@ -328,7 +328,7 @@ struct lc_time {
   const wchar_t *alt_digits;   // Optional: Alternative symbols for digits.
 };
 
-extern const struct lc_time __time_en_us;
+extern const struct lc_time __time_posix;
 
 // LC_TIMEZONE.
 
@@ -484,7 +484,7 @@ struct __locale {
       .messages = ((mask)&LC_MESSAGES_MASK) != 0 ? &__messages_en_us : NULL, \
       .monetary = ((mask)&LC_MONETARY_MASK) != 0 ? &__monetary_posix : NULL, \
       .numeric = ((mask)&LC_NUMERIC_MASK) != 0 ? &__numeric_posix : NULL,    \
-      .time = ((mask)&LC_TIME_MASK) != 0 ? &__time_en_us : NULL,             \
+      .time = ((mask)&LC_TIME_MASK) != 0 ? &__time_posix : NULL,             \
       .timezone = ((mask)&LC_TIMEZONE_MASK) != 0 ? &__timezone_utc : NULL,   \
   };                                                                         \
   const locale_t name = (struct __locale *)&__obj_##name

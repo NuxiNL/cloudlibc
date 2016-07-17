@@ -16,6 +16,6 @@ struct __locale __locale_c_unicode = {
     .messages = &__messages_en_us,
     .monetary = &__monetary_posix,
     .numeric = &__numeric_posix,
-    .time = &__time_en_us,
+    .time = &__time_posix,
     .timezone = &__timezone_utc,
 };

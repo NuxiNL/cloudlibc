@@ -25,6 +25,7 @@
 #include "numeric/nl_nl.h"
 #include "numeric/ru_ru.h"
 
+#include "time/en_us.h"
 #include "time/fr_fr.h"
 #include "time/nl_nl.h"
 #include "time/ru_ru.h"
@@ -40,9 +41,9 @@ static struct {
 } languages[] = {
     // TODO(ed): Make these locales more complete.
     {"cs_CZ", &__collate_posix, &__messages_en_us, &__monetary_posix,
-     &__numeric_posix, &__time_en_us},
+     &__numeric_posix, &time_en_us},
     {"en_US", &__collate_posix, &__messages_en_us, &monetary_en_us,
-     &numeric_en_us, &__time_en_us},
+     &numeric_en_us, &time_en_us},
     {"fr_CA", &__collate_posix, &__messages_en_us, &__monetary_posix,
      &__numeric_posix, &time_fr_fr},
     {"fr_FR", &__collate_posix, &__messages_en_us, &__monetary_posix,
