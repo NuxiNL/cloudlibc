@@ -16,10 +16,6 @@
 #include <stdint.h>
 #include <time.h>
 
-// Timezone agnostic conversion routines.
-int __localtime_utc(time_t, struct tm *);
-void __mktime_utc(const struct tm *, struct timespec *);
-
 // A set of daylight saving rules that are active for a certain year. We
 // normally assume that for every year, we have up to two rules. One
 // rule to enable daylight saving time and one rule to disable it (the

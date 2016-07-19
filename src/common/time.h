@@ -17,6 +17,10 @@
 
 #define NSEC_PER_SEC 1000000000
 
+// Timezone agnostic conversion routines.
+int __localtime_utc(time_t, struct tm *);
+void __mktime_utc(const struct tm *, struct timespec *);
+
 static inline bool is_leap(time_t year) {
   year %= 400;
   if (year < 0)

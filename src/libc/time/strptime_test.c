@@ -4,60 +4,115 @@
 // See the LICENSE file for details.
 
 #include <locale.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <testing.h>
 #include <time.h>
 
-TEST(strptime, example1) {
-  const char input[] = "2001-11-12 18:31:01";
-  struct tm tm;
-  ASSERT_EQ(input + __arraycount(input) - 1,
-            strptime(input, "%Y-%m-%d %H:%M:%S", &tm));
-  ASSERT_EQ(101, tm.tm_year);
-  ASSERT_EQ(10, tm.tm_mon);
-  ASSERT_EQ(12, tm.tm_mday);
-  ASSERT_EQ(18, tm.tm_hour);
-  ASSERT_EQ(31, tm.tm_min);
-  ASSERT_EQ(1, tm.tm_sec);
+TEST(strptime, examples) {
+#define TEST_STRPTIME(in, fmt, year, mon, wday, mday, hour, min, sec, nsec, \
+                      gmtoff)                                               \
+  do {                                                                      \
+    const char input[] = in;                                                \
+    struct tm tm;                                                           \
+    ASSERT_EQ(input + sizeof(input) - 1, strptime(input, fmt, &tm));        \
+    ASSERT_EQ(year - 1900, tm.tm_year);                                     \
+    ASSERT_EQ(mon - 1, tm.tm_mon);                                          \
+    ASSERT_EQ(wday, tm.tm_wday);                                            \
+    ASSERT_EQ(mday, tm.tm_mday);                                            \
+    ASSERT_EQ(hour, tm.tm_hour);                                            \
+    ASSERT_EQ(min, tm.tm_min);                                              \
+    ASSERT_EQ(sec, tm.tm_sec);                                              \
+    ASSERT_EQ(nsec, tm.tm_nsec);                                            \
+    ASSERT_EQ(gmtoff, tm.tm_gmtoff);                                        \
+    ASSERT_EQ(-1, tm.tm_isdst);                                             \
+    ASSERT_STREQ("", tm.tm_zone);                                           \
+  } while (0)
+  // The default date is January 1st, 1900.
+  TEST_STRPTIME("", "", 1900, 1, 1, 1, 0, 0, 0, 0, 0);
+
+  TEST_STRPTIME("2001-11-12 18:31:01", "%Y-%m-%d %H:%M:%S", 2001, 11, 1, 12, 18,
+                31, 1, 0, 0);
+  TEST_STRPTIME("6 Dec 2001 12:33:45", "%d %b %Y %H:%M:%S", 2001, 12, 4, 6, 12,
+                33, 45, 0, 0);
+  TEST_STRPTIME("19810405T134730.04827+0230", "%Y%m%dT%H%M%S.%f%z", 1981, 4, 0,
+                5, 13, 47, 30, 48270000, 9000);
+  TEST_STRPTIME("7:27:31 pm 10/31/88", "%r %D", 1988, 10, 1, 31, 19, 27, 31, 0,
+                0);
+
+  // Providing the day of the year instead of the actual date.
+  TEST_STRPTIME("1998 184", "%Y %j", 1998, 7, 5, 3, 0, 0, 0, 0, 0);
+
+  // ISO 8601 week numbers.
+  TEST_STRPTIME("2016-W29", "%G-W%V", 2016, 7, 1, 18, 0, 0, 0, 0, 0);
+  TEST_STRPTIME("2016-W29-2", "%G-W%V-%u", 2016, 7, 2, 19, 0, 0, 0, 0, 0);
+#undef TEST_STRPTIME
 }
 
-TEST(strptime, example2) {
-  const char input[] = "6 Dec 2001 12:33:45";
-  struct tm tm;
-  ASSERT_EQ(input + __arraycount(input) - 1,
-            strptime(input, "%d %b %Y %H:%M:%S", &tm));
-  ASSERT_EQ(101, tm.tm_year);
-  ASSERT_EQ(11, tm.tm_mon);
-  ASSERT_EQ(6, tm.tm_mday);
-  ASSERT_EQ(12, tm.tm_hour);
-  ASSERT_EQ(33, tm.tm_min);
-  ASSERT_EQ(45, tm.tm_sec);
-}
+TEST(strptime, random) {
+#define TEST_RANDOM(fmt)                                      \
+  do {                                                        \
+    for (int i = 0; i < 100; ++i) {                           \
+      /* Pick a random timestamp. */                          \
+      int32_t r;                                              \
+      arc4random_buf(&r, sizeof(r));                          \
+      time_t t = r;                                           \
+      SCOPED_NOTE(t, {                                        \
+        /* Convert it to a string representation. */          \
+        struct tm tm_in;                                      \
+        ASSERT_EQ(&tm_in, gmtime_r(&t, &tm_in));              \
+        char str[64];                                         \
+                                                              \
+        /* Parse it back. */                                  \
+        size_t len = strftime(str, sizeof(str), fmt, &tm_in); \
+        ASSERT_LT(0, len);                                    \
+        struct tm tm_out;                                     \
+        ASSERT_EQ(str + len, strptime(str, fmt, &tm_out));    \
+                                                              \
+        /* Test for equality. */                              \
+        ASSERT_EQ(tm_in.tm_year, tm_out.tm_year);             \
+        ASSERT_EQ(tm_in.tm_yday, tm_out.tm_yday);             \
+        ASSERT_EQ(tm_in.tm_mon, tm_out.tm_mon);               \
+        ASSERT_EQ(tm_in.tm_mday, tm_out.tm_mday);             \
+        ASSERT_EQ(tm_in.tm_wday, tm_out.tm_wday);             \
+        ASSERT_EQ(tm_in.tm_hour, tm_out.tm_hour);             \
+        ASSERT_EQ(tm_in.tm_min, tm_out.tm_min);               \
+        ASSERT_EQ(tm_in.tm_sec, tm_out.tm_sec);               \
+        ASSERT_EQ(-1, tm_out.tm_isdst);                       \
+        ASSERT_EQ(0, tm_out.tm_gmtoff);                       \
+        ASSERT_STREQ("", tm_out.tm_zone);                     \
+        ASSERT_EQ(0, tm_out.tm_nsec);                         \
+      });                                                     \
+    }                                                         \
+  } while (0)
+  // Year, month, day.
+  TEST_RANDOM("%Y-%b-%d %H:%M:%S");
+  TEST_RANDOM("%Y-%B-%d %I:%M:%S %p");
+  TEST_RANDOM("%Y-%h-%d %T");
+  TEST_RANDOM("%Y-%m-%d %T");
+  TEST_RANDOM("%F %T");
 
-TEST(strptime, example3) {
-  const char input[] = "19810405T134730.04827+0230";
-  struct tm tm;
-  ASSERT_EQ(input + __arraycount(input) - 1,
-            strptime(input, "%Y%m%dT%H%M%S.%f%z", &tm));
-  ASSERT_EQ(81, tm.tm_year);
-  ASSERT_EQ(3, tm.tm_mon);
-  ASSERT_EQ(5, tm.tm_mday);
-  ASSERT_EQ(13, tm.tm_hour);
-  ASSERT_EQ(47, tm.tm_min);
-  ASSERT_EQ(30, tm.tm_sec);
-  ASSERT_EQ(48270000, tm.tm_nsec);
-  ASSERT_EQ(9000, tm.tm_gmtoff);
-}
+  // Year, day of the year.
+  TEST_RANDOM("%Y-%j %T");
 
-TEST(strptime, example4) {
-  const char input[] = "7:27:31 pm 10/31/88";
-  struct tm tm;
-  ASSERT_EQ(input + __arraycount(input) - 1, strptime(input, "%r %D", &tm));
-  ASSERT_EQ(88, tm.tm_year);
-  ASSERT_EQ(9, tm.tm_mon);
-  ASSERT_EQ(31, tm.tm_mday);
-  ASSERT_EQ(19, tm.tm_hour);
-  ASSERT_EQ(27, tm.tm_min);
-  ASSERT_EQ(31, tm.tm_sec);
+  // Year, week (first Sunday), day of the week.
+  TEST_RANDOM("%Y-%U-%a %T");
+  TEST_RANDOM("%Y-%U-%A %T");
+  TEST_RANDOM("%Y-%U-%u %T");
+  TEST_RANDOM("%Y-%U-%w %T");
+
+  // Year, week (first Monday), day of the week.
+  TEST_RANDOM("%Y-%W-%a %T");
+  TEST_RANDOM("%Y-%W-%A %T");
+  TEST_RANDOM("%Y-%W-%u %T");
+  TEST_RANDOM("%Y-%W-%w %T");
+
+  // Week-based year, week, day of the week.
+  TEST_RANDOM("%G-%V-%a %T");
+  TEST_RANDOM("%G-%V-%A %T");
+  TEST_RANDOM("%G-%V-%u %T");
+  TEST_RANDOM("%G-%V-%w %T");
+#undef TEST_RANDOM
 }
 
 TEST(strptime, bounds) {
