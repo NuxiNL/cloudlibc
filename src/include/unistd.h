@@ -143,6 +143,8 @@
 #define _XOPEN_UNIX (-1)
 #define _XOPEN_UUCP (-1)
 
+#define _POSIX_PRIO_IO (-1)
+
 #define NULL _NULL
 
 #define SEEK_CUR 1
