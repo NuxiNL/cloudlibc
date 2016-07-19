@@ -112,6 +112,15 @@ TEST(strptime, random) {
   TEST_RANDOM("%G-%V-%A %T");
   TEST_RANDOM("%G-%V-%u %T");
   TEST_RANDOM("%G-%V-%w %T");
+
+  // Overlap: prefer fully specified data (mday/mon, wday/week) over
+  // partial data (just mday, mon, wday or week).
+  TEST_RANDOM("%Y-%b-%j %T");
+  TEST_RANDOM("%Y-%j-%b %T");
+  TEST_RANDOM("%Y-%W-%j %T");
+  TEST_RANDOM("%Y-%j-%W %T");
+  TEST_RANDOM("%Y-%b-%d-%W %T");
+  TEST_RANDOM("%Y-%W-%b-%d %T");
 #undef TEST_RANDOM
 }
 

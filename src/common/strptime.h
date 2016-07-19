@@ -92,9 +92,9 @@ static void week_wday_apply_simple(time_t *t, int week, int wday, int wday1,
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
              struct tm *restrict tm, locale_t locale) {
   struct tm result = {.tm_mday = 1};
-  int mday = 1, mon = 0, wday = -1, week, yday = -1, year_century = 19,
+  int mday = -1, mon = -1, wday = -1, week, yday = -1, year_century = 19,
       year_last2 = -1;
-  enum { NONE, SUNDAY, MONDAY, ISO_8601, YDAY } recompute_mode = NONE;
+  enum { MONTHDAY, SUNDAY, MONDAY, ISO_8601, YDAY } recompute_mode = MONTHDAY;
   bool year_negative = false;
 
   const struct lc_time *lc_time = locale->time;
@@ -224,7 +224,6 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           // Day of the year.
           if (!parse_number_range(&buf, 1, 366, &yday))
             return NULL;
-          recompute_mode = YDAY;
           break;
         }
         case L'm': {
@@ -397,14 +396,21 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
     result.tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
                                    : (year_century * 100 + year_last2) - 1900;
 
+  // Prefer the values of mday/mon over yday. Also, prefer the value of
+  // yday over wday/week.
+  if (mon >= 0 && mday >= 1)
+    recompute_mode = MONTHDAY;
+  else if (yday >= 0)
+    recompute_mode = YDAY;
+
   // Convert the provided date to a UNIX timestamp. The strategy for
   // this depends on whether a mday/mon, yday or wday/week is provided.
   struct timespec ts;
   switch (recompute_mode) {
-    case NONE: {
+    case MONTHDAY: {
       // Month and day provided.
-      result.tm_mday = mday;
-      result.tm_mon = mon;
+      result.tm_mday = mday < 1 ? 1 : mday;
+      result.tm_mon = mon < 0 ? 0 : mon;
       __mktime_utc(&result, &ts);
       break;
     }
