@@ -417,7 +417,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
     }
   }
 
-  // Compute the full year if a two-digit year is provided.
+  // Compute the full year based on the century and the last two digits.
   result.tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
                                  : (year_century * 100 + year_last2) - 1900;
 
