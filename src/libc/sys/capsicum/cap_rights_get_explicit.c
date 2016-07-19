@@ -92,7 +92,18 @@ static_assert(CAP_LISTEN == CLOUDABI_RIGHT_SOCK_LISTEN, "Value mismatch");
 static_assert(CAP_RECV == CLOUDABI_RIGHT_FD_READ, "Value mismatch");
 static_assert(CAP_SEND == CLOUDABI_RIGHT_FD_WRITE, "Value mismatch");
 static_assert(CAP_SHUTDOWN == CLOUDABI_RIGHT_SOCK_SHUTDOWN, "Value mismatch");
-// TODO(ed): CAP_SOCK_*.
+static_assert(CAP_SOCK_CLIENT ==
+                  (CLOUDABI_RIGHT_FD_READ | CLOUDABI_RIGHT_FD_WRITE |
+                   CLOUDABI_RIGHT_SOCK_CONNECT_SOCKET |
+                   CLOUDABI_RIGHT_SOCK_SHUTDOWN | CLOUDABI_RIGHT_SOCK_STAT_GET),
+              "Value mismatch");
+static_assert(CAP_SOCK_SERVER ==
+                  (CLOUDABI_RIGHT_FD_READ | CLOUDABI_RIGHT_FD_WRITE |
+                   CLOUDABI_RIGHT_SOCK_ACCEPT |
+                   CLOUDABI_RIGHT_SOCK_BIND_SOCKET |
+                   CLOUDABI_RIGHT_SOCK_LISTEN | CLOUDABI_RIGHT_SOCK_SHUTDOWN |
+                   CLOUDABI_RIGHT_SOCK_STAT_GET),
+              "Value mismatch");
 static_assert(CAP_EVENT == CLOUDABI_RIGHT_POLL_FD_READWRITE, "Value mismatch");
 static_assert(CAP_KQUEUE ==
                   (CLOUDABI_RIGHT_POLL_MODIFY | CLOUDABI_RIGHT_POLL_WAIT),
