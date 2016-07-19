@@ -7,6 +7,7 @@
 #include <common/time.h>
 
 #include <limits.h>
+#include <stdlib.h>
 #include <time.h>
 #include <wchar.h>
 #include <wctype.h>
@@ -115,7 +116,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
              struct tm *restrict tm, locale_t locale) {
   struct tm result = {.tm_mday = 1};
   int mday = -1, mon = -1, wday = -1, wday1 = 1, wday_in_prevyear = 3, week,
-      yday = -1, year_century = 19, year_last2 = -1;
+      yday = -1, year_century = 19, year_last2 = 0;
   bool year_negative = false;
 
   const struct lc_time *lc_time = locale->time;
@@ -219,12 +220,13 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         case L'G':
         case L'Y': {
           // Year number.
-          bool negative;
           if (field_width == 0)
             field_width = 4;
-          if (!parse_year(&buf, field_width, &result.tm_year, &negative))
+          int year;
+          if (!parse_year(&buf, field_width, &year, &year_negative))
             return NULL;
-          result.tm_year -= 1900;
+          year_century = year / 100;
+          year_last2 = abs(year % 100);
           break;
         }
         case L'H': {
@@ -416,9 +418,8 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
   }
 
   // Compute the full year if a two-digit year is provided.
-  if (year_last2 >= 0)
-    result.tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
-                                   : (year_century * 100 + year_last2) - 1900;
+  result.tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
+                                 : (year_century * 100 + year_last2) - 1900;
 
   // Convert the provided date to a UNIX timestamp. The strategy for
   // this depends on whether the day of the year, the week number or the
