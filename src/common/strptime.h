@@ -79,12 +79,12 @@ static int wday_until(int a, int b) {
 // Afterwards, it uses the day of the week, or alternatively the day of
 // the month to adjust the timestamp to the exact date.
 static void week_wday_mday_apply(time_t *t, int week, int wday, int mday,
-                                 int wday1, int max_in_prevyear) {
+                                 int wday1, int wday_in_prevyear) {
   // Adjust timetamp to the beginning of the week.
   struct tm tm;
   __localtime_utc(*t, &tm);
   int prevyear = wday_until(tm.tm_wday - tm.tm_yday, wday1);
-  if (prevyear <= max_in_prevyear)
+  if (prevyear <= wday_in_prevyear)
     prevyear += 7;
   int days_to_add = week * 7 - prevyear;
 
@@ -114,9 +114,8 @@ static void week_wday_mday_apply(time_t *t, int week, int wday, int mday,
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
              struct tm *restrict tm, locale_t locale) {
   struct tm result = {.tm_mday = 1};
-  int mday = -1, mon = -1, wday = -1, week, yday = -1, year_century = 19,
-      year_last2 = -1;
-  enum { MONTHDAY, SUNDAY, MONDAY, ISO_8601, YDAY } recompute_mode = MONTHDAY;
+  int mday = -1, mon = -1, wday = -1, wday1 = 1, wday_in_prevyear = 3, week,
+      yday = -1, year_century = 19, year_last2 = -1;
   bool year_negative = false;
 
   const struct lc_time *lc_time = locale->time;
@@ -308,14 +307,16 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           // Number of the week (first Sunday starts week 1).
           if (!parse_number_range(&buf, 0, 53, &week))
             return NULL;
-          recompute_mode = SUNDAY;
+          wday1 = 0;
+          wday_in_prevyear = 0;
           break;
         }
         case L'V': {
           // Number of the week (ISO 8601).
           if (!parse_number_range(&buf, 1, 53, &week))
             return NULL;
-          recompute_mode = ISO_8601;
+          wday1 = 1;
+          wday_in_prevyear = 3;
           break;
         }
         case L'w': {
@@ -328,7 +329,8 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           // Number of the week (first Monday starts week 1).
           if (!parse_number_range(&buf, 0, 53, &week))
             return NULL;
-          recompute_mode = MONDAY;
+          wday1 = 1;
+          wday_in_prevyear = 0;
           break;
         }
         case L'x': {
@@ -418,50 +420,27 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
     result.tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
                                    : (year_century * 100 + year_last2) - 1900;
 
-  // Prefer the values of mday/mon over yday. Also, prefer the value of
-  // yday over wday/week.
-  if (mon >= 0 && mday >= 1)
-    recompute_mode = MONTHDAY;
-  else if (yday >= 0)
-    recompute_mode = YDAY;
-
   // Convert the provided date to a UNIX timestamp. The strategy for
-  // this depends on whether a mday/mon, yday or wday/week is provided.
+  // this depends on whether the day of the year, the week number or the
+  // month has been provided.
   struct timespec ts;
-  switch (recompute_mode) {
-    case MONTHDAY: {
-      // Month and day provided.
-      result.tm_mday = mday < 1 ? 1 : mday;
-      result.tm_mon = mon < 0 ? 0 : mon;
-      __mktime_utc(&result, &ts);
-      break;
-    }
-    case SUNDAY: {
-      // Week and day: first week starts on first Sunday.
-      __mktime_utc(&result, &ts);
-      week_wday_mday_apply(&ts.tv_sec, week, wday, mday, 0, 0);
-      break;
-    }
-    case MONDAY: {
-      // Week and day: first week starts on first Monday.
-      __mktime_utc(&result, &ts);
-      week_wday_mday_apply(&ts.tv_sec, week, wday, mday, 1, 0);
-      break;
-    }
-    case YDAY: {
-      // Day of the year: start counting relative to January 1st.
-      result.tm_mday = yday;
-      result.tm_mon = 0;
-      __mktime_utc(&result, &ts);
-      break;
-    }
-    case ISO_8601: {
-      // Week and day: first week starts on Monday of the week that has
-      // at most three days in the previous year.
-      __mktime_utc(&result, &ts);
-      week_wday_mday_apply(&ts.tv_sec, week, wday, mday, 1, 3);
-      break;
-    }
+  if (yday >= 0) {
+    // The day of the year has been provided, which is already
+    // sufficient on its own.
+    result.tm_mday = yday;
+    result.tm_mon = 0;
+    __mktime_utc(&result, &ts);
+  } else if (week >= 0) {
+    // A week number has been provided. Apply it to the timestamp,
+    // optionally together with the weekday or monthday.
+    __mktime_utc(&result, &ts);
+    week_wday_mday_apply(&ts.tv_sec, week, wday, mday, wday1, wday_in_prevyear);
+  } else {
+    // A month number has been provided. Apply it to the timestamp,
+    // optionally together with the monthday.
+    result.tm_mday = mday < 1 ? 1 : mday;
+    result.tm_mon = mon < 0 ? 0 : mon;
+    __mktime_utc(&result, &ts);
   }
 
   // Convert the UNIX timestamp back, so that we obtain a tm structure
