@@ -68,6 +68,8 @@ static bool parse_year(const char_t *restrict *buf, size_t field_width,
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
              struct tm *restrict tm, locale_t locale) {
   struct tm result = {};
+  int week;
+  enum { NONE, SUNDAY, MONDAY, ISO_8601 } week_mode = NONE;
   int year_century = 19;
   int year_last2 = -1;
   bool year_negative = false;
@@ -159,23 +161,26 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           subformat = L"-%m-%d";
           goto year_number;
         }
-        case L'g': {
-          // Last two digits of the week-based year number.
-          // TODO(ed): Don't discard this.
-          int year;
-          if (!parse_number_range(&buf, 0, 99, &year))
+        case L'g':
+        case L'y': {
+          // Last two digits of the year number. Whether this value
+          // needs to be added or subtracted to tm_year depends on
+          // whether the century is negative. Only process this data
+          // after we've finished processing input.
+          if (!parse_number_range(&buf, 0, 99, &year_last2))
             return NULL;
           break;
         }
-        case L'G': {
-          // Week-based year number.
-          // TODO(ed): Don't discard this.
-          int year;
+        year_number:
+        case L'G':
+        case L'Y': {
+          // Year number.
           bool negative;
           if (field_width == 0)
             field_width = 4;
-          if (!parse_year(&buf, field_width, &year, &negative))
+          if (!parse_year(&buf, field_width, &result.tm_year, &negative))
             return NULL;
+          result.tm_year -= 1900;
           break;
         }
         case L'H': {
@@ -257,18 +262,16 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'U': {
           // Number of the week (first Sunday starts week 1).
-          // TODO(ed): Don't discard this.
-          int week;
           if (!parse_number_range(&buf, 0, 53, &week))
             return NULL;
+          week_mode = SUNDAY;
           break;
         }
         case L'V': {
           // Number of the week (ISO 8601).
-          // TODO(ed): Don't discard this.
-          int week;
           if (!parse_number_range(&buf, 1, 53, &week))
             return NULL;
+          week_mode = ISO_8601;
           break;
         }
         case L'w': {
@@ -279,10 +282,9 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'W': {
           // Number of the week (first Monday starts week 1).
-          // TODO(ed): Don't discard this.
-          int week;
           if (!parse_number_range(&buf, 0, 53, &week))
             return NULL;
+          week_mode = MONDAY;
           break;
         }
         case L'x': {
@@ -293,26 +295,6 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         case L'X': {
           // Appropriate time representation.
           subformat = lc_time->t_fmt;
-          break;
-        }
-        case L'y': {
-          // Last two digits of the year number. Whether this value
-          // needs to be added or subtracted to tm_year depends on
-          // whether the century is negative. Only process this data
-          // after we've finished processing input.
-          if (!parse_number_range(&buf, 0, 99, &year_last2))
-            return NULL;
-          break;
-        }
-        year_number:
-        case L'Y': {
-          // Year number.
-          bool negative;
-          if (field_width == 0)
-            field_width = 4;
-          if (!parse_year(&buf, field_width, &result.tm_year, &negative))
-            return NULL;
-          result.tm_year -= 1900;
           break;
         }
         case L'z': {
@@ -386,9 +368,15 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
       }
     }
   }
+
+  // Compute the full year if a two-digit year is provided.
   if (year_last2 >= 0)
     result.tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
                                    : (year_century * 100 + year_last2) - 1900;
+
+  // Compute the date if a week number is provided.
+  // TODO(ed): Implement.
+
   *tm = result;
   return (char_t *)buf;
 }
