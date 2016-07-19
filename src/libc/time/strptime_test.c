@@ -85,7 +85,7 @@ TEST(strptime, random) {
       });                                                     \
     }                                                         \
   } while (0)
-  // Year, month, day.
+  // Year, month, day of the month.
   TEST_RANDOM("%Y-%b-%d %H:%M:%S");
   TEST_RANDOM("%Y-%B-%d %I:%M:%S %p");
   TEST_RANDOM("%Y-%h-%d %T");
@@ -112,6 +112,11 @@ TEST(strptime, random) {
   TEST_RANDOM("%G-%V-%A %T");
   TEST_RANDOM("%G-%V-%u %T");
   TEST_RANDOM("%G-%V-%w %T");
+
+  // Not common, but not ambiguous: Year, week, day of the month.
+  TEST_RANDOM("%Y-%U-%d %T");
+  TEST_RANDOM("%Y-%W-%d %T");
+  TEST_RANDOM("%G-%V-%d %T");
 
   // Overlap: prefer fully specified data (mday/mon, wday/week) over
   // partial data (just mday, mon, wday or week).

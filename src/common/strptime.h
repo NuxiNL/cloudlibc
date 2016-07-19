@@ -72,21 +72,43 @@ static int wday_until(int a, int b) {
 }
 
 // Given a timestamp within the first day of the year, this function
-// adjusts the timestamp to correspond to a given week and weekday. The
-// start of the weekday and the method for determining the first week of
-// the year must also be specified.
-static void week_wday_apply_simple(time_t *t, int week, int wday, int wday1,
-                                   int max_in_prevyear) {
-  // Determine how many days of week zero lie within the previous year.
+// adjusts the timestamp to correspond to the first day of a given week.
+// For this, the weekday that's the first day of the week and the method
+// for determining the first week of the year must be specified.
+//
+// Afterwards, it uses the day of the week, or alternatively the day of
+// the month to adjust the timestamp to the exact date.
+static void week_wday_mday_apply(time_t *t, int week, int wday, int mday,
+                                 int wday1, int max_in_prevyear) {
+  // Adjust timetamp to the beginning of the week.
   struct tm tm;
   __localtime_utc(*t, &tm);
   int prevyear = wday_until(tm.tm_wday - tm.tm_yday, wday1);
   if (prevyear <= max_in_prevyear)
     prevyear += 7;
+  int days_to_add = week * 7 - prevyear;
 
-  // Add provided week and weekday to the timestamp.
-  *t +=
-      (week * 7 + (wday < 0 ? 0 : wday_until(wday, wday1)) - prevyear) * 86400;
+  if (wday >= 0) {
+    // Day of the week specified.
+    days_to_add += wday_until(wday, wday1);
+  } else if (mday-- >= 1) {
+    // Day of the month specified. Determine the month at which the week
+    // starts.
+    const short *months = get_months(tm.tm_year);
+    int yday = tm.tm_yday + days_to_add;
+    int month = 0;
+    while (yday > months[month + 1])
+      ++month;
+
+    // Determine starting/end date of the week to reobtain the weekday.
+    int month1 = yday - months[month];
+    int month2 = yday - months[month + 1];
+    if (mday >= month1 && mday < month1 + 7)
+      days_to_add += mday - month1;
+    else if (mday < month2 + 7)
+      days_to_add += mday - month2;
+  }
+  *t += days_to_add * 86400;
 }
 
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
@@ -415,15 +437,15 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
       break;
     }
     case SUNDAY: {
-      // Week and day of the week: first week starts on first Sunday.
+      // Week and day: first week starts on first Sunday.
       __mktime_utc(&result, &ts);
-      week_wday_apply_simple(&ts.tv_sec, week, wday, 0, 0);
+      week_wday_mday_apply(&ts.tv_sec, week, wday, mday, 0, 0);
       break;
     }
     case MONDAY: {
-      // Week and day of the week: first week starts on first Monday.
+      // Week and day: first week starts on first Monday.
       __mktime_utc(&result, &ts);
-      week_wday_apply_simple(&ts.tv_sec, week, wday, 1, 0);
+      week_wday_mday_apply(&ts.tv_sec, week, wday, mday, 1, 0);
       break;
     }
     case YDAY: {
@@ -434,10 +456,10 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
       break;
     }
     case ISO_8601: {
-      // Week and day of the week: first week starts on Monday of the
-      // week that has at most three days in the previous year.
+      // Week and day: first week starts on Monday of the week that has
+      // at most three days in the previous year.
       __mktime_utc(&result, &ts);
-      week_wday_apply_simple(&ts.tv_sec, week, wday, 1, 3);
+      week_wday_mday_apply(&ts.tv_sec, week, wday, mday, 1, 3);
       break;
     }
   }
