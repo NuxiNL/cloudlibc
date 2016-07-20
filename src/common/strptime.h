@@ -391,8 +391,8 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
     tm.tm_mday = yday;
     __mktime_utc(&tm, &ts);
   } else if (week >= 0) {
-    // A week number has been provided. Adjust timetamp to the beginning
-    // of the week.
+    // A week number has been provided. Adjust timestamp to the
+    // beginning of the week.
     __mktime_utc(&tm, &ts);
     __localtime_utc(ts.tv_sec, &tm);
     int prevyear = wday_until(tm.tm_wday, wday1);
