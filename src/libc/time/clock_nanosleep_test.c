@@ -24,7 +24,8 @@ TEST(clock_nanosleep, monotonic_relative) {
                          &(struct timespec){.tv_sec = 1, .tv_nsec = 500000000L},
                          NULL));
   time_t after = time(NULL);
-  ASSERT_TRUE(after - before >= 1 && after - before <= 2);
+  ASSERT_LE(before + 1, after);
+  ASSERT_GE(before + 2, after);
 }
 
 #if 0  // TODO(ed): Re-enable once FreeBSD's nanosleep works.

@@ -183,5 +183,6 @@ TEST(poll, sleep) {
   time_t before = time(NULL);
   ASSERT_EQ(0, poll(NULL, 0, 1500));
   time_t after = time(NULL);
-  ASSERT_TRUE(after - before >= 1 && after - before <= 2);
+  ASSERT_LE(before + 1, after);
+  ASSERT_GE(before + 2, after);
 }
