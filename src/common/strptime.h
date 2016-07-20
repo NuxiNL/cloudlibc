@@ -87,29 +87,26 @@ static void week_wday_mday_apply(time_t *t, int week, int wday, int mday,
   int prevyear = wday_until(tm.tm_wday - tm.tm_yday, wday1);
   if (prevyear <= wday_in_prevyear)
     prevyear += 7;
-  int days_to_add = week * 7 - prevyear;
+  *t += (week * 7 - prevyear) * 86400;
 
   if (wday >= 0) {
     // Day of the week specified.
-    days_to_add += wday_until(wday, wday1);
-  } else if (mday-- >= 1) {
-    // Day of the month specified. Determine the month at which the week
-    // starts.
-    const short *months = get_months(tm.tm_year);
-    int yday = tm.tm_yday + days_to_add;
-    int month = 0;
-    while (yday > months[month + 1])
-      ++month;
-
-    // Determine starting/end date of the week to reobtain the weekday.
-    int month1 = yday - months[month];
-    int month2 = yday - months[month + 1];
-    if (mday >= month1 && mday < month1 + 7)
-      days_to_add += mday - month1;
-    else if (mday < month2 + 7)
-      days_to_add += mday - month2;
+    *t += wday_until(wday, wday1) * 86400;
+  } else if (mday >= 1) {
+    // Day of the month specified.
+    __localtime_utc(*t, &tm);
+    if (mday >= tm.tm_mday && mday < tm.tm_mday + 7) {
+      // Day of the month lies within the specified week.
+      *t += (mday - tm.tm_mday) * 86400;
+    } else {
+      // Week may cross the month boundary. Test again after subtracting
+      // the length of the month.
+      const short *months = get_months(tm.tm_year);
+      tm.tm_mday -= months[tm.tm_mon + 1] - months[tm.tm_mon];
+      if (mday < tm.tm_mday + 7)
+        *t += (mday - tm.tm_mday) * 86400;
+    }
   }
-  *t += days_to_add * 86400;
 }
 
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,

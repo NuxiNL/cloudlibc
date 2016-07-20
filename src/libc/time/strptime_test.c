@@ -46,6 +46,11 @@ TEST(strptime, examples) {
   // ISO 8601 week numbers.
   TEST_STRPTIME("2016-W29", "%G-W%V", 2016, 7, 1, 18, 0, 0, 0, 0, 0);
   TEST_STRPTIME("2016-W29-2", "%G-W%V-%u", 2016, 7, 2, 19, 0, 0, 0, 0, 0);
+
+  // Corner case: week-based year, week number and day of the month,
+  // where the date lies in the previous year.
+  TEST_STRPTIME("1902-01-31 12:35:27", "%G-%V-%d %T", 1901, 12, 2, 31, 12, 35,
+                27, 0, 0);
 #undef TEST_STRPTIME
 }
 
