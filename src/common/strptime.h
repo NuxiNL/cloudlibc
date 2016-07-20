@@ -72,48 +72,12 @@ static int wday_until(int a, int b) {
   return ((a - b) % 7 + 7) % 7;
 }
 
-// Given a timestamp within the first day of the year, this function
-// adjusts the timestamp to correspond to the first day of a given week.
-// For this, the weekday that's the first day of the week and the method
-// for determining the first week of the year must be specified.
-//
-// Afterwards, it uses the day of the week, or alternatively the day of
-// the month to adjust the timestamp to the exact date.
-static void week_wday_mday_apply(time_t *t, int week, int wday, int mday,
-                                 int wday1, int wday_in_prevyear) {
-  // Adjust timetamp to the beginning of the week.
-  struct tm tm;
-  __localtime_utc(*t, &tm);
-  int prevyear = wday_until(tm.tm_wday - tm.tm_yday, wday1);
-  if (prevyear <= wday_in_prevyear)
-    prevyear += 7;
-  *t += (week * 7 - prevyear) * 86400;
-
-  if (wday >= 0) {
-    // Day of the week specified.
-    *t += wday_until(wday, wday1) * 86400;
-  } else if (mday >= 1) {
-    // Day of the month specified.
-    __localtime_utc(*t, &tm);
-    if (mday >= tm.tm_mday && mday < tm.tm_mday + 7) {
-      // Day of the month lies within the specified week.
-      *t += (mday - tm.tm_mday) * 86400;
-    } else {
-      // Week may cross the month boundary. Test again after subtracting
-      // the length of the month.
-      const short *months = get_months(tm.tm_year);
-      tm.tm_mday -= months[tm.tm_mon + 1] - months[tm.tm_mon];
-      if (mday < tm.tm_mday + 7)
-        *t += (mday - tm.tm_mday) * 86400;
-    }
-  }
-}
-
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
-             struct tm *restrict tm, locale_t locale) {
-  struct tm result = {.tm_mday = 1};
-  int mday = -1, mon = -1, wday = -1, wday1, wday_in_prevyear, week = -1,
-      yday = -1, year_century = 19, year_last2 = 0;
+             struct tm *restrict result, locale_t locale) {
+  int gmtoff = 0, hour = 0, mday = -1, min = 0, mon = 0, sec = 0, wday = -1,
+      wday1, wday_in_prevyear, week = -1, yday = -1, year_century = 19,
+      year_last2 = 0;
+  long nsec = 0;
   bool year_negative = false;
 
   const struct lc_time *lc_time = locale->time;
@@ -188,9 +152,9 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           // Extension: nanoseconds.
           if (*buf < L'0' || *buf > L'9')
             return NULL;
-          result.tm_nsec = 0;
+          nsec = 0;
           for (long digit = 100000000; digit != 0; digit /= 10) {
-            result.tm_nsec += (*buf++ - L'0') * digit;
+            nsec += (*buf++ - L'0') * digit;
             if (*buf < L'0' || *buf > L'9')
               break;
           }
@@ -228,7 +192,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'H': {
           // 24-hour based hour.
-          if (!parse_number_range(&buf, 0, 23, &result.tm_hour))
+          if (!parse_number_range(&buf, 0, 23, &hour))
             return NULL;
           break;
         }
@@ -237,7 +201,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           int hour_12;
           if (!parse_number_range(&buf, 1, 12, &hour_12))
             return NULL;
-          result.tm_hour = result.tm_hour / 12 * 12 + hour_12 % 12;
+          hour = hour / 12 * 12 + hour_12 % 12;
           break;
         }
         case L'j': {
@@ -255,7 +219,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'M': {
           // Minutes.
-          if (!parse_number_range(&buf, 0, 59, &result.tm_min))
+          if (!parse_number_range(&buf, 0, 59, &min))
             return NULL;
           break;
         }
@@ -271,7 +235,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           int pm;
           if (!parse_string(&buf, ampm, 2, &pm, locale))
             return NULL;
-          result.tm_hour = pm ? result.tm_hour % 12 + 12 : result.tm_hour % 12;
+          hour = pm ? hour % 12 + 12 : hour % 12;
           break;
         }
         case L'r': {
@@ -286,7 +250,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
         }
         case L'S': {
           // Seconds.
-          if (!parse_number_range(&buf, 0, 60, &result.tm_sec))
+          if (!parse_number_range(&buf, 0, 60, &sec))
             return NULL;
           break;
         }
@@ -346,22 +310,21 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           if ((buf[0] == L'-' || buf[0] == L'+') && buf[1] >= L'0' &&
               buf[1] <= L'9' && buf[2] >= L'0' && buf[2] <= L'9') {
             // Timezone offset in the form ±hh.
-            result.tm_gmtoff =
+            gmtoff =
                 buf[1] * 36000 + buf[2] * 3600 - L'0' * 36000 - L'0' * 3600;
             int skip = 3;
             if (buf[3] >= L'0' && buf[3] <= L'5' && buf[4] >= L'0' &&
                 buf[4] <= L'9') {
               // Timezone offset in the form ±hhmm.
-              result.tm_gmtoff +=
-                  buf[3] * 600 + buf[4] * 60 - L'0' * 600 - L'0' * 60;
+              gmtoff += buf[3] * 600 + buf[4] * 60 - L'0' * 600 - L'0' * 60;
               skip = 5;
             }
             if (buf[0] == L'-')
-              result.tm_gmtoff = -result.tm_gmtoff;
+              gmtoff = -gmtoff;
             buf += skip;
           } else if (buf[0] == 'Z') {
             // Interpret "Z" as +0000 to ease parsing of ISO 8601.
-            result.tm_gmtoff = 0;
+            gmtoff = 0;
             ++buf;
           }
           break;
@@ -414,40 +377,73 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
     }
   }
 
-  // Compute the full year based on the century and the last two digits.
-  result.tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
-                                 : (year_century * 100 + year_last2) - 1900;
-
-  // Convert the provided date to a UNIX timestamp. The strategy for
-  // this depends on whether the day of the year, the week number or the
-  // month has been provided.
+  // Determine the day corresponding to the input provided. Start off
+  // with the beginning of the year.
+  struct tm tm = {
+      .tm_mday = 1,
+      .tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
+                               : (year_century * 100 + year_last2) - 1900,
+  };
   struct timespec ts;
   if (yday >= 0) {
     // The day of the year has been provided, which is already
-    // sufficient on its own.
-    result.tm_mday = yday;
-    result.tm_mon = 0;
-    __mktime_utc(&result, &ts);
+    // sufficient on its own. Prefer this over anything else.
+    tm.tm_mday = yday;
+    __mktime_utc(&tm, &ts);
   } else if (week >= 0) {
-    // A week number has been provided. Apply it to the timestamp,
-    // optionally together with the weekday or monthday.
-    __mktime_utc(&result, &ts);
-    week_wday_mday_apply(&ts.tv_sec, week, wday, mday, wday1, wday_in_prevyear);
+    // A week number has been provided. Adjust timetamp to the beginning
+    // of the week.
+    __mktime_utc(&tm, &ts);
+    __localtime_utc(ts.tv_sec, &tm);
+    int prevyear = wday_until(tm.tm_wday, wday1);
+    if (prevyear <= wday_in_prevyear)
+      prevyear += 7;
+    ts.tv_sec += (week * 7 - prevyear) * 86400;
+    if (wday >= 0) {
+      // Day of the week specified.
+      ts.tv_sec += wday_until(wday, wday1) * 86400;
+    } else if (mday >= 1) {
+      // Day of the month specified.
+      __localtime_utc(ts.tv_sec, &tm);
+      if (mday >= tm.tm_mday && mday < tm.tm_mday + 7) {
+        // Day of the month lies within the specified week.
+        ts.tv_sec += (mday - tm.tm_mday) * 86400;
+      } else {
+        // Week may cross the month boundary. Test again after subtracting
+        // the length of the month.
+        const short *months = get_months(tm.tm_year);
+        tm.tm_mday -= months[tm.tm_mon + 1] - months[tm.tm_mon];
+        if (mday < tm.tm_mday + 7)
+          ts.tv_sec += (mday - tm.tm_mday) * 86400;
+      }
+    }
   } else {
-    // A month number has been provided. Apply it to the timestamp,
-    // optionally together with the monthday.
-    result.tm_mday = mday < 1 ? 1 : mday;
-    result.tm_mon = mon < 0 ? 0 : mon;
-    __mktime_utc(&result, &ts);
+    // Make use of the month if provided.
+    tm.tm_mon = mon;
+    if (mday >= 1) {
+      // Day of the month specified.
+      tm.tm_mday = mday;
+      __mktime_utc(&tm, &ts);
+    } else if (wday >= 0) {
+      // Day of the week specified. Obtain the first day of the month
+      // that matches the weekday.
+      __mktime_utc(&tm, &ts);
+      __localtime_utc(ts.tv_sec, &tm);
+      ts.tv_sec += wday_until(wday, tm.tm_wday) * 86400;
+    } else {
+      // No monthday or weekday provided. Just return the first day of
+      // the month.
+      __mktime_utc(&tm, &ts);
+    }
   }
 
   // Convert the UNIX timestamp back, so that we obtain a tm structure
   // with consistent values. Set tm_isdst to -1, as the computation
   // performed by this functione is time zone independent. We cannot
   // know whether the resulting time value has any DST.
-  __localtime_utc(ts.tv_sec, tm);
-  tm->tm_isdst = -1;
-  tm->tm_gmtoff = result.tm_gmtoff;
-  tm->tm_nsec = ts.tv_nsec;
+  __localtime_utc(ts.tv_sec + hour * 3600 + min * 60 + sec, result);
+  result->tm_isdst = -1;
+  result->tm_gmtoff = gmtoff;
+  result->tm_nsec = nsec;
   return (char_t *)buf;
 }
