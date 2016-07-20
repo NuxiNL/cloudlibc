@@ -25,7 +25,6 @@ TEST(clock_nanosleep, monotonic_relative) {
                          NULL));
   time_t after = time(NULL);
   ASSERT_LE(before + 1, after);
-  ASSERT_GE(before + 4, after);
 }
 
 #if 0  // TODO(ed): Re-enable once FreeBSD's nanosleep works.

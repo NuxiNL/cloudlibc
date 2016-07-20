@@ -20,5 +20,4 @@ TEST(thrd_sleep, example) {
       thrd_sleep(&(struct timespec){.tv_sec = 1, .tv_nsec = 500000000L}, NULL));
   time_t after = time(NULL);
   ASSERT_LE(before + 1, after);
-  ASSERT_GE(before + 4, after);
 }
