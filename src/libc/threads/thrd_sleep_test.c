@@ -13,7 +13,7 @@ TEST(thrd_sleep, bad) {
 }
 
 TEST(thrd_sleep, example) {
-  // We should sleep somewhere between 1 and 4 seconds.
+  // We should sleep at least 1 second.
   time_t before = time(NULL);
   ASSERT_EQ(
       0,

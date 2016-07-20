@@ -17,7 +17,7 @@ TEST(clock_nanosleep, bad) {
 }
 
 TEST(clock_nanosleep, monotonic_relative) {
-  // We should sleep somewhere between 1 and 4 seconds.
+  // We should sleep at least 1 second.
   time_t before = time(NULL);
   ASSERT_EQ(
       0, clock_nanosleep(CLOCK_MONOTONIC, 0,

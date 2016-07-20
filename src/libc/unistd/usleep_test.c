@@ -15,5 +15,4 @@ TEST(usleep, example) {
   ASSERT_EQ(0, usleep(1500000));
   time_t after = time(NULL);
   ASSERT_LE(before + 1, after);
-  ASSERT_GE(before + 4, after);
 }
