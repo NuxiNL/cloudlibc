@@ -179,10 +179,10 @@ TEST_SEPARATE_PROCESS(poll, pollnval) {
 }
 
 TEST(poll, sleep) {
-  // We should sleep somewhere between 1 and 3 seconds.
+  // We should sleep somewhere between 1 and 4 seconds.
   time_t before = time(NULL);
   ASSERT_EQ(0, poll(NULL, 0, 1500));
   time_t after = time(NULL);
   ASSERT_LE(before + 1, after);
-  ASSERT_GE(before + 3, after);
+  ASSERT_GE(before + 4, after);
 }
