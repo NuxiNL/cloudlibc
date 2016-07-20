@@ -115,7 +115,7 @@ static void week_wday_mday_apply(time_t *t, int week, int wday, int mday,
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
              struct tm *restrict tm, locale_t locale) {
   struct tm result = {.tm_mday = 1};
-  int mday = -1, mon = -1, wday = -1, wday1 = 1, wday_in_prevyear = 3, week,
+  int mday = -1, mon = -1, wday = -1, wday1, wday_in_prevyear, week = -1,
       yday = -1, year_century = 19, year_last2 = 0;
   bool year_negative = false;
 
