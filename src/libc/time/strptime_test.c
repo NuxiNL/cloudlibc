@@ -48,8 +48,8 @@ TEST(strptime, examples) {
   TEST_STRPTIME("2016-W29-2", "%G-W%V-%u", 2016, 7, 2, 19, 0, 0, 0, 0, 0);
 
   // Just weekday or month names.
-  TEST_STRPTIME("Wednesday", "%a", 1900, 1, 3, 3, 0, 0, 0, 0, 0);
-  TEST_STRPTIME("April", "%b", 1900, 4, 0, 1, 0, 0, 0, 0, 0);
+  TEST_STRPTIME("wednesday", "%a", 1900, 1, 3, 3, 0, 0, 0, 0, 0);
+  TEST_STRPTIME("APRIL", "%b", 1900, 4, 0, 1, 0, 0, 0, 0, 0);
 
   // Corner case: week-based year, week number and day of the month,
   // where the date lies in the previous year.
