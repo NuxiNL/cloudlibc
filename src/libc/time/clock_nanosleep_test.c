@@ -17,7 +17,7 @@ TEST(clock_nanosleep, bad) {
 }
 
 TEST(clock_nanosleep, monotonic_relative) {
-  // We should sleep somewhere between 1 and 2 seconds.
+  // We should sleep somewhere between 1 and 3 seconds.
   time_t before = time(NULL);
   ASSERT_EQ(
       0, clock_nanosleep(CLOCK_MONOTONIC, 0,
@@ -25,7 +25,7 @@ TEST(clock_nanosleep, monotonic_relative) {
                          NULL));
   time_t after = time(NULL);
   ASSERT_LE(before + 1, after);
-  ASSERT_GE(before + 2, after);
+  ASSERT_GE(before + 3, after);
 }
 
 #if 0  // TODO(ed): Re-enable once FreeBSD's nanosleep works.
