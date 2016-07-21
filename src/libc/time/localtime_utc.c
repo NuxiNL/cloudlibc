@@ -47,7 +47,7 @@ int __localtime_utc(time_t timer, struct tm *tm) {
   time_t year = era * 400 + local_year;
 
   // Compute month and day within month.
-  const short *months = get_months(local_year);
+  const short *months = get_months_cumulative(local_year);
   while (tm->tm_yday >= months[tm->tm_mon + 1])
     ++tm->tm_mon;
   tm->tm_mday = tm->tm_yday - months[tm->tm_mon] + 1;

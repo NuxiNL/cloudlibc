@@ -411,8 +411,7 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
       } else {
         // Week may cross the month boundary. Test again after subtracting
         // the length of the month.
-        const short *months = get_months(tm.tm_year);
-        tm.tm_mday -= months[tm.tm_mon + 1] - months[tm.tm_mon];
+        tm.tm_mday -= get_months(tm.tm_year)[tm.tm_mon];
         if (mday < tm.tm_mday + 7)
           ts.tv_sec += (mday - tm.tm_mday) * 86400;
       }

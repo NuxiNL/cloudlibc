@@ -27,7 +27,7 @@ void __mktime_utc(const struct tm *tm, struct timespec *result) {
   // Normalize and eliminate months.
   time_t mon = tm->tm_mon;
   time_t year = tm->tm_year + modulo_quotient(&mon, 12);
-  time_t yday = (time_t)tm->tm_mday + get_months(year)[mon] - 1;
+  time_t yday = (time_t)tm->tm_mday + get_months_cumulative(year)[mon] - 1;
 
   // We need to ensure that the year is at least 70 for the rounding in
   // the day computation to work properly. Temporarily normalize the

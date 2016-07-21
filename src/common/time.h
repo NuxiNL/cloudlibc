@@ -28,12 +28,25 @@ static inline bool is_leap(time_t year) {
   return ((year % 4) == 0 && (year % 100) != 0) || year == 100;
 }
 
+// Gets the length of the months in a year.
+static inline const char *get_months(time_t year) {
+  static const char leap[12] = {
+      31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
+  };
+  static const char common[12] = {
+      31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
+  };
+  return is_leap(year) ? leap : common;
+}
+
 // Gets the cumulative length of the months in a year.
-static inline const short *get_months(time_t year) {
-  static const short leap[13] = {0,   31,  60,  91,  121, 152, 182,
-                                 213, 244, 274, 305, 335, 366};
-  static const short common[13] = {0,   31,  59,  90,  120, 151, 181,
-                                   212, 243, 273, 304, 334, 365};
+static inline const short *get_months_cumulative(time_t year) {
+  static const short leap[13] = {
+      0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366,
+  };
+  static const short common[13] = {
+      0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365,
+  };
   return is_leap(year) ? leap : common;
 }
 

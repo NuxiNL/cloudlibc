@@ -140,12 +140,10 @@ static inline bool rule_is_greater_than(const struct lc_timezone_rule *rule,
     // Time went back into last year.
     if (month == 0)
       return true;
-    const short *months = get_months(tm->tm_year);
-    monthday += months[month] - months[month - 1];
+    monthday += get_months(tm->tm_year)[month - 1];
     --month;
   } else {
-    const short *months = get_months(tm->tm_year);
-    int monthlen = months[month + 1] - months[month];
+    int monthlen = get_months(tm->tm_year)[month];
     if (monthday > monthlen) {
       monthday -= monthlen;
       ++month;
