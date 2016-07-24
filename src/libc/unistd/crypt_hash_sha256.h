@@ -4,12 +4,13 @@
 // See the LICENSE file for details.
 
 #include <stdint.h>
+#include <string.h>
 
 // SHA-256 hash computation state.
 // http://www.iwar.org.uk/comsec/resources/cipher/sha256-384-512.pdf
 typedef struct {
   uint32_t H[8];             // Intermediate hash results.
-  uint64_t length[2];        // Total length in bytes processed.
+  uint64_t length;           // Total length in bytes processed.
   unsigned char buffer[64];  // Input buffer for partial blocks.
 } SHA256_CTX;
 
@@ -26,8 +27,7 @@ static void SHA256_Init(SHA256_CTX *ctx) {
   ctx->H[6] = 0x1f83d9ab;
   ctx->H[7] = 0x5be0cd19;
 
-  ctx->length[0] = 0;
-  ctx->length[1] = 0;
+  ctx->length = 0;
 }
 
 // Page 6: Logical functions.
@@ -104,12 +104,66 @@ static void SHA256_Transform(uint32_t *H, const unsigned char *block) {
 #undef sigma0
 #undef sigma1
 
-#define SHAX_CTX SHA256_CTX
-#define SHAX_Final SHA256_Final
-#define SHAX_Transform SHA256_Transform
-#define SHAX_Update SHA256_Update
-#include "crypt_hash_shaX.h"
-#undef SHAX_CTX
-#undef SHAX_Final
-#undef SHAX_Transform
-#undef SHAX_Update
+static void SHA256_Update(SHA256_CTX *ctx, const void *data, size_t len) {
+  // Insert data into the input buffer.
+  size_t used = ctx->length % sizeof(ctx->buffer);
+  size_t remaining = sizeof(ctx->buffer) - used;
+  if (len < remaining) {
+    // Data fits entirely in the input buffer.
+    memcpy(&ctx->buffer[used], data, len);
+  } else {
+    // Data doesn't fit in the input buffer anymore. Finish off the
+    // first block.
+    memcpy(&ctx->buffer[used], data, remaining);
+    SHA256_Transform(ctx->H, ctx->buffer);
+
+    // Process as many blocks of data without copying them into the
+    // input buffer.
+    const unsigned char *d = (const unsigned char *)data + remaining;
+    size_t l = len - remaining;
+    while (l >= sizeof(ctx->buffer)) {
+      SHA256_Transform(ctx->H, d);
+      d += sizeof(ctx->buffer);
+      l -= sizeof(ctx->buffer);
+    }
+
+    // Copy remainder into the input buffer.
+    memcpy(ctx->buffer, d, l);
+  }
+
+  // Update the length counter.
+  ctx->length += len;
+}
+
+static void SHA256_Final(unsigned char *digest, SHA256_CTX *ctx) {
+  // Append the padding.
+  size_t used = ctx->length % sizeof(ctx->buffer);
+  static const unsigned char
+      padding[sizeof(ctx->buffer) - sizeof(ctx->length)] = {0x80};
+  if (used < sizeof(padding)) {
+    // There is space for at least one padding byte and the length. Add
+    // padding up to the length.
+    memcpy(&ctx->buffer[used], padding, sizeof(padding) - used);
+  } else {
+    // There is not enough space for any padding. Insert another block.
+    memcpy(&ctx->buffer[used], padding, sizeof(ctx->buffer) - used);
+    SHA256_Transform(ctx->H, ctx->buffer);
+    memset(ctx->buffer, '\0', sizeof(padding));
+  }
+
+#define encode(ptr, v)                              \
+  do {                                              \
+    for (size_t i = 0; i < __arraycount(v); ++i)    \
+      for (size_t j = 0; j < sizeof((v)[0]); ++j)   \
+        (ptr)[i * sizeof((v)[0]) + j] =             \
+            (v)[i] >> (sizeof((v)[0]) - 1 - j) * 8; \
+  } while (0)
+  // Store the length of the entire stream at the end of the last block.
+  uint64_t length[1] = {ctx->length << 3};
+  encode(&ctx->buffer[sizeof(ctx->buffer) - sizeof(length)], length);
+  SHA256_Transform(ctx->H, ctx->buffer);
+
+  // Copy out the final value of the digest.
+  encode(digest, ctx->H);
+#undef encode
+}
