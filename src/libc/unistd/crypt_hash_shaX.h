@@ -47,16 +47,15 @@ static void SHAX_Final(unsigned char *digest, SHAX_CTX *ctx) {
   size_t used = ctx->length[1] % sizeof(ctx->buffer);
   static const unsigned char
       padding[sizeof(ctx->buffer) - sizeof(ctx->length)] = {0x80};
-  if (used < sizeof(ctx->buffer) - sizeof(ctx->length)) {
+  if (used < sizeof(padding)) {
     // There is space for at least one padding byte and the length. Add
     // padding up to the length.
-    memcpy(&ctx->buffer[used], padding,
-           sizeof(ctx->buffer) - sizeof(ctx->length) - used);
+    memcpy(&ctx->buffer[used], padding, sizeof(padding) - used);
   } else {
     // There is not enough space for any padding. Insert another block.
     memcpy(&ctx->buffer[used], padding, sizeof(ctx->buffer) - used);
     SHAX_Transform(ctx->H, ctx->buffer);
-    memset(ctx->buffer, '\0', sizeof(ctx->buffer) - sizeof(ctx->length));
+    memset(ctx->buffer, '\0', sizeof(padding));
   }
 
 #define encode(ptr, v)                              \
