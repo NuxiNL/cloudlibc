@@ -8,12 +8,12 @@
 #include "crypt_hash_md5.h"
 
 #define MD5_Update_sequence(ctx, buf, totallen) \
-  do {                                           \
-    size_t l = (totallen);                       \
+  do {                                          \
+    size_t l = (totallen);                      \
     while (l > MD5_DIGEST_LENGTH) {             \
-      MD5_Update(ctx, buf, MD5_DIGEST_LENGTH); \
+      MD5_Update(ctx, buf, MD5_DIGEST_LENGTH);  \
       l -= MD5_DIGEST_LENGTH;                   \
-    }                                            \
+    }                                           \
     MD5_Update(ctx, buf, l);                    \
   } while (0)
 
