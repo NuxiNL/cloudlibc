@@ -26,6 +26,8 @@
 // Extensions:
 // - _SC_NPROCESSORS_CONF and _SC_NPROCESSORS_ONLN:
 //   Present on most systems and used by many pieces of software.
+// - struct crypt_data and crypt_r():
+//   Thread-safe replacement for crypt(). Present on Linux as well.
 // - useconds_t and usleep():
 //   Still used actively, as it was part of POSIX up to issue 6.
 //
@@ -59,8 +61,10 @@
 //   Signal handling not available.
 // - chdir(), fchdir(), getcwd():
 //   Per-process working directory is not available. Use *at() instead.
-// - crypt() and encrypt():
-//   Password database and encryption schemes not available.
+// - crypt():
+//   Not thread-safe. Use crypt_r() instead.
+// - encrypt():
+//   Encryption schemes not available.
 // - fexecve():
 //   Use <program.h>'s program_exec() instead.
 // - gethostid() and gethostname():
@@ -315,8 +319,14 @@ typedef __useconds_t useconds_t;
 #define _USECONDS_T_DECLARED
 #endif
 
+struct crypt_data {
+  int initialized;  // Whether this object has been initialized (ignored).
+  char __buf[256];  // String buffer returned by crypt_r().
+};
+
 __BEGIN_DECLS
 int close(int);
+char *crypt_r(const char *, const char *, struct crypt_data *);
 int dup(int);
 int dup2(int, int);
 _Noreturn void _exit(int);
