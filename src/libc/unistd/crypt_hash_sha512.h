@@ -93,17 +93,34 @@ static void SHA512_Transform(uint64_t *H, const unsigned char *block) {
   uint64_t g = H[6];
   uint64_t h = H[7];
   for (size_t i = 0;; i += 16) {
-    for (size_t j = 0; j < 16; ++j) {
-      uint64_t T1 = h + Sigma1(e) + Ch(e, f, g) + K[i + j] + W[j];
-      uint64_t T2 = Sigma0(a) + Maj(a, b, c);
-      h = g;
-      g = f;
-      f = e;
-      e = d + T1;
-      d = c;
-      c = b;
-      b = a;
-      a = T1 + T2;
+    // By unrolling eight rounds of the compression function, rotation
+    // of the eight registers can be eliminated entirely.
+    for (size_t j = 0; j < 16; j += 8) {
+      uint64_t T1;
+      T1 = h + Sigma1(e) + Ch(e, f, g) + K[i + j] + W[j];
+      d += T1;
+      h = T1 + Sigma0(a) + Maj(a, b, c);
+      T1 = g + Sigma1(d) + Ch(d, e, f) + K[i + j + 1] + W[j + 1];
+      c += T1;
+      g = T1 + Sigma0(h) + Maj(h, a, b);
+      T1 = f + Sigma1(c) + Ch(c, d, e) + K[i + j + 2] + W[j + 2];
+      b += T1;
+      f = T1 + Sigma0(g) + Maj(g, h, a);
+      T1 = e + Sigma1(b) + Ch(b, c, d) + K[i + j + 3] + W[j + 3];
+      a += T1;
+      e = T1 + Sigma0(f) + Maj(f, g, h);
+      T1 = d + Sigma1(a) + Ch(a, b, c) + K[i + j + 4] + W[j + 4];
+      h += T1;
+      d = T1 + Sigma0(e) + Maj(e, f, g);
+      T1 = c + Sigma1(h) + Ch(h, a, b) + K[i + j + 5] + W[j + 5];
+      g += T1;
+      c = T1 + Sigma0(d) + Maj(d, e, f);
+      T1 = b + Sigma1(g) + Ch(g, h, a) + K[i + j + 6] + W[j + 6];
+      f += T1;
+      b = T1 + Sigma0(c) + Maj(c, d, e);
+      T1 = a + Sigma1(f) + Ch(f, g, h) + K[i + j + 7] + W[j + 7];
+      e += T1;
+      a = T1 + Sigma0(b) + Maj(b, c, d);
     }
     if (i == 64)
       break;
