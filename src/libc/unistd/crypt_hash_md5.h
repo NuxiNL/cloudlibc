@@ -3,6 +3,9 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <stdint.h>
+#include <string.h>
+
 // MD5 hash computation state.
 // https://tools.ietf.org/html/rfc1321
 typedef struct {
