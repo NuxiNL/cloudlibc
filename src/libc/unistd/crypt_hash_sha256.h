@@ -75,23 +75,22 @@ static void SHA256_Transform(uint32_t *H, const unsigned char *block) {
     // By unrolling eight rounds of the compression function, rotation
     // of the eight registers can be eliminated entirely.
     for (size_t j = 0; j < 16; j += 8) {
-      uint32_t T1;
-      d += T1 = h + Sigma1(e) + Ch(e, f, g) + K[i + j] + W[j];
-      h = T1 + Sigma0(a) + Maj(a, b, c);
-      c += T1 = g + Sigma1(d) + Ch(d, e, f) + K[i + j + 1] + W[j + 1];
-      g = T1 + Sigma0(h) + Maj(h, a, b);
-      b += T1 = f + Sigma1(c) + Ch(c, d, e) + K[i + j + 2] + W[j + 2];
-      f = T1 + Sigma0(g) + Maj(g, h, a);
-      a += T1 = e + Sigma1(b) + Ch(b, c, d) + K[i + j + 3] + W[j + 3];
-      e = T1 + Sigma0(f) + Maj(f, g, h);
-      h += T1 = d + Sigma1(a) + Ch(a, b, c) + K[i + j + 4] + W[j + 4];
-      d = T1 + Sigma0(e) + Maj(e, f, g);
-      g += T1 = c + Sigma1(h) + Ch(h, a, b) + K[i + j + 5] + W[j + 5];
-      c = T1 + Sigma0(d) + Maj(d, e, f);
-      f += T1 = b + Sigma1(g) + Ch(g, h, a) + K[i + j + 6] + W[j + 6];
-      b = T1 + Sigma0(c) + Maj(c, d, e);
-      e += T1 = a + Sigma1(f) + Ch(f, g, h) + K[i + j + 7] + W[j + 7];
-      a = T1 + Sigma0(b) + Maj(b, c, d);
+      d += h += Sigma1(e) + Ch(e, f, g) + K[i + j] + W[j];
+      h += Sigma0(a) + Maj(a, b, c);
+      c += g += Sigma1(d) + Ch(d, e, f) + K[i + j + 1] + W[j + 1];
+      g += Sigma0(h) + Maj(h, a, b);
+      b += f += Sigma1(c) + Ch(c, d, e) + K[i + j + 2] + W[j + 2];
+      f += Sigma0(g) + Maj(g, h, a);
+      a += e += Sigma1(b) + Ch(b, c, d) + K[i + j + 3] + W[j + 3];
+      e += Sigma0(f) + Maj(f, g, h);
+      h += d += Sigma1(a) + Ch(a, b, c) + K[i + j + 4] + W[j + 4];
+      d += Sigma0(e) + Maj(e, f, g);
+      g += c += Sigma1(h) + Ch(h, a, b) + K[i + j + 5] + W[j + 5];
+      c += Sigma0(d) + Maj(d, e, f);
+      f += b += Sigma1(g) + Ch(g, h, a) + K[i + j + 6] + W[j + 6];
+      b += Sigma0(c) + Maj(c, d, e);
+      e += a += Sigma1(f) + Ch(f, g, h) + K[i + j + 7] + W[j + 7];
+      a += Sigma0(b) + Maj(b, c, d);
     }
     if (i == 48)
       break;
