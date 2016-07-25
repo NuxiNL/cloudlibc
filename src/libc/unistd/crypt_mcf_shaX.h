@@ -29,9 +29,8 @@ static void crypt_mcf_shaX(const char *key, const char *salt, char *out) {
   unsigned int rounds = rounds_default;
   bool rounds_specified = false;
   if (memcmp(salt, rounds_prefix, sizeof(rounds_prefix)) == 0) {
-    const char *p = salt + sizeof(rounds_prefix);
     char *end;
-    unsigned long r = strtoul(p, &end, 10);
+    unsigned long r = strtoul(salt + sizeof(rounds_prefix), &end, 10);
     if (*end == '$') {
       // Valid number specified.
       rounds_specified = true;
