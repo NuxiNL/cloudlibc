@@ -75,15 +75,13 @@ static void SHA512_Transform(uint64_t *H, const unsigned char *block) {
       0x5fcb6fab3ad6faec, 0x6c44198c4a475817,
   };
 
-  // Page 20: Expanded message block W.
-  uint64_t W[80];
+  // Page 18: Message parsing.
+  uint64_t W[16];
   for (size_t j = 0; j < 16; ++j)
     W[j] = (uint64_t)block[j * 8 + 0] << 56 | (uint64_t)block[j * 8 + 1] << 48 |
            (uint64_t)block[j * 8 + 2] << 40 | (uint64_t)block[j * 8 + 3] << 32 |
            (uint64_t)block[j * 8 + 4] << 24 | (uint64_t)block[j * 8 + 5] << 16 |
            (uint64_t)block[j * 8 + 6] << 8 | (uint64_t)block[j * 8 + 7] << 0;
-  for (size_t j = 16; j < 80; ++j)
-    W[j] = sigma1(W[j - 2]) + W[j - 7] + sigma0(W[j - 15]) + W[j - 16];
 
   // Page 19: Main loop.
   uint64_t a = H[0];
@@ -94,17 +92,26 @@ static void SHA512_Transform(uint64_t *H, const unsigned char *block) {
   uint64_t f = H[5];
   uint64_t g = H[6];
   uint64_t h = H[7];
-  for (int j = 0; j < 80; ++j) {
-    uint64_t T1 = h + Sigma1(e) + Ch(e, f, g) + K[j] + W[j];
-    uint64_t T2 = Sigma0(a) + Maj(a, b, c);
-    h = g;
-    g = f;
-    f = e;
-    e = d + T1;
-    d = c;
-    c = b;
-    b = a;
-    a = T1 + T2;
+  for (size_t i = 0;; i += 16) {
+    for (size_t j = 0; j < 16; ++j) {
+      uint64_t T1 = h + Sigma1(e) + Ch(e, f, g) + K[i + j] + W[j];
+      uint64_t T2 = Sigma0(a) + Maj(a, b, c);
+      h = g;
+      g = f;
+      f = e;
+      e = d + T1;
+      d = c;
+      c = b;
+      b = a;
+      a = T1 + T2;
+    }
+    if (i == 64)
+      break;
+
+    // Page 20: Expanded message block W.
+    for (size_t j = 0; j < 16; ++j)
+      W[j] +=
+          sigma1(W[(j + 14) % 16]) + W[(j + 9) % 16] + sigma0(W[(j + 1) % 16]);
   }
   H[0] += a;
   H[1] += b;

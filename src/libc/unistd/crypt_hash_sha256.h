@@ -56,13 +56,11 @@ static void SHA256_Transform(uint32_t *H, const unsigned char *block) {
       0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
   };
 
-  // Page 6: Expanded message block W.
-  uint32_t W[64];
+  // Page 4: Message parsing.
+  uint32_t W[16];
   for (size_t j = 0; j < 16; ++j)
     W[j] = (uint32_t)block[j * 4 + 0] << 24 | (uint32_t)block[j * 4 + 1] << 16 |
            (uint32_t)block[j * 4 + 2] << 8 | (uint32_t)block[j * 4 + 3] << 0;
-  for (size_t j = 16; j < 64; ++j)
-    W[j] = sigma1(W[j - 2]) + W[j - 7] + sigma0(W[j - 15]) + W[j - 16];
 
   // Page 5: Main loop.
   uint32_t a = H[0];
@@ -73,17 +71,26 @@ static void SHA256_Transform(uint32_t *H, const unsigned char *block) {
   uint32_t f = H[5];
   uint32_t g = H[6];
   uint32_t h = H[7];
-  for (int j = 0; j < 64; ++j) {
-    uint32_t T1 = h + Sigma1(e) + Ch(e, f, g) + K[j] + W[j];
-    uint32_t T2 = Sigma0(a) + Maj(a, b, c);
-    h = g;
-    g = f;
-    f = e;
-    e = d + T1;
-    d = c;
-    c = b;
-    b = a;
-    a = T1 + T2;
+  for (size_t i = 0;; i += 16) {
+    for (size_t j = 0; j < 16; ++j) {
+      uint32_t T1 = h + Sigma1(e) + Ch(e, f, g) + K[i + j] + W[j];
+      uint32_t T2 = Sigma0(a) + Maj(a, b, c);
+      h = g;
+      g = f;
+      f = e;
+      e = d + T1;
+      d = c;
+      c = b;
+      b = a;
+      a = T1 + T2;
+    }
+    if (i == 48)
+      break;
+
+    // Page 6: Expanded message block W.
+    for (size_t j = 0; j < 16; ++j)
+      W[j] +=
+          sigma1(W[(j + 14) % 16]) + W[(j + 9) % 16] + sigma0(W[(j + 1) % 16]);
   }
   H[0] += a;
   H[1] += b;
