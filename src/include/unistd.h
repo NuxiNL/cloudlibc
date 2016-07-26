@@ -43,8 +43,8 @@
 //   File locking not available.
 // - STDERR_FILENO, STDIN_FILENO and STDOUT_FILENO:
 //   Standard descriptors are not available.
-// - _POSIX_VDISABLE, _PC_MAX_CANON, _PC_MAX_INPUT, _POSIX_VDISABLE, isatty(),
-//   tcgetpgrp(), tcsetpgrp(), ttyname() and ttyname_r():
+// - _POSIX_VDISABLE, _PC_MAX_CANON, _PC_MAX_INPUT, _POSIX_VDISABLE,
+//   isatty(), tcgetpgrp(), tcsetpgrp(), ttyname() and ttyname_r():
 //   Terminal management is not available.
 // - uid_t, gid_t, getegid(), geteuid(), getgid(), getgroups(),
 //   getlogin(), getlogin_r(), getuid(), setegid(), seteuid(), setgid(),
