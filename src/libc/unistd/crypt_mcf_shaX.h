@@ -34,12 +34,7 @@ static void crypt_mcf_shaX(const char *key, const char *salt, char *out) {
     if (*end == '$') {
       // Valid number specified.
       rounds_specified = true;
-      if (r < rounds_min)
-        rounds = rounds_min;
-      else if (r > rounds_max)
-        rounds = rounds_max;
-      else
-        rounds = r;
+      rounds = r < rounds_min ? rounds_min : r > rounds_max ? rounds_max : r;
       salt = end + 1;
     }
   }
