@@ -25,7 +25,7 @@
 //
 // Extensions:
 // - LC_TIMEZONE_MASK:
-//   Handle to timezone. Used by localtime_l(), mktime_l() and strftime_l().
+//   Handle to timezone. Used by localtime_l() and mktime_l().
 // - LC_C_LOCALE:
 //   Explicit handle to the standard C locale. Also present on NetBSD.
 // - LC_C_UNICODE_LOCALE:
