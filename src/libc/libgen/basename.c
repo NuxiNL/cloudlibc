@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -13,7 +13,7 @@ char *basename(char *path) {
     return (char *)".";
 
   // Find end of last pathname component and null terminate it.
-  char *ptr = strchr(path, '\0');
+  char *ptr = path + strlen(path);
   while (ptr > path + 1 && *(ptr - 1) == '/')
     --ptr;
   *ptr-- = '\0';
