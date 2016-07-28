@@ -35,7 +35,7 @@
 //
 // Features missing:
 // - setlocale(), uselocale() and LC_*:
-//   Not thread-safe.
+//   This environment does not provide global locales. Use *_l() instead.
 
 #ifndef _LOCALE_H_
 #define _LOCALE_H_
