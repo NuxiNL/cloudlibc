@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -19,3 +19,5 @@ wchar_t *wmemmove(wchar_t *ws1, const wchar_t *ws2, size_t n) {
   }
   return ws1;
 }
+
+__strong_reference(wmemmove, wmemcpy);
