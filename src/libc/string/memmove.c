@@ -8,8 +8,8 @@
 #include "string_impl.h"
 
 void *memmove(void *s1, const void *s2, size_t n) {
-  unsigned char *sb1 = (unsigned char *)s1;
-  const unsigned char *sb2 = (const unsigned char *)s2;
+  unsigned char *sb1 = s1;
+  const unsigned char *sb2 = s2;
   if (sb1 < sb2) {
     // Special case: both buffers start within the same byte of a long.
     // This allows us to copy multiple bytes at a time.
