@@ -16,22 +16,23 @@ static size_t crypt_keylen(const char *key) {
   return strlen(key);
 }
 
-// Computes the length of a salt string, stopping processing at the '$'
-// character. The '$' character acts as a field delimiter.
-static size_t crypt_saltlen(const char *salt, size_t max) {
-  byteset_t saltset;
-  byteemptyset(&saltset);
-  byteaddset(&saltset, '\0');
-  byteaddset(&saltset, '$');
-  size_t len = 0;
-  while (len < max && !byteismember(&saltset, salt[len]))
-    ++len;
-  return len;
-}
-
 // Base64 character set.
 static const char base64[] =
     "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+// Computes the length of a salt string, only allowing characters from
+// the Base64 character set.
+static size_t crypt_saltlen(const char *salt, size_t max) {
+  byteset_t charset;
+  byteemptyset(&charset);
+  for (const char *c = base64; *c != '\0'; ++c)
+    byteaddset(&charset, *c);
+
+  size_t len = 0;
+  while (len < max && byteismember(&charset, salt[len]))
+    ++len;
+  return len;
+}
 
 // Base64 encodes one byte to two characters.
 static void crypt_base64_1(char **out, unsigned char c1) {
