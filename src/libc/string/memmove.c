@@ -43,7 +43,7 @@ void *memmove(void *s1, const void *s2, size_t n) {
     if (n >= LONG_STRING_SIZE && is_long_aligned_equally(sb1, sb2)) {
       // Do bytewise copying until the buffers are aligned to long.
       while (!is_long_aligned(sb1)) {
-      *--sb1 = *--sb2;
+        *--sb1 = *--sb2;
         --n;
       }
 
