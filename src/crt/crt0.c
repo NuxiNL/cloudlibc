@@ -120,6 +120,7 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
       return;
     if (phdr->p_type == PT_DYNAMIC)
       break;
+    ++phdr;
   }
 
   // Extract the symbol and string tables.
