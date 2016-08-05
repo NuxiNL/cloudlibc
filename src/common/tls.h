@@ -28,6 +28,22 @@ static inline void tcb_set(cloudabi_tcb_t *tcb) {
   asm volatile("msr tpidr_el0, %0" : : "r"(tcb));
 }
 
+#elif defined(__i386__)
+
+#define TLS_VARIANT 2
+
+// Fetches the TCB from the CPU's registers.
+static inline cloudabi_tcb_t *tcb_get(void) {
+  cloudabi_tcb_t *tcb;
+  asm volatile("mov %%gs:0, %0" : "=r"(tcb));
+  return tcb;
+}
+
+// Changes the TCB in the CPU's registers.
+static inline void tcb_set(cloudabi_tcb_t *tcb) {
+  asm volatile("mov %0, %%gs:0" : : "r"(tcb));
+}
+
 #elif defined(__x86_64__)
 
 #define TLS_VARIANT 2
