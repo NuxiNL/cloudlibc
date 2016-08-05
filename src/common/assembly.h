@@ -16,6 +16,17 @@
 
 #define END(name) .size name, .- name
 
+#elif defined(__i386__)
+
+#define ENTRY(name)      \
+  .text;                 \
+  .p2align 2, 0x90;      \
+  .global name;          \
+  .type name, @function; \
+  name:
+
+#define END(name) .size name, .- name
+
 #elif defined(__x86_64__)
 
 #define ENTRY(name)      \
