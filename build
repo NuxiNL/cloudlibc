@@ -27,7 +27,7 @@ case $(${CC} -dumpmachine) in
     OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld128"
     CFLAGS="${CFLAGS} -I${OPENLIBM}/ld128"
     ;;
-  x86_64-*)
+  i686-*|x86_64-*)
     OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld80"
     CFLAGS="${CFLAGS} -I${OPENLIBM}/ld80"
     ;;
