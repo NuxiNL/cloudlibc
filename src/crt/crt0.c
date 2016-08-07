@@ -124,7 +124,7 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
   }
 
   // Extract the symbol and string tables.
-  const ElfW(Dyn) *dyn = (const ElfW(Dyn) *)(base + phdr->p_offset);
+  const ElfW(Dyn) *dyn = (const ElfW(Dyn) *)(base + phdr->p_vaddr);
   const char *str = NULL;
   const ElfW(Sym) *sym = NULL;
   size_t symsz = 0;
