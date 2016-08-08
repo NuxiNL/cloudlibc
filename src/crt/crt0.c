@@ -6,29 +6,21 @@
 #include <common/argdata.h>
 #include <common/crt.h>
 #include <common/pthread.h>
+#include <common/syscall_fallback.h>
 #include <common/tls.h>
 
 #include <cloudabi_syscalls.h>
 #include <cloudabi_syscalls_info.h>
-#include <cloudabi_syscalls_native.h>
 #include <cloudabi_syscalls_struct.h>
 #include <program.h>
 #include <stdalign.h>
 #include <stdatomic.h>
 #include <threads.h>
 
-// Default system call table.
-//
-// TODO(ed): Once our work on switching over to a vDSO for providing the
-// system call handlers has finished, this table will simply contain a
-// list of pointers to a function that returns ENOSYS. For now, fill it
-// up with functions that use inline assembly to call into the kernel
-// using the "syscall" instruction.
-cloudabi_syscalls_t cloudabi_syscalls = {
-#define entry(name) .name = cloudabi_native_sys_##name,
-    CLOUDABI_SYSCALL_NAMES(entry)
-#undef entry
-};
+// Process-wide system call table. By default, it is filled with a
+// single function that just returns ENOSYS. The actual implementations
+// need to be provided by the vDSO.
+cloudabi_syscalls_t cloudabi_syscalls;
 
 // DSO handle. Not used, as we only support static linkage.
 void *__dso_handle = NULL;
@@ -101,6 +93,11 @@ static size_t strlen(const char *s) {
   while (*end != '\0')
     ++end;
   return end - s;
+}
+
+// Fallback system call body that just returns ENOSYS.
+static cloudabi_errno_t default_syscall(void) {
+  return CLOUDABI_ENOSYS;
 }
 
 // Links program to the vDSO.
@@ -308,10 +305,21 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
     ++rela;
   }
 
+  // Initialize the system call table with functions that return ENOSYS.
+  typedef cloudabi_errno_t (*syscall_t)(void);
+  for (size_t i = 0; i < sizeof(cloudabi_syscalls) / sizeof(syscall_t); ++i) {
+    ((syscall_t *)&cloudabi_syscalls)[i] = default_syscall;
+  }
+
   // Make it possible to invoke system calls by attaching the
   // implementations provided by the vDSO.
+  // TODO(ed): If the vDSO is missing, we currently fall back to using
+  // implementations that invoke "syscall" directly. These should be
+  // removed as soon as all supported operating systems provide a vDSO.
   if (at_sysinfo_ehdr != NULL)
     link_vdso(&cloudabi_syscalls, at_sysinfo_ehdr);
+  else
+    syscall_fallback_setup(&cloudabi_syscalls);
 
   // Terminate immediately if there was a relocation that we didn't
   // support. Otherwise we end up having hard to debug crashes.
