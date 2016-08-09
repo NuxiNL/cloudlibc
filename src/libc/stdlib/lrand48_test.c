@@ -9,5 +9,5 @@
 TEST(lrand48, bounds) {
   long value = lrand48();
   ASSERT_LE(0, value);
-  ASSERT_GT(2147483648, value);
+  ASSERT_GE(2147483647, value);
 }
