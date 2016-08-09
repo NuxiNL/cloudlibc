@@ -168,7 +168,7 @@ static void SHA512_Update(SHA512_CTX *ctx, const void *data, size_t len) {
   }
 
   // Update the length counter.
-  uint64_t length[2] = {len >> 32 >> 32, len};
+  uint64_t length[2] = {(uintmax_t)len >> 32 >> 32, len};
   ctx->length[0] += length[0];
   if (add_overflow(ctx->length[1], length[1], &ctx->length[1]))
     ++ctx->length[0];
