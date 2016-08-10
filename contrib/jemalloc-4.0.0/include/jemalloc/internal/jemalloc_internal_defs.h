@@ -23,7 +23,7 @@
  */
 #if defined(__aarch64__)
 #define CPU_SPINWAIT /* Do nothing. */
-#elif defined(__x86_64__)
+#elif defined(__i386__) || defined(__x86_64__)
 #define CPU_SPINWAIT __asm__ volatile("pause")
 #endif
 
