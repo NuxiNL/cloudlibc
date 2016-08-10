@@ -31,7 +31,11 @@
 #include <stdint.h>
 
 #include "cdefs-compat.h"
+#if defined(__i386__)
+#include "i387/bsd_ieeefp.h"
+#else
 #include "amd64/bsd_ieeefp.h"
+#endif
 
 #include <openlibm_math.h>
 
