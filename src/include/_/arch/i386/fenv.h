@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -21,39 +21,27 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <fenv.h> - floating-point environment
+#ifndef ___ARCH_I386_FENV_H_
+#define ___ARCH_I386_FENV_H_
 
-#ifndef _FENV_H_
-#define _FENV_H_
+// TODO(ed): Implement.
 
-#if defined(__aarch64__)
-#include <_/arch/aarch64/fenv.h>
-#elif defined(__i386__)
-#include <_/arch/i386/fenv.h>
-#elif defined(__x86_64__)
-#include <_/arch/x86_64/fenv.h>
-#else
-#error "Unknown architecture"
-#endif
-#include <_/cdefs.h>
+typedef struct { int __bogus; } fenv_t;
 
-// Default floating-point environment.
-extern const fenv_t __fe_dfl_env;
-static const fenv_t *const FE_DFL_ENV = &__fe_dfl_env;
-#define FE_DFL_ENV FE_DFL_ENV
+typedef struct { int __bogus; } fexcept_t;
 
-__BEGIN_DECLS
-int feclearexcept(int);
-int fegetenv(fenv_t *);
-int fegetexceptflag(fexcept_t *, int);
-int fegetround(void);
-int feholdexcept(fenv_t *);
-int feraiseexcept(int);
-int fesetenv(const fenv_t *);
-int fesetexceptflag(const fexcept_t *, int);
-int fesetround(int);
-int fetestexcept(int);
-int feupdateenv(const fenv_t *);
-__END_DECLS
+#define FE_INVALID 1
+#define FE_DIVBYZERO 2
+#define FE_OVERFLOW 3
+#define FE_UNDERFLOW 4
+#define FE_INEXACT 5
+
+#define FE_ALL_EXCEPT \
+  (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
+
+#define FE_TONEAREST 1
+#define FE_DOWNWARD 2
+#define FE_UPWARD 3
+#define FE_TOWARDZERO 4
 
 #endif

@@ -13,6 +13,9 @@ int feupdateenv(const fenv_t *envp) {
   msr_fpcr(envp->__fpcr);
   msr_fpsr(envp->__fpsr | (mrs_fpsr() & FE_ALL_EXCEPT));
   return 0;
+#elif defined(__i386__)
+  // TODO(ed): Implement.
+  return 0;
 #elif defined(__x86_64__)
   // Save currently raised exceptions.
   int exceptions = (fnstsw() | stmxcsr()) & FE_ALL_EXCEPT;
