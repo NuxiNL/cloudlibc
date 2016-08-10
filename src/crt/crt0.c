@@ -281,6 +281,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // Perform relocations. The type of relocations that are performed is
   // machine dependent.
   bool fully_relocated = true;
+#ifndef __i386__
   for (; rela_size >= sizeof(*rela); rela_size -= sizeof(*rela)) {
     char *obj = at_base + rela->r_offset;
     switch (ELFW(R_TYPE)(rela->r_info)) {
@@ -304,6 +305,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
     }
     ++rela;
   }
+#endif
 
   // Initialize the system call table with functions that return ENOSYS.
   typedef cloudabi_errno_t (*syscall_t)(void);
