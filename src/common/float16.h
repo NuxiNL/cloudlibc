@@ -337,9 +337,16 @@ static inline f16_bin80_t f16enc_get_bin80(const struct f16enc *f16,
 
   // Convert significand and exponent to native floating point type.
   union {
-    uint64_t i[2];
+    struct {
+      uint64_t significand;
+#ifdef __i386__
+      uint32_t exponent;
+#else
+      uint64_t exponent;
+#endif
+    } i;
     f16_bin80_t f;
-  } result = {.i = {parts[0], exponent}};
+  } result = {.i = {.significand = parts[0], .exponent = exponent}};
   static_assert(sizeof(result.i) == sizeof(result.f), "Size mismatch");
   return result.f;
 }
@@ -458,11 +465,18 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
   // Extract the significand and the exponent from the floating point value.
   union {
     long double f;
-    uint64_t i[2];
+    struct {
+      uint64_t significand;
+#ifdef __i386__
+      uint32_t exponent;
+#else
+      uint64_t exponent;
+#endif
+    } i;
   } value = {.f = f};
   static_assert(sizeof(value.f) == sizeof(value.i), "Size mismatch");
-  f16_part_t parts[F16_NPARTS] = {value.i[0]};
-  *exponent = value.i[1] & 0x7fff;
+  f16_part_t parts[F16_NPARTS] = {value.i.significand};
+  *exponent = value.i.exponent & 0x7fff;
 #elif LDBL_MANT_DIG == 113
   union {
     long double f;
