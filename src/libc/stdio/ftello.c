@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -6,7 +6,6 @@
 #include <common/stdio.h>
 
 #include <assert.h>
-#include <limits.h>
 #include <stdio.h>
 
 off_t ftello(FILE *stream) {
@@ -21,7 +20,3 @@ off_t ftello(FILE *stream) {
   funlockfile(stream);
   return result;
 }
-
-#if LONG_BIT == 64
-__strong_reference(ftello, ftell);
-#endif

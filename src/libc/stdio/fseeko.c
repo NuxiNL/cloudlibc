@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -6,7 +6,6 @@
 #include <common/overflow.h>
 #include <common/stdio.h>
 
-#include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -46,7 +45,3 @@ int fseeko(FILE *stream, off_t offset, int whence) {
   funlockfile(stream);
   return result ? 0 : -1;
 }
-
-#if LONG_BIT == 64
-__strong_reference(fseeko, fseek);
-#endif
