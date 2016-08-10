@@ -31,6 +31,9 @@ ALTENTRY(sigsetjmp)
   // Return zero for a direct invocation.
   mov x0, #0
   ret
+#elif defined(__i386__)
+  // TODO(ed): Implement.
+  ret
 #elif defined(__x86_64__)
   // Save register values.
   mov (%rsp), %rdx

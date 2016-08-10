@@ -35,6 +35,9 @@ ALTENTRY(siglongjmp)
   mov x0, #1
 1:
   br x30
+#elif defined(__i386__)
+  // TODO(ed): Implement.
+  ret
 #elif defined(__x86_64__)
   // Restore register values.
   mov 0(%rdi), %rdx
