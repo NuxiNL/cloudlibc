@@ -61,6 +61,7 @@ fi
 # library.
 (cat << EOF
 __addtf3
+__divdi3
 __divtf3
 __eqtf2
 __extenddftf2
@@ -74,7 +75,9 @@ __getf2
 __gttf2
 __letf2
 __lttf2
+__moddi3
 __muldc3
+__mulodi4
 __muloti4
 __mulsc3
 __multc3
@@ -84,6 +87,8 @@ __netf2
 __subtf3
 __trunctfdf2
 __trunctfsf2
+__udivdi3
+__umoddi3
 __unorddf2
 __unordtf2
 main
