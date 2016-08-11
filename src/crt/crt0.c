@@ -169,6 +169,19 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
   }
 }
 
+// Relocations for Position Independent Executables.
+//
+// On architectures that support PC-relative addressing, we provide
+// support for running Position Independent Executables. These require
+// to apply relocations to data segments during early startup.
+#if defined(__aarch64__) || defined(__x86_64__)
+#define PIE_RELOCATOR 1
+#elif defined(__i386__)
+#define PIE_RELOCATOR 0
+#else
+#error "Unsupported architecture"
+#endif
+
 noreturn void _start(const cloudabi_auxv_t *auxv) {
   // Extract parameters from the auxiliary vector.
   const void *at_argdata = NULL;
@@ -221,10 +234,12 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
     ++auxv;
   }
 
+#if PIE_RELOCATOR
   // Iterate through the program header to obtain values of interest.
   const ElfW(Dyn) *dyn = NULL;
   uintptr_t relro_start;
   size_t relro_size = 0;
+#endif
   const void *pt_tls_vaddr_abs = 0;
   size_t pt_tls_filesz = 0;
   size_t pt_tls_memsz_aligned = 0;
@@ -232,6 +247,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   for (size_t i = 0; i < at_phnum; ++i) {
     const ElfW(Phdr) *phdr = &at_phdr[i];
     switch (phdr->p_type) {
+#if PIE_RELOCATOR
       case PT_DYNAMIC:
         // Dynamic Section.
         dyn = (const ElfW(Dyn) *)(at_base + phdr->p_vaddr);
@@ -247,6 +263,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
                         at_pagesz) -
             relro_start;
         break;
+#endif
       case PT_TLS:
         // TLS header. This process uses variables stored in
         // thread-local storage. Extract the location and the size of
@@ -259,6 +276,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
     }
   }
 
+#if PIE_RELOCATOR
   // Iterate through the Dynamic Section to obtain values of interest.
   const ElfW(Rela) *rela = NULL;
   size_t rela_size = 0;
@@ -281,7 +299,6 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // Perform relocations. The type of relocations that are performed is
   // machine dependent.
   bool fully_relocated = true;
-#ifndef __i386__
   for (; rela_size >= sizeof(*rela); rela_size -= sizeof(*rela)) {
     char *obj = at_base + rela->r_offset;
     switch (ELFW(R_TYPE)(rela->r_info)) {
@@ -323,6 +340,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   else
     syscall_fallback_setup(&cloudabi_syscalls);
 
+#if PIE_RELOCATOR
   // Terminate immediately if there was a relocation that we didn't
   // support. Otherwise we end up having hard to debug crashes.
   if (!fully_relocated) {
@@ -334,6 +352,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   if (relro_size > 0)
     cloudabi_sys_mem_protect((void *)relro_start, relro_size,
                              CLOUDABI_PROT_READ);
+#endif
 
   // Now that we've relocated, we can write to global memory. Preserve
   // some of the values from the auxiliary vector and program header.
