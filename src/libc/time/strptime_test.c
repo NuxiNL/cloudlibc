@@ -28,8 +28,8 @@ TEST(strptime, examples) {
     ASSERT_EQ(-1, tm.tm_isdst);                                             \
     ASSERT_STREQ("", tm.tm_zone);                                           \
   } while (0)
-  // The default date is January 1st, 1900.
-  TEST_STRPTIME("", "", 1900, 1, 1, 1, 0, 0, 0, 0, 0);
+  // The default date is January 1st, 2000.
+  TEST_STRPTIME("", "", 2000, 1, 6, 1, 0, 0, 0, 0, 0);
 
   TEST_STRPTIME("2001-11-12 18:31:01", "%Y-%m-%d %H:%M:%S", 2001, 11, 1, 12, 18,
                 31, 1, 0, 0);
@@ -48,13 +48,18 @@ TEST(strptime, examples) {
   TEST_STRPTIME("2016-W29-2", "%G-W%V-%u", 2016, 7, 2, 19, 0, 0, 0, 0, 0);
 
   // Just weekday or month names.
-  TEST_STRPTIME("wednesday", "%a", 1900, 1, 3, 3, 0, 0, 0, 0, 0);
-  TEST_STRPTIME("APRIL", "%b", 1900, 4, 0, 1, 0, 0, 0, 0, 0);
+  TEST_STRPTIME("wednesday", "%a", 2000, 1, 3, 5, 0, 0, 0, 0, 0);
+  TEST_STRPTIME("APRIL", "%b", 2000, 4, 6, 1, 0, 0, 0, 0, 0);
 
   // Corner case: week-based year, week number and day of the month,
   // where the date lies in the previous year.
   TEST_STRPTIME("1902-01-31 12:35:27", "%G-%V-%d %T", 1901, 12, 2, 31, 12, 35,
                 27, 0, 0);
+
+  // The century that's used implicitly depends on the last two digits
+  // of the year.
+  TEST_STRPTIME("-69", "%y", 1969, 1, 3, 1, 0, 0, 0, 0, 0);
+  TEST_STRPTIME("+68", "%y", 2068, 1, 0, 1, 0, 0, 0, 0, 0);
 #undef TEST_STRPTIME
 }
 

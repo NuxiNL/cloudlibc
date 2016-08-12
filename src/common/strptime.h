@@ -74,11 +74,11 @@ static int wday_until(int a, int b) {
 
 char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
              struct tm *restrict result, locale_t locale) {
-  int gmtoff = 0, hour = 0, mday = -1, min = 0, mon = 0, sec = 0, wday = -1,
-      wday1, wday_in_prevyear, week = -1, yday = -1, year_century = 19,
-      year_last2 = 0;
+  int century, gmtoff = 0, hour = 0, mday = -1, min = 0, mon = 0, sec = 0,
+               wday = -1, wday1, wday_in_prevyear, week = -1, yday = -1,
+               year = 0;
   long nsec = 0;
-  bool year_negative = false;
+  bool century_specified = false, century_negative;
 
   const struct lc_time *lc_time = locale->time;
   const wchar_t *subformat = L"";
@@ -132,8 +132,9 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           // Century.
           if (field_width == 0)
             field_width = 2;
-          if (!parse_year(&buf, field_width, &year_century, &year_negative))
+          if (!parse_year(&buf, field_width, &century, &century_negative))
             return NULL;
+          century_specified = true;
           break;
         }
         case L'd':
@@ -173,7 +174,9 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           // needs to be added or subtracted to tm_year depends on
           // whether the century is negative. Only process this data
           // after we've finished processing input.
-          if (!parse_number_range(&buf, 0, 99, &year_last2))
+          if (*buf == L'-' || *buf == L'+')
+            ++buf;
+          if (!parse_number_range(&buf, 0, 99, &year))
             return NULL;
           break;
         }
@@ -183,11 +186,12 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
           // Year number.
           if (field_width == 0)
             field_width = 4;
-          int year;
-          if (!parse_year(&buf, field_width, &year, &year_negative))
+          int combined;
+          if (!parse_year(&buf, field_width, &combined, &century_negative))
             return NULL;
-          year_century = year / 100;
-          year_last2 = abs(year % 100);
+          century = combined / 100;
+          century_specified = true;
+          year = abs(combined % 100);
           break;
         }
         case L'H': {
@@ -377,12 +381,19 @@ char_t *NAME(const char_t *restrict buf, const char_t *restrict format,
     }
   }
 
+  // POSIX requires that if no century is specified, the last two digits
+  // determine whether the 20th or 21st century is used.
+  if (!century_specified) {
+    century = year >= 69 ? 19 : 20;
+    century_negative = false;
+  }
+
   // Determine the day corresponding to the input provided. Start off
   // with the beginning of the year.
   struct tm tm = {
       .tm_mday = 1,
-      .tm_year = year_negative ? (year_century * 100 - year_last2) - 1900
-                               : (year_century * 100 + year_last2) - 1900,
+      .tm_year = century_negative ? (century * 100 - year) - 1900
+                                  : (century * 100 + year) - 1900,
   };
   struct timespec ts;
   if (yday >= 0) {
