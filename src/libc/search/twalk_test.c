@@ -31,7 +31,7 @@ static void traverse(const void *key, VISIT visit, int level) {
   switch (visit) {
     case preorder:
       ASSERT_EQ(++current_level, level);
-      ASSERT_LE(numbers[next_key], **(int **)key);
+      ASSERT_LE(&numbers[next_key], *(int **)key);
       break;
     case postorder:
       ASSERT_EQ(current_level, level);
@@ -39,7 +39,7 @@ static void traverse(const void *key, VISIT visit, int level) {
       break;
     case endorder:
       ASSERT_EQ(current_level--, level);
-      ASSERT_GE(numbers[next_key], **(int **)key);
+      ASSERT_GE(&numbers[next_key], *(int **)key);
       break;
     case leaf:
       ASSERT_EQ(current_level + 1, level);
