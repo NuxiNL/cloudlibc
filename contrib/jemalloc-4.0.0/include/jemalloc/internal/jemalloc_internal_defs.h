@@ -244,7 +244,13 @@
 #define LG_SIZEOF_INT 2
 
 /* sizeof(long) == 2^LG_SIZEOF_LONG. */
+#if defined(__i386__)
+#define LG_SIZEOF_LONG 2
+#elif defined(__aarch64__) || defined(__x86_64__)
 #define LG_SIZEOF_LONG 3
+#else
+#error "Unknown architecture"
+#endif
 
 /* sizeof(intmax_t) == 2^LG_SIZEOF_INTMAX_T. */
 #define LG_SIZEOF_INTMAX_T 3

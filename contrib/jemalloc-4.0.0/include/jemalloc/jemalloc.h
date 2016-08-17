@@ -40,7 +40,13 @@ extern "C" {
 /* #undef JEMALLOC_USE_CXX_THROW */
 
 /* sizeof(void *) == 2^LG_SIZEOF_PTR. */
+#if defined(__i386__)
+#define	LG_SIZEOF_PTR 2
+#elif defined(__aarch64__) || defined(__x86_64__)
 #define	LG_SIZEOF_PTR 3
+#else
+#error "Unknown architecture"
+#endif
 
 /*
  * Name mangling for public symbols is controlled by --with-mangling and
