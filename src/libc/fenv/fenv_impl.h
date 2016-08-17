@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -38,7 +38,7 @@ static inline void msr_fpsr(uint32_t value) {
   asm volatile("msr fpsr, %0" : : "r"(sr));
 }
 
-#elif defined(__x86_64__)
+#elif defined(__i386__) || defined(__x86_64__)
 
 // Bits 13 and 14 that determine the rounding.
 #define ROUNDING_MASK 0x6000

@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -24,24 +24,42 @@
 #ifndef ___ARCH_I386_FENV_H_
 #define ___ARCH_I386_FENV_H_
 
-// TODO(ed): Implement.
+#include <_/types.h>
 
-typedef struct { int __bogus; } fenv_t;
+// State returned by fnstenv.
+struct __x87_state {
+  __uint32_t __control;  // Control Word.
+  __uint32_t __status;   // Status Word.
+  __uint32_t __tag;      // Tag Word.
+  __uint32_t __fpu_ipo;  // FPU Instruction Pointer Offset.
+  __uint32_t __fpu_ips;  // FPU Instruction Pointer Selector.
+  __uint32_t __fpu_dpo;  // FPU Data Pointer Offset.
+  __uint32_t __fpu_dps;  // FPU Data Pointer Selector.
+};
 
-typedef struct { int __bogus; } fexcept_t;
+typedef struct {
+  struct __x87_state __x87;
+  __uint32_t __mxcsr;
+} fenv_t;
 
-#define FE_INVALID 1
-#define FE_DIVBYZERO 2
-#define FE_OVERFLOW 3
-#define FE_UNDERFLOW 4
-#define FE_INEXACT 5
+typedef struct { __uint8_t __exceptions; } fexcept_t;
 
-#define FE_ALL_EXCEPT \
-  (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
+// Exception flags stored in the mxcsr register.
+#define FE_INVALID 0x01
+#define FE_DENORMAL 0x02  // Extension. Name also used on other systems.
+#define FE_DIVBYZERO 0x04
+#define FE_OVERFLOW 0x08
+#define FE_UNDERFLOW 0x10
+#define FE_INEXACT 0x20
 
-#define FE_TONEAREST 1
-#define FE_DOWNWARD 2
-#define FE_UPWARD 3
-#define FE_TOWARDZERO 4
+#define FE_ALL_EXCEPT                                                     \
+  (FE_INVALID | FE_DENORMAL | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | \
+   FE_INEXACT)
+
+// Rounding modes stored in the mxcsr register.
+#define FE_TONEAREST 0x0000
+#define FE_DOWNWARD 0x2000
+#define FE_UPWARD 0x4000
+#define FE_TOWARDZERO 0x6000
 
 #endif
