@@ -121,7 +121,7 @@ _ARGDATA_INT_U(unsigned int, uint, _UINT_MAX)
 _ARGDATA_INT_S(long, long, _LONG_MIN, _LONG_MAX)
 _ARGDATA_INT_U(unsigned long, ulong, _ULONG_MAX)
 _ARGDATA_INT_S(long long, llong, _LLONG_MIN, _LLONG_MAX)
-_ARGDATA_INT_U(unsigned long long, ullong, _ULONG_MAX)
+_ARGDATA_INT_U(unsigned long long, ullong, _ULLONG_MAX)
 #undef _ARGDATA_INT_S
 #undef _ARGDATA_INT_U
 
