@@ -14,7 +14,7 @@
   .global name;     \
   name:
 
-#define END(name) .size name, . - name
+#define END(name) .size name, .- name
 
 #elif defined(__i386__)
 
@@ -25,7 +25,7 @@
   .type name, @function; \
   name:
 
-#define END(name) .size name, . - name
+#define END(name) .size name, .- name
 
 #elif defined(__x86_64__)
 
@@ -36,7 +36,7 @@
   .type name, @function; \
   name:
 
-#define END(name) .size name, . - name
+#define END(name) .size name, .- name
 
 #else
 
