@@ -24,9 +24,20 @@
 #ifndef ___ARCH_I386_SETJMP_H_
 #define ___ARCH_I386_SETJMP_H_
 
-// TODO(ed): Implement.
+#include <_/types.h>
+
+// Registers that need to be preserved across function calls, per
+// Table 2.3 of the i386 ABI.
 struct __jmp_buf {
-  int __bogus;
+  __uint32_t __return;  // Return address.
+  __uint32_t __ebx;     // %ebx.
+  __uint32_t __esp;     // %esp.
+  __uint32_t __ebp;     // %ebp.
+  __uint32_t __esi;     // %esi.
+  __uint32_t __edi;     // %edi.
+  __uint32_t __mxcsr;   // mxcsr.
+  __uint16_t __x87_cw;  // x87 control word.
 };
+_Static_assert(sizeof(struct __jmp_buf) == 32, "ABI breakage");
 
 #endif

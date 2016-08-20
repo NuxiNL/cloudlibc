@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -36,7 +36,27 @@ ALTENTRY(siglongjmp)
 1:
   br x30
 #elif defined(__i386__)
-  // TODO(ed): Implement.
+  // Fetch arguments.
+  mov 4(%esp), %ecx
+  mov 8(%esp), %eax
+
+  // Restore register values.
+  mov 0(%ecx), %edx
+  mov %edx, (%esp)
+  mov 4(%ecx), %ebx
+  mov 8(%ecx), %esp
+  mov 12(%ecx), %ebp
+  mov 16(%ecx), %esi
+  mov 20(%ecx), %edi
+  ldmxcsr 24(%ecx)
+  fldcw 28(%ecx)
+
+  // Return the second parameter of longjmp(), ensuring that we never
+  // return zero.
+  test %eax, %eax
+  jnz 1f
+  inc %eax
+1:
   ret
 #elif defined(__x86_64__)
   // Restore register values.

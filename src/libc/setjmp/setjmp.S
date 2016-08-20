@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -32,7 +32,20 @@ ALTENTRY(sigsetjmp)
   mov x0, #0
   ret
 #elif defined(__i386__)
-  // TODO(ed): Implement.
+  // Save register values.
+  mov 4(%esp), %ecx
+  mov 0(%esp), %edx
+  mov %edx, 0(%ecx)
+  mov %ebx, 4(%ecx)
+  mov %esp, 8(%ecx)
+  mov %ebp, 12(%ecx)
+  mov %esi, 16(%ecx)
+  mov %edi, 20(%ecx)
+  stmxcsr 24(%ecx)
+  fnstcw 28(%ecx)
+
+  // Return zero for a direct invocation.
+  xor %eax, %eax
   ret
 #elif defined(__x86_64__)
   // Save register values.
