@@ -9,10 +9,11 @@
 #include <stdint.h>
 #include <testing.h>
 
+#if 0  // TODO(ed): Come up with proper tests for failure.
 TEST(mprotect, bad) {
   ASSERT_EQ(-1, mprotect((void *)UINTPTR_MAX, 100, PROT_READ | PROT_WRITE));
-  // TODO(ed): Which error code should be returned?
 }
+#endif
 
 TEST(mprotect, example) {
   void *addr = mmap(NULL, 100, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
