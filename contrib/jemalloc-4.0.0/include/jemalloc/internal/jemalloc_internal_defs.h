@@ -21,7 +21,7 @@
  * Hyper-threaded CPUs may need a special instruction inside spin loops in
  * order to yield to another virtual CPU.
  */
-#if defined(__aarch64__)
+#if defined(__aarch64__) || defined(__arm__)
 #define CPU_SPINWAIT /* Do nothing. */
 #elif defined(__i386__) || defined(__x86_64__)
 #define CPU_SPINWAIT __asm__ volatile("pause")
@@ -244,9 +244,9 @@
 #define LG_SIZEOF_INT 2
 
 /* sizeof(long) == 2^LG_SIZEOF_LONG. */
-#if defined(__i386__)
+#if __SIZEOF_LONG__ == 4
 #define LG_SIZEOF_LONG 2
-#elif defined(__aarch64__) || defined(__x86_64__)
+#elif __SIZEOF_LONG__ == 8
 #define LG_SIZEOF_LONG 3
 #else
 #error "Unknown architecture"

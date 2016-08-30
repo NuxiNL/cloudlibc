@@ -40,9 +40,9 @@ extern "C" {
 /* #undef JEMALLOC_USE_CXX_THROW */
 
 /* sizeof(void *) == 2^LG_SIZEOF_PTR. */
-#if defined(__i386__)
+#if __SIZEOF_POINTER__ == 4
 #define	LG_SIZEOF_PTR 2
-#elif defined(__aarch64__) || defined(__x86_64__)
+#elif __SIZEOF_POINTER__ == 8
 #define	LG_SIZEOF_PTR 3
 #else
 #error "Unknown architecture"
