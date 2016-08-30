@@ -16,6 +16,16 @@
 
 #define END(name) .size name, .- name
 
+#elif defined(__arm__)
+
+#define ENTRY(name) \
+  .text;            \
+  .align 2;         \
+  .global name;     \
+  name:
+
+#define END(name) .size name, .- name
+
 #elif defined(__i386__)
 
 #define ENTRY(name)      \
