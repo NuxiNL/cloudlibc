@@ -242,12 +242,15 @@ typedef struct {
 #define PRIxMAX "jx"
 #define PRIXMAX "jX"
 
-#define PRIdPTR __INTPTR_FMTd__
-#define PRIiPTR __INTPTR_FMTi__
-#define PRIoPTR __UINTPTR_FMTo__
-#define PRIuPTR __UINTPTR_FMTu__
-#define PRIxPTR __UINTPTR_FMTx__
-#define PRIXPTR __UINTPTR_FMTX__
+#define _PRI_PTR(c) __PRI_PTR(c, __INTPTR_WIDTH__)
+#define __PRI_PTR(c, w) ___PRI_PTR(c, w)
+#define ___PRI_PTR(c, w) PRI##c##LEAST##w
+#define PRIdPTR _PRI_PTR(d)
+#define PRIiPTR _PRI_PTR(i)
+#define PRIoPTR _PRI_PTR(o)
+#define PRIuPTR _PRI_PTR(u)
+#define PRIxPTR _PRI_PTR(x)
+#define PRIXPTR _PRI_PTR(X)
 
 // scanf() modifiers.
 
@@ -420,11 +423,14 @@ typedef struct {
 #define SCNuMAX "ju"
 #define SCNxMAX "jx"
 
-#define SCNdPTR __INTPTR_FMTd__
-#define SCNiPTR __INTPTR_FMTi__
-#define SCNoPTR __UINTPTR_FMTo__
-#define SCNuPTR __UINTPTR_FMTu__
-#define SCNxPTR __UINTPTR_FMTx__
+#define _SCN_PTR(c) __SCN_PTR(c, __INTPTR_WIDTH__)
+#define __SCN_PTR(c, w) ___SCN_PTR(c, w)
+#define ___SCN_PTR(c, w) SCN##c##LEAST##w
+#define SCNdPTR _SCN_PTR(d)
+#define SCNiPTR _SCN_PTR(i)
+#define SCNoPTR _SCN_PTR(o)
+#define SCNuPTR _SCN_PTR(u)
+#define SCNxPTR _SCN_PTR(x)
 
 __BEGIN_DECLS
 intmax_t imaxabs(intmax_t) __pure2;
