@@ -36,13 +36,13 @@ static inline void tcb_set(cloudabi_tcb_t *tcb) {
 // Fetches the TCB from the CPU's registers.
 static inline cloudabi_tcb_t *tcb_get(void) {
   cloudabi_tcb_t *tcb;
-  asm volatile("mrc p15, 0, %0, cr13, cr0, 3" : "=r"(tcb));
+  asm volatile("mrc p15, 0, %0, cr13, cr0, 2" : "=r"(tcb));
   return tcb;
 }
 
 // Changes the TCB in the CPU's registers.
 static inline void tcb_set(cloudabi_tcb_t *tcb) {
-  asm volatile("mcr p15, 0, %0, cr13, cr0, 3" : : "r"(tcb));
+  asm volatile("mcr p15, 0, %0, cr13, cr0, 2" : : "r"(tcb));
 }
 
 #elif defined(__i386__)

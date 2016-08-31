@@ -9,7 +9,7 @@
 
 ENTRY(__aeabi_read_tp)
   // Return the TLS base address.
-  mrc p15, 0, r0, cr13, cr0, 3
+  mrc p15, 0, r0, cr13, cr0, 2
   bx lr
 END(__aeabi_read_tp)
 
