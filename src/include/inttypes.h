@@ -244,7 +244,7 @@ typedef struct {
 
 #define _PRI_PTR(c) __PRI_PTR(c, __INTPTR_WIDTH__)
 #define __PRI_PTR(c, w) ___PRI_PTR(c, w)
-#define ___PRI_PTR(c, w) PRI##c##LEAST##w
+#define ___PRI_PTR(c, w) PRI##c##w
 #define PRIdPTR _PRI_PTR(d)
 #define PRIiPTR _PRI_PTR(i)
 #define PRIoPTR _PRI_PTR(o)
@@ -425,7 +425,7 @@ typedef struct {
 
 #define _SCN_PTR(c) __SCN_PTR(c, __INTPTR_WIDTH__)
 #define __SCN_PTR(c, w) ___SCN_PTR(c, w)
-#define ___SCN_PTR(c, w) SCN##c##LEAST##w
+#define ___SCN_PTR(c, w) SCN##c##w
 #define SCNdPTR _SCN_PTR(d)
 #define SCNiPTR _SCN_PTR(i)
 #define SCNoPTR _SCN_PTR(o)
