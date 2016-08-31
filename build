@@ -23,13 +23,18 @@ CFLAGS="${CFLAGS} -Isrc -Isrc/include \
 # Determine which OpenLibm directories to use.
 OPENLIBM_DIRS="${OPENLIBM}/bsdsrc ${OPENLIBM}/src"
 case $(${CC} -dumpmachine) in
-  aarch64-*)
-    OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld128"
-    CFLAGS="${CFLAGS} -I${OPENLIBM}/ld128"
+  armv6-*)
+    # long double is 64 bits in size.
     ;;
   i[3-6]86-*|x86_64-*)
+    # long double is 80 bits in size.
     OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld80"
     CFLAGS="${CFLAGS} -I${OPENLIBM}/ld80"
+    ;;
+  aarch64-*)
+    # long double is 128 bits in size.
+    OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld128"
+    CFLAGS="${CFLAGS} -I${OPENLIBM}/ld128"
     ;;
   *)
     echo "Unknown architecture" >&2
