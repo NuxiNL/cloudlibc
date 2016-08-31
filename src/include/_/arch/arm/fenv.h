@@ -26,9 +26,7 @@
 
 // TODO(ed): Implement.
 
-typedef struct {
-  int __bogus;
-} fenv_t;
+typedef struct { int __bogus; } fenv_t;
 
 typedef struct { int __bogus; } fexcept_t;
 
@@ -38,7 +36,7 @@ typedef struct { int __bogus; } fexcept_t;
 #define FE_UNDERFLOW 0x10
 #define FE_INEXACT 0x20
 
-#define FE_ALL_EXCEPT                                                     \
+#define FE_ALL_EXCEPT \
   (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
 
 #define FE_TONEAREST 0x0000
