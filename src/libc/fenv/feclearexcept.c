@@ -12,6 +12,9 @@ int feclearexcept(int excepts) {
   // Clear exceptions in status register.
   msr_fpsr(mrs_fpsr() & ~excepts);
   return 0;
+#elif defined(__arm__)
+  // TODO(ed): Implement.
+  return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Clear x87 exceptions.
   struct __x87_state x87_state;

@@ -12,6 +12,9 @@ int feraiseexcept(int excepts) {
   // Raise floating point exceptions.
   msr_fpsr(mrs_fpsr() | excepts);
   return 0;
+#elif defined(__arm__)
+  // TODO(ed): Implement.
+  return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Set x87 exceptions.
   struct __x87_state x87_state;

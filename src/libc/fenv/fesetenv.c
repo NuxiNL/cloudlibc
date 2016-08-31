@@ -13,6 +13,9 @@ int fesetenv(const fenv_t *envp) {
   msr_fpcr(envp->__fpcr);
   msr_fpsr(envp->__fpsr);
   return 0;
+#elif defined(__arm__)
+  // TODO(ed): Implement.
+  return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Set both x87 and SSE state.
   fldenv(&envp->__x87);

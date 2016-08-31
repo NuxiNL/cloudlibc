@@ -10,6 +10,8 @@ const fenv_t __fe_dfl_env = {
     // Use round to nearest as the default rounding mode.
     .__fpcr = FE_TONEAREST,
     .__fpsr = 0,
+#elif defined(__arm__)
+    // TODO(ed): Implement.
 #elif defined(__i386__) || defined(__x86_64__)
     // Initial x87 state as set by the finit instruction.
     .__x87 =

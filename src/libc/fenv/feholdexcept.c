@@ -14,6 +14,9 @@ int feholdexcept(fenv_t *envp) {
   envp->__fpsr = mrs_fpsr();
   msr_fpsr(envp->__fpsr & ~FE_ALL_EXCEPT);
   return 0;
+#elif defined(__arm__)
+  // TODO(ed): Implement.
+  return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Save x87 and SSE state.
   fnstenv(&envp->__x87);

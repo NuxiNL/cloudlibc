@@ -21,39 +21,29 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <fenv.h> - floating-point environment
+#ifndef ___ARCH_ARM_FENV_H_
+#define ___ARCH_ARM_FENV_H_
 
-#ifndef _FENV_H_
-#define _FENV_H_
+// TODO(ed): Implement.
 
-#if defined(__aarch64__)
-#include <_/arch/aarch64/fenv.h>
-#elif defined(__arm__)
-#include <_/arch/arm/fenv.h>
-#elif defined(__i386__) || defined(__x86_64__)
-#include <_/arch/i386/fenv.h>
-#else
-#error "Unknown architecture"
-#endif
-#include <_/cdefs.h>
+typedef struct {
+  int __bogus;
+} fenv_t;
 
-// Default floating-point environment.
-extern const fenv_t __fe_dfl_env;
-static const fenv_t *const FE_DFL_ENV = &__fe_dfl_env;
-#define FE_DFL_ENV FE_DFL_ENV
+typedef struct { int __bogus; } fexcept_t;
 
-__BEGIN_DECLS
-int feclearexcept(int);
-int fegetenv(fenv_t *);
-int fegetexceptflag(fexcept_t *, int);
-int fegetround(void);
-int feholdexcept(fenv_t *);
-int feraiseexcept(int);
-int fesetenv(const fenv_t *);
-int fesetexceptflag(const fexcept_t *, int);
-int fesetround(int);
-int fetestexcept(int);
-int feupdateenv(const fenv_t *);
-__END_DECLS
+#define FE_INVALID 0x01
+#define FE_DIVBYZERO 0x04
+#define FE_OVERFLOW 0x08
+#define FE_UNDERFLOW 0x10
+#define FE_INEXACT 0x20
+
+#define FE_ALL_EXCEPT                                                     \
+  (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
+
+#define FE_TONEAREST 0x0000
+#define FE_DOWNWARD 0x2000
+#define FE_UPWARD 0x4000
+#define FE_TOWARDZERO 0x6000
 
 #endif
