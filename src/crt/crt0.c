@@ -176,7 +176,7 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
 // to apply relocations to data segments during early startup.
 #if defined(__aarch64__) || defined(__x86_64__)
 #define PIE_RELOCATOR 1
-#elif defined(__i386__)
+#elif defined(__arm__) || defined(__i386__)
 #define PIE_RELOCATOR 0
 #else
 #error "Unsupported architecture"
