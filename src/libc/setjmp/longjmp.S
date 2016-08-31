@@ -35,6 +35,9 @@ ALTENTRY(siglongjmp)
   mov x0, #1
 1:
   br x30
+#elif defined(__arm__)
+  // TODO(ed): Implement.
+  bx lr
 #elif defined(__i386__)
   // Fetch arguments.
   mov 4(%esp), %ecx

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -21,32 +21,12 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <setjmp.h> - stack environment declarations
+#ifndef ___ARCH_ARM_SETJMP_H_
+#define ___ARCH_ARM_SETJMP_H_
 
-#ifndef _SETJMP_H_
-#define _SETJMP_H_
-
-#if defined(__aarch64__)
-#include <_/arch/aarch64/setjmp.h>
-#elif defined(__arm__)
-#include <_/arch/arm/setjmp.h>
-#elif defined(__i386__)
-#include <_/arch/i386/setjmp.h>
-#elif defined(__x86_64__)
-#include <_/arch/x86_64/setjmp.h>
-#else
-#error "Unknown architecture"
-#endif
-#include <_/cdefs.h>
-
-typedef struct { struct __jmp_buf __jmp_buf; } jmp_buf[1];
-typedef struct { struct __jmp_buf __jmp_buf; } sigjmp_buf[1];
-
-__BEGIN_DECLS
-_Noreturn void longjmp(jmp_buf, int);
-_Noreturn void siglongjmp(sigjmp_buf, int);
-int setjmp(jmp_buf);
-int sigsetjmp(sigjmp_buf, int);
-__END_DECLS
+// TODO(ed): Implement.
+struct __jmp_buf {
+  int __bogus;
+};
 
 #endif
