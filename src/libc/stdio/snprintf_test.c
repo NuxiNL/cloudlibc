@@ -203,8 +203,12 @@ TEST(snprintf, float16_align) {
 
 #if LDBL_HAS_SUBNORM == 1
 TEST(snprintf, float16_subnormal) {
-#if LDBL_MANT_DIG == 64
+#if LDBL_MANT_DIG == 53
   // Print subnormal values.
+  TEST_OUTPUT("0x1p-1074", "%La", LDBL_TRUE_MIN);
+  long double high = nexttowardl(LDBL_MIN, 0.0L);
+  TEST_OUTPUT("0x1.ffffffffffffep-1023", "%La", high);
+#elif LDBL_MANT_DIG == 64
   TEST_OUTPUT("0x1p-16445", "%La", LDBL_TRUE_MIN);
   long double high = nexttowardl(LDBL_MIN, 0.0L);
   TEST_OUTPUT("0x1.fffffffffffffffcp-16383", "%La", high);

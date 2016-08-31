@@ -53,12 +53,18 @@ TEST(strtold, hex1) {
 
 #if LDBL_HAS_SUBNORM == 1
 TEST(strtold, hex2) {
+#if LDBL_MANT_DIG == 53
+  const char *normal = "0x1p-1022";
+  const char *highest_subnormal = "0x1.ffffffffffffep-1023";
+  const char *lowest_subnormal = "0x1p-1074";
+  const char *underflow = "0x1p-1075";
+#elif LDBL_MANT_DIG == 64
   const char *normal = "0x1p-16382";
-#if LDBL_MANT_DIG == 64
   const char *highest_subnormal = "0x1.fffffffffffffffcp-16383";
   const char *lowest_subnormal = "0x1p-16445";
   const char *underflow = "0x1p-16446";
 #elif LDBL_MANT_DIG == 113
+  const char *normal = "0x1p-16382";
   const char *highest_subnormal = "0x1.fffffffffffffffffffffffffffep-16383";
   const char *lowest_subnormal = "0x1p-16494";
   const char *underflow = "0x1p-16495";
