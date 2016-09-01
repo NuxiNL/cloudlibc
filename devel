@@ -121,7 +121,7 @@ fi
 
 # Ensure that no unexpected symbols are declared in the public namespace.
 ${NM} --defined-only -g _obj/libc.a | grep ' [A-Z] ' | awk '{print $3}' | \
-    grep -v -e '^_[A-Z]' -e '^__' | LC_ALL=C sort -u > _obj/symbols
+    grep -v -e '^_[A-Z]' -e '^__' | LC_ALL=C sort > _obj/symbols
 if ! cmp -s src/libc/symbols _obj/symbols; then
   echo "Library exports unexpected symbols:"
   diff src/libc/symbols _obj/symbols
