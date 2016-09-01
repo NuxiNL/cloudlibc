@@ -48,6 +48,9 @@ struct dl_phdr_info {
 
 __BEGIN_DECLS
 int dl_iterate_phdr(int (*)(struct dl_phdr_info *, __size_t, void *), void *);
+#ifdef __arm__
+void *dl_unwind_find_exidx(const void *, int *);
+#endif
 __END_DECLS
 
 #endif
