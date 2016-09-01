@@ -62,6 +62,7 @@
 #define __section(x) __attribute__((__section__(x)))
 #define __unused __attribute__((__unused__))
 #define __used __attribute__((__used__))
+#define __weak_symbol __attribute__((__weak__))
 
 // Format string argument type checking.
 #define __printflike(format, va) \
