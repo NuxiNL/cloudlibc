@@ -11,38 +11,14 @@ set -e
 # Contributed sources.
 DOUBLE_CONVERSION=contrib/double-conversion-56a0457
 JEMALLOC=contrib/jemalloc-4.0.0
-OPENLIBM=contrib/openlibm-5fd9dcb
+MUSL=contrib/musl-e738b8c
 
 # Additional compiler flags to include the right files, etc.
-CFLAGS="${CFLAGS} -Isrc -Isrc/include \
--I${DOUBLE_CONVERSION} -I${JEMALLOC}/include \
--I${OPENLIBM}/include -I${OPENLIBM}/src -I${OPENLIBM} -fno-exceptions \
--fno-rtti -DOPENLIBM_USE_HOST_COMPLEX_H -DOPENLIBM_USE_HOST_FENV_H \
--DOPENLIBM_USE_HOST_MATH_H -DOPENLIBM_ONLY_THREAD_SAFE"
-
-# Determine which OpenLibm directories to use.
-OPENLIBM_DIRS="${OPENLIBM}/bsdsrc ${OPENLIBM}/src"
-case $(${CC} -dumpmachine) in
-  armv6-*)
-    # long double is 64 bits in size.
-    ;;
-  i[3-6]86-*|x86_64-*)
-    # long double is 80 bits in size.
-    OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld80"
-    CFLAGS="${CFLAGS} -I${OPENLIBM}/ld80"
-    ;;
-  aarch64-*)
-    # long double is 128 bits in size.
-    OPENLIBM_DIRS="${OPENLIBM_DIRS} ${OPENLIBM}/ld128"
-    CFLAGS="${CFLAGS} -I${OPENLIBM}/ld128"
-    ;;
-  *)
-    echo "Unknown architecture" >&2
-    return 1
-esac
+CFLAGS="${CFLAGS} -Isrc -Isrc/include -I${DOUBLE_CONVERSION} \
+-I${JEMALLOC}/include -I${MUSL}/src/internal -fno-exceptions -fno-rtti"
 
 # List of source files.
-SRCS=$(find src ${DOUBLE_CONVERSION} ${JEMALLOC} ${OPENLIBM_DIRS} \
+SRCS=$(find src ${DOUBLE_CONVERSION} ${JEMALLOC} ${MUSL} \
     \( -name '*.[cS]' -o -name '*.cc' \) | sort)
 
 if [ "$1" != "fast" ]; then
@@ -78,7 +54,7 @@ make -k -j8 -f _obj/Makefile all
 
 echo "=> Linking libraries"
 rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a _obj/librt.a _obj/libxnet.a
-find src/libc ${DOUBLE_CONVERSION} ${JEMALLOC} ${OPENLIBM_DIRS} \
+find src/libc ${DOUBLE_CONVERSION} ${JEMALLOC} ${MUSL} \
     \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
     xargs ${AR} rcs _obj/libc.a
