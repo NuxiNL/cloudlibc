@@ -10,8 +10,8 @@
 #ifdef __arm__
 
 __weak_symbol void __aeabi_unwind_cpp_pr0(void) {
-  // This function should not never be called, as the application should
-  // use the version provided by libunwind.
+  // This function should never be called, as the application should use
+  // the version provided by libunwind.
   abort();
 }
 
