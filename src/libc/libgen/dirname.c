@@ -4,7 +4,6 @@
 // See the LICENSE file for details.
 
 #include <libgen.h>
-#include <stdbool.h>
 #include <string.h>
 
 char *dirname(char *path) {
@@ -13,43 +12,29 @@ char *dirname(char *path) {
   if (path == NULL || *path == '\0')
     return (char *)".";
 
-  // Retain at least one leading slash character.
-  char *out = *path == '/' ? path + 1 : path;
-  const char *in = out;
+  // Find end of last pathname component.
+  char *end = path + strlen(path);
+  while (end > path + 1 && *(end - 1) == '/')
+    --end;
 
-  bool skipslash = true;
-  const char *prev = ".";
-  size_t prevlen = 1;
-  for (;;) {
-    // Extract the next pathname component.
-    while (*in == '/')
-      ++in;
-    const char *begin = in;
-    while (*in != '/' && *in != '\0')
-      ++in;
-    const char *end = in;
-    if (begin == end)
-      break;
-
-    // Copy over the previous pathname component, except if it's dot.
-    // There is no point in retaining those.
-    if (prevlen != 1 || *prev != '.') {
-      if (!skipslash)
-        *out++ = '/';
-      skipslash = false;
-      memmove(out, prev, prevlen);
-      out += prevlen;
-    }
-
-    // Preserve the pathname component for the next iteration.
-    prev = begin;
-    prevlen = end - begin;
-  }
+  // Strip off the last pathname component.
+  while (end > path && *(end - 1) != '/')
+    --end;
 
   // If path does not contain a '/', then dirname() shall return a
   // pointer to the string ".".
-  if (out == path)
-    *out++ = '.';
-  *out = '\0';
+  if (end == path) {
+    path[0] = '.';
+    path[1] = '\0';
+    return path;
+  }
+
+  // Remove trailing slashes from the resulting directory name. Ensure
+  // that at least one character remains.
+  while (end > path + 1 && *(end - 1) == '/')
+    --end;
+
+  // Null terminate directory name and return it.
+  *end = '\0';
   return path;
 }
