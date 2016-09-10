@@ -4,7 +4,6 @@
 // See the LICENSE file for details.
 
 #include <errno.h>
-#include <string.h>
 #include <time.h>
 
 #include "time_impl.h"
