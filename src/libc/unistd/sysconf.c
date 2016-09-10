@@ -129,6 +129,7 @@ long sysconf(int name) {
     case _SC_TRACE_SYS_MAX:
     case _SC_TRACE_USER_EVENT_MAX:
     case _SC_TTY_NAME_MAX:
+    case _SC_TZNAME_MAX:
       return -1;
 
     // Options whose values are based on limits.
@@ -142,8 +143,6 @@ long sysconf(int name) {
       return PTHREAD_DESTRUCTOR_ITERATIONS;
     case _SC_THREAD_STACK_MIN:
       return PTHREAD_STACK_MIN;
-    case _SC_TZNAME_MAX:
-      return TZNAME_MAX;
 
     // Options whose values are reported by the system.
     case _SC_NPROCESSORS_CONF:

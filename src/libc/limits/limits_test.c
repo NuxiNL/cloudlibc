@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -84,7 +84,9 @@ static_assert(SEM_VALUE_MAX >= _POSIX_SEM_VALUE_MAX, "Limit too low");
 #ifdef TTY_NAME_MAX
 #error "Test missing"
 #endif
-static_assert(TZNAME_MAX >= _POSIX_TZNAME_MAX, "Limit too low");
+#ifdef TZNAME_MAX
+#error "Test missing"
+#endif
 
 #ifdef FILESIZEBITS
 #error "Test missing"

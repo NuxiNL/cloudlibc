@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -16,7 +16,7 @@ time_t mktime(struct tm *tm) {
 
   // Convert struct timespec back to a sanitized struct tm.
   int error = __localtime_utc(result.tv_sec, tm);
-  strlcpy(tm->tm_zone, "UTC", sizeof(tm->tm_zone));
+  tm->tm_zone = "UTC";
   tm->tm_nsec = result.tv_nsec;
 
   // Only return number of seconds since the Epoch.

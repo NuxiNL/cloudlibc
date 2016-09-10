@@ -7,6 +7,9 @@
 #include <common/locale.h>
 #include <common/time.h>
 
+#include <stdatomic.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -61,64 +64,83 @@ static const struct lc_timezone_rule *determine_applicable_rule(
   return match;
 }
 
-// Computes the abbreviated name of the timezone. For example, the era
-// may use the template "CE%sT". Daylight saving time rules may then use
-// the abbreviation "" or "S" to yield "CET" or "CEST", respectively.
-static void compute_zone_abbreviation(const struct lc_timezone_era *era,
-                                      const struct lc_timezone_rule *rule,
-                                      char *result, size_t resultsize) {
-  if (*era->abbreviation_dst != '\0') {
-    // Timezone already provides explicit abbreviations for standard
-    // time and daylight saving time. Copy those to the output.
-    if (rule->save == 0) {
-      if (resultsize > sizeof(era->abbreviation_std))
-        resultsize = sizeof(era->abbreviation_std) + 1;
-      strlcpy(result, era->abbreviation_std, resultsize);
-    } else {
-      if (resultsize > sizeof(era->abbreviation_dst))
-        resultsize = sizeof(era->abbreviation_dst) + 1;
-      strlcpy(result, era->abbreviation_dst, resultsize);
-    }
-  } else {
-    for (size_t i = 0; i < sizeof(era->abbreviation_std) - 1; ++i) {
-      if (era->abbreviation_std[i] == '%' &&
-          era->abbreviation_std[i + 1] == 's') {
-        // Era abbreviation contains %s. In this case, expand the %s
-        // with the abbreviation of the rule (e.g., "CE%sT" -> "CEST").
-        size_t in = 0, out = 0;
-        while (in < sizeof(era->abbreviation_std) && out + 1 < resultsize) {
-          if (era->abbreviation_std[in] == '%' &&
-              era->abbreviation_std[in + 1] == 's') {
-            // %s directive.
-            for (size_t j = 0;
-                 j < sizeof(rule->abbreviation) &&
-                 rule->abbreviation[j] != '\0' && out + 1 < resultsize;
-                 ++j)
-              result[out++] = rule->abbreviation[j];
-            in += 2;
-          } else {
-            // Regular character.
-            result[out++] = era->abbreviation_std[in++];
-          }
-        }
-        result[out] = '\0';
-        return;
-      }
-    }
+// Cached timezone abbreviations.
+//
+// struct tm::tm_zone needs to refer to timezone abbreviations by
+// reference. This is problematic in cases where a timezone era uses
+// "CE%sT" as its abbreviation and depends on daylight saving time rules
+// to insert either "" or "S".
+//
+// Store cached timezone abbreviations in a very simple stringpool, so
+// that every string is only allocated in memory once.
+struct cached_abbreviation {
+  struct cached_abbreviation *next;
+  char abbreviation[16];
+};
 
-    // Era abbreviation does not contain %s. Use the abbreviation of the
-    // era or the rule, preferring the latter if three or more characters.
-    if (rule->abbreviation[0] != '\0' && rule->abbreviation[1] != '\0' &&
-        rule->abbreviation[2] != '\0') {
-      if (resultsize > sizeof(rule->abbreviation))
-        resultsize = sizeof(rule->abbreviation) + 1;
-      strlcpy(result, rule->abbreviation, resultsize);
-    } else {
-      if (resultsize > sizeof(era->abbreviation_std))
-        resultsize = sizeof(era->abbreviation_std) + 1;
-      strlcpy(result, era->abbreviation_std, resultsize);
-    }
+// Expands a timezone abbreviation containing "%s" and returns a copy of
+// the string stored in the stringpool.
+static const char *compute_combined_zone_abbreviation(const char *era,
+                                                      const char *rule) {
+  // Perform expansion.
+  char abbreviation[sizeof(((struct cached_abbreviation *)0)->abbreviation)];
+  snprintf(abbreviation, sizeof(abbreviation), era, rule);
+
+  // See if there's already a copy of this string in the stringpool.
+  static _Atomic(struct cached_abbreviation *) table = ATOMIC_VAR_INIT(NULL);
+  struct cached_abbreviation *first =
+      atomic_load_explicit(&table, memory_order_relaxed);
+  for (struct cached_abbreviation *ca = first; ca != NULL; ca = ca->next)
+    if (strcmp(abbreviation, ca->abbreviation) == 0)
+      return ca->abbreviation;
+
+  // Allocate a copy to be stored in the stringpool.
+  struct cached_abbreviation *ca_new = malloc(sizeof(*ca_new));
+  if (ca_new == NULL)
+    return "";
+  strlcpy(ca_new->abbreviation, abbreviation, sizeof(ca_new->abbreviation));
+
+  for (;;) {
+    // Store the new entry in the global list. The list is lockless, so
+    // perform a compare-and-exchange.
+    ca_new->next = first;
+    if (atomic_compare_exchange_weak(&table, &first, ca_new))
+      return ca_new->abbreviation;
+
+    // Compare-and-exchange failed. See if an entry for the same
+    // abbreviation got created in the meantime.
+    for (struct cached_abbreviation *ca = first; ca != ca_new->next;
+         ca = ca->next)
+      if (strcmp(abbreviation, ca->abbreviation) == 0) {
+        free(ca_new);
+        return ca->abbreviation;
+      }
   }
+}
+
+// Computes the abbreviated name of the timezone. If possible, it
+// returns a constant string. If not, it returns a copy of the string
+// stored in the stringpool.
+static const char *compute_zone_abbreviation(
+    const struct lc_timezone_era *era, const struct lc_timezone_rule *rule) {
+  // If the timezone already provides explicit abbreviations for
+  // standard time and daylight saving time, use those directly.
+  if (*era->abbreviation_dst != '\0')
+    return rule->save == 0 ? era->abbreviation_std : era->abbreviation_dst;
+
+  // If the era abbreviation contains %s, expand it with the
+  // abbreviation of the rule. Keep track of the result in a string
+  // pool, so we don't leak memory.
+  if (strchr(era->abbreviation_std, '%') != NULL)
+    return compute_combined_zone_abbreviation(era->abbreviation_std,
+                                              rule->abbreviation);
+
+  // Era abbreviation does not contain %s. Use the abbreviation of the
+  // era or the rule, preferring the latter if three or more characters.
+  return rule->abbreviation[0] != '\0' && rule->abbreviation[1] != '\0' &&
+                 rule->abbreviation[2] != '\0'
+             ? rule->abbreviation
+             : era->abbreviation_std;
 }
 
 int localtime_l(const struct timespec *restrict timer,
@@ -160,8 +182,7 @@ int localtime_l(const struct timespec *restrict timer,
 
     result->tm_isdst = rule->save > 0;
     result->tm_gmtoff = gmtoff;
-    compute_zone_abbreviation(era, rule, result->tm_zone,
-                              sizeof(result->tm_zone));
+    result->tm_zone = compute_zone_abbreviation(era, rule);
   } else {
     // Timezone has no daylight saving time rules. Compute local time
     // with timezone offset directly.
@@ -169,8 +190,7 @@ int localtime_l(const struct timespec *restrict timer,
 
     result->tm_gmtoff = era->gmtoff;
     static const struct lc_timezone_rule rule = {};
-    compute_zone_abbreviation(era, &rule, result->tm_zone,
-                              sizeof(result->tm_zone));
+    result->tm_zone = compute_zone_abbreviation(era, &rule);
   }
 
   result->tm_nsec = timer->tv_nsec;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -272,9 +272,5 @@
 
 #define _WINT_MIN _INTN_MIN(__WINT_WIDTH__)
 #define _WINT_MAX _INTN_MAX(__WINT_WIDTH__)
-
-// Machine-independent limits.
-
-#define _TZNAME_MAX 15
 
 #endif

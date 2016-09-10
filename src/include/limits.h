@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -69,7 +69,7 @@
 // SYMLOOP_MAX: Indeterminate.
 // TIMER_MAX: Timer interface not available.
 // TTY_NAME_MAX: Terminal interaction is not supported.
-#define TZNAME_MAX _TZNAME_MAX
+// TZNAME_MAX: Indeterminate.
 
 // Pathname variable values.
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -30,7 +30,8 @@
 // - strptime_l():
 //   strptime() always uses the C locale.
 // - struct tm::tm_gmtoff and struct tm::tm_zone:
-//   Timezone information used by strftime(). Also present on FreeBSD.
+//   Timezone information used by strftime(). Present on many other
+//   systems.
 // - struct tm::tm_nsec:
 //   Adds sub-second precision to strftime()/strptime().
 // - nanosleep() and clock_nanosleep():
@@ -90,9 +91,9 @@ struct tm {
   int tm_isdst;  // Daylight Savings flag.
 
   // Extensions.
-  int tm_gmtoff;                  // Offset from UTC in seconds.
-  char tm_zone[_TZNAME_MAX + 1];  // Timezone abbreviation.
-  long tm_nsec;                   // Nanoseconds [0,999999999].
+  int tm_gmtoff;        // Offset from UTC in seconds.
+  const char *tm_zone;  // Timezone abbreviation.
+  long tm_nsec;         // Nanoseconds [0,999999999].
 };
 
 #define NULL _NULL

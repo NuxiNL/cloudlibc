@@ -26,7 +26,7 @@ TEST(strptime, examples) {
     ASSERT_EQ(nsec, tm.tm_nsec);                                            \
     ASSERT_EQ(gmtoff, tm.tm_gmtoff);                                        \
     ASSERT_EQ(-1, tm.tm_isdst);                                             \
-    ASSERT_STREQ("", tm.tm_zone);                                           \
+    ASSERT_EQ(NULL, tm.tm_zone);                                            \
   } while (0)
   // The default date is January 1st, 2000.
   TEST_STRPTIME("", "", 2000, 1, 6, 1, 0, 0, 0, 0, 0);
@@ -94,7 +94,7 @@ TEST(strptime, random) {
         ASSERT_EQ(tm_in.tm_sec, tm_out.tm_sec);               \
         ASSERT_EQ(-1, tm_out.tm_isdst);                       \
         ASSERT_EQ(0, tm_out.tm_gmtoff);                       \
-        ASSERT_STREQ("", tm_out.tm_zone);                     \
+        ASSERT_EQ(NULL, tm_out.tm_zone);                      \
         ASSERT_EQ(0, tm_out.tm_nsec);                         \
       });                                                     \
     }                                                         \
