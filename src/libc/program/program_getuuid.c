@@ -3,12 +3,13 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/program_getuuid.h>
+
 #include <program.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-static pthread_once_t init = PTHREAD_ONCE_INIT;
 static char uuid[37];
 
 static void generate(void) {
@@ -30,6 +31,6 @@ static void generate(void) {
 }
 
 const char *program_getuuid(void) {
-  pthread_once(&init, generate);
+  pthread_once(&__program_getuuid_init, generate);
   return uuid;
 }

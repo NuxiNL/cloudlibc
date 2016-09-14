@@ -5,6 +5,7 @@
 
 #include <common/arc4random.h>
 #include <common/crt.h>
+#include <common/program_getuuid.h>
 #include <common/pthread.h>
 #include <common/refcount.h>
 
@@ -60,6 +61,9 @@ int pdfork(int *fdp, ...) {
     // Deplete the PRNG pool for this new thread. This will cause it to
     // refresh its state the next time we need random data.
     __arc4random_bytesleft = 0;
+
+    // Force the per-process UUID to be regenerated.
+    __program_getuuid_init = (pthread_once_t)PTHREAD_ONCE_INIT;
 
     // Invoke "child" fork handlers.
     if (first != NULL) {
