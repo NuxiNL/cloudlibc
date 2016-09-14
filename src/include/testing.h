@@ -205,17 +205,23 @@ __END_DECLS
 // Syntax:
 //
 //   ASSERT_STREQ(expected, actual);
+//   ASSERT_STRNE(expected, actual);
 
-#define _GENERATE_COMPARE_STREQ(type, stype, unused)                          \
-  void __test_compare_STREQ_##stype(type const *, const char *, type const *, \
-                                    const char *, const char *, int);
+#define _GENERATE_COMPARE_STR(type, stype, op)                      \
+  void __test_compare_STR##op##_##stype(type const *, const char *, \
+                                        type const *, const char *, \
+                                        const char *, int);
 __BEGIN_DECLS
-_MACRO_FOREACH_TYPE(_GENERATE_COMPARE_STREQ, unused)
+_MACRO_FOREACH_TYPE(_GENERATE_COMPARE_STR, EQ)
+_MACRO_FOREACH_TYPE(_GENERATE_COMPARE_STR, NE)
 __END_DECLS
 #undef _GENERATE_COMPARE_STREQ
 
 #define ASSERT_STREQ(expected, actual)                      \
   _EXPRESSION_FOREACH_TYPE(__test_compare_STREQ, *(actual)) \
+  (expected, #expected, actual, #actual, __FILE__, __LINE__)
+#define ASSERT_STRNE(expected, actual)                      \
+  _EXPRESSION_FOREACH_TYPE(__test_compare_STRNE, *(actual)) \
   (expected, #expected, actual, #actual, __FILE__, __LINE__)
 
 // Notes: print additional values upon failed assertions.

@@ -185,3 +185,21 @@ _MACRO_FOREACH_TYPE(GENERATE_COMPARE_ARREQ, unused)
   }
 _MACRO_FOREACH_TYPE(GENERATE_COMPARE_STREQ, unused)
 #undef GENERATE_COMPARE_STREQ
+
+#define GENERATE_COMPARE_STRNE(type, stype, unused)                       \
+  void __test_compare_STRNE_##stype(                                      \
+      type const *expected, const char *expected_str, type const *actual, \
+      const char *actual_str, const char *file, int line) {               \
+    for (size_t offset = 0; expected[offset] != 0 || actual[offset] != 0; \
+         ++offset)                                                        \
+      if (expected[offset] != actual[offset])                             \
+        return;                                                           \
+    __testing_printf(                                                     \
+        "Test failed\n"                                                   \
+        "--\n"                                                            \
+        "Statement: ASSERT_STRNE(%s, %s)\n",                              \
+        expected_str, actual_str);                                        \
+    print_test_footer(file, line);                                        \
+  }
+_MACRO_FOREACH_TYPE(GENERATE_COMPARE_STRNE, unused)
+#undef GENERATE_COMPARE_STRNE
