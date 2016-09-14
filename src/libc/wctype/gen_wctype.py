@@ -163,8 +163,6 @@ def print_type_table(extents):
     assert e[1] - e[0] < 2048
     print '%#010x,' % (e[0] << 11 | e[1] - e[0])
 
-#print_type_table(to_type_extents(GRAPH))
-
 # tow*().
 
 def to_trans_extents(codepoints):
@@ -181,10 +179,6 @@ def to_trans_extents(codepoints):
 def print_delta_table(extents):
   for e in sorted(extents):
     print '%d,' % e[2]
-
-t = list(to_trans_extents(TOLOWER.iteritems()))
-print_type_table(t)
-print_delta_table(t)
 
 # wcwidth().
 
@@ -208,4 +202,40 @@ def print_width_table(extents):
     assert e[2] >= 0 and e[2] < 4
     print '%#010x,' % (e[0] << 11 | e[2] << 9 | e[1] - e[0])
 
-#print_width_table(to_width_extents(WIDTH.iteritems()))
+print '--- iswalnum()'
+print_type_table(to_type_extents(ALNUM))
+print '--- iswblank()'
+print_type_boolean(to_type_extents(BLANK))
+print '--- iswcntrl()'
+print_type_boolean(to_type_extents(CNTRL))
+print '--- iswdigit()'
+print_type_boolean(to_type_extents(DIGIT))
+print '--- iswgraph()'
+print_type_table(to_type_extents(GRAPH))
+print '--- iswlower()'
+print_type_table(to_type_extents(LOWER))
+print '--- iswprint()'
+print_type_table(to_type_extents(PRINT))
+print '--- iswpunct()'
+print_type_table(to_type_extents(PUNCT))
+print '--- iswspace()'
+print_type_boolean(to_type_extents(SPACE))
+print '--- iswupper()'
+print_type_table(to_type_extents(UPPER))
+print '--- iswxdigit()'
+print_type_boolean(to_type_extents(XDIGIT))
+
+print '--- towlower()'
+t = list(to_trans_extents(TOLOWER.iteritems()))
+print_type_table(t)
+print '---'
+print_delta_table(t)
+
+print '--- towupper()'
+t = list(to_trans_extents(TOUPPER.iteritems()))
+print_type_table(t)
+print '---'
+print_delta_table(t)
+
+print '--- wcwidth()'
+print_width_table(to_width_extents(WIDTH.iteritems()))
