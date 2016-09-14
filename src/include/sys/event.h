@@ -49,6 +49,7 @@ struct kevent {
 #define EV_EOF 0x4000    // Filter-specific end-of-file condition.
 #define EV_ERROR 0x8000  // Error has occurred.
 
+#define EVFILT_TIMER 1  // Timer has exceeded a value.
 #define EVFILT_READ 3   // Data available to read from descriptor.
 #define EVFILT_WRITE 4  // Possibility to write to descriptor.
 

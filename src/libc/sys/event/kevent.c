@@ -19,6 +19,7 @@ static_assert(EV_DISABLE == CLOUDABI_SUBSCRIPTION_DISABLE, "Value mismatch");
 static_assert(EV_ENABLE == CLOUDABI_SUBSCRIPTION_ENABLE, "Value mismatch");
 static_assert(EV_ONESHOT == CLOUDABI_SUBSCRIPTION_ONESHOT, "Value mismatch");
 
+static_assert(EVFILT_TIMER == CLOUDABI_EVENTTYPE_CLOCK, "Value mismatch");
 static_assert(EVFILT_READ == CLOUDABI_EVENTTYPE_FD_READ, "Value mismatch");
 static_assert(EVFILT_WRITE == CLOUDABI_EVENTTYPE_FD_WRITE, "Value mismatch");
 
@@ -37,6 +38,11 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
 
     // Filter specific data.
     switch (ke->filter) {
+      case EVFILT_TIMER:
+        sub->clock.identifier = ke->ident;
+        sub->clock.clock_id = CLOUDABI_CLOCK_REALTIME;
+        sub->clock.timeout = (cloudabi_timestamp_t)ke->data * 1000000;
+        break;
       case EVFILT_READ:
       case EVFILT_WRITE:
         sub->fd_readwrite.fd = ke->ident;
@@ -77,6 +83,9 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
         .udata = (void *)ev->userdata, .filter = ev->type,
     };
     switch (ev->type) {
+      case CLOUDABI_EVENTTYPE_CLOCK:
+        ke->ident = ev->clock.identifier;
+        break;
       case CLOUDABI_EVENTTYPE_FD_READ:
       case CLOUDABI_EVENTTYPE_FD_WRITE:
         ke->ident = ev->fd_readwrite.fd;
@@ -86,6 +95,10 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
     if (ev->error == 0) {
       // Set filter specific properties.
       switch (ev->type) {
+        case CLOUDABI_EVENTTYPE_CLOCK:
+          // TODO(ed): Propagate the actual count.
+          ke->data = 1;
+          break;
         case CLOUDABI_EVENTTYPE_FD_READ:
         case CLOUDABI_EVENTTYPE_FD_WRITE:
           ke->data = ev->fd_readwrite.nbytes;
