@@ -208,17 +208,21 @@ TEST(snprintf, float16_subnormal) {
   TEST_OUTPUT("0x1p-1074", "%La", LDBL_TRUE_MIN);
   long double high = nexttowardl(LDBL_MIN, 0.0L);
   TEST_OUTPUT("0x1.ffffffffffffep-1023", "%La", high);
+
+  // Test rounding behaviour of subnormal values.
+  ASSERT_EQ(0, fesetround(FE_DOWNWARD));
+  TEST_OUTPUT("0x1.ffp-1023 -0x1.00p-1022", "%.2La %.2La", high, -high);
+  ASSERT_EQ(0, fesetround(FE_TONEAREST));
+  TEST_OUTPUT("0x1.00p-1022 -0x1.00p-1022", "%.2La %.2La", high, -high);
+  ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+  TEST_OUTPUT("0x1.ffp-1023 -0x1.ffp-1023", "%.2La %.2La", high, -high);
+  ASSERT_EQ(0, fesetround(FE_UPWARD));
+  TEST_OUTPUT("0x1.00p-1022 -0x1.ffp-1023", "%.2La %.2La", high, -high);
 #elif LDBL_MANT_DIG == 64
+  // Print subnormal values.
   TEST_OUTPUT("0x1p-16445", "%La", LDBL_TRUE_MIN);
   long double high = nexttowardl(LDBL_MIN, 0.0L);
   TEST_OUTPUT("0x1.fffffffffffffffcp-16383", "%La", high);
-#elif LDBL_MANT_DIG == 113
-  TEST_OUTPUT("0x1p-16494", "0x1p-16494");
-  long double high = nexttowardl(LDBL_MIN, 0.0L);
-  TEST_OUTPUT("0x1.fffffffffffffffffffffffffffep-16383", "%La", high);
-#else
-#error "Unknown floating point type"
-#endif
 
   // Test rounding behaviour of subnormal values.
   ASSERT_EQ(0, fesetround(FE_DOWNWARD));
@@ -229,5 +233,23 @@ TEST(snprintf, float16_subnormal) {
   TEST_OUTPUT("0x1.ffp-16383 -0x1.ffp-16383", "%.2La %.2La", high, -high);
   ASSERT_EQ(0, fesetround(FE_UPWARD));
   TEST_OUTPUT("0x1.00p-16382 -0x1.ffp-16383", "%.2La %.2La", high, -high);
+#elif LDBL_MANT_DIG == 113
+  // Print subnormal values.
+  TEST_OUTPUT("0x1p-16494", "0x1p-16494");
+  long double high = nexttowardl(LDBL_MIN, 0.0L);
+  TEST_OUTPUT("0x1.fffffffffffffffffffffffffffep-16383", "%La", high);
+
+  // Test rounding behaviour of subnormal values.
+  ASSERT_EQ(0, fesetround(FE_DOWNWARD));
+  TEST_OUTPUT("0x1.ffp-16383 -0x1.00p-16382", "%.2La %.2La", high, -high);
+  ASSERT_EQ(0, fesetround(FE_TONEAREST));
+  TEST_OUTPUT("0x1.00p-16382 -0x1.00p-16382", "%.2La %.2La", high, -high);
+  ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+  TEST_OUTPUT("0x1.ffp-16383 -0x1.ffp-16383", "%.2La %.2La", high, -high);
+  ASSERT_EQ(0, fesetround(FE_UPWARD));
+  TEST_OUTPUT("0x1.00p-16382 -0x1.ffp-16383", "%.2La %.2La", high, -high);
+#else
+#error "Unknown floating point type"
+#endif
 }
 #endif
