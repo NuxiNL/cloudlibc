@@ -14,7 +14,8 @@ int feupdateenv(const fenv_t *envp) {
   msr_fpsr(envp->__fpsr | (mrs_fpsr() & FE_ALL_EXCEPT));
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Restore environment, while raising existing exceptions.
+  vmsr_fpscr(envp->__fpscr | (vmrs_fpscr() & FE_ALL_EXCEPT));
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Save currently raised exceptions.

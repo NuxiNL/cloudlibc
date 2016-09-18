@@ -17,7 +17,12 @@ int fesetround(int round) {
   msr_fpcr((mrs_fpcr() & ~ROUNDING_MASK) | round);
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Disallow invalid rounding modes.
+  if ((round & ~ROUNDING_MASK) != 0)
+    return -1;
+
+  // Update FPSCR rounding mode.
+  vmsr_fpscr((vmrs_fpscr() & ~ROUNDING_MASK) | round);
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Disallow invalid rounding modes.

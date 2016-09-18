@@ -13,7 +13,8 @@ int fesetexceptflag(const fexcept_t *flagp, int excepts) {
   msr_fpsr((mrs_fpsr() & ~excepts) | (flagp->__exceptions & excepts));
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Set exceptions stored in object.
+  vmsr_fpscr((vmrs_fpscr() & ~excepts) | (flagp->__exceptions & excepts));
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Set x87 exceptions.

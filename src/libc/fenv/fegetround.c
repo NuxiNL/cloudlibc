@@ -12,8 +12,8 @@ int fegetround(void) {
   // Obtain rounding mode from FPCR.
   return mrs_fpcr() & ROUNDING_MASK;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
-  return 0;
+  // Obtain rounding mode from FPSCR.
+  return vmrs_fpscr() & ROUNDING_MASK;
 #elif defined(__i386__) || defined(__x86_64__)
   // Obtain rounding mode from SSE.
   return stmxcsr() & ROUNDING_MASK;

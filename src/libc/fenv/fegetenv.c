@@ -14,7 +14,8 @@ int fegetenv(fenv_t *envp) {
   envp->__fpsr = mrs_fpsr();
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Store single status and control register.
+  envp->__fpscr = vmrs_fpscr();
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Save x87 state. As fnstenv also has the side-effect of masking all

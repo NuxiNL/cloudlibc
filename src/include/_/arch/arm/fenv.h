@@ -24,24 +24,27 @@
 #ifndef ___ARCH_ARM_FENV_H_
 #define ___ARCH_ARM_FENV_H_
 
-// TODO(ed): Implement.
+#include <_/types.h>
 
-typedef struct { int __bogus; } fenv_t;
+typedef struct { __uint32_t __fpscr; } fenv_t;
+typedef struct { __uint8_t __exceptions; } fexcept_t;
 
-typedef struct { int __bogus; } fexcept_t;
-
+// Exception flags stored in the fpscr register.
 #define FE_INVALID 0x01
-#define FE_DIVBYZERO 0x04
-#define FE_OVERFLOW 0x08
-#define FE_UNDERFLOW 0x10
-#define FE_INEXACT 0x20
+#define FE_DIVBYZERO 0x02
+#define FE_OVERFLOW 0x04
+#define FE_UNDERFLOW 0x08
+#define FE_INEXACT 0x10
+#define FE_DENORMAL 0x80  // Extension. Name also used on other systems.
 
-#define FE_ALL_EXCEPT \
-  (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
+#define FE_ALL_EXCEPT                                                    \
+  (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT | \
+   FE_DENORMAL)
 
-#define FE_TONEAREST 0x0000
-#define FE_DOWNWARD 0x2000
-#define FE_UPWARD 0x4000
-#define FE_TOWARDZERO 0x6000
+// Rounding modes stored in the fpscr register.
+#define FE_TONEAREST 0x000000
+#define FE_UPWARD 0x400000
+#define FE_DOWNWARD 0x800000
+#define FE_TOWARDZERO 0xc00000
 
 #endif

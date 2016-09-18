@@ -13,7 +13,8 @@ int feraiseexcept(int excepts) {
   msr_fpsr(mrs_fpsr() | excepts);
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Raise floating point exceptions.
+  vmsr_fpscr(vmrs_fpscr() | excepts);
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Set x87 exceptions.
@@ -23,8 +24,7 @@ int feraiseexcept(int excepts) {
   fldenv(&x87_state);
 
   // Set SSE exceptions.
-  uint32_t mxcsr = stmxcsr();
-  ldmxcsr(mxcsr | excepts);
+  ldmxcsr(stmxcsr() | excepts);
 
   // Wait for floating-point unit changes to be applied.
   fwait();

@@ -13,7 +13,8 @@ int fegetexceptflag(fexcept_t *flagp, int excepts) {
   flagp->__exceptions = mrs_fpsr() & excepts;
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Store exception flags in object.
+  flagp->__exceptions = vmrs_fpscr() & excepts;
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Combine the x87 and SSE exception flags.

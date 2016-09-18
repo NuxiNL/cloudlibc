@@ -15,7 +15,9 @@ int feholdexcept(fenv_t *envp) {
   msr_fpsr(envp->__fpsr & ~FE_ALL_EXCEPT);
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Save state and clear exceptions.
+  envp->__fpscr = vmrs_fpscr();
+  vmsr_fpscr(envp->__fpscr & ~FE_ALL_EXCEPT);
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Save x87 and SSE state.

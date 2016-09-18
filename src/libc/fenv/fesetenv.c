@@ -14,7 +14,8 @@ int fesetenv(const fenv_t *envp) {
   msr_fpsr(envp->__fpsr);
   return 0;
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Set single status and control register.
+  vmsr_fpscr(envp->__fpscr);
   return 0;
 #elif defined(__i386__) || defined(__x86_64__)
   // Set both x87 and SSE state.
