@@ -468,7 +468,7 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
     uint64_t i;
   } value = {.f = f};
   static_assert(sizeof(value.f) == sizeof(value.i), "Size mismatch");
-  f16_part_t parts[F16_NPARTS] = {value.i << 12};
+  f16_part_t parts[F16_NPARTS] = {value.i << 11};
   *exponent = (value.i >> 52) & 0x7ff;
 #elif LDBL_MANT_DIG == 64
   union {
