@@ -36,7 +36,17 @@ ALTENTRY(siglongjmp)
 1:
   br x30
 #elif defined(__arm__)
-  // TODO(ed): Implement.
+  // Restore VFP registers.
+  vldmia r0, {d8-d15}
+  add r0, r0, #64
+
+  // Restore callee-saved registers.
+  ldmia r0, {r4, r14}
+
+  // Return the second parameter of longjmp(), ensuring that we never
+  // return zero.
+  movs r0, r1
+  moveq r0, #1
   bx lr
 #elif defined(__i386__)
   // Fetch arguments.
