@@ -41,7 +41,9 @@ ALTENTRY(siglongjmp)
   add r0, r0, #64
 
   // Restore callee-saved registers.
-  ldmia r0, {r4, r14}
+  ldmia r0, {r4-r12}
+  ldr r13, [r0, #36]
+  ldr r14, [r0, #40]
 
   // Return the second parameter of longjmp(), ensuring that we never
   // return zero.

@@ -37,7 +37,9 @@ ALTENTRY(sigsetjmp)
   add r0, r0, #64
 
   // Save callee-saved registers.
-  stmia r0, {r4, r14}
+  stmia r0, {r4-r12}
+  str r13, [r0, #36]
+  str r14, [r0, #40]
 
   // Return zero for a direct invication.
   mov r0, #0
