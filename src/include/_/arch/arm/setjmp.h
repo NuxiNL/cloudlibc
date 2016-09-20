@@ -39,18 +39,17 @@ struct __jmp_buf {
   __uint64_t __d14;  // Callee-saved VFP register.
   __uint64_t __d15;  // Callee-saved VFP register.
 
-  __uint32_t __r4;  // Callee-saved register.
-  __uint32_t __r5;  // Callee-saved register.
-  __uint32_t __r6;  // Callee-saved register.
-  __uint32_t __r7;  // Callee-saved register.
-  __uint32_t __r8;  // Callee-saved register.
-  __uint32_t __r9;  // Callee-saved register.
+  __uint32_t __r4;   // Callee-saved register.
+  __uint32_t __r5;   // Callee-saved register.
+  __uint32_t __r6;   // Callee-saved register.
+  __uint32_t __r7;   // Callee-saved register.
+  __uint32_t __r8;   // Callee-saved register.
+  __uint32_t __r9;   // Callee-saved register.
   __uint32_t __r10;  // Callee-saved register.
   __uint32_t __r11;  // Callee-saved register.
   __uint32_t __r12;  // The Intra-Procedure-call scratch register.
   __uint32_t __r13;  // The Stack Pointer.
   __uint32_t __r14;  // The Link Register.
-
 };
 _Static_assert(sizeof(struct __jmp_buf) == 112, "ABI breakage");
 
