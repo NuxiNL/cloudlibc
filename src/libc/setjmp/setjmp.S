@@ -33,15 +33,14 @@ ALTENTRY(sigsetjmp)
   ret
 #elif defined(__arm__)
   // Save VFP registers.
-  vstmia r0, {d8-d15}
-  add r0, r0, #64
+  vstmia r0!, {d8-d15}
 
   // Save callee-saved registers.
-  stmia r0, {r4-r12}
-  str r13, [r0, #36]
-  str r14, [r0, #40]
+  stmia r0!, {r4-r12}
+  str r13, [r0, #0]
+  str r14, [r0, #4]
 
-  // Return zero for a direct invication.
+  // Return zero for a direct invocation.
   mov r0, #0
   bx lr
 #elif defined(__i386__)

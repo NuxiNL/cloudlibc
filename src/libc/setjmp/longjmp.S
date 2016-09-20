@@ -37,13 +37,12 @@ ALTENTRY(siglongjmp)
   br x30
 #elif defined(__arm__)
   // Restore VFP registers.
-  vldmia r0, {d8-d15}
-  add r0, r0, #64
+  vldmia r0!, {d8-d15}
 
   // Restore callee-saved registers.
-  ldmia r0, {r4-r12}
-  ldr r13, [r0, #36]
-  ldr r14, [r0, #40]
+  ldmia r0!, {r4-r12}
+  ldr r13, [r0, #0]
+  ldr r14, [r0, #4]
 
   // Return the second parameter of longjmp(), ensuring that we never
   // return zero.
