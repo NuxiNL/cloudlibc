@@ -6,8 +6,6 @@
 #ifndef AEABI_AEABI_IMPL_H
 #define AEABI_AEABI_IMPL_H
 
-#include <stddef.h>
-
 #ifdef __arm__
 
 void __aeabi_unwind_cpp_pr0(void);
