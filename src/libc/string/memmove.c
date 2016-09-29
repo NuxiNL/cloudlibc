@@ -66,3 +66,12 @@ void *memmove(void *s1, const void *s2, size_t n) {
 }
 
 __strong_reference(memmove, memcpy);
+
+#ifdef __arm__
+__strong_reference(memmove, __aeabi_memcpy);
+__strong_reference(memmove, __aeabi_memcpy4);
+__strong_reference(memmove, __aeabi_memcpy8);
+__strong_reference(memmove, __aeabi_memmove);
+__strong_reference(memmove, __aeabi_memmove4);
+__strong_reference(memmove, __aeabi_memmove8);
+#endif
