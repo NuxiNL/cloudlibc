@@ -30,7 +30,7 @@
 // http://www.x86-64.org/documentation/abi.pdf
 //
 // Extensions:
-// - PT_GNU_EH_FRAME:
+// - PT_ARM_EXIDX and PT_GNU_EH_FRAME:
 //   Used for exception handling.
 // - PT_GNU_RELRO:
 //   Used for marking memory read-only after relocation.
@@ -557,6 +557,7 @@ typedef struct {
 #define PT_GNU_RELRO 0x6474e552
 #define PT_HIOS 0x6fffffff
 #define PT_LOPROC 0x70000000
+#define PT_ARM_EXIDX 0x70000001
 #define PT_HIPROC 0x7fffffff
 
 #define PF_X 0x1                // Execute.
