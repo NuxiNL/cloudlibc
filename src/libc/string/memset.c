@@ -33,9 +33,3 @@ void *memset(void *s, int c, size_t n) {
     *sb++ = c;
   return s;
 }
-
-#ifdef __arm__
-__strong_reference(memset, __aeabi_memset);
-__strong_reference(memset, __aeabi_memset4);
-__strong_reference(memset, __aeabi_memset8);
-#endif
