@@ -22,9 +22,9 @@ TEST(tdestroy, example) {
 #define NKEYS 1000
   // Insert a thousand keys.
   bool keys[1000] = {};
-  void *root = NULL;
+  TNODE_t *root = NULL;
   for (size_t i = 0; i < NKEYS; ++i)
-    ASSERT_EQ(&keys[i], *(bool **)tsearch(&keys[i], &root, compar));
+    ASSERT_EQ(&keys[i], tsearch(&keys[i], &root, compar)->key);
 
   // All of them should be destroyed if we call tdestroy().
   tdestroy(root, destructor);

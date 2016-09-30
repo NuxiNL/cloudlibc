@@ -12,7 +12,7 @@
 TEST(twalk, empty) {
   // Empty tree. Callback should not be invoked.
   void *tree = NULL;
-  twalk(tree, (void (*)(const void *, VISIT, int))42);
+  twalk(tree, (void (*)(const TNODE_t *, VISIT, int))42);
 }
 
 static int compar_int(const void *a, const void *b) {
@@ -26,24 +26,24 @@ static int numbers[NELEMENTS];
 static size_t next_key = 0;
 static int current_level = -1;
 
-static void traverse(const void *key, VISIT visit, int level) {
+static void traverse(const TNODE_t *node, VISIT visit, int level) {
   ASSERT_GE(MAXTREEHEIGHT, level);
   switch (visit) {
     case preorder:
       ASSERT_EQ(++current_level, level);
-      ASSERT_LE(&numbers[next_key], *(int **)key);
+      ASSERT_LE(&numbers[next_key], node->key);
       break;
     case postorder:
       ASSERT_EQ(current_level, level);
-      ASSERT_EQ(&numbers[next_key++], *(int **)key);
+      ASSERT_EQ(&numbers[next_key++], node->key);
       break;
     case endorder:
       ASSERT_EQ(current_level--, level);
-      ASSERT_GE(&numbers[next_key], *(int **)key);
+      ASSERT_GE(&numbers[next_key], node->key);
       break;
     case leaf:
       ASSERT_EQ(current_level + 1, level);
-      ASSERT_EQ(&numbers[next_key++], *(int **)key);
+      ASSERT_EQ(&numbers[next_key++], node->key);
       break;
   }
 }
@@ -65,22 +65,22 @@ TEST_SEPARATE_PROCESS(twalk, example) {
   }
 
   // Insert all elements into the tree in random order.
-  void *root = NULL;
+  TNODE_t *root = NULL;
   for (size_t i = 0; i < NELEMENTS; ++i) {
     // Entry should not exist yet.
     int *keyp = &numbers[insertion_order[i]];
     ASSERT_EQ(NULL, tfind(keyp, &root, compar_int));
     ASSERT_EQ(NULL, tdelete(keyp, &root, compar_int));
     // Insertion should create new node in tree.
-    ASSERT_EQ(keyp, *(int **)tsearch(keyp, &root, compar_int));
+    ASSERT_EQ(keyp, tsearch(keyp, &root, compar_int)->key);
   }
   for (size_t i = 0; i < NELEMENTS; ++i) {
     // Successive searches should always return this node, even when
     // provided a different instance of the same key.
     int *keyp = &numbers[insertion_order[i]];
     int key = *keyp;
-    ASSERT_EQ(keyp, *(int **)tfind(&key, &root, compar_int));
-    ASSERT_EQ(keyp, *(int **)tsearch(&key, &root, compar_int));
+    ASSERT_EQ(keyp, tfind(&key, &root, compar_int)->key);
+    ASSERT_EQ(keyp, tsearch(&key, &root, compar_int)->key);
   }
 
   // Invoke twalk() and check the order in which it iterates.

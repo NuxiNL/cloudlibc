@@ -10,6 +10,6 @@
 #endif
 
 // clang-format off
-void (twalk)(const void *root, void (*action)(const void *, VISIT, int)) {
+void (twalk)(const TNODE_t *root, void (*action)(const TNODE_t *, VISIT, int)) {
   twalk(root, action);
 }

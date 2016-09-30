@@ -29,6 +29,11 @@
 //   many other systems.
 // - tdestroy():
 //   Allows for easy destruction of search trees. Also present on Linux.
+// - TNODE_t:
+//   Expected to be part of POSIX issue 8. Unlike POSIX, this
+//   implementation defines it as a structure type containing a key
+//   pointer. This allows use without potential pointer aliasing.
+//   http://austingroupbugs.net/view.php?id=1011
 //
 // Features missing:
 // - hcreate(), hdestroy() and hsearch():
@@ -58,6 +63,13 @@ struct hsearch_data {
   struct __hsearch *__hsearch;
 };
 
+typedef struct _TNODE_t {
+  void *key;                 // Value.
+  struct _TNODE_t *__left;   // Left child.
+  struct _TNODE_t *__right;  // Right child.
+  signed char __balance;     // AVL tree balance, between -1 and 1.
+} TNODE_t;
+
 __BEGIN_DECLS
 int hcreate_r(size_t, struct hsearch_data *);
 void hdestroy_r(struct hsearch_data *);
@@ -68,12 +80,13 @@ void *lfind(const void *, const void *, size_t *, size_t,
 void *lsearch(const void *, void *, size_t *, size_t,
               int (*)(const void *, const void *));
 void remque(void *);
-void *tdelete(const void *__restrict, void **__restrict,
+void *tdelete(const void *__restrict, TNODE_t **__restrict,
               int (*)(const void *, const void *));
-void tdestroy(void *, void (*)(void *));
-void *tfind(const void *, void *const *, int (*)(const void *, const void *));
-void *tsearch(const void *, void **, int (*)(const void *, const void *));
-void twalk(const void *, void (*)(const void *, VISIT, int));
+void tdestroy(TNODE_t *, void (*)(void *));
+TNODE_t *tfind(const void *, TNODE_t *const *,
+               int (*)(const void *, const void *));
+TNODE_t *tsearch(const void *, TNODE_t **, int (*)(const void *, const void *));
+void twalk(const TNODE_t *, void (*)(const TNODE_t *, VISIT, int));
 __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
@@ -148,53 +161,47 @@ static __inline void __remque(void *__element) {
 }
 #define remque(element) __remque(element)
 
-struct __tnode {
-  void *__key;              // Value.
-  struct __tnode *__left;   // Left child.
-  struct __tnode *__right;  // Right child.
-  signed char __balance;    // AVL tree balance, between -1 and 1.
-};
-
-static __inline void *__tfind(const void *__key, void *const *__rootp,
-                              int (*__compar)(const void *, const void *)) {
-  struct __tnode *__root;
+static __inline TNODE_t *__tfind(const void *__key, TNODE_t *const *__rootp,
+                                 int (*__compar)(const void *, const void *)) {
+  TNODE_t *__root;
   int __cmp;
 
   if (__rootp == _NULL)
     return _NULL;
-  __root = (struct __tnode *)*__rootp;
+  __root = *__rootp;
   while (__root != _NULL) {
-    __cmp = __compar(__key, __root->__key);
+    __cmp = __compar(__key, __root->key);
     if (__cmp < 0)
       __root = __root->__left;
     else if (__cmp > 0)
       __root = __root->__right;
     else
-      return (void *)&__root->__key;
+      return __root;
   }
   return _NULL;
 }
 #define tfind(key, rootp, compar) __tfind(key, rootp, compar)
 
-static __inline void __twalk_recurse(const struct __tnode *__root,
-                                     void (*__action)(const void *, VISIT, int),
+static __inline void __twalk_recurse(const TNODE_t *__root,
+                                     void (*__action)(const TNODE_t *, VISIT,
+                                                      int),
                                      int __level) {
   if (__root != _NULL) {
     if (__root->__left == _NULL && __root->__right == _NULL) {
-      __action(&__root->__key, leaf, __level);
+      __action(__root, leaf, __level);
     } else {
-      __action(&__root->__key, preorder, __level);
+      __action(__root, preorder, __level);
       __twalk_recurse(__root->__left, __action, __level + 1);
-      __action(&__root->__key, postorder, __level);
+      __action(__root, postorder, __level);
       __twalk_recurse(__root->__right, __action, __level + 1);
-      __action(&__root->__key, endorder, __level);
+      __action(__root, endorder, __level);
     }
   }
 }
 
-static __inline void __twalk(const void *__root,
-                             void (*__action)(const void *, VISIT, int)) {
-  __twalk_recurse((const struct __tnode *)__root, __action, 0);
+static __inline void __twalk(const TNODE_t *__root,
+                             void (*__action)(const TNODE_t *, VISIT, int)) {
+  __twalk_recurse(__root, __action, 0);
 }
 #define twalk(root, action) __twalk(root, action)
 #endif

@@ -47,29 +47,29 @@
 //
 // http://neil.brown.name/blog/20041124101820
 // http://neil.brown.name/blog/20041124141849
-void *tdelete(const void *restrict key, void **restrict rootp,
+void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
               int (*compar)(const void *, const void *)) {
   // POSIX requires that tdelete() returns NULL if rootp is NULL.
   if (rootp == NULL)
     return NULL;
-  struct __tnode *root = *rootp;
+  TNODE_t *root = *rootp;
 
   // Find the leaf that needs to be removed. Return if we cannot find an
   // existing entry. Keep track of the path that is taken to get to the
   // node, as we will need it to adjust the balances.
-  void *result = (void *)1;
+  TNODE_t *result = (TNODE_t *)1;
   struct path path;
   path_init(&path);
-  struct __tnode **base = &root, **leaf = &root;
+  TNODE_t **base = &root, **leaf = &root;
   for (;;) {
     if (*leaf == NULL)
       return NULL;
-    int cmp = compar(key, (*leaf)->__key);
+    int cmp = compar(key, (*leaf)->key);
     if (cmp < 0) {
-      result = &(*leaf)->__key;
+      result = *leaf;
       GO_LEFT();
     } else if (cmp > 0) {
-      result = &(*leaf)->__key;
+      result = *leaf;
       GO_RIGHT();
     } else {
       break;
@@ -79,18 +79,18 @@ void *tdelete(const void *restrict key, void **restrict rootp,
   // Found a matching key in the tree. Remove the node.
   if ((*leaf)->__left == NULL) {
     // Node has no left children. Replace it by its right subtree.
-    struct __tnode *old = *leaf;
+    TNODE_t *old = *leaf;
     *leaf = old->__right;
     free(old);
   } else {
     // Node has left children. Replace this node's key by its
     // predecessor's and remove that node instead.
-    void **keyp = &(*leaf)->__key;
+    void **keyp = &(*leaf)->key;
     GO_LEFT();
     while ((*leaf)->__right != NULL)
       GO_RIGHT();
-    struct __tnode *old = *leaf;
-    *keyp = old->__key;
+    TNODE_t *old = *leaf;
+    *keyp = old->key;
     *leaf = old->__left;
     free(old);
   }
@@ -100,14 +100,14 @@ void *tdelete(const void *restrict key, void **restrict rootp,
   // tsearch(), it is not identical. We now also need to consider the
   // case of outward imbalance in the right-right and left-left case
   // that only exists when deleting. Hence the duplication of code.
-  for (struct __tnode **n = base; n != leaf;) {
+  for (TNODE_t **n = base; n != leaf;) {
     if (path_took_left(&path)) {
-      struct __tnode *x = *n;
+      TNODE_t *x = *n;
       if (x->__balance < 0) {
-        struct __tnode *y = x->__right;
+        TNODE_t *y = x->__right;
         if (y->__balance > 0) {
           // Right-left case.
-          struct __tnode *z = y->__left;
+          TNODE_t *z = y->__left;
           x->__right = z->__left;
           z->__left = x;
           y->__left = z->__right;
@@ -136,12 +136,12 @@ void *tdelete(const void *restrict key, void **restrict rootp,
       }
       n = &x->__left;
     } else {
-      struct __tnode *x = *n;
+      TNODE_t *x = *n;
       if (x->__balance > 0) {
-        struct __tnode *y = x->__left;
+        TNODE_t *y = x->__left;
         if (y->__balance < 0) {
           // Left-right case.
-          struct __tnode *z = y->__right;
+          TNODE_t *z = y->__right;
           y->__right = z->__left;
           z->__left = y;
           x->__left = z->__right;

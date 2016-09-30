@@ -6,12 +6,11 @@
 #include <search.h>
 #include <stdlib.h>
 
-void tdestroy(void *root, void (*destructor)(void *)) {
+void tdestroy(TNODE_t *root, void (*destructor)(void *)) {
   if (root != NULL) {
-    struct __tnode *n = root;
-    tdestroy(n->__left, destructor);
-    destructor(n->__key);
-    tdestroy(n->__right, destructor);
-    free(n);
+    tdestroy(root->__left, destructor);
+    destructor(root->key);
+    tdestroy(root->__right, destructor);
+    free(root);
   }
 }

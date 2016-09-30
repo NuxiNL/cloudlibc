@@ -16,7 +16,7 @@ TEST(tsearch, null) {
 }
 
 // Validates the integrity of an AVL tree.
-static inline unsigned int tnode_assert(const struct __tnode *n) {
+static inline unsigned int tnode_assert(const TNODE_t *n) {
   if (n == NULL)
     return 0;
   unsigned int height_left = tnode_assert(n->__left);
@@ -39,7 +39,7 @@ TEST(tsearch, random) {
     keys[i] = i;
 
   // Apply random operations on a binary tree and check the results.
-  void *root = NULL;
+  TNODE_t *root = NULL;
   bool present[__arraycount(keys)] = {};
   for (int i = 0; i < 10000; ++i) {
     int key = arc4random_uniform(__arraycount(keys));
@@ -54,16 +54,16 @@ TEST(tsearch, random) {
         break;
       case 1:  // tfind().
         if (present[key]) {
-          ASSERT_EQ(&keys[key], *(int **)tfind(&key, &root, compar));
+          ASSERT_EQ(&keys[key], tfind(&key, &root, compar)->key);
         } else {
           ASSERT_EQ(NULL, tfind(&key, &root, compar));
         }
         break;
       case 2:  // tsearch().
         if (present[key]) {
-          ASSERT_EQ(&keys[key], *(int **)tsearch(&key, &root, compar));
+          ASSERT_EQ(&keys[key], tsearch(&key, &root, compar)->key);
         } else {
-          ASSERT_EQ(&keys[key], *(int **)tsearch(&keys[key], &root, compar));
+          ASSERT_EQ(&keys[key], tsearch(&keys[key], &root, compar)->key);
           present[key] = true;
         }
         break;

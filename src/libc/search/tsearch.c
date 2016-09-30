@@ -15,19 +15,19 @@
 //
 // http://neil.brown.name/blog/20041124101820
 // http://neil.brown.name/blog/20041124141849
-void *tsearch(const void *key, void **rootp,
-              int (*compar)(const void *, const void *)) {
+TNODE_t *tsearch(const void *key, TNODE_t **rootp,
+                 int (*compar)(const void *, const void *)) {
   // POSIX requires that tsearch() returns NULL if rootp is NULL.
   if (rootp == NULL)
     return NULL;
-  struct __tnode *root = *rootp;
+  TNODE_t *root = *rootp;
 
   // Find the leaf where the new key needs to be inserted. Return if
   // we've found an existing entry. Keep track of the path that is taken
   // to get to the node, as we will need it to adjust the balances.
   struct path path;
   path_init(&path);
-  struct __tnode **base = &root, **leaf = &root;
+  TNODE_t **base = &root, **leaf = &root;
   while (*leaf != NULL) {
     if ((*leaf)->__balance != 0) {
       // If we reach a node that has a non-zero balance on the way, we
@@ -37,7 +37,7 @@ void *tsearch(const void *key, void **rootp,
       base = leaf;
       path_init(&path);
     }
-    int cmp = compar(key, (*leaf)->__key);
+    int cmp = compar(key, (*leaf)->key);
     if (cmp < 0) {
       path_taking_left(&path);
       leaf = &(*leaf)->__left;
@@ -45,15 +45,15 @@ void *tsearch(const void *key, void **rootp,
       path_taking_right(&path);
       leaf = &(*leaf)->__right;
     } else {
-      return &(*leaf)->__key;
+      return *leaf;
     }
   }
 
   // Did not find a matching key in the tree. Insert a new node.
-  struct __tnode *result = *leaf = malloc(sizeof(**leaf));
+  TNODE_t *result = *leaf = malloc(sizeof(**leaf));
   if (result == NULL)
     return NULL;
-  result->__key = (void *)key;
+  result->key = (void *)key;
   result->__left = NULL;
   result->__right = NULL;
   result->__balance = 0;
@@ -61,7 +61,7 @@ void *tsearch(const void *key, void **rootp,
   // Walk along the same path a second time and adjust the balances.
   // Except for the first node, all of these nodes must have a balance
   // of zero, meaning that these nodes will not get out of balance.
-  for (struct __tnode *n = *base; n != *leaf;) {
+  for (TNODE_t *n = *base; n != *leaf;) {
     if (path_took_left(&path)) {
       n->__balance += 1;
       n = n->__left;
@@ -73,9 +73,9 @@ void *tsearch(const void *key, void **rootp,
 
   // Adjusting the balances may have pushed the balance of the base node
   // out of range. Perform a rotation to bring the balance back in range.
-  struct __tnode *x = *base;
+  TNODE_t *x = *base;
   if (x->__balance > 1) {
-    struct __tnode *y = x->__left;
+    TNODE_t *y = x->__left;
     if (y->__balance < 0) {
       // Left-right case.
       //
@@ -86,7 +86,7 @@ void *tsearch(const void *key, void **rootp,
       //     A   z          /|   |\
       //        / \        A B   C D
       //       B   C
-      struct __tnode *z = y->__right;
+      TNODE_t *z = y->__right;
       y->__right = z->__left;
       z->__left = y;
       x->__left = z->__right;
@@ -112,7 +112,7 @@ void *tsearch(const void *key, void **rootp,
       y->__balance = 0;
     }
   } else if (x->__balance < -1) {
-    struct __tnode *y = x->__right;
+    TNODE_t *y = x->__right;
     if (y->__balance > 0) {
       // Right-left case.
       //
@@ -123,7 +123,7 @@ void *tsearch(const void *key, void **rootp,
       //       z   D        /|   |\
       //      / \          A B   C D
       //     B   C
-      struct __tnode *z = y->__left;
+      TNODE_t *z = y->__left;
       x->__right = z->__left;
       z->__left = x;
       y->__left = z->__right;
@@ -152,5 +152,5 @@ void *tsearch(const void *key, void **rootp,
 
   // Return the new entry.
   *rootp = root;
-  return &result->__key;
+  return result;
 }
