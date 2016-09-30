@@ -27,13 +27,13 @@
 // - struct hsearch_data, hcreate_r(), hdestroy_r() and hsearch_r():
 //   Replacements for hcreate(), hdestroy() and hsearch(). Present on
 //   many other systems.
-// - tdestroy():
-//   Allows for easy destruction of search trees. Also present on Linux.
 // - TNODE_t:
 //   Expected to be part of POSIX issue 8. Unlike POSIX, this
 //   implementation defines it as a structure type containing a key
 //   pointer. This allows use without potential pointer aliasing.
 //   http://austingroupbugs.net/view.php?id=1011
+// - tdestroy():
+//   Allows for easy destruction of search trees. Also present on Linux.
 //
 // Features missing:
 // - hcreate(), hdestroy() and hsearch():
