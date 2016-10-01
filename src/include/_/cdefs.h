@@ -77,30 +77,6 @@
 #define __strong_reference(oldsym, newsym) \
   extern __typeof__(oldsym) newsym __attribute__((__alias__(#oldsym)))
 
-// Support for C keywords when using GCC.
-
-#if !__has_extension(c_alignas) && defined(__cplusplus)
-#define _Alignas alignas
-#endif
-
-#if !__has_extension(c_atomic) && defined(__cplusplus)
-#define _Atomic(t) struct {t __value; }
-#endif
-
-#if defined(__cplusplus) && __cplusplus >= 201103L
-// clang-format off
-#define _Noreturn [[noreturn]]
-// clang-format on
-#endif
-
-#if !__has_extension(c_static_assert) && defined(__cplusplus)
-#define _Static_assert static_assert
-#endif
-
-#if !__has_extension(c_thread_local) && defined(__cplusplus)
-#define _Thread_local thread_local
-#endif
-
 // Convenience macros.
 
 #define __arraycount(x) (sizeof(x) / sizeof((x)[0]))
