@@ -90,26 +90,26 @@
 // Compile-time initializers.
 #define _PTHREAD_FUTEX_INITIALIZER(v) _UINT32_C(v)
 #define PTHREAD_COND_INITIALIZER \
-  { _PTHREAD_FUTEX_INITIALIZER(0), 3, 0x4 }
-#define PTHREAD_MUTEX_INITIALIZER             \
-  {                                           \
-    _PTHREAD_FUTEX_INITIALIZER(0), -1, 0x4, { \
-      _NULL, _NULL                            \
-    }                                         \
+  { _PTHREAD_FUTEX_INITIALIZER(0), CLOCK_REALTIME, PTHREAD_PROCESS_PRIVATE }
+#define PTHREAD_MUTEX_INITIALIZER                                 \
+  {                                                               \
+    _PTHREAD_FUTEX_INITIALIZER(0), -1, PTHREAD_PROCESS_PRIVATE, { \
+      _NULL, _NULL                                                \
+    }                                                             \
   }
 #define PTHREAD_ONCE_INIT \
   { _PTHREAD_FUTEX_INITIALIZER(0x80000000) }
-#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP \
-  {                                            \
-    _PTHREAD_FUTEX_INITIALIZER(0), 0, 0x4, {   \
-      _NULL, _NULL                             \
-    }                                          \
+#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP                   \
+  {                                                              \
+    _PTHREAD_FUTEX_INITIALIZER(0), 0, PTHREAD_PROCESS_PRIVATE, { \
+      _NULL, _NULL                                               \
+    }                                                            \
   }
-#define PTHREAD_RWLOCK_INITIALIZER            \
-  {                                           \
-    _PTHREAD_FUTEX_INITIALIZER(0), -1, 0x4, { \
-      _NULL, _NULL                            \
-    }                                         \
+#define PTHREAD_RWLOCK_INITIALIZER                                \
+  {                                                               \
+    _PTHREAD_FUTEX_INITIALIZER(0), -1, PTHREAD_PROCESS_PRIVATE, { \
+      _NULL, _NULL                                                \
+    }                                                             \
   }
 
 #ifndef _PTHREAD_ATTR_T_DECLARED
