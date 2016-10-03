@@ -59,17 +59,6 @@ __aeabi_f2lz
 __aeabi_idivmod
 __aeabi_l2d
 __aeabi_ldivmod
-__aeabi_memclr
-__aeabi_memclr4
-__aeabi_memclr8
-__aeabi_memcpy
-__aeabi_memcpy4
-__aeabi_memcpy8
-__aeabi_memmove
-__aeabi_memmove4
-__aeabi_memset
-__aeabi_memset4
-__aeabi_memset8
 __aeabi_uidiv
 __aeabi_uidivmod
 __aeabi_ul2d
