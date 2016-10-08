@@ -20,21 +20,20 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
   // POSIX requires that tsearch() returns NULL if rootp is NULL.
   if (rootp == NULL)
     return NULL;
-  TNODE_t *root = *rootp;
 
   // Find the leaf where the new key needs to be inserted. Return if
   // we've found an existing entry. Keep track of the path that is taken
   // to get to the node, as we will need it to adjust the balances.
   struct path path;
   path_init(&path);
-  TNODE_t **base = &root, **leaf = &root;
+  TNODE_t **leaf = rootp;
   while (*leaf != NULL) {
     if ((*leaf)->__balance != 0) {
       // If we reach a node that has a non-zero balance on the way, we
       // know that we won't need to perform any rotations above this
       // point. In this case rotations are always capable of keeping the
-      // subtree in balance. Make this the base node and reset the path.
-      base = leaf;
+      // subtree in balance. Make this the root node and reset the path.
+      rootp = leaf;
       path_init(&path);
     }
     int cmp = compar(key, (*leaf)->key);
@@ -61,7 +60,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
   // Walk along the same path a second time and adjust the balances.
   // Except for the first node, all of these nodes must have a balance
   // of zero, meaning that these nodes will not get out of balance.
-  for (TNODE_t *n = *base; n != *leaf;) {
+  for (TNODE_t *n = *rootp; n != *leaf;) {
     if (path_took_left(&path)) {
       n->__balance += 1;
       n = n->__left;
@@ -71,9 +70,9 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
     }
   }
 
-  // Adjusting the balances may have pushed the balance of the base node
+  // Adjusting the balances may have pushed the balance of the root node
   // out of range. Perform a rotation to bring the balance back in range.
-  TNODE_t *x = *base;
+  TNODE_t *x = *rootp;
   if (x->__balance > 1) {
     TNODE_t *y = x->__left;
     if (y->__balance < 0) {
@@ -91,7 +90,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
       z->__left = y;
       x->__left = z->__right;
       z->__right = x;
-      *base = z;
+      *rootp = z;
 
       x->__balance = z->__balance > 0 ? -1 : 0;
       y->__balance = z->__balance < 0 ? 1 : 0;
@@ -106,7 +105,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
       //    A   B           B   C
       x->__left = y->__right;
       y->__right = x;
-      *base = y;
+      *rootp = y;
 
       x->__balance = 0;
       y->__balance = 0;
@@ -128,7 +127,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
       z->__left = x;
       y->__left = z->__right;
       z->__right = y;
-      *base = z;
+      *rootp = z;
 
       x->__balance = z->__balance < 0 ? 1 : 0;
       y->__balance = z->__balance > 0 ? -1 : 0;
@@ -143,7 +142,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
       //       B   C       A   B
       x->__right = y->__left;
       y->__left = x;
-      *base = y;
+      *rootp = y;
 
       x->__balance = 0;
       y->__balance = 0;
@@ -151,6 +150,5 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
   }
 
   // Return the new entry.
-  *rootp = root;
   return result;
 }

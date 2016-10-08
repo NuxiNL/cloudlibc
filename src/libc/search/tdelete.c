@@ -19,9 +19,9 @@
        * opposite direction that is balanced, we know that we won't     \
        * need to perform any rotations above this point. In this case   \
        * rotations are always capable of keeping the subtree in         \
-       * balance. Make this the base node and reset the path.           \
+       * balance. Make this the root node and reset the path.           \
        */                                                               \
-      base = leaf;                                                      \
+      rootp = leaf;                                                     \
       path_init(&path);                                                 \
     }                                                                   \
     path_taking_left(&path);                                            \
@@ -33,7 +33,7 @@
   do {                                                                 \
     if ((*leaf)->__balance == 0 ||                                     \
         ((*leaf)->__balance > 0 && (*leaf)->__left->__balance == 0)) { \
-      base = leaf;                                                     \
+      rootp = leaf;                                                    \
       path_init(&path);                                                \
     }                                                                  \
     path_taking_right(&path);                                          \
@@ -52,7 +52,6 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
   // POSIX requires that tdelete() returns NULL if rootp is NULL.
   if (rootp == NULL)
     return NULL;
-  TNODE_t *root = *rootp;
 
   // Find the leaf that needs to be removed. Return if we cannot find an
   // existing entry. Keep track of the path that is taken to get to the
@@ -60,7 +59,7 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
   TNODE_t *result = (TNODE_t *)1;
   struct path path;
   path_init(&path);
-  TNODE_t **base = &root, **leaf = &root;
+  TNODE_t **leaf = rootp;
   for (;;) {
     if (*leaf == NULL)
       return NULL;
@@ -100,7 +99,7 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
   // tsearch(), it is not identical. We now also need to consider the
   // case of outward imbalance in the right-right and left-left case
   // that only exists when deleting. Hence the duplication of code.
-  for (TNODE_t **n = base; n != leaf;) {
+  for (TNODE_t **n = rootp; n != leaf;) {
     if (path_took_left(&path)) {
       TNODE_t *x = *n;
       if (x->__balance < 0) {
@@ -173,6 +172,5 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
   }
 
   // Return the parent of the old entry.
-  *rootp = root;
   return result;
 }
