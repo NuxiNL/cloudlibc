@@ -27,7 +27,7 @@
 // - struct hsearch_data, hcreate_r(), hdestroy_r() and hsearch_r():
 //   Replacements for hcreate(), hdestroy() and hsearch(). Present on
 //   many other systems.
-// - TNODE_t:
+// - posix_tnode:
 //   Expected to be part of POSIX issue 8. Unlike POSIX, this
 //   implementation defines it as a structure type containing a key
 //   pointer. This allows use without potential pointer aliasing.
@@ -63,12 +63,12 @@ struct hsearch_data {
   struct __hsearch *__hsearch;
 };
 
-typedef struct _TNODE_t {
-  void *key;                 // Value.
-  struct _TNODE_t *__left;   // Left child.
-  struct _TNODE_t *__right;  // Right child.
-  signed char __balance;     // AVL tree balance, between -1 and 1.
-} TNODE_t;
+typedef struct __posix_tnode {
+  void *key;                      // Value.
+  struct __posix_tnode *__left;   // Left child.
+  struct __posix_tnode *__right;  // Right child.
+  signed char __balance;          // AVL tree balance, between -1 and 1.
+} posix_tnode;
 
 __BEGIN_DECLS
 int hcreate_r(size_t, struct hsearch_data *);
@@ -80,13 +80,14 @@ void *lfind(const void *, const void *, size_t *, size_t,
 void *lsearch(const void *, void *, size_t *, size_t,
               int (*)(const void *, const void *));
 void remque(void *);
-void *tdelete(const void *__restrict, TNODE_t **__restrict,
+void *tdelete(const void *__restrict, posix_tnode **__restrict,
               int (*)(const void *, const void *));
-void tdestroy(TNODE_t *, void (*)(void *));
-TNODE_t *tfind(const void *, TNODE_t *const *,
-               int (*)(const void *, const void *));
-TNODE_t *tsearch(const void *, TNODE_t **, int (*)(const void *, const void *));
-void twalk(const TNODE_t *, void (*)(const TNODE_t *, VISIT, int));
+void tdestroy(posix_tnode *, void (*)(void *));
+posix_tnode *tfind(const void *, posix_tnode *const *,
+                   int (*)(const void *, const void *));
+posix_tnode *tsearch(const void *, posix_tnode **,
+                     int (*)(const void *, const void *));
+void twalk(const posix_tnode *, void (*)(const posix_tnode *, VISIT, int));
 __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
@@ -161,9 +162,11 @@ static __inline void __remque(void *__element) {
 }
 #define remque(element) __remque(element)
 
-static __inline TNODE_t *__tfind(const void *__key, TNODE_t *const *__rootp,
-                                 int (*__compar)(const void *, const void *)) {
-  TNODE_t *__root;
+static __inline posix_tnode *__tfind(const void *__key,
+                                     posix_tnode *const *__rootp,
+                                     int (*__compar)(const void *,
+                                                     const void *)) {
+  posix_tnode *__root;
   int __cmp;
 
   if (__rootp == _NULL)
@@ -182,9 +185,9 @@ static __inline TNODE_t *__tfind(const void *__key, TNODE_t *const *__rootp,
 }
 #define tfind(key, rootp, compar) __tfind(key, rootp, compar)
 
-static __inline void __twalk_recurse(const TNODE_t *__root,
-                                     void (*__action)(const TNODE_t *, VISIT,
-                                                      int),
+static __inline void __twalk_recurse(const posix_tnode *__root,
+                                     void (*__action)(const posix_tnode *,
+                                                      VISIT, int),
                                      int __level) {
   if (__root != _NULL) {
     if (__root->__left == _NULL && __root->__right == _NULL) {
@@ -199,8 +202,9 @@ static __inline void __twalk_recurse(const TNODE_t *__root,
   }
 }
 
-static __inline void __twalk(const TNODE_t *__root,
-                             void (*__action)(const TNODE_t *, VISIT, int)) {
+static __inline void __twalk(const posix_tnode *__root,
+                             void (*__action)(const posix_tnode *, VISIT,
+                                              int)) {
   __twalk_recurse(__root, __action, 0);
 }
 #define twalk(root, action) __twalk(root, action)

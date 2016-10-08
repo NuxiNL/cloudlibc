@@ -6,7 +6,7 @@
 #include <search.h>
 #include <stdlib.h>
 
-void tdestroy(TNODE_t *root, void (*destructor)(void *)) {
+void tdestroy(posix_tnode *root, void (*destructor)(void *)) {
   if (root != NULL) {
     tdestroy(root->__left, destructor);
     destructor(root->key);

@@ -15,8 +15,8 @@
 //
 // http://neil.brown.name/blog/20041124101820
 // http://neil.brown.name/blog/20041124141849
-TNODE_t *tsearch(const void *key, TNODE_t **rootp,
-                 int (*compar)(const void *, const void *)) {
+posix_tnode *tsearch(const void *key, posix_tnode **rootp,
+                     int (*compar)(const void *, const void *)) {
   // POSIX requires that tsearch() returns NULL if rootp is NULL.
   if (rootp == NULL)
     return NULL;
@@ -26,7 +26,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
   // to get to the node, as we will need it to adjust the balances.
   struct path path;
   path_init(&path);
-  TNODE_t **leaf = rootp;
+  posix_tnode **leaf = rootp;
   while (*leaf != NULL) {
     if ((*leaf)->__balance != 0) {
       // If we reach a node that has a non-zero balance on the way, we
@@ -49,7 +49,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
   }
 
   // Did not find a matching key in the tree. Insert a new node.
-  TNODE_t *result = *leaf = malloc(sizeof(**leaf));
+  posix_tnode *result = *leaf = malloc(sizeof(**leaf));
   if (result == NULL)
     return NULL;
   result->key = (void *)key;
@@ -60,7 +60,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
   // Walk along the same path a second time and adjust the balances.
   // Except for the first node, all of these nodes must have a balance
   // of zero, meaning that these nodes will not get out of balance.
-  for (TNODE_t *n = *rootp; n != *leaf;) {
+  for (posix_tnode *n = *rootp; n != *leaf;) {
     if (path_took_left(&path)) {
       n->__balance += 1;
       n = n->__left;
@@ -72,9 +72,9 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
 
   // Adjusting the balances may have pushed the balance of the root node
   // out of range. Perform a rotation to bring the balance back in range.
-  TNODE_t *x = *rootp;
+  posix_tnode *x = *rootp;
   if (x->__balance > 1) {
-    TNODE_t *y = x->__left;
+    posix_tnode *y = x->__left;
     if (y->__balance < 0) {
       // Left-right case.
       //
@@ -85,7 +85,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
       //     A   z          /|   |\
       //        / \        A B   C D
       //       B   C
-      TNODE_t *z = y->__right;
+      posix_tnode *z = y->__right;
       y->__right = z->__left;
       z->__left = y;
       x->__left = z->__right;
@@ -111,7 +111,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
       y->__balance = 0;
     }
   } else if (x->__balance < -1) {
-    TNODE_t *y = x->__right;
+    posix_tnode *y = x->__right;
     if (y->__balance > 0) {
       // Right-left case.
       //
@@ -122,7 +122,7 @@ TNODE_t *tsearch(const void *key, TNODE_t **rootp,
       //       z   D        /|   |\
       //      / \          A B   C D
       //     B   C
-      TNODE_t *z = y->__left;
+      posix_tnode *z = y->__left;
       x->__right = z->__left;
       z->__left = x;
       y->__left = z->__right;

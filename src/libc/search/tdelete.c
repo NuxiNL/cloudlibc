@@ -47,7 +47,7 @@
 //
 // http://neil.brown.name/blog/20041124101820
 // http://neil.brown.name/blog/20041124141849
-void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
+void *tdelete(const void *restrict key, posix_tnode **restrict rootp,
               int (*compar)(const void *, const void *)) {
   // POSIX requires that tdelete() returns NULL if rootp is NULL.
   if (rootp == NULL)
@@ -56,10 +56,10 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
   // Find the leaf that needs to be removed. Return if we cannot find an
   // existing entry. Keep track of the path that is taken to get to the
   // node, as we will need it to adjust the balances.
-  TNODE_t *result = (TNODE_t *)1;
+  posix_tnode *result = (posix_tnode *)1;
   struct path path;
   path_init(&path);
-  TNODE_t **leaf = rootp;
+  posix_tnode **leaf = rootp;
   for (;;) {
     if (*leaf == NULL)
       return NULL;
@@ -78,7 +78,7 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
   // Found a matching key in the tree. Remove the node.
   if ((*leaf)->__left == NULL) {
     // Node has no left children. Replace it by its right subtree.
-    TNODE_t *old = *leaf;
+    posix_tnode *old = *leaf;
     *leaf = old->__right;
     free(old);
   } else {
@@ -88,7 +88,7 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
     GO_LEFT();
     while ((*leaf)->__right != NULL)
       GO_RIGHT();
-    TNODE_t *old = *leaf;
+    posix_tnode *old = *leaf;
     *keyp = old->key;
     *leaf = old->__left;
     free(old);
@@ -99,14 +99,14 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
   // tsearch(), it is not identical. We now also need to consider the
   // case of outward imbalance in the right-right and left-left case
   // that only exists when deleting. Hence the duplication of code.
-  for (TNODE_t **n = rootp; n != leaf;) {
+  for (posix_tnode **n = rootp; n != leaf;) {
     if (path_took_left(&path)) {
-      TNODE_t *x = *n;
+      posix_tnode *x = *n;
       if (x->__balance < 0) {
-        TNODE_t *y = x->__right;
+        posix_tnode *y = x->__right;
         if (y->__balance > 0) {
           // Right-left case.
-          TNODE_t *z = y->__left;
+          posix_tnode *z = y->__left;
           x->__right = z->__left;
           z->__left = x;
           y->__left = z->__right;
@@ -135,12 +135,12 @@ void *tdelete(const void *restrict key, TNODE_t **restrict rootp,
       }
       n = &x->__left;
     } else {
-      TNODE_t *x = *n;
+      posix_tnode *x = *n;
       if (x->__balance > 0) {
-        TNODE_t *y = x->__left;
+        posix_tnode *y = x->__left;
         if (y->__balance < 0) {
           // Left-right case.
-          TNODE_t *z = y->__right;
+          posix_tnode *z = y->__right;
           y->__right = z->__left;
           z->__left = y;
           x->__left = z->__right;

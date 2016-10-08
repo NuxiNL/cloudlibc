@@ -22,7 +22,7 @@ TEST(tdestroy, example) {
 #define NKEYS 1000
   // Insert a thousand keys.
   bool keys[1000] = {};
-  TNODE_t *root = NULL;
+  posix_tnode *root = NULL;
   for (size_t i = 0; i < NKEYS; ++i)
     ASSERT_EQ(&keys[i], tsearch(&keys[i], &root, compar)->key);
 

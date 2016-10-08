@@ -16,7 +16,7 @@ TEST(tsearch, null) {
 }
 
 // Validates the integrity of an AVL tree.
-static inline unsigned int tnode_assert(const TNODE_t *n) {
+static inline unsigned int tnode_assert(const posix_tnode *n) {
   if (n == NULL)
     return 0;
   unsigned int height_left = tnode_assert(n->__left);
@@ -39,7 +39,7 @@ TEST(tsearch, random) {
     keys[i] = i;
 
   // Apply random operations on a binary tree and check the results.
-  TNODE_t *root = NULL;
+  posix_tnode *root = NULL;
   bool present[__arraycount(keys)] = {};
   for (int i = 0; i < 10000; ++i) {
     int key = arc4random_uniform(__arraycount(keys));

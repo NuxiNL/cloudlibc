@@ -9,7 +9,7 @@
 #error "tfind is supposed to be a macro as well"
 #endif
 
-TNODE_t *(tfind)(const void *key, TNODE_t *const *rootp,
-                 int (*compar)(const void *, const void *)) {
+posix_tnode *(tfind)(const void *key, posix_tnode *const *rootp,
+                     int (*compar)(const void *, const void *)) {
   return tfind(key, rootp, compar);
 }

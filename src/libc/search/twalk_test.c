@@ -12,7 +12,7 @@
 TEST(twalk, empty) {
   // Empty tree. Callback should not be invoked.
   void *tree = NULL;
-  twalk(tree, (void (*)(const TNODE_t *, VISIT, int))42);
+  twalk(tree, (void (*)(const posix_tnode *, VISIT, int))42);
 }
 
 static int compar_int(const void *a, const void *b) {
@@ -26,7 +26,7 @@ static int numbers[NELEMENTS];
 static size_t next_key = 0;
 static int current_level = -1;
 
-static void traverse(const TNODE_t *node, VISIT visit, int level) {
+static void traverse(const posix_tnode *node, VISIT visit, int level) {
   ASSERT_GE(MAXTREEHEIGHT, level);
   switch (visit) {
     case preorder:
@@ -65,7 +65,7 @@ TEST_SEPARATE_PROCESS(twalk, example) {
   }
 
   // Insert all elements into the tree in random order.
-  TNODE_t *root = NULL;
+  posix_tnode *root = NULL;
   for (size_t i = 0; i < NELEMENTS; ++i) {
     // Entry should not exist yet.
     int *keyp = &numbers[insertion_order[i]];
