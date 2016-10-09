@@ -104,8 +104,10 @@ static const char *compute_combined_zone_abbreviation(const char *era,
     // Store the new entry in the global list. The list is lockless, so
     // perform a compare-and-exchange.
     ca_new->next = first;
-    if (atomic_compare_exchange_weak(&table, &first, ca_new))
+    if (atomic_compare_exchange_weak(&table, &first, ca_new)) {
+      free(ca_new);
       return ca_new->abbreviation;
+    }
 
     // Compare-and-exchange failed. See if an entry for the same
     // abbreviation got created in the meantime.
