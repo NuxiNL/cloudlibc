@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -8,7 +8,7 @@
 #include <testing.h>
 #include <time.h>
 
-TEST(time, example) {
+TEST(gettimeofday, example) {
   struct timespec ts;
   ASSERT_EQ(0, clock_gettime(CLOCK_REALTIME, &ts));
   struct timeval tv;
