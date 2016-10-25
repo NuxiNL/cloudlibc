@@ -354,7 +354,7 @@ struct lc_timezone_era {
   int64_t end : 38;                      // Timestamp at which this era ends.
   uint8_t end_save : 4;                  // Daylight savings at the end time.
   char abbreviation_std[6];  // Abbreviation of standard time (e.g., CET).
-  char abbreviation_dst[4];  // Abbreviation of DST (e.g., CEST).
+  char abbreviation_dst[5];  // Abbreviation of DST (e.g., CEST).
 };
 
 struct lc_timezone {
