@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -120,7 +120,7 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
     if (nodename == NULL) {
       addr_inet.s_addr = htonl(
           (hints->ai_flags & AI_PASSIVE) != 0 ? INADDR_ANY : INADDR_LOOPBACK);
-    } else if (inet_pton(AF_INET, nodename, &addr_inet) == 0) {
+    } else if (inet_aton(nodename, &addr_inet) == 0) {
       have_inet = false;
     }
   }

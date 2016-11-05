@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -78,7 +78,6 @@ TEST(getaddrinfo, bad) {
   TEST_AI_FAIL("127.0.0.1", "http", 0, AF_INET, 0xdeadc0de, 0, EAI_SOCKTYPE);
   // Bad node name.
   TEST_AI_FAIL("example.com", "80", 0, AF_UNSPEC, 0, 0, EAI_NONAME);
-  TEST_AI_FAIL("10.0.0", NULL, 0, AF_UNSPEC, 0, 0, EAI_NONAME);
   TEST_AI_FAIL("10.0.0.256", NULL, 0, AF_UNSPEC, 0, 0, EAI_NONAME);
   TEST_AI_FAIL("10.0.0.0.0", NULL, 0, AF_UNSPEC, 0, 0, EAI_NONAME);
   TEST_AI_FAIL(":::", NULL, 0, AF_UNSPEC, 0, 0, EAI_NONAME);
@@ -156,7 +155,7 @@ TEST(getaddrinfo, inet) {
 
   // The "whosockami" service has two distinct ports for TCP and UDP. We
   // should return both correctly if no socket type is set.
-  TEST_AI_BEGIN("255.255.255.255", "whosockami", 0, AF_INET, 0, 0);
+  TEST_AI_BEGIN("0xffffffff", "whosockami", 0, AF_INET, 0, 0);
   TEST_AI_ENTRY("255.255.255.255", 2009, SOCK_DGRAM, IPPROTO_UDP);
   TEST_AI_ENTRY("255.255.255.255", 2019, SOCK_STREAM, IPPROTO_TCP);
   TEST_AI_END();
