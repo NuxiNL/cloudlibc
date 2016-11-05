@@ -36,7 +36,7 @@ int inet_aton(const char *cp, struct in_addr *inp) {
       return 1;
     } else if (shift > 0 && number <= UINT8_MAX && *cp++ == '.') {
       // More components follow.
-      leading |= (uint32_t)number << shift;
+      leading |= number << shift;
       shift -= 8;
       max >>= 8;
     } else {
