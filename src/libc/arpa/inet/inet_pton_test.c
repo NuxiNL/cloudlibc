@@ -16,7 +16,7 @@ TEST(inet_pton, inet_valid) {
   ASSERT_EQ(1, inet_pton(AF_INET, string, &addr)); \
   ASSERT_ARREQ(binary, addr, __arraycount(addr));
   TEST_INET("0.0.0.0", "\x00\x00\x00\x00");
-  TEST_INET("192.168.003.004", "\xc0\xa8\x03\x04");
+  TEST_INET("192.168.3.4", "\xc0\xa8\x03\x04");
   TEST_INET("255.255.255.255", "\xff\xff\xff\xff");
 #undef TEST_INET
 }
@@ -26,7 +26,7 @@ TEST(inet_pton, inet_invalid) {
   ASSERT_EQ(0, inet_pton(AF_INET, "10.0.0.1hello", NULL));
   ASSERT_EQ(0, inet_pton(AF_INET, "10.0.0.", NULL));
   ASSERT_EQ(0, inet_pton(AF_INET, "hi10.0.0.5", NULL));
-  ASSERT_EQ(0, inet_pton(AF_INET, "0000.0.0.0", NULL));
+  ASSERT_EQ(0, inet_pton(AF_INET, "00.0.0.0", NULL));
   ASSERT_EQ(0, inet_pton(AF_INET, "0.0.0.0.0", NULL));
 }
 

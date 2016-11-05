@@ -16,18 +16,24 @@ static int inet_pton4(const char *restrict src, uint8_t *restrict dst) {
   uint8_t addr[4];
   for (size_t group = 0; group < __arraycount(addr); ++group) {
     // Parse number between 0 and 255.
-    unsigned int number = 0;
-    for (int i = 0; i < 3; ++i) {
-      if (*src >= '0' && *src <= '9') {
+    if (*src == '0') {
+      // Zero.
+      addr[group] = 0;
+      ++src;
+    } else if (*src >= '1' && *src <= '9') {
+      // Number between 1 and 255.
+      unsigned int number = *src++ - '0';
+      if (*src >= '0' && *src <= '9')
         number = number * 10 + *src++ - '0';
-      } else if (i == 0) {
-        // Number should consist of at least one digit.
+      if (*src >= '0' && *src <= '9')
+        number = number * 10 + *src++ - '0';
+      if (number > 255)
         return 0;
-      }
-    }
-    if (number > 255)
+      addr[group] = number;
+    } else {
+      // Number should consist of at least one digit.
       return 0;
-    addr[group] = number;
+    }
 
     // Require a trailing null byte and dot separator between groups.
     if (*src++ != (group == __arraycount(addr) - 1 ? '\0' : '.'))
