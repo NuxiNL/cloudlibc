@@ -315,6 +315,7 @@ int NAME(const char_t *restrict s, locale_t locale,
           typedef intmax_t int_t;
           intmax_t min = LM_SINT_MIN(length);
           intmax_t max = LM_SINT_MAX(length);
+          bool allow_negative = true;
 #include "parser_strtoint.h"
 #undef PEEK
 #undef SKIP
@@ -363,6 +364,7 @@ int NAME(const char_t *restrict s, locale_t locale,
           typedef uintmax_t int_t;
           uintmax_t min = 0;
           uintmax_t max = LM_UINT_MAX(length);
+          bool allow_negative = true;
 #include "parser_strtoint.h"
 #undef PEEK
 #undef SKIP

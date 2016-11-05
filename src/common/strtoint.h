@@ -29,6 +29,7 @@ int_t NAME(const char_t *restrict str, char_t **restrict endptr, int base,
   const char_t *s = str;
   int_t min = NUMERIC_MIN(int_t);
   int_t max = NUMERIC_MAX(int_t);
+  bool allow_negative = true;
 
 #define PEEK(n) s[n]
 #define SKIP(n) \

@@ -13,7 +13,7 @@ int_t number = 0;
 {
   // Negative or positive number?
   bool negative = false;
-  if (PEEK(0) == '-') {
+  if (allow_negative && PEEK(0) == '-') {
     negative = true;
     SKIP(1);
   } else if (PEEK(0) == '+') {
