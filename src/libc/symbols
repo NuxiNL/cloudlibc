@@ -398,6 +398,7 @@ imaxabs
 imaxdiv
 in6addr_any
 in6addr_loopback
+inet_aton
 inet_ntop
 inet_pton
 insque

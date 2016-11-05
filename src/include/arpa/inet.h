@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -23,12 +23,16 @@
 
 // <arpa/inet.h> - definitions for internet operations
 //
+// Extensions:
+// - inet_aton():
+//   Present on most operating systems.
+//
 // Features missing:
 // - inet_addr():
-//   API does not allow 255.255.255.255 to be parsed. Does not support
-//   IPv6. Use inet_pton() instead.
+//   API does not allow 255.255.255.255 to be parsed. Use inet_aton()
+//   instead.
 // - inet_ntoa():
-//   Not thread-safe.
+//   Not thread-safe. Use inet_ntop() instead.
 
 #ifndef _ARPA_INET_H_
 #define _ARPA_INET_H_
@@ -58,6 +62,7 @@ typedef __uint32_t uint32_t;
 #define INET6_ADDRSTRLEN 46
 
 __BEGIN_DECLS
+int inet_aton(const char *, struct in_addr *);
 const char *inet_ntop(int, const void *__restrict, char *__restrict, __size_t);
 int inet_pton(int, const char *__restrict, void *__restrict);
 __END_DECLS
