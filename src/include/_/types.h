@@ -190,7 +190,7 @@ typedef __uint_least16_t __char16_t;
 typedef __uint_least32_t __char32_t;
 #endif
 typedef __uint64_t __clock_t;
-typedef __uint32_t __clockid_t;
+typedef const struct __clockid *__clockid_t;
 typedef __uint64_t __dev_t;
 typedef __uint8_t __filetype_t;
 typedef __uint32_t __in_addr_t;
@@ -220,7 +220,7 @@ typedef __builtin_va_list __va_list;
 
 typedef struct {
   _Atomic(__uint32_t) __waiters;
-  __clockid_t __clock;
+  __uint32_t __clock;
   __uint8_t __pshared;
 } __pthread_cond_t;
 typedef struct __lockable __pthread_lock {

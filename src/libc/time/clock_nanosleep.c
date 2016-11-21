@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/clock.h>
 #include <common/time.h>
 
 #include <assert.h>
@@ -21,7 +22,7 @@ int clock_nanosleep(clockid_t clock_id, int flags, const struct timespec *rqtp,
   // Prepare polling subscription.
   cloudabi_subscription_t sub = {
       .type = CLOUDABI_EVENTTYPE_CLOCK,
-      .clock.clock_id = clock_id,
+      .clock.clock_id = clock_id->id,
       .clock.flags = flags,
   };
   if (!timespec_to_timestamp_clamp(rqtp, &sub.clock.timeout))

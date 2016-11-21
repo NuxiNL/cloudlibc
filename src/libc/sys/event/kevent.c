@@ -55,7 +55,8 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
 
   // Add timeout event.
   cloudabi_subscription_t timosub = {
-      .type = CLOUDABI_EVENTTYPE_CLOCK, .clock.clock_id = CLOCK_REALTIME,
+      .type = CLOUDABI_EVENTTYPE_CLOCK,
+      .clock.clock_id = CLOUDABI_CLOCK_REALTIME,
   };
   if (timeout != NULL) {
     if (!timespec_to_timestamp_clamp(timeout, &timosub.clock.timeout)) {

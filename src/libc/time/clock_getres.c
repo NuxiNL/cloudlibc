@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/clock.h>
 #include <common/time.h>
 
 #include <cloudabi_syscalls.h>
@@ -11,7 +12,7 @@
 
 int clock_getres(clockid_t clock_id, struct timespec *res) {
   cloudabi_timestamp_t ts;
-  cloudabi_errno_t error = cloudabi_sys_clock_res_get(clock_id, &ts);
+  cloudabi_errno_t error = cloudabi_sys_clock_res_get(clock_id->id, &ts);
   if (error != 0) {
     errno = error;
     return -1;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -6,11 +6,6 @@
 #include <errno.h>
 #include <testing.h>
 #include <time.h>
-
-TEST(clock_gettime, bad) {
-  ASSERT_EQ(-1, clock_gettime(0xdeadc0de, NULL));
-  ASSERT_EQ(EINVAL, errno);
-}
 
 TEST(clock_gettime, monotonic) {
   struct timespec ts;

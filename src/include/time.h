@@ -100,14 +100,18 @@ struct tm {
 
 #define CLOCKS_PER_SEC 1000000000
 
-#define CLOCK_MONOTONIC ((clockid_t)1)
-#define CLOCK_PROCESS_CPUTIME_ID ((clockid_t)2)
-#define CLOCK_REALTIME ((clockid_t)3)
-#define CLOCK_THREAD_CPUTIME_ID ((clockid_t)4)
+extern const struct __clockid _CLOCK_MONOTONIC;
+#define CLOCK_MONOTONIC (&_CLOCK_MONOTONIC)
+extern const struct __clockid _CLOCK_PROCESS_CPUTIME_ID;
+#define CLOCK_PROCESS_CPUTIME_ID (&_CLOCK_PROCESS_CPUTIME_ID)
+extern const struct __clockid _CLOCK_REALTIME;
+#define CLOCK_REALTIME (&_CLOCK_REALTIME)
+extern const struct __clockid _CLOCK_THREAD_CPUTIME_ID;
+#define CLOCK_THREAD_CPUTIME_ID (&_CLOCK_THREAD_CPUTIME_ID)
 
 #define TIMER_ABSTIME 1
 
-#define TIME_UTC CLOCK_REALTIME
+#define TIME_UTC 3
 
 extern int daylight;
 extern long timezone;

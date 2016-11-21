@@ -29,7 +29,7 @@ int pthread_rwlock_timedrdlock(pthread_rwlock_t *restrict rwlock,
       },
       {
           .type = CLOUDABI_EVENTTYPE_CLOCK,
-          .clock.clock_id = CLOCK_REALTIME,
+          .clock.clock_id = CLOUDABI_CLOCK_REALTIME,
           .clock.flags = CLOUDABI_SUBSCRIPTION_CLOCK_ABSTIME,
       },
   };

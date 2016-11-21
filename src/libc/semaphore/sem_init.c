@@ -17,7 +17,7 @@ int sem_init(sem_t *sem, int pshared, unsigned int value) {
 
   // Initialize condition variable.
   atomic_init(&sem->__cond.__waiters, CLOUDABI_CONDVAR_HAS_NO_WAITERS);
-  sem->__cond.__clock = CLOCK_REALTIME;
+  sem->__cond.__clock = CLOUDABI_CLOCK_REALTIME;
   sem->__cond.__pshared =
       pshared ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE;
 

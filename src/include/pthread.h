@@ -90,7 +90,7 @@
 // Compile-time initializers.
 #define _PTHREAD_FUTEX_INITIALIZER(v) _UINT32_C(v)
 #define PTHREAD_COND_INITIALIZER \
-  { _PTHREAD_FUTEX_INITIALIZER(0), CLOCK_REALTIME, PTHREAD_PROCESS_PRIVATE }
+  { _PTHREAD_FUTEX_INITIALIZER(0), 3, PTHREAD_PROCESS_PRIVATE }
 #define PTHREAD_MUTEX_INITIALIZER                                 \
   {                                                               \
     _PTHREAD_FUTEX_INITIALIZER(0), -1, PTHREAD_PROCESS_PRIVATE, { \
