@@ -39,8 +39,6 @@
 //   Signal handling not available.
 // - O_TTY_INIT:
 //   TTY handling not available.
-// - AT_EACCESS:
-//   Process credentials are not available/mutable.
 // - creat() and open():
 //   Requires global filesystem namespace.
 
