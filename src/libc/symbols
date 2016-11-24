@@ -264,6 +264,7 @@ expm1l
 fabs
 fabsf
 fabsl
+faccessat
 fclose
 fcntl
 fdatasync

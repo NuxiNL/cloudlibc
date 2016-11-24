@@ -35,7 +35,9 @@
 // - _POSIX_VERSION, _POSIX2_VERSION, _XOPEN_VERSION, _SC_VERSION,
 //   _SC_2_VERSION and _SC_XOPEN_VERSION:
 //   System does not conform to POSIX.
-// - F_OK, R_OK, W_OK, X_OK, faccessat(), fchown() and fchownat():
+// - faccessat():
+//   Validates file descriptor rights; not filesystem access controls.
+// - fchown() and fchownat():
 //   Filesystem access control management not available.
 // - _CS_* and confstr():
 //   Not applicable, as POSIX command line tools are not available.
@@ -150,6 +152,11 @@
 #define _POSIX_PRIO_IO (-1)
 
 #define NULL _NULL
+
+#define F_OK 0    // Test for existence of file.
+#define R_OK 0x1  // Test for read permission.
+#define W_OK 0x2  // Test for write permission.
+#define X_OK 0x4  // Test for execute (search) permission.
 
 #define SEEK_CUR 1
 #define SEEK_END 2
@@ -330,6 +337,7 @@ char *crypt_r(const char *, const char *, struct crypt_data *);
 int dup(int);
 int dup2(int, int);
 _Noreturn void _exit(int);
+int faccessat(int, const char *, int, int);
 int fdatasync(int);
 long fpathconf(int, int);
 int fsync(int);

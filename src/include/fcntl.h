@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -98,6 +98,7 @@ typedef __off_t off_t;
 #define O_RDWR (O_RDONLY | O_WRONLY)
 
 // Flags for *at().
+#define AT_EACCESS 0
 #define AT_SYMLINK_NOFOLLOW 0x1
 #define AT_SYMLINK_FOLLOW 0x2
 #define AT_REMOVEDIR 0x4
