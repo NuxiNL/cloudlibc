@@ -322,8 +322,8 @@ static __inline char *__qsort_med3(char *__a, char *__b, char *__c,
                     : __cmp(__a, __c, __thunk) > 0 ? __c : __a);
 }
 
-// Determines which element should act as a pivot for quick sort.
-// TODO(ed): This does not guarantee a O(n log n) running time.
+// Picks a pivot based on a pseudo-median of three or nine.
+// TODO(ed): Does this still guarantee an O(n log n) running time?
 static __inline char *__qsort_pickpivot(char *__a, size_t __nel, size_t __width,
                                         int (*__cmp)(const void *, const void *,
                                                      void *),
@@ -331,19 +331,16 @@ static __inline char *__qsort_pickpivot(char *__a, size_t __nel, size_t __width,
   char *__pl, *__pm, *__pn;
   size_t __s;
 
+  __pl = __a;
   __pm = __a + (__nel / 2) * __width;
-  if (__nel > 7) {
-    __pl = __a;
-    __pn = __a + (__nel - 1) * __width;
-    if (__nel > 40) {
-      __s = (__nel / 8) * __width;
-      __pl = __qsort_med3(__pl, __pl + __s, __pl + 2 * __s, __cmp, __thunk);
-      __pm = __qsort_med3(__pm - __s, __pm, __pm + __s, __cmp, __thunk);
-      __pn = __qsort_med3(__pn - 2 * __s, __pn - __s, __pn, __cmp, __thunk);
-    }
-    __pm = __qsort_med3(__pl, __pm, __pn, __cmp, __thunk);
+  __pn = __a + (__nel - 1) * __width;
+  if (__nel > 40) {
+    __s = (__nel / 8) * __width;
+    __pl = __qsort_med3(__pl, __pl + __s, __pl + 2 * __s, __cmp, __thunk);
+    __pm = __qsort_med3(__pm - __s, __pm, __pm + __s, __cmp, __thunk);
+    __pn = __qsort_med3(__pn - 2 * __s, __pn - __s, __pn, __cmp, __thunk);
   }
-  return __pm;
+  return __qsort_med3(__pl, __pm, __pn, __cmp, __thunk);
 }
 
 // Implementation of quicksort for larger lists.
@@ -404,7 +401,7 @@ static __inline void __qsort_r(void *__base, size_t __nel, size_t __width,
   char *__a;
 
   __a = (char *)__base;
-  if (__nel < 7) {
+  if (__nel < 8) {
     __qsort_insertionsort(__a, __nel, __width, __cmp, __thunk);
   } else {
     __qsort_quicksort(__a, __nel, __width, __cmp, __thunk);
