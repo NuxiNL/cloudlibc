@@ -13,5 +13,5 @@ double drand48(void) {
   arc4random_buf(&value, sizeof(value));
 
   // Convert value to a floating point number between [0, 1).
-  return scalbn(value, -64);
+  return ldexp(value, -64);
 }
