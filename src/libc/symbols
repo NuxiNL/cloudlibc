@@ -244,6 +244,7 @@ dwprintf_l
 endprotoent
 endservent
 environ
+erand48
 erf
 erfc
 erfcf
@@ -458,6 +459,7 @@ isxdigit_l
 j0
 j1
 jn
+jrand48
 kevent
 kqueue
 l64a_r
@@ -586,6 +588,7 @@ nexttowardl
 ngettext
 nl_langinfo
 nl_langinfo_l
+nrand48
 ntohl
 ntohs
 open_memstream

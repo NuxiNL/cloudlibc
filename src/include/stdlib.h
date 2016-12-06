@@ -43,8 +43,6 @@
 //   Allows for reallocation of buffers without integer overflows.
 //
 // Features missing:
-// - erand48(), jrand48() and nrand48():
-//   Quality of random numbers is too weak. Use arc4random*() instead.
 // - initstate(), lcong48(), seed48(), setstate(), srand(), srand48()
 //   and srandom():
 //   Randomizer is seeded securely by default. There is no need to seed
@@ -134,10 +132,12 @@ void *bsearch(const void *, const void *, size_t, size_t,
 void *calloc(size_t, size_t);
 div_t div(int, int) __pure2;
 double drand48(void);
+double erand48(__uint16_t *);
 _Noreturn void exit(int);
 void free(void *);
 char *getenv(const char *);
 int getsubopt(char **, char *const *, char **);
+long jrand48(__uint16_t *);
 int l64a_r(long, char *, int);
 long labs(long) __pure2;
 ldiv_t ldiv(long, long) __pure2;
@@ -153,6 +153,7 @@ size_t mbstowcs_l(wchar_t *__restrict, const char *__restrict, size_t,
 int mbtowc(wchar_t *__restrict, const char *__restrict, size_t);
 int mbtowc_l(wchar_t *__restrict, const char *__restrict, size_t, __locale_t);
 long mrand48(void);
+long nrand48(__uint16_t *);
 int posix_memalign(void **, size_t, size_t);
 void qsort(void *, size_t, size_t, int (*)(const void *, const void *));
 void qsort_r(void *, size_t, size_t,
