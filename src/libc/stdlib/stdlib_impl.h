@@ -38,7 +38,7 @@ extern _Atomic(struct at_quick_exit *) __at_quick_exit_last;
 static inline uint_least48_t lcg48(uint16_t *xsubi) {
   uint_least48_t v = (uint_least48_t)xsubi[0] | (uint_least48_t)xsubi[1] << 16 |
                      (uint_least48_t)xsubi[2] << 32;
-  v = v * 0x5deece66d + 0xb;
+  v = (v * 0x5deece66d + 0xb) & 0xffffffffffff;
   xsubi[0] = v;
   xsubi[1] = v >> 16;
   xsubi[2] = v >> 32;

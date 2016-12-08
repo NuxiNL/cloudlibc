@@ -9,5 +9,5 @@
 #include "stdlib_impl.h"
 
 long nrand48(uint16_t *xsubi) {
-  return (lcg48(xsubi) >> 17) & 0x7fffffff;
+  return lcg48(xsubi) >> 17;
 }

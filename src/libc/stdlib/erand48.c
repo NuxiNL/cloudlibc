@@ -10,5 +10,5 @@
 #include "stdlib_impl.h"
 
 double erand48(uint16_t *xsubi) {
-  return ldexp(lcg48(xsubi) & 0xffffffffffff, -48);
+  return ldexp(lcg48(xsubi), -48);
 }
