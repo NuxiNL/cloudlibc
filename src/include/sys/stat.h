@@ -83,19 +83,19 @@ struct stat {
 #define st_ctime st_ctim.tv_sec
 #define st_mtime st_mtim.tv_sec
 
-// Legacy definitions to test for the file type directly. As there are
-// many pieces of code that test the file type without using S_IFMT
-// (e.g., "if ((sb.st_mode & S_IFREG) != 0)"), ensure that these
-// definitions are all bitwise disjoint.
+// Legacy definitions to test for the file type directly. Even though
+// POSIX allows us to pick any value, Linux and BSD share the same
+// constants, meaning by now many applications incorrectly make
+// assumptions about their values.
 #define S_IFMT \
   (S_IFBLK | S_IFCHR | S_IFDIR | S_IFIFO | S_IFLNK | S_IFREG | S_IFSOCK)
-#define S_IFBLK 0x10000    // Block device.
-#define S_IFCHR 0x20000    // Character device.
-#define S_IFDIR 0x40000    // Directory.
-#define S_IFIFO 0x80000    // FIFO.
-#define S_IFLNK 0x100000   // Symbolic link.
-#define S_IFREG 0x200000   // Regular file.
-#define S_IFSOCK 0x400000  // Socket.
+#define S_IFBLK 0x6000   // Block device.
+#define S_IFCHR 0x2000   // Character device.
+#define S_IFDIR 0x4000   // Directory.
+#define S_IFIFO 0x1000   // FIFO.
+#define S_IFLNK 0xa000   // Symbolic link.
+#define S_IFREG 0x8000   // Regular file.
+#define S_IFSOCK 0xc000  // Socket.
 
 // File mode bits. These flags have no effect in this environment, but
 // are purely provided to keep standards conformant code compile.
@@ -118,13 +118,13 @@ struct stat {
 #define S_ISUID 0x800
 
 // Tests for traditional file descriptor types.
-#define S_ISBLK(m) (((m)&S_IFBLK) != 0)
-#define S_ISCHR(m) (((m)&S_IFCHR) != 0)
-#define S_ISDIR(m) (((m)&S_IFDIR) != 0)
-#define S_ISFIFO(m) (((m)&S_IFIFO) != 0)
-#define S_ISLNK(m) (((m)&S_IFLNK) != 0)
-#define S_ISREG(m) (((m)&S_IFREG) != 0)
-#define S_ISSOCK(m) (((m)&S_IFSOCK) != 0)
+#define S_ISBLK(m) (((m)&S_IFMT) == S_IFBLK)
+#define S_ISCHR(m) (((m)&S_IFMT) == S_IFCHR)
+#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
+#define S_ISFIFO(m) (((m)&S_IFMT) == S_IFIFO)
+#define S_ISLNK(m) (((m)&S_IFMT) == S_IFLNK)
+#define S_ISREG(m) (((m)&S_IFMT) == S_IFREG)
+#define S_ISSOCK(m) (((m)&S_IFMT) == S_IFSOCK)
 
 #define UTIME_NOW (-1)
 #define UTIME_OMIT (-2)
