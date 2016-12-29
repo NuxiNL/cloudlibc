@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -24,10 +24,6 @@
 // <libintl.h> - iñtërnâtiônàlizætiøn
 //
 // Features missing:
-// - dcgettext() and dcngettext():
-//   Message categories are not supported. According to the Gettext
-//   documentation, there are no situations in which they are necessary
-//   or useful.
 // - textdomain(), bindtextdomain() and bind_textdomain_codeset():
 //   Process wide text domain not available.
 
@@ -40,6 +36,8 @@
 // Gettext interface should always return the input strings literally.
 
 __BEGIN_DECLS
+char *dcgettext(const char *, const char *, int);
+char *dcngettext(const char *, const char *, const char *, unsigned long, int);
 char *dgettext(const char *, const char *);
 char *dngettext(const char *, const char *, const char *, unsigned long);
 char *gettext(const char *);
@@ -47,28 +45,41 @@ char *ngettext(const char *, const char *, unsigned long);
 __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
-static __inline char *__dgettext(const char *__domain __unused,
-                                 const char *__msgid) {
+static __inline char *__dcgettext(const char *__domain __unused,
+                                  const char *__msgid,
+                                  int __category __unused) {
   return (char *)__msgid;
+}
+#define dcgettext(domain, msgid, category) __dcgettext(domain, msgid, category)
+
+static __inline char *__dcngettext(const char *__domain __unused,
+                                   const char *__msgid1, const char *__msgid2,
+                                   unsigned long __n, int __category __unused) {
+  return (char *)(__n == 1 ? __msgid1 : __msgid2);
+}
+#define dcngettext(domain, msgid1, msgid2, n, category) \
+  __dcngettext(domain, msgid1, msgid2, n, category)
+
+static __inline char *__dgettext(const char *__domain, const char *__msgid) {
+  return dcgettext(__domain, __msgid, 2);
 }
 #define dgettext(domain, msgid) __dgettext(domain, msgid)
 
-static __inline char *__dngettext(const char *__domain __unused,
-                                  const char *__msgid1, const char *__msgid2,
-                                  unsigned long __n) {
-  return (char *)(__n == 1 ? __msgid1 : __msgid2);
+static __inline char *__dngettext(const char *__domain, const char *__msgid1,
+                                  const char *__msgid2, unsigned long __n) {
+  return dcngettext(__domain, __msgid1, __msgid2, __n, 2);
 }
 #define dngettext(domain, msgid1, msgid2, n) \
   __dngettext(domain, msgid1, msgid2, n)
 
 static __inline char *__gettext(const char *__msgid) {
-  return dgettext(_NULL, __msgid);
+  return dcgettext(_NULL, __msgid, 2);
 }
 #define gettext(msgid) __gettext(msgid)
 
 static __inline char *__ngettext(const char *__msgid1, const char *__msgid2,
                                  unsigned long __n) {
-  return dngettext(_NULL, __msgid1, __msgid2, __n);
+  return dcngettext(_NULL, __msgid1, __msgid2, __n, 2);
 }
 #define ngettext(msgid1, msgid2, n) __ngettext(msgid1, msgid2, n)
 #endif

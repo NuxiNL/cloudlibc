@@ -225,6 +225,8 @@ ctanhl
 ctanl
 ctime_r
 daylight
+dcgettext
+dcngettext
 dgettext
 difftime
 dirfd
@@ -766,6 +768,7 @@ send
 sendmsg
 setbuf
 setjmp
+setlocale
 setlogmask
 setprotoent
 setservent

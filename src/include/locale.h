@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -34,7 +34,7 @@
 //   localeconv() always uses the global locale.
 //
 // Features missing:
-// - setlocale(), uselocale() and LC_*:
+// - uselocale():
 //   This environment does not provide global locales. Use *_l() instead.
 
 #ifndef _LOCALE_H_
@@ -78,14 +78,24 @@ struct lconv {
   char int_n_sign_posn;     // Monetary, int., < 0: Negative sign position.
 };
 
+// Categories used by setlocale().
+#define LC_ALL (-1)
+#define LC_COLLATE 0
+#define LC_CTYPE 1
+#define LC_MESSAGES 2
+#define LC_MONETARY 3
+#define LC_NUMERIC 4
+#define LC_TIME 5
+#define _LC_TIMEZONE 6
+
 // Category bits used by newlocale().
-#define LC_COLLATE_MASK 0x1
-#define LC_CTYPE_MASK 0x2
-#define LC_MESSAGES_MASK 0x4
-#define LC_MONETARY_MASK 0x8
-#define LC_NUMERIC_MASK 0x10
-#define LC_TIME_MASK 0x20
-#define LC_TIMEZONE_MASK 0x40
+#define LC_COLLATE_MASK (1 << LC_COLLATE)
+#define LC_CTYPE_MASK (1 << LC_CTYPE)
+#define LC_MESSAGES_MASK (1 << LC_MESSAGES)
+#define LC_MONETARY_MASK (1 << LC_MONETARY)
+#define LC_NUMERIC_MASK (1 << LC_NUMERIC)
+#define LC_TIME_MASK (1 << LC_TIME)
+#define LC_TIMEZONE_MASK (1 << _LC_TIMEZONE)
 #define LC_ALL_MASK                                                        \
   (LC_COLLATE_MASK | LC_CTYPE_MASK | LC_MESSAGES_MASK | LC_MONETARY_MASK | \
    LC_NUMERIC_MASK | LC_TIME_MASK | LC_TIMEZONE_MASK)
@@ -106,6 +116,7 @@ void freelocale(locale_t);
 struct lconv *localeconv(void);
 struct lconv *localeconv_l(locale_t);
 locale_t newlocale(int, const char *, locale_t);
+char *setlocale(int, const char *);
 __END_DECLS
 
 #endif
