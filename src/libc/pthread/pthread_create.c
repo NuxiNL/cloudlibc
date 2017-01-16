@@ -91,7 +91,7 @@ int pthread_create(pthread_t *restrict thread,
   cloudabi_threadattr_t tdattr = {
       .entry_point = thread_entry,
       .stack = safe_stack,
-      .stack_size = safe_stacksize,
+      .stack_len = safe_stacksize,
       .argument = handle,
   };
   cloudabi_tid_t tid;

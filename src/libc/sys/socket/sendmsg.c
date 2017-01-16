@@ -35,7 +35,7 @@ ssize_t sendmsg(int socket, const struct msghdr *message, int flags) {
   // Prepare input parameters.
   cloudabi_send_in_t si = {
       .si_data = (const cloudabi_ciovec_t *)message->msg_iov,
-      .si_datalen = message->msg_iovlen,
+      .si_data_len = message->msg_iovlen,
       .si_flags = flags,
   };
 
@@ -50,7 +50,7 @@ ssize_t sendmsg(int socket, const struct msghdr *message, int flags) {
       }
       // Extract file descriptor list.
       si.si_fds = (const cloudabi_fd_t *)CMSG_DATA(cmsg);
-      si.si_fdslen = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(cloudabi_fd_t);
+      si.si_fds_len = (cmsg->cmsg_len - CMSG_LEN(0)) / sizeof(cloudabi_fd_t);
     } else {
       // Invalid control message type.
       errno = EINVAL;

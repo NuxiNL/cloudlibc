@@ -42,11 +42,11 @@ ssize_t recvmsg(int socket, struct msghdr *message, int flags) {
   // Prepare input parameters.
   cloudabi_recv_in_t ri = {
       .ri_data = (const cloudabi_iovec_t *)message->msg_iov,
-      .ri_datalen = message->msg_iovlen,
+      .ri_data_len = message->msg_iovlen,
       .ri_fds = (cloudabi_fd_t *)fds_begin,
-      .ri_fdslen = fds_end >= fds_begin
-                       ? (fds_end - fds_begin) / sizeof(cloudabi_fd_t)
-                       : 0,
+      .ri_fds_len = fds_end >= fds_begin
+                        ? (fds_end - fds_begin) / sizeof(cloudabi_fd_t)
+                        : 0,
       .ri_flags = flags,
   };
 
