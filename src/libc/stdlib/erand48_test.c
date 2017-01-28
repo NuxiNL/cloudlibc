@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <testing.h>
 
-TEST(jrand48, example) {
+TEST(erand48, example) {
   unsigned short xsubi[3] = {37174, 64810, 11603};
   double d = erand48(xsubi);
   ASSERT_LE(0.896, d);
