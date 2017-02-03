@@ -34,8 +34,8 @@
 // Features missing:
 // - Typed Memory Objects:
 //   Not applicable.
-// - MCL_CURRENT, MCL_FUTURE, mlockall() and munlockall():
-//   Not suitable for use in a multi-threaded programming environment.
+// - MCL_CURRENT, MCL_FUTURE, mlock(), mlockall(), munlock() and munlockall():
+//   Not meaningful in unprivileged contexts.
 // - shm_unlink():
 //   Requires global filesystem namespace.
 
@@ -85,11 +85,9 @@ typedef __size_t size_t;
 #endif
 
 __BEGIN_DECLS
-int mlock(const void *, size_t);
 void *mmap(void *, size_t, int, int, int, off_t);
 int mprotect(void *, size_t, int);
 int msync(void *, size_t, int);
-int munlock(const void *, size_t);
 int munmap(void *, size_t);
 int posix_madvise(void *, size_t, int);
 int shm_open(const char *, int, ...);

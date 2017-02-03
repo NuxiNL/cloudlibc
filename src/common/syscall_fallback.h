@@ -648,20 +648,6 @@ static cloudabi_errno_t syscall_fallback_mem_advise(void *addr, size_t len,
   return reg_x0;
 }
 
-static cloudabi_errno_t syscall_fallback_mem_lock(const void *addr,
-                                                  size_t len) {
-  register uint64_t reg_x8 asm("x8") = 33;
-  register uint64_t reg_x0 asm("x0") = (uint64_t)addr;
-  register uint64_t reg_x1 asm("x1") = (uint64_t)len;
-  asm volatile("\tsvc 0\n"
-               : "=r"(reg_x0)
-               : "r"(reg_x8), "r"(reg_x0), "r"(reg_x1)
-               : "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8",
-                 "x9", "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17",
-                 "x18", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7");
-  return reg_x0;
-}
-
 static cloudabi_errno_t syscall_fallback_mem_map(
     void *addr, size_t len, cloudabi_mprot_t prot, cloudabi_mflags_t flags,
     cloudabi_fd_t fd, cloudabi_filesize_t off, void **mem) {
@@ -713,20 +699,6 @@ static cloudabi_errno_t syscall_fallback_mem_sync(void *addr, size_t len,
   asm volatile("\tsvc 0\n"
                : "=r"(reg_x0)
                : "r"(reg_x8), "r"(reg_x0), "r"(reg_x1), "r"(reg_x2)
-               : "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8",
-                 "x9", "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17",
-                 "x18", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7");
-  return reg_x0;
-}
-
-static cloudabi_errno_t syscall_fallback_mem_unlock(const void *addr,
-                                                    size_t len) {
-  register uint64_t reg_x8 asm("x8") = 37;
-  register uint64_t reg_x0 asm("x0") = (uint64_t)addr;
-  register uint64_t reg_x1 asm("x1") = (uint64_t)len;
-  asm volatile("\tsvc 0\n"
-               : "=r"(reg_x0)
-               : "r"(reg_x8), "r"(reg_x0), "r"(reg_x1)
                : "memory", "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8",
                  "x9", "x10", "x11", "x12", "x13", "x14", "x15", "x16", "x17",
                  "x18", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7");
@@ -1624,18 +1596,6 @@ static cloudabi_errno_t syscall_fallback_mem_advise(void *addr, size_t len,
   return reg_rax;
 }
 
-static cloudabi_errno_t syscall_fallback_mem_lock(const void *addr,
-                                                  size_t len) {
-  register uint64_t reg_rax asm("rax") = 33;
-  register uint64_t reg_rdi asm("rdi") = (uint64_t)addr;
-  register uint64_t reg_rsi asm("rsi") = (uint64_t)len;
-  asm volatile("\tsyscall\n"
-               : "=r"(reg_rax)
-               : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
-  return reg_rax;
-}
-
 static cloudabi_errno_t syscall_fallback_mem_map(
     void *addr, size_t len, cloudabi_mprot_t prot, cloudabi_mflags_t flags,
     cloudabi_fd_t fd, cloudabi_filesize_t off, void **mem) {
@@ -1683,18 +1643,6 @@ static cloudabi_errno_t syscall_fallback_mem_sync(void *addr, size_t len,
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
-  return reg_rax;
-}
-
-static cloudabi_errno_t syscall_fallback_mem_unlock(const void *addr,
-                                                    size_t len) {
-  register uint64_t reg_rax asm("rax") = 37;
-  register uint64_t reg_rdi asm("rdi") = (uint64_t)addr;
-  register uint64_t reg_rsi asm("rsi") = (uint64_t)len;
-  asm volatile("\tsyscall\n"
-               : "=r"(reg_rax)
-               : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi)
                : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
@@ -2025,11 +1973,9 @@ static void syscall_fallback_setup(cloudabi_syscalls_t *syscalls) {
   syscalls->file_unlink = syscall_fallback_file_unlink;
   syscalls->lock_unlock = syscall_fallback_lock_unlock;
   syscalls->mem_advise = syscall_fallback_mem_advise;
-  syscalls->mem_lock = syscall_fallback_mem_lock;
   syscalls->mem_map = syscall_fallback_mem_map;
   syscalls->mem_protect = syscall_fallback_mem_protect;
   syscalls->mem_sync = syscall_fallback_mem_sync;
-  syscalls->mem_unlock = syscall_fallback_mem_unlock;
   syscalls->mem_unmap = syscall_fallback_mem_unmap;
   syscalls->poll = syscall_fallback_poll;
   syscalls->poll_fd = syscall_fallback_poll_fd;

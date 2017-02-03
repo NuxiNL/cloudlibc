@@ -27,19 +27,8 @@ TEST(msync, example) {
   void *addr = mmap(NULL, 100, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
   ASSERT_NE(MAP_FAILED, addr);
 
-  // Lock file contents and perform a modification.
-  ASSERT_EQ(0, mlock(addr, 100));
-  *(char *)addr = 'A';
-
-  // A regular sync should be successful.
+  // TODO(ed): Is there anything meaningful we can test?
   ASSERT_EQ(0, msync(addr, 100, MS_SYNC));
-
-  // Invalidation should yield EBUSY, as it would discard the locked page.
-  ASSERT_EQ(-1, msync(addr, 100, MS_SYNC | MS_INVALIDATE));
-  ASSERT_EQ(EBUSY, errno);
-
-  // Unlocking should allow us to invalidate the contents.
-  ASSERT_EQ(0, munlock(addr, 100));
   ASSERT_EQ(0, msync(addr, 100, MS_SYNC | MS_INVALIDATE));
 
   ASSERT_EQ(0, munmap(addr, 100));
