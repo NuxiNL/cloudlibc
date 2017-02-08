@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -25,7 +25,9 @@
 //
 // Extensions:
 // - dladdr():
-//   Present on most operating systems. Useful for debugging.
+//   Present on most operating systems. Useful for debugging. Do note
+//   that this function only works when executables are linked with
+//   "-Wl,--export-dynamic", as it requires the dynamic symbol table.
 //
 // Features missing:
 // - RTLD_*, dlclose(), dlerror(), dlopen() and dlsym():
