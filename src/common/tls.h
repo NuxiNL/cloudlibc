@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -114,6 +114,11 @@ static inline char *tls_addr(char *buf) {
   return (char *)tcb_addr(buf) + TCB_SIZE;
 }
 
+// Fetches the TLS area of the currently running thread.
+static inline char *tls_get(void) {
+  return (char *)tcb_get() + TCB_SIZE;
+}
+
 #elif TLS_VARIANT == 2
 
 // TLS Variant II: TLS register points to the TCB. The TLS data is
@@ -142,6 +147,11 @@ static inline char *tls_addr(char *buf) {
 // Computes the address of the TCB in the combined TCB/TLS area.
 static inline cloudabi_tcb_t *tcb_addr(char *buf) {
   return (cloudabi_tcb_t *)(tls_addr(buf) + __pt_tls_memsz_aligned);
+}
+
+// Fetches the TLS area of the currently running thread.
+static inline char *tls_get(void) {
+  return (char *)tcb_get() - __pt_tls_memsz_aligned;
 }
 
 #else
