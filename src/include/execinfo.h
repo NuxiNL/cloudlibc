@@ -22,8 +22,6 @@
 // SUCH DAMAGE.
 
 // <execinfo.h> - generation of backtraces
-//
-// TODO(ed): Add backtrace().
 
 #ifndef _EXECINFO_H_
 #define _EXECINFO_H_
@@ -31,6 +29,7 @@
 #include <_/types.h>
 
 __BEGIN_DECLS
+__size_t backtrace(void **, __size_t);
 char **backtrace_symbols(void *const *, __size_t);
 void backtrace_symbols_fd(void *const *, __size_t, int);
 __END_DECLS
