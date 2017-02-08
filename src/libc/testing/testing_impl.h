@@ -6,6 +6,6 @@
 #ifndef TESTING_TESTING_IMPL_H
 #define TESTING_TESTING_IMPL_H
 
-void __testing_printf(const char *, ...);
+void __testing_printf(const char *, ...) __printflike(1, 2);
 
 #endif
