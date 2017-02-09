@@ -8,7 +8,7 @@
 
 // Simple stack frame structure.
 struct frame {
-  struct frame *next;    // Stack frame of the caller.
+  struct frame *parent;  // Stack frame of the caller.
   void *return_address;  // Return address into the caller.
 };
 
@@ -20,10 +20,10 @@ size_t backtrace(void **buffer, size_t size) {
   struct frame *f = __builtin_frame_address(0);
   for (size_t i = 0; i < size; ++i) {
     buffer[i] = f->return_address;
-    if ((char *)f->next <= (char *)f - NEGATIVE_TOLERANCE ||
-        (char *)f->next >= (char *)f + POSITIVE_TOLERANCE)
+    if ((char *)f->parent <= (char *)f - NEGATIVE_TOLERANCE ||
+        (char *)f->parent >= (char *)f + POSITIVE_TOLERANCE)
       return i + 1;
-    f = f->next;
+    f = f->parent;
   }
   return size;
 }
