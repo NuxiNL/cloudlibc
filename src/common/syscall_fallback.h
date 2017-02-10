@@ -1082,7 +1082,7 @@ static cloudabi_errno_t syscall_fallback_condvar_signal(
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1126,7 +1126,7 @@ static cloudabi_errno_t syscall_fallback_fd_create2(cloudabi_filetype_t type,
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax), "=r"(reg_rdx)
       : "r"(reg_rax), "r"(reg_rdi)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r10", "r11");
   if (okay) {
     *fd1 = (cloudabi_fd_t)reg_rax;
     *fd2 = (cloudabi_fd_t)reg_rdx;
@@ -1179,7 +1179,7 @@ static cloudabi_errno_t syscall_fallback_fd_pread(cloudabi_fd_t fd,
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx), "r"(reg_r10)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r11");
   if (okay) {
     *nread = (size_t)reg_rax;
     return 0;
@@ -1203,7 +1203,7 @@ static cloudabi_errno_t syscall_fallback_fd_pwrite(cloudabi_fd_t fd,
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx), "r"(reg_r10)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r11");
   if (okay) {
     *nwritten = (size_t)reg_rax;
     return 0;
@@ -1224,7 +1224,7 @@ static cloudabi_errno_t syscall_fallback_fd_read(cloudabi_fd_t fd,
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r10", "r11");
   if (okay) {
     *nread = (size_t)reg_rax;
     return 0;
@@ -1257,7 +1257,7 @@ static cloudabi_errno_t syscall_fallback_fd_seek(
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r10", "r11");
   if (okay) {
     *newoffset = (cloudabi_filesize_t)reg_rax;
     return 0;
@@ -1286,7 +1286,7 @@ static cloudabi_errno_t syscall_fallback_fd_stat_put(
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1314,7 +1314,7 @@ static cloudabi_errno_t syscall_fallback_fd_write(cloudabi_fd_t fd,
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r10", "r11");
   if (okay) {
     *nwritten = (size_t)reg_rax;
     return 0;
@@ -1335,7 +1335,7 @@ static cloudabi_errno_t syscall_fallback_file_advise(cloudabi_fd_t fd,
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r11");
   return reg_rax;
 }
 
@@ -1348,7 +1348,7 @@ static cloudabi_errno_t syscall_fallback_file_allocate(
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1365,7 +1365,7 @@ static cloudabi_errno_t syscall_fallback_file_create(cloudabi_fd_t fd,
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r11");
   return reg_rax;
 }
 
@@ -1383,7 +1383,7 @@ static cloudabi_errno_t syscall_fallback_file_link(
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10), "r"(reg_r8), "r"(reg_r9)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r11");
   return reg_rax;
 }
 
@@ -1403,7 +1403,7 @@ static cloudabi_errno_t syscall_fallback_file_open(
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx), "r"(reg_r10),
         "r"(reg_r8)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r9", "r11");
   if (okay) {
     *fd = (cloudabi_fd_t)reg_rax;
     return 0;
@@ -1425,7 +1425,7 @@ static cloudabi_errno_t syscall_fallback_file_readdir(
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx), "r"(reg_r10)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r11");
   if (okay) {
     *bufused = (size_t)reg_rax;
     return 0;
@@ -1449,7 +1449,7 @@ static cloudabi_errno_t syscall_fallback_file_readlink(
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx), "r"(reg_r10),
         "r"(reg_r8)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r9", "r11");
   if (okay) {
     *bufused = (size_t)reg_rax;
     return 0;
@@ -1471,7 +1471,7 @@ static cloudabi_errno_t syscall_fallback_file_rename(
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10), "r"(reg_r8), "r"(reg_r9)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r11");
   return reg_rax;
 }
 
@@ -1497,7 +1497,7 @@ static cloudabi_errno_t syscall_fallback_file_stat_fput(
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1513,7 +1513,7 @@ static cloudabi_errno_t syscall_fallback_file_stat_get(
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r11");
   return reg_rax;
 }
 
@@ -1530,7 +1530,7 @@ static cloudabi_errno_t syscall_fallback_file_stat_put(
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10), "r"(reg_r8)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r9", "r11");
   return reg_rax;
 }
 
@@ -1549,7 +1549,7 @@ static cloudabi_errno_t syscall_fallback_file_symlink(const char *path1,
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10), "r"(reg_r8)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r9", "r11");
   return reg_rax;
 }
 
@@ -1566,7 +1566,7 @@ static cloudabi_errno_t syscall_fallback_file_unlink(cloudabi_fd_t fd,
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r11");
   return reg_rax;
 }
 
@@ -1592,7 +1592,7 @@ static cloudabi_errno_t syscall_fallback_mem_advise(void *addr, size_t len,
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1613,7 +1613,7 @@ static cloudabi_errno_t syscall_fallback_mem_map(
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx), "r"(reg_r10),
         "r"(reg_r8), "r"(reg_r9)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r11");
   if (okay) {
     *mem = (void *)reg_rax;
     return 0;
@@ -1630,7 +1630,7 @@ static cloudabi_errno_t syscall_fallback_mem_protect(void *addr, size_t len,
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1643,7 +1643,7 @@ static cloudabi_errno_t syscall_fallback_mem_sync(void *addr, size_t len,
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1672,7 +1672,7 @@ static cloudabi_errno_t syscall_fallback_poll(const cloudabi_subscription_t *in,
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r10", "r11");
   if (okay) {
     *nevents = (size_t)reg_rax;
     return 0;
@@ -1698,7 +1698,7 @@ static cloudabi_errno_t syscall_fallback_poll_fd(
       : "=r"(okay), "=r"(reg_rax)
       : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx), "r"(reg_r10),
         "r"(reg_r8), "r"(reg_r9)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r11");
   if (okay) {
     *nevents = (size_t)reg_rax;
     return 0;
@@ -1721,7 +1721,7 @@ static cloudabi_errno_t syscall_fallback_proc_exec(cloudabi_fd_t fd,
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10), "r"(reg_r8)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r9", "r11");
   return reg_rax;
 }
 
@@ -1746,7 +1746,7 @@ static cloudabi_errno_t syscall_fallback_proc_fork(cloudabi_fd_t *fd,
       "\tsetnc %0\n"
       : "=r"(okay), "=r"(reg_rax), "=r"(reg_rdx)
       : "r"(reg_rax)
-      : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+      : "memory", "rcx", "r8", "r9", "r10", "r11");
   if (okay) {
     *fd = (cloudabi_fd_t)reg_rax;
     *tid = (cloudabi_tid_t)reg_rdx;
@@ -1809,7 +1809,7 @@ static cloudabi_errno_t syscall_fallback_sock_bind(cloudabi_fd_t sock,
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r11");
   return reg_rax;
 }
 
@@ -1826,7 +1826,7 @@ static cloudabi_errno_t syscall_fallback_sock_connect(cloudabi_fd_t sock,
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx),
                  "r"(reg_r10)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r11");
   return reg_rax;
 }
 
@@ -1852,7 +1852,7 @@ static cloudabi_errno_t syscall_fallback_sock_recv(cloudabi_fd_t sock,
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1866,7 +1866,7 @@ static cloudabi_errno_t syscall_fallback_sock_send(cloudabi_fd_t sock,
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
@@ -1891,7 +1891,7 @@ static cloudabi_errno_t syscall_fallback_sock_stat_get(
   asm volatile("\tsyscall\n"
                : "=r"(reg_rax)
                : "r"(reg_rax), "r"(reg_rdi), "r"(reg_rsi), "r"(reg_rdx)
-               : "memory", "rcx", "rdx", "r8", "r9", "r10", "r11");
+               : "memory", "rcx", "r8", "r9", "r10", "r11");
   return reg_rax;
 }
 
