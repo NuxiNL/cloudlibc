@@ -5,8 +5,8 @@ rm -Rf tmp
 mkdir tmp
 cd tmp
 
-tar -xf ../tzdata2016i.tar.gz
-tar -xf ../tzcode2016i.tar.gz
+tar -xf ../tzdata2016j.tar.gz
+tar -xf ../tzcode2016j.tar.gz
 
 make zdump zic > /dev/null
 
