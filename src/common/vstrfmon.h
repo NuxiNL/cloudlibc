@@ -348,10 +348,10 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
                                   left_digits_with_grouping) *
             thousands_sep_len;
         size_t left_precision_with_grouping =
-            left_precision +
-            numeric_grouping_init(&(struct numeric_grouping){}, mon_grouping,
-                                  left_precision) *
-                thousands_sep_len;
+            left_precision + numeric_grouping_init(&(struct numeric_grouping){},
+                                                   mon_grouping,
+                                                   left_precision) *
+                                 thousands_sep_len;
 
         // Determine the total width of the value we are going to print.
         size_t width =

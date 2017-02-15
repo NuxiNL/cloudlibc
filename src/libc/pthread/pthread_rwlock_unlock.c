@@ -62,8 +62,9 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
         // Last read lock while threads are waiting. Attempt to upgrade
         // to a write lock before calling into the kernel to unlock.
         if (atomic_compare_exchange_weak_explicit(
-                state, &old, __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED |
-                                 CLOUDABI_LOCK_KERNEL_MANAGED,
+                state, &old,
+                __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED |
+                    CLOUDABI_LOCK_KERNEL_MANAGED,
                 memory_order_release | __memory_order_hle_release,
                 memory_order_relaxed)) {
           // Call into the kernel to unlock.

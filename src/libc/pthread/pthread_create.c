@@ -75,10 +75,10 @@ int pthread_create(pthread_t *restrict thread,
       .unsafe_stack = unsafe_stack,
       .unsafe_stacksize = unsafe_stacksize,
 
-      .detachstate = ATOMIC_VAR_INIT(
-          attr != NULL && attr->__detachstate == PTHREAD_CREATE_DETACHED
-              ? DETACH_DETACHED
-              : 0),
+      .detachstate = ATOMIC_VAR_INIT(attr != NULL && attr->__detachstate ==
+                                                         PTHREAD_CREATE_DETACHED
+                                         ? DETACH_DETACHED
+                                         : 0),
 
       .start_routine = start_routine,
       .argument = arg,

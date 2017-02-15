@@ -63,10 +63,11 @@ static const char *inet_ntop_inet6(const struct in6_addr *restrict src,
     size_t bufsize = buf + sizeof(buf) - bufend;
     if (i == 6 && ipv4) {
       // End address with IPv4 representation of the last four bytes.
-      bufend += snprintf(bufend, bufsize, &":%" PRIu8 ".%" PRIu8 ".%" PRIu8
-                                           ".%" PRIu8[strip_colon],
-                         src->s6_addr[12], src->s6_addr[13], src->s6_addr[14],
-                         src->s6_addr[15]);
+      bufend +=
+          snprintf(bufend, bufsize,
+                   &":%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8[strip_colon],
+                   src->s6_addr[12], src->s6_addr[13], src->s6_addr[14],
+                   src->s6_addr[15]);
       break;
     } else if (i == zeroes_best.start && zeroes_best.len > 1) {
       *bufend++ = ':';
