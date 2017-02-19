@@ -181,7 +181,6 @@ typedef struct {
 
 // Machine-independent definitions.
 
-typedef struct __argdata __argdata_t;
 #ifdef __cplusplus
 typedef bool _Bool;
 #endif

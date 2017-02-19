@@ -9,16 +9,17 @@ set -e
 : ${WARNFLAGS:=}
 
 # Contributed sources.
+ARGDATA=contrib/argdata-6a8caee
 DOUBLE_CONVERSION=contrib/double-conversion-56a0457
 JEMALLOC=contrib/jemalloc-4.0.0
 MUSL=contrib/musl-e738b8c
 
 # Additional compiler flags to include the right files, etc.
-CFLAGS="${CFLAGS} -Isrc -Isrc/include -I${DOUBLE_CONVERSION} \
+CFLAGS="${CFLAGS} -Isrc -Isrc/include -I${ARGDATA}/src -I${DOUBLE_CONVERSION} \
 -I${JEMALLOC}/include -I${MUSL}/src/internal -fno-exceptions -fno-rtti"
 
 # List of source files.
-SRCS=$(find src ${DOUBLE_CONVERSION} ${JEMALLOC} ${MUSL} \
+SRCS=$(find src ${ARGDATA} ${DOUBLE_CONVERSION} ${JEMALLOC} ${MUSL} \
     \( -name '*.[cS]' -o -name '*.cc' \) | sort)
 
 if [ "$1" != "fast" ]; then
@@ -54,10 +55,11 @@ make -k -j8 -f _obj/Makefile all
 
 echo "=> Linking libraries"
 rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a _obj/librt.a _obj/libxnet.a
-find src/libc ${DOUBLE_CONVERSION} ${JEMALLOC} ${MUSL} \
+find src/libc ${ARGDATA} ${DOUBLE_CONVERSION} ${JEMALLOC} ${MUSL} \
     \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
     xargs ${AR} rcs _obj/libc.a
+${AR} rcs _obj/libargdata.a
 ${AR} rcs _obj/libm.a
 ${AR} rcs _obj/libpthread.a
 ${AR} rcs _obj/librt.a

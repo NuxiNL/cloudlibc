@@ -3,8 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/argdata.h>
-
+#include <argdata_impl.h>
 #include <program.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>

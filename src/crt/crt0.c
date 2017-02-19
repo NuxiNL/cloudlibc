@@ -3,12 +3,12 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/argdata.h>
 #include <common/crt.h>
 #include <common/pthread.h>
 #include <common/syscall_fallback.h>
 #include <common/tls.h>
 
+#include <argdata_impl.h>
 #include <cloudabi_syscalls.h>
 #include <cloudabi_syscalls_info.h>
 #include <cloudabi_syscalls_struct.h>

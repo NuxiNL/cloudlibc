@@ -11,6 +11,8 @@ done
 (cd src/include; find . -type f) | while read file; do
   install -m 444 "src/include/${file}" "${DESTDIR}${PREFIX}/include/${file}"
 done
+install -m 444 contrib/argdata-6a8caee/src/argdata.* \
+    "${DESTDIR}${PREFIX}/include/"
 
 echo "=> Installing libraries"
 mkdir -p "${DESTDIR}${PREFIX}/lib"

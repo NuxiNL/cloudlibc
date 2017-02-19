@@ -28,9 +28,9 @@
 
 #include <_/types.h>
 
-#ifndef _ARGDATA_T_DECLARED
-typedef __argdata_t argdata_t;
-#define _ARGDATA_T_DECLARED
+#ifndef argdata_t
+typedef struct argdata_t argdata_t;
+#define argdata_t argdata_t
 #endif
 
 __BEGIN_DECLS
