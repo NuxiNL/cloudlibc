@@ -26,7 +26,7 @@
 #ifndef _PROGRAM_H_
 #define _PROGRAM_H_
 
-#include <_/types.h>
+#include <_/cdefs.h>
 
 #ifndef argdata_t
 typedef struct argdata_t argdata_t;
