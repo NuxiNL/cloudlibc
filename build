@@ -12,7 +12,7 @@ set -e
 ARGDATA=contrib/argdata-05ac00d
 DOUBLE_CONVERSION=contrib/double-conversion-56a0457
 JEMALLOC=contrib/jemalloc-4.0.0
-MUSL=contrib/musl-e738b8c
+MUSL=contrib/musl-b261a24
 
 # Additional compiler flags to include the right files, etc.
 CFLAGS="${CFLAGS} -Isrc -Isrc/include -I${ARGDATA}/src -I${DOUBLE_CONVERSION} \
