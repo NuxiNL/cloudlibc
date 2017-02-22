@@ -27,12 +27,12 @@
   } while (0)
 
 TEST(argdata_print_yaml, buffer) {
-#define TEST_BUFFER(in, out)                                   \
-  do {                                                         \
-    /* Prepare argument data input. */                         \
-    argdata_t *ad = argdata_create_buffer(in, sizeof(in) - 1); \
-    TEST_OBJECT(ad, out);                                      \
-    argdata_free(ad);                                          \
+#define TEST_BUFFER(in, out)                                 \
+  do {                                                       \
+    /* Prepare argument data input. */                       \
+    argdata_t *ad = argdata_from_buffer(in, sizeof(in) - 1); \
+    TEST_OBJECT(ad, out);                                    \
+    argdata_free(ad);                                        \
   } while (0)
   TEST_BUFFER("", "!!null \"null\"");
 

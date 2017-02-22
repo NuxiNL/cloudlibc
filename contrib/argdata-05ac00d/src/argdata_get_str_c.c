@@ -18,7 +18,7 @@ int argdata_get_str_c(const argdata_t *ad, const char **value) {
     return error;
 
   // Ensure that it is a C string.
-  if (strlen(str) != len)
+  if (strnlen(str, len + 1) != len)
     return EILSEQ;
   *value = str;
   return 0;

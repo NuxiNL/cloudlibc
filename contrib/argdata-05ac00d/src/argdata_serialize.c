@@ -97,7 +97,7 @@ static void encode_subfield(const argdata_t *ad, uint8_t **buf, int *fds,
   *buf += ad->length;
 }
 
-size_t argdata_get_buffer(const argdata_t *ad, void *buf, int *fds) {
+size_t argdata_serialize(const argdata_t *ad, void *buf, int *fds) {
   size_t nfds = 0;
   encode(ad, buf, fds, &nfds);
   return nfds;

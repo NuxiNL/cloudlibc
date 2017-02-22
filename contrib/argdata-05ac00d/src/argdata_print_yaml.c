@@ -253,10 +253,10 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         buf += clen;
         len -= clen;
       }
-      fputc('"', fp);
 #else
 // TODO(ed): Make printing of strings work properly.
 #endif
+      fputc('"', fp);
       return;
     }
   }

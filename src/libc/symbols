@@ -47,7 +47,6 @@ arc4random
 arc4random_buf
 arc4random_uniform
 argdata_create_binary
-argdata_create_buffer
 argdata_create_fd
 argdata_create_float
 argdata_create_int_s
@@ -59,10 +58,9 @@ argdata_create_str_c
 argdata_create_timestamp
 argdata_false
 argdata_free
+argdata_from_buffer
 argdata_get_binary
 argdata_get_bool
-argdata_get_buffer
-argdata_get_buffer_length
 argdata_get_fd
 argdata_get_float
 argdata_get_int_s
@@ -76,6 +74,8 @@ argdata_null
 argdata_print_yaml
 argdata_seq_iterate
 argdata_seq_next
+argdata_serialize
+argdata_serialized_length
 argdata_true
 asctime_r
 asin

@@ -62,7 +62,7 @@ static size_t countfds(const argdata_t *ad) {
   }
 }
 
-void argdata_get_buffer_length(const argdata_t *ad, size_t *datalen,
+void argdata_serialized_length(const argdata_t *ad, size_t *datalen,
                                size_t *fdslen) {
   *datalen = ad->length;
   if (fdslen != NULL)

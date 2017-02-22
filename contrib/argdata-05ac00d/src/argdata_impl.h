@@ -11,13 +11,11 @@
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
-#include <locale.h>
 #include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <wchar.h>
 
 #include "argdata.h"
 
@@ -200,25 +198,23 @@ static inline void encode_fd(int value, uint8_t **buf) {
 
 // Validates whether a string uses valid UTF-8.
 static inline int validate_string(const char *buf, size_t len) {
-#ifdef LC_C_UNICODE_LOCALE
-  // TODO(ed): Any way we can prevent pulling in the entire locale?
-  locale_t locale = LC_C_UNICODE_LOCALE;
-  static const mbstate_t initial_mbstate;
-  mbstate_t mbs = initial_mbstate;
-  while (len > 0) {
-    ssize_t clen = mbrtowc_l(NULL, buf, len, &mbs, locale);
-    if (clen <= 0) {
-      if (clen < 0)
+  const uint32_t mask[4] = {0x7F, 0x7FF, 0xFFFF, 0x1FFFFF};
+  while (len--) {
+    uint8_t b = *buf++;
+    if ((b & 0x80) == 0x00)
+      continue;
+    uint32_t codepoint = b;
+    int n = 0;
+    while ((b <<= 1) & 0x80) {
+      if (len-- == 0 || ++n > 3 || (*buf & 0xC0) != 0x80)
         return EILSEQ;
-      // Skip null bytes.
-      clen = 1;
+      codepoint = codepoint << 6 | (*buf++ & 0x3F);
     }
-    buf += clen;
-    len -= clen;
+    codepoint &= mask[n];
+    if (n == 0 || codepoint <= mask[n - 1] ||
+        (codepoint >= 0xD800 && codepoint <= 0xDFFF) || codepoint > 0x10FFFF)
+      return EILSEQ;
   }
-#else
-// TODO(ed): Make string validation work properly.
-#endif
   return 0;
 }
 

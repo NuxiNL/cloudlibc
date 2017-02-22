@@ -9,7 +9,7 @@ set -e
 : ${WARNFLAGS:=}
 
 # Contributed sources.
-ARGDATA=contrib/argdata-6a8caee
+ARGDATA=contrib/argdata-05ac00d
 DOUBLE_CONVERSION=contrib/double-conversion-56a0457
 JEMALLOC=contrib/jemalloc-4.0.0
 MUSL=contrib/musl-e738b8c

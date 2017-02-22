@@ -11,7 +11,7 @@ int program_exec(int fd, const argdata_t *ad) {
   // Compute size needed for serializing the argument data.
   size_t datalen;
   size_t fdslen;
-  argdata_get_buffer_length(ad, &datalen, &fdslen);
+  argdata_serialized_length(ad, &datalen, &fdslen);
 
   // Allocate space for the serialized the argument data.
   size_t mappinglen = fdslen * sizeof(int) + datalen;
@@ -26,7 +26,7 @@ int program_exec(int fd, const argdata_t *ad) {
   // Serialize the argument data.
   int *fds = mapping;
   char *data = (char *)&fds[fdslen];
-  fdslen = argdata_get_buffer(ad, data, fds);
+  fdslen = argdata_serialize(ad, data, fds);
 
   // Execute the new process, providing it the serialized argument data
   // and a list of file descriptors.

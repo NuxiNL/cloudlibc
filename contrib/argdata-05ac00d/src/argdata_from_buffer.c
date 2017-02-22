@@ -7,7 +7,7 @@
 
 #include "argdata_impl.h"
 
-argdata_t *argdata_create_buffer(const void *buf, size_t len) {
+argdata_t *argdata_from_buffer(const void *buf, size_t len) {
   argdata_t *ad = malloc(sizeof(*ad));
   if (ad == NULL)
     return NULL;
