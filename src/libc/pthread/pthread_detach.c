@@ -1,13 +1,12 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <common/crt.h>
+#include <common/refcount.h>
 
-#include <assert.h>
 #include <pthread.h>
-#include <stdatomic.h>
 
 int pthread_detach(pthread_t thread) {
   if (refcount_release(&thread->refcount)) {
