@@ -15,10 +15,12 @@ typedef struct { atomic_uint count; } refcount_t;
 #define REFCOUNT_INIT(count) \
   { ATOMIC_VAR_INIT(count) }
 
+// Initializes a reference counter.
 static inline void refcount_init(refcount_t *refcount, unsigned int count) {
   atomic_init(&refcount->count, count);
 }
 
+// Acquires the reference counter.
 static inline void refcount_acquire(refcount_t *refcount) {
 #ifdef NDEBUG
   atomic_fetch_add_explicit(&refcount->count, 1, memory_order_acquire);
@@ -29,9 +31,16 @@ static inline void refcount_acquire(refcount_t *refcount) {
 #endif
 }
 
+// Release a reference count object.
 static inline bool refcount_release(refcount_t *refcount) {
   return atomic_fetch_sub_explicit(&refcount->count, 1, memory_order_release) ==
          1;
+}
+
+// Assert that the reference count object is not referenced multiple times.
+static inline void refcount_assert_exclusive(refcount_t *refcount) {
+  assert(atomic_load_explicit(&refcount->count, memory_order_acquire) <= 1 &&
+         "Object is still referenced multiple times");
 }
 
 #endif
