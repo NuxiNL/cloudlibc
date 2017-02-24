@@ -75,16 +75,13 @@ noreturn void pthread_exit(void *value_ptr) {
   // detached thread cleans it up. That way, a process will only 'leak'
   // up to one stack.
   pthread_t self = __pthread_self_object;
-  unsigned int old = atomic_fetch_or_explicit(
-      &self->detachstate, DETACH_TERMINATING, memory_order_relaxed);
-  assert((old & DETACH_TERMINATING) == 0 &&
-         "Attempted to terminate thread twice");
-  if ((old & DETACH_DETACHED) != 0) {
-    static _Atomic(pthread_t) previous_detached_thread = ATOMIC_VAR_INIT(NULL);
+  if (refcount_release(&self->refcount)) {
+    static struct __pthread dead_thread = {};
+    static _Atomic(pthread_t) previous_detached_thread =
+        ATOMIC_VAR_INIT(&dead_thread);
     pthread_t previous = atomic_exchange_explicit(&previous_detached_thread,
                                                   self, memory_order_relaxed);
-    if (previous != NULL)
-      pthread_join(previous, NULL);
+    pthread_join(previous, NULL);
   }
 
   // Deinitialize malloc().

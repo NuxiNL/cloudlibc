@@ -5,6 +5,7 @@
 
 #include <common/crt.h>
 #include <common/pthread.h>
+#include <common/refcount.h>
 #include <common/syscall_fallback.h>
 #include <common/tls.h>
 
@@ -390,6 +391,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // pthread_mutex_lock() write the proper thread ID into the lock.
   struct __pthread self_object = {
       .join = ATOMIC_VAR_INIT(at_tid | CLOUDABI_LOCK_WRLOCKED),
+      .refcount = REFCOUNT_INIT(2),
   };
   __pthread_self_object = &self_object;
   __pthread_thread_id = at_tid;

@@ -53,7 +53,7 @@ int pdfork(int *fdp, ...) {
     __pthread_thread_id = tid;
     __pthread_lock_t *lock;
     atomic_init(&__pthread_self_object->join, tid | CLOUDABI_LOCK_WRLOCKED);
-    atomic_init(&__pthread_self_object->detachstate, 0);
+    refcount_init(&__pthread_self_object->refcount, 2);
     LIST_FOREACH(lock, &__pthread_wrlocks, __write_locks) {
       atomic_init(&lock->__state, tid | CLOUDABI_LOCK_WRLOCKED);
     }

@@ -6,6 +6,8 @@
 #ifndef COMMON_CRT_H
 #define COMMON_CRT_H
 
+#include <common/refcount.h>
+
 #include <cloudabi_types.h>
 #include <link.h>
 #include <pthread.h>
@@ -50,10 +52,7 @@ struct __pthread {
   void *safe_stack;               // Safe stack buffer used by this thread.
   void *unsafe_stack;             // Unsafe stack buffer used by this thread.
   size_t unsafe_stacksize;        // Size of the unsafe stack buffer.
-
-  _Atomic(unsigned int) detachstate;  // Flags related to thread detaching.
-#define DETACH_DETACHED 0x1
-#define DETACH_TERMINATING 0x2
+  refcount_t refcount;            // Thread handle and stack reference count.
 
   void *(*start_routine)(void *);  // User-supplied startup routine.
   void *argument;                  // Argument for startup routine.
