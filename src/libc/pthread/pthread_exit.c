@@ -17,6 +17,9 @@
 // Integration with jemalloc.
 void __malloc_thread_cleanup(void);
 
+// A previous detached thread that still needs to be cleaned up.
+static _Atomic(pthread_t) previous_detached_thread = ATOMIC_VAR_INIT(NULL);
+
 noreturn void pthread_exit(void *value_ptr) {
   // Invoke cleanup routines registered by __cxa_thread_atexit().
   for (struct thread_atexit *entry =
@@ -69,21 +72,25 @@ noreturn void pthread_exit(void *value_ptr) {
     exit(0);
   }
 
+  // In case the thread has been detached, we need to ensure some other
+  // thread deallocates our stack. Simply store the thread handle in a
+  // global variable, so that the next call to pthread_exit() of a
+  // detached thread cleans it up. That way, a process will only 'leak'
+  // up to one stack.
+  pthread_t self = __pthread_self_object;
+  unsigned int old = atomic_fetch_or_explicit(
+      &self->detachstate, DETACH_TERMINATING, memory_order_relaxed);
+  assert((old & DETACH_TERMINATING) == 0 &&
+         "Attempted to terminate thread twice");
+  if ((old & DETACH_DETACHED) != 0) {
+    pthread_t previous = atomic_exchange_explicit(&previous_detached_thread,
+                                                  self, memory_order_relaxed);
+    if (previous != NULL)
+      pthread_join(previous, NULL);
+  }
+
   // Deinitialize malloc().
   __malloc_thread_cleanup();
-
-  // In case the thread has an automatically allocated stack and has
-  // been detached, we need to enqueue its deallocation.
-  pthread_t self = __pthread_self_object;
-  if (self->safe_stack != NULL) {
-    unsigned int old = atomic_fetch_or_explicit(
-        &self->detachstate, DETACH_TERMINATING, memory_order_relaxed);
-    assert((old & DETACH_TERMINATING) == 0 &&
-           "Attempted to terminate thread twice");
-    if ((old & DETACH_DETACHED) != 0) {
-      // TODO(ed): Implement.
-    }
-  }
 
   // Store the return value and terminate execution of the thread.
   self->return_value = value_ptr;
