@@ -17,9 +17,6 @@
 // Integration with jemalloc.
 void __malloc_thread_cleanup(void);
 
-// A previous detached thread that still needs to be cleaned up.
-static _Atomic(pthread_t) previous_detached_thread = ATOMIC_VAR_INIT(NULL);
-
 noreturn void pthread_exit(void *value_ptr) {
   // Invoke cleanup routines registered by __cxa_thread_atexit().
   for (struct thread_atexit *entry =
@@ -83,6 +80,7 @@ noreturn void pthread_exit(void *value_ptr) {
   assert((old & DETACH_TERMINATING) == 0 &&
          "Attempted to terminate thread twice");
   if ((old & DETACH_DETACHED) != 0) {
+    static _Atomic(pthread_t) previous_detached_thread = ATOMIC_VAR_INIT(NULL);
     pthread_t previous = atomic_exchange_explicit(&previous_detached_thread,
                                                   self, memory_order_relaxed);
     if (previous != NULL)
