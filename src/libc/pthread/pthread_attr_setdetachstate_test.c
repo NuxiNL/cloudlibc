@@ -19,7 +19,10 @@ TEST(pthread_attr_setdetachstate, example) {
   ASSERT_EQ(0, pthread_attr_getdetachstate(&attr, &detachstate));
   ASSERT_EQ(PTHREAD_CREATE_DETACHED, detachstate);
 
-  pthread_t thread;
-  ASSERT_EQ(0, pthread_create(&thread, NULL, do_nothing, NULL));
+  for (int i = 0; i < 10; ++i) {
+    pthread_t thread;
+    ASSERT_EQ(0, pthread_create(&thread, &attr, do_nothing, NULL));
+  }
+
   ASSERT_EQ(0, pthread_attr_destroy(&attr));
 }
