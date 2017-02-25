@@ -69,15 +69,13 @@ int pthread_create(pthread_t *restrict thread,
       (uintptr_t)safe_stack + safe_stacksize - sizeof(struct __pthread),
       alignof(struct __pthread));
   safe_stacksize = (char *)handle - safe_stack;
+  bool detach = attr != NULL && attr->__detachstate == PTHREAD_CREATE_DETACHED;
   *handle = (struct __pthread){
       .join = ATOMIC_VAR_INIT(CLOUDABI_LOCK_BOGUS),
       .safe_stack = safe_stack,
       .unsafe_stack = unsafe_stack,
       .unsafe_stacksize = unsafe_stacksize,
-
-      .refcount = REFCOUNT_INIT(
-          attr != NULL && attr->__detachstate == PTHREAD_CREATE_DETACHED ? 1
-                                                                         : 2),
+      .refcount = REFCOUNT_INIT(detach ? 1 : 2),
 
       .start_routine = start_routine,
       .argument = arg,
