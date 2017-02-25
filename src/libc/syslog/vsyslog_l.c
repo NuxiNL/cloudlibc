@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -34,6 +34,10 @@ static_assert(LOG_UPTO(LOG_INFO) == (LOG_UPTO(LOG_NOTICE) | LOG_MASK(LOG_INFO)),
               "LOG_UPTO(LOG_INFO) yields an incorrect mask");
 static_assert(LOG_UPTO(LOG_DEBUG) == (LOG_UPTO(LOG_INFO) | LOG_MASK(LOG_DEBUG)),
               "LOG_UPTO(LOG_DEBUG) yields an incorrect mask");
+static_assert((LOG_UPTO(LOG_WARNING) | LOG_MASK(LOG_DEBUG)) ==
+                  (LOG_UPTO(LOG_DEBUG) &
+                   ~(LOG_MASK(LOG_NOTICE) | LOG_MASK(LOG_INFO))),
+              "Test vector provided by POSIX failed");
 
 static const char messages[][10] = {
         [LOG_ALERT] = "ALERT    \0",  [LOG_CRIT] = "CRITICAL \0",
