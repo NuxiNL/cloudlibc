@@ -107,6 +107,9 @@ argdata_t *argdata_create_seq(argdata_t const *const *, size_t);
 // Returns NULL and sets errno to EILSEQ if the string is not valid UTF-8.
 // The _c variant takes a null-terminated string, and calculates the size using
 // strlen().
+// When using the first version, argdata_get_str_c can only be used on the
+// result if the buffer is followed by a null char. If you're only going to use
+// argdata_serialize and argdata_get_str on the result, this is not an issue.
 argdata_t *argdata_create_str(const char *, size_t);
 argdata_t *argdata_create_str_c(const char *);
 
@@ -172,7 +175,8 @@ int argdata_get_int_u(const argdata_t *, uintmax_t *, uintmax_t);
 // Returns 0 on succes, EINVAL when the argdata_t isn't a string, or EILSEQ if
 // the string is not valid UTF-8. The _c variant also returns EILSEQ if the
 // string contains embedded null bytes.
-// The _c variant shouldn't be used on argdata_t created by argdata_create_str.
+// The _c variant shouldn't be used on argdata_t created by argdata_create_str,
+// if the original buffer isn't followed by a null char.
 int argdata_get_str(const argdata_t *, const char **, size_t *);
 int argdata_get_str_c(const argdata_t *, const char **);
 
@@ -229,14 +233,13 @@ void argdata_print_yaml(const argdata_t *, FILE *);
 
 #ifdef __cplusplus
 
-inline argdata_t *argdata_create_int(intmax_t v) {
-  return argdata_create_int_s(v);
-}
-inline argdata_t *argdata_create_int(uintmax_t v) {
-  return argdata_create_int_u(v);
-}
-
-#define ARGDATA_INT_OVERLOAD_NAME(stype) argdata_get_int
+#define ARGDATA_INT_OVERLOADS(type, stype, sign)                 \
+  inline argdata_t *argdata_create_int(type value) {             \
+    return argdata_create_int_##sign(value);                     \
+  }                                                              \
+  inline int argdata_get_int(const argdata_t *ad, type *value) { \
+    return argdata_get_int_##stype(ad, value);                   \
+  }
 
 #else
 
@@ -267,36 +270,39 @@ inline argdata_t *argdata_create_int(uintmax_t v) {
            unsigned long: argdata_get_int_ulong,   \
            long long: argdata_get_int_llong,       \
            unsigned long long: argdata_get_int_ullong)(ad, value)
-
-#define ARGDATA_INT_OVERLOAD_NAME(stype) argdata_get_int_##stype
-
 // clang-format on
+
+#define ARGDATA_INT_OVERLOADS(type, stype, sign)
+
 #endif
 
-#define ARGDATA_INT_S(type, stype, min, max)                              \
-  static inline int ARGDATA_INT_OVERLOAD_NAME(stype)(const argdata_t *ad, \
-                                                     type *value) {       \
-    intmax_t v;                                                           \
-    int error;                                                            \
-                                                                          \
-    error = argdata_get_int_s(ad, &v, min, max);                          \
-    if (error != 0)                                                       \
-      return error;                                                       \
-    *value = (type)v;                                                     \
-    return 0;                                                             \
-  }
-#define ARGDATA_INT_U(type, stype, max)                                   \
-  static inline int ARGDATA_INT_OVERLOAD_NAME(stype)(const argdata_t *ad, \
-                                                     type *value) {       \
-    uintmax_t v;                                                          \
-    int error;                                                            \
-                                                                          \
-    error = argdata_get_int_u(ad, &v, max);                               \
-    if (error != 0)                                                       \
-      return error;                                                       \
-    *value = (type)v;                                                     \
-    return 0;                                                             \
-  }
+#define ARGDATA_INT_S(type, stype, min, max)                     \
+  static inline int argdata_get_int_##stype(const argdata_t *ad, \
+                                            type *value) {       \
+    intmax_t v;                                                  \
+    int error;                                                   \
+                                                                 \
+    error = argdata_get_int_s(ad, &v, min, max);                 \
+    if (error != 0)                                              \
+      return error;                                              \
+    *value = (type)v;                                            \
+    return 0;                                                    \
+  }                                                              \
+  ARGDATA_INT_OVERLOADS(type, stype, s)
+
+#define ARGDATA_INT_U(type, stype, max)                          \
+  static inline int argdata_get_int_##stype(const argdata_t *ad, \
+                                            type *value) {       \
+    uintmax_t v;                                                 \
+    int error;                                                   \
+                                                                 \
+    error = argdata_get_int_u(ad, &v, max);                      \
+    if (error != 0)                                              \
+      return error;                                              \
+    *value = (type)v;                                            \
+    return 0;                                                    \
+  }                                                              \
+  ARGDATA_INT_OVERLOADS(type, stype, u)
 
 ARGDATA_INT_S(char, char, CHAR_MIN, CHAR_MAX)
 ARGDATA_INT_S(signed char, schar, SCHAR_MIN, SCHAR_MAX)
@@ -310,7 +316,7 @@ ARGDATA_INT_U(unsigned long, ulong, ULONG_MAX)
 ARGDATA_INT_S(long long, llong, LLONG_MIN, LLONG_MAX)
 ARGDATA_INT_U(unsigned long long, ullong, ULLONG_MAX)
 
-#undef ARGDATA_INT_OVERLOAD_NAME
+#undef ARGDATA_INT_OVERLOADS
 #undef ARGDATA_INT_S
 #undef ARGDATA_INT_U
 

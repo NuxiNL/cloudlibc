@@ -17,6 +17,10 @@
 
 #include "argdata.h"
 
+#ifndef DBL_DECIMAL_DIG
+#define DBL_DECIMAL_DIG DECIMAL_DIG
+#endif
+
 static void print_space(unsigned int depth, FILE *fp) {
   fprintf(fp, "\n%*s", depth, "");
 }
