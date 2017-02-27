@@ -11,7 +11,7 @@ done
 (cd src/include; find . -type f) | while read file; do
   install -m 444 "src/include/${file}" "${DESTDIR}${PREFIX}/include/${file}"
 done
-install -m 444 contrib/argdata-fcd528c/src/argdata.h \
+install -m 444 contrib/argdata-0.2/src/argdata.h \
     "${DESTDIR}${PREFIX}/include/"
 
 echo "=> Installing libraries"
