@@ -71,8 +71,9 @@ TEST(poll, pipe) {
   // POLLRDNORM and POLLHUP.
   {
     ASSERT_EQ(0, pipe(fds));
-    ASSERT_EQ(0, close(fds[1]));
     struct pollfd pfd = {.fd = fds[0], .events = POLLRDNORM};
+    ASSERT_EQ(0, poll(&pfd, 1, 0));
+    ASSERT_EQ(0, close(fds[1]));
     ASSERT_EQ(1, poll(&pfd, 1, -1));
     ASSERT_EQ(POLLRDNORM | POLLHUP, pfd.revents);
     ASSERT_EQ(0, close(fds[0]));
