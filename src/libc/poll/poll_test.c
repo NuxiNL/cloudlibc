@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -82,8 +82,10 @@ TEST(poll, pipe) {
   // POLLHUP on the write side -- not POLLWRNORM.
   {
     ASSERT_EQ(0, pipe(fds));
-    ASSERT_EQ(0, close(fds[0]));
     struct pollfd pfd = {.fd = fds[1], .events = POLLWRNORM};
+    ASSERT_EQ(1, poll(&pfd, 1, 0));
+    ASSERT_EQ(POLLWRNORM, pfd.revents);
+    ASSERT_EQ(0, close(fds[0]));
     ASSERT_EQ(1, poll(&pfd, 1, -1));
     ASSERT_EQ(POLLHUP, pfd.revents);
     ASSERT_EQ(0, close(fds[1]));
