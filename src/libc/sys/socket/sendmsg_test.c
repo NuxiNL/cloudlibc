@@ -1,14 +1,16 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 
 #include <errno.h>
 #include <fcntl.h>
 #include <stdalign.h>
+#include <string.h>
 #include <testing.h>
 #include <unistd.h>
 
@@ -127,4 +129,109 @@ TEST(sendmsg, example) {
 
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
+}
+
+TEST(sendmsg, fd_passing) {
+  int sfds[2];
+  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, sfds));
+
+  // Attempt to send a bad file descriptor through a UNIX socket, using
+  // SCM_RIGHTS. This should make the call fail entirely with EBADF.
+  {
+    int badfd = -1;
+    _Alignas(struct cmsghdr) char cmsgbuf[CMSG_SPACE(sizeof(badfd))];
+    struct iovec iov = {.iov_base = (void *)"Hello", .iov_len = 5};
+    struct msghdr msghdr = {
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
+        .msg_control = cmsgbuf,
+        .msg_controllen = sizeof(cmsgbuf),
+    };
+    {
+      struct cmsghdr *cmsghdr = CMSG_FIRSTHDR(&msghdr);
+      cmsghdr->cmsg_len = CMSG_LEN(sizeof(badfd));
+      cmsghdr->cmsg_level = SOL_SOCKET;
+      cmsghdr->cmsg_type = SCM_RIGHTS;
+      memcpy(CMSG_DATA(cmsghdr), &badfd, sizeof(badfd));
+    }
+    ASSERT_EQ(-1, sendmsg(sfds[0], &msghdr, 0));
+    ASSERT_EQ(EBADF, errno);
+  }
+
+  // Send two file descriptors using a control message across a UNIX
+  // socket, using SCM_RIGHTS.
+  {
+    int pfds[2];
+    ASSERT_EQ(0, pipe(pfds));
+    _Alignas(struct cmsghdr) char cmsgbuf[CMSG_SPACE(sizeof(pfds))];
+    struct msghdr msghdr = {
+        .msg_control = cmsgbuf, .msg_controllen = sizeof(cmsgbuf),
+    };
+    {
+      struct cmsghdr *cmsghdr = CMSG_FIRSTHDR(&msghdr);
+      cmsghdr->cmsg_len = CMSG_LEN(sizeof(pfds));
+      cmsghdr->cmsg_level = SOL_SOCKET;
+      cmsghdr->cmsg_type = SCM_RIGHTS;
+      memcpy(CMSG_DATA(cmsghdr), pfds, sizeof(pfds));
+    }
+
+    // We can't send zero bytes of data, even if we're attaching file
+    // descriptors to this message.
+    ASSERT_EQ(-1, sendmsg(sfds[0], &msghdr, 0));
+    ASSERT_EQ(EMSGSIZE, errno);
+
+    // Transmission should succeed once data has been attached.
+    struct iovec iov = {.iov_base = (void *)"Hello", .iov_len = 5};
+    msghdr.msg_iov = &iov;
+    msghdr.msg_iovlen = 1;
+    ASSERT_EQ(5, sendmsg(sfds[0], &msghdr, 0));
+    ASSERT_EQ(0, close(pfds[0]));
+    ASSERT_EQ(0, close(pfds[1]));
+  }
+
+  // Receive data and file descriptors.
+  {
+    char buf[6];
+    struct iovec iov = {.iov_base = buf, .iov_len = sizeof(buf)};
+    _Alignas(struct cmsghdr) char cmsgbuf[CMSG_SPACE(3 * sizeof(int))];
+    struct msghdr msghdr = {
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
+        .msg_control = cmsgbuf,
+        .msg_controllen = sizeof(cmsgbuf),
+    };
+    {
+      struct cmsghdr *cmsghdr = CMSG_FIRSTHDR(&msghdr);
+      cmsghdr->cmsg_len = CMSG_LEN(3 * sizeof(int));
+      cmsghdr->cmsg_level = SOL_SOCKET;
+      cmsghdr->cmsg_type = SCM_RIGHTS;
+    }
+
+    ASSERT_EQ(5, recvmsg(sfds[1], &msghdr, 0));
+    ASSERT_ARREQ("Hello", buf, 5);
+    {
+      struct cmsghdr *cmsghdr = CMSG_FIRSTHDR(&msghdr);
+      ASSERT_NE(NULL, cmsghdr);
+      int pfds[2];
+      ASSERT_EQ(CMSG_LEN(sizeof(pfds)), cmsghdr->cmsg_len);
+      ASSERT_EQ(SOL_SOCKET, cmsghdr->cmsg_level);
+      ASSERT_EQ(SCM_RIGHTS, cmsghdr->cmsg_type);
+      ASSERT_EQ(NULL, CMSG_NXTHDR(&msghdr, cmsghdr));
+      memcpy(pfds, CMSG_DATA(cmsghdr), sizeof(pfds));
+
+      // Validate and close received file descriptors.
+      struct stat sb;
+      ASSERT_EQ(0, fstat(pfds[0], &sb));
+      ASSERT_TRUE(S_ISFIFO(sb.st_mode));
+      ASSERT_EQ(O_RDONLY, fcntl(pfds[0], F_GETFL) & O_ACCMODE);
+      ASSERT_EQ(0, close(pfds[0]));
+      ASSERT_EQ(0, fstat(pfds[1], &sb));
+      ASSERT_TRUE(S_ISFIFO(sb.st_mode));
+      ASSERT_EQ(O_WRONLY, fcntl(pfds[1], F_GETFL) & O_ACCMODE);
+      ASSERT_EQ(0, close(pfds[1]));
+    }
+  }
+
+  ASSERT_EQ(0, close(sfds[0]));
+  ASSERT_EQ(0, close(sfds[1]));
 }
