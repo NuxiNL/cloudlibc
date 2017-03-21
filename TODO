@@ -9,7 +9,6 @@ wchar.h		60%	Some stdio bits still missing. Many tests missing.
 sys/event.h	70%	Needs more tests
 stdio.h		80%	Needs more tests
 string.h	80%	strcoll() and strxfrm() still missing
-sys/socket.h	90%	File descriptor passing missing
 unistd.h	90%	fpathconf() still missing
 
 Done:
@@ -20,9 +19,9 @@ langinfo.h libgen.h limits.h link.h locale.h math.h monetary.h mqueue.h
 net/if.h netdb.h netinet/in.h poll.h pthread.h sched.h search.h
 semaphore.h setjmp.h signal.h stdalign.h stdarg.h stdatomic.h stdbool.h
 stddef.h stdint.h stdlib.h stdnoreturn.h strings.h sys/capsicum.h
-sys/mman.h sys/procdesc.h sys/resource.h sys/stat.h sys/time.h
-sys/times.h sys/types.h sys/uio.h sys/un.h syslog.h tar.h testing.h
-tgmath.h threads.h time.h uchar.h wctype.h
+sys/mman.h sys/procdesc.h sys/resource.h sys/socket.h sys/stat.h
+sys/time.h sys/times.h sys/types.h sys/uio.h sys/un.h syslog.h tar.h
+testing.h tgmath.h threads.h time.h uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
