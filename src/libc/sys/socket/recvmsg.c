@@ -32,21 +32,16 @@ ssize_t recvmsg(int socket, struct msghdr *message, int flags) {
     return -1;
   }
 
-  // Determine how many file descriptors we can store in the provided
-  // ancillary data buffer.
-  struct cmsghdr *fds_cmsg = CMSG_FIRSTHDR(message);
-  unsigned char *fds_begin = CMSG_DATA(fds_cmsg);
-  unsigned char *fds_end =
-      (unsigned char *)message->msg_control + message->msg_controllen;
-
   // Prepare input parameters.
+  struct cmsghdr *fds_cmsg = message->msg_control;
   cloudabi_recv_in_t ri = {
       .ri_data = (const cloudabi_iovec_t *)message->msg_iov,
       .ri_data_len = message->msg_iovlen,
-      .ri_fds = (cloudabi_fd_t *)fds_begin,
-      .ri_fds_len = fds_end >= fds_begin
-                        ? (fds_end - fds_begin) / sizeof(cloudabi_fd_t)
-                        : 0,
+      .ri_fds = (cloudabi_fd_t *)CMSG_DATA(fds_cmsg),
+      .ri_fds_len =
+          message->msg_controllen > CMSG_SPACE(0)
+              ? (message->msg_controllen - CMSG_SPACE(0)) / sizeof(int)
+              : 0,
       .ri_flags = flags,
   };
 
@@ -65,8 +60,7 @@ ssize_t recvmsg(int socket, struct msghdr *message, int flags) {
     fds_cmsg->cmsg_len = CMSG_LEN(ro.ro_fdslen * sizeof(int));
     fds_cmsg->cmsg_level = SOL_SOCKET;
     fds_cmsg->cmsg_type = SCM_RIGHTS;
-    message->msg_controllen = (unsigned char *)fds_cmsg + fds_cmsg->cmsg_len -
-                              (unsigned char *)message->msg_control;
+    message->msg_controllen = CMSG_SPACE(ro.ro_fdslen * sizeof(int));
   } else {
     // No ancillary data to return.
     message->msg_controllen = 0;
