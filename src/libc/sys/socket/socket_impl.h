@@ -36,8 +36,6 @@ static_assert(alignof(struct sockaddr_storage) == alignof(struct sockaddr_un),
               "struct sockaddr_un alignment incorrect");
 
 static_assert(SOCK_DGRAM == CLOUDABI_FILETYPE_SOCKET_DGRAM, "Value mismatch");
-static_assert(SOCK_SEQPACKET == CLOUDABI_FILETYPE_SOCKET_SEQPACKET,
-              "Value mismatch");
 static_assert(SOCK_STREAM == CLOUDABI_FILETYPE_SOCKET_STREAM, "Value mismatch");
 
 static_assert(AF_UNSPEC == CLOUDABI_AF_UNSPEC, "Value mismatch");
@@ -55,7 +53,6 @@ static inline int is_unix_socket(int domain, int type, int protocol) {
   // Valid socket types.
   switch (type) {
     case SOCK_DGRAM:
-    case SOCK_SEQPACKET:
     case SOCK_STREAM:
       break;
     default:

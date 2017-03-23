@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -11,11 +11,9 @@
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 
-static_assert(MSG_EOR == CLOUDABI_MSG_EOR, "Value mismatch");
-
 ssize_t sendmsg(int socket, const struct msghdr *message, int flags) {
-  // Validate flags.
-  if ((flags & ~(MSG_EOR | MSG_NOSIGNAL)) != 0) {
+  // This implementation does not support any flags.
+  if (flags != 0) {
     errno = EOPNOTSUPP;
     return -1;
   }
@@ -36,7 +34,6 @@ ssize_t sendmsg(int socket, const struct msghdr *message, int flags) {
   cloudabi_send_in_t si = {
       .si_data = (const cloudabi_ciovec_t *)message->msg_iov,
       .si_data_len = message->msg_iovlen,
-      .si_flags = flags,
   };
 
   // Process ancillary data.

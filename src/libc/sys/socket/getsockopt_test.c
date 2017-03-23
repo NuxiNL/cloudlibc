@@ -107,7 +107,6 @@ TEST(getsockopt, type) {
     ASSERT_EQ(0, close(fd));                                            \
   } while (0)
   TEST_SOCKTYPE(SOCK_DGRAM);
-  TEST_SOCKTYPE(SOCK_SEQPACKET);
   TEST_SOCKTYPE(SOCK_STREAM);
 #undef TEST_SOCKTYPE
 }

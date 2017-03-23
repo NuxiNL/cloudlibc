@@ -54,7 +54,6 @@ int getsockopt(int socket, int level, int option_name,
       }
       switch (fsb.fs_filetype) {
         case CLOUDABI_FILETYPE_SOCKET_DGRAM:
-        case CLOUDABI_FILETYPE_SOCKET_SEQPACKET:
         case CLOUDABI_FILETYPE_SOCKET_STREAM:
           value = fsb.fs_filetype;
           break;

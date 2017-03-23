@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -36,6 +36,8 @@
 // Features missing:
 // - SO_OOBINLINE, MSG_OOB and sockatmark():
 //   Sending and receiving out-of-band data is unsupported.
+// - SOCK_SEQPACKET and MSG_EOR:
+//   Sequential packet sockets are unsupported.
 // - bind(), connect() and sendto():
 //   Requires global network address space.
 // - setsockopt():
@@ -92,9 +94,8 @@ struct cmsghdr {
   _Alignas(__max_align_t) unsigned char __cmsg_data[];  // Data.
 };
 
-#define SOCK_DGRAM 0x80      // Datagram socket.
-#define SOCK_SEQPACKET 0x81  // Sequenced-packet socket.
-#define SOCK_STREAM 0x82     // Byte-stream socket.
+#define SOCK_DGRAM 0x80   // Datagram socket.
+#define SOCK_STREAM 0x82  // Byte-stream socket.
 
 #define SOL_SOCKET _INT_MAX  // Options to be accessed at socket level.
 
@@ -112,11 +113,13 @@ struct cmsghdr {
 
 #define SOMAXCONN _INT_MAX  // The maximum backlog queue length.
 
-#define MSG_CTRUNC 0x1    // Control data truncated.
-#define MSG_EOR 0x2       // Terminates a record.
+// Input flags for recvmsg().
 #define MSG_PEEK 0x4      // Leave received data in queue.
-#define MSG_TRUNC 0x8     // Normal data truncated.
 #define MSG_WAITALL 0x10  // Attempt to fill the read buffer.
+
+// Output flags for recvmsg().
+#define MSG_CTRUNC 0x1  // Control data truncated.
+#define MSG_TRUNC 0x8   // Normal data truncated.
 
 #define MSG_NOSIGNAL 0  // No SIGPIPE will be generated (default).
 

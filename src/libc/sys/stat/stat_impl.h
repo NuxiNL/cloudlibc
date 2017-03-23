@@ -65,7 +65,6 @@ static inline void to_public_stat(const cloudabi_filestat_t *in,
       out->st_mode |= S_IFREG;
       break;
     case CLOUDABI_FILETYPE_SOCKET_DGRAM:
-    case CLOUDABI_FILETYPE_SOCKET_SEQPACKET:
     case CLOUDABI_FILETYPE_SOCKET_STREAM:
       out->st_mode |= S_IFSOCK;
       break;

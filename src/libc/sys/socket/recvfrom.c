@@ -13,8 +13,8 @@
 
 #include "socket_impl.h"
 
-static_assert(MSG_PEEK == CLOUDABI_MSG_PEEK, "Value mismatch");
-static_assert(MSG_WAITALL == CLOUDABI_MSG_WAITALL, "Value mismatch");
+static_assert(MSG_PEEK == CLOUDABI_SOCK_RECV_PEEK, "Value mismatch");
+static_assert(MSG_WAITALL == CLOUDABI_SOCK_RECV_WAITALL, "Value mismatch");
 
 ssize_t recvfrom(int socket, void *restrict buffer, size_t length, int flags,
                  struct sockaddr *restrict address,

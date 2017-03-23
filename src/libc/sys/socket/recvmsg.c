@@ -13,11 +13,11 @@
 
 #include "socket_impl.h"
 
-static_assert(MSG_CTRUNC == CLOUDABI_MSG_CTRUNC, "Value mismatch");
-static_assert(MSG_EOR == CLOUDABI_MSG_EOR, "Value mismatch");
-static_assert(MSG_PEEK == CLOUDABI_MSG_PEEK, "Value mismatch");
-static_assert(MSG_TRUNC == CLOUDABI_MSG_TRUNC, "Value mismatch");
-static_assert(MSG_WAITALL == CLOUDABI_MSG_WAITALL, "Value mismatch");
+static_assert(MSG_PEEK == CLOUDABI_SOCK_RECV_PEEK, "Value mismatch");
+static_assert(MSG_WAITALL == CLOUDABI_SOCK_RECV_WAITALL, "Value mismatch");
+
+static_assert(MSG_CTRUNC == CLOUDABI_SOCK_RECV_FDS_TRUNCATED, "Value mismatch");
+static_assert(MSG_TRUNC == CLOUDABI_SOCK_RECV_DATA_TRUNCATED, "Value mismatch");
 
 ssize_t recvmsg(int socket, struct msghdr *message, int flags) {
   // Validate flags.

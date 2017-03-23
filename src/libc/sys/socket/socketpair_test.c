@@ -107,4 +107,4 @@ TEST_SEPARATE_PROCESS(socketpair, example_stream) {
   ASSERT_EQ(0, close(fds[0]));
 }
 
-// TODO(ed): Add tests for SOCK_DGRAM and SOCK_SEQPACKET.
+// TODO(ed): Add tests for SOCK_DGRAM.
