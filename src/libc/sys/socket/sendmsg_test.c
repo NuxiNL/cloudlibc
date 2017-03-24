@@ -200,12 +200,6 @@ TEST(sendmsg, fd_passing) {
         .msg_control = cmsgbuf,
         .msg_controllen = sizeof(cmsgbuf),
     };
-    {
-      struct cmsghdr *cmsghdr = CMSG_FIRSTHDR(&msghdr);
-      cmsghdr->cmsg_len = CMSG_LEN(3 * sizeof(int));
-      cmsghdr->cmsg_level = SOL_SOCKET;
-      cmsghdr->cmsg_type = SCM_RIGHTS;
-    }
 
     ASSERT_EQ(5, recvmsg(sfds[1], &msghdr, 0));
     ASSERT_ARREQ("Hello", buf, 5);
