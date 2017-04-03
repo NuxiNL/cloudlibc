@@ -11,7 +11,7 @@ set -e
 # Contributed sources.
 ARGDATA=contrib/argdata-0.2
 DOUBLE_CONVERSION=contrib/double-conversion-d8d4e66
-JEMALLOC=contrib/jemalloc-4.0.0
+JEMALLOC=contrib/jemalloc-4.5.0
 MUSL=contrib/musl-b261a24
 
 # Additional compiler flags to include the right files, etc.
