@@ -1407,7 +1407,7 @@ prof_open_maps(const char *format, ...)
 	va_start(ap, format);
 	malloc_vsnprintf(filename, sizeof(filename), format, ap);
 	va_end(ap);
-	mfd = -1;
+	mfd = open(filename, O_RDONLY);
 
 	return (mfd);
 }
