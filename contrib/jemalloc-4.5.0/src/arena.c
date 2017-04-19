@@ -3812,7 +3812,7 @@ init_thp_initially_huge(void) {
 	fd = (int)syscall(SYS_open,
 	    "/sys/kernel/mm/transparent_hugepage/enabled", O_RDONLY);
 #else
-	fd = open("/sys/kernel/mm/transparent_hugepage/enabled", O_RDONLY);
+	fd = -1;
 #endif
 	if (fd == -1) {
 		goto label_error;
