@@ -98,7 +98,9 @@ struct tm {
 
 #define NULL _NULL
 
-#define CLOCKS_PER_SEC 1000000000
+#define CLOCKS_PER_SEC _UINT64_C(1000000000)
+_Static_assert(_Generic(CLOCKS_PER_SEC, clock_t : 1),
+               "CLOCKS_PER_SEC has to be of type clock_t");
 
 extern const struct __clockid _CLOCK_MONOTONIC;
 #define CLOCK_MONOTONIC (&_CLOCK_MONOTONIC)
