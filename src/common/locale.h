@@ -344,7 +344,7 @@ struct lc_timezone_rule {
 #define TIMEBASE_STD 1    // Rule applies to the standard time.
 #define TIMEBASE_UTC 2    // Rule applies to time in UTC.
   uint32_t save : 4;      // The amount of time in 10 minutes.
-  char abbreviation[5];   // Abbreviation of timezone name (e.g., CEST).
+  char abbreviation[6];   // Abbreviation of timezone name (e.g., CEST).
 };
 
 struct lc_timezone_era {
