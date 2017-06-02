@@ -33,7 +33,7 @@ if [ "$1" != "fast" ]; then
   for srcfile in ${SRCS}; do
     safename="$(echo "${srcfile}" | sed -e 's/\//_/g' -e 's/\.[a-zA-Z]*$//')"
     case "${srcfile}" in
-    contrib/*) extraflags="" ;;
+    ${DOUBLE_CONVERSION}/*|${JEMALLOC}/*|${MUSL}/*) extraflags="" ;;
     src/crt/*) extraflags="${WARNFLAGS} -ffreestanding -fno-sanitize=safe-stack -fno-stack-protector" ;;
     *_test.c) extraflags="${WARNFLAGS} -fno-builtin -O0" ;;
     src/libc/pthread/pthread_create.c) extraflags="${WARNFLAGS} -fno-sanitize=safe-stack" ;;
