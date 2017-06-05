@@ -53,7 +53,7 @@ TEST(argdata_writer_push, enotsock) {
   ASSERT_EQ(0, close(fds[1]));
 }
 
-TEST(argdata_writer_push, epipe) {
+TEST_SEPARATE_PROCESS(argdata_writer_push, epipe) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
   ASSERT_EQ(0, close(fds[0]));
