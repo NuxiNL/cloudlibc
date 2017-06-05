@@ -49,14 +49,15 @@ int argdata_writer_push(argdata_writer_t *aw, int fd) {
     // Construct the message header, containing an eight-byte data length.
     aw->data_size = data_size;
     static_assert(SIZE_MAX <= UINT64_MAX, "Message size cannot be encoded");
-    aw->data[0] = data_len >> 56;
-    aw->data[1] = data_len >> 48;
-    aw->data[2] = data_len >> 40;
-    aw->data[3] = data_len >> 32;
-    aw->data[4] = data_len >> 24;
-    aw->data[5] = data_len >> 16;
-    aw->data[6] = data_len >> 8;
-    aw->data[7] = data_len;
+    uint64_t len = data_len;
+    aw->data[0] = len >> 56;
+    aw->data[1] = len >> 48;
+    aw->data[2] = len >> 40;
+    aw->data[3] = len >> 32;
+    aw->data[4] = len >> 24;
+    aw->data[5] = len >> 16;
+    aw->data[6] = len >> 8;
+    aw->data[7] = len;
 
     // Only provide a control message when sending file descriptors.
     if (fds_len > 0) {
