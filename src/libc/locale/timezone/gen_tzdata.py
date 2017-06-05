@@ -379,7 +379,7 @@ for name, rules in sorted(RULES.iteritems()):
     print 'static const struct lc_timezone_rule %s[] = {' % name
     for rule in rules:
       assert rule['save'] in [0, 20, 30, 60, 90, 120]
-      print '    {%d, %d, %d, %d, %d, %d, %s, %d, \"%s\"},' % (
+      print '    {%d, %d, %d, %d, %d, %d, %s, %d, \"%s\\0\"},' % (
           rule['year_from'], rule['year_to'], rule['month'], rule['weekday'],
           rule['monthday'], rule['hour'] * 60 + rule['minute'],
           rule['timebase'], rule['save'] / 10, rule['abbreviation'])
@@ -389,7 +389,7 @@ for name, rules in sorted(RULES.iteritems()):
 for name, eras in sorted(ERAS.iteritems()):
   print 'static const struct lc_timezone_era %s[] = {' % name
   for era in eras:
-    print '    {%s, %d, %d, %d, %d, \"%s\", \"%s\"},' % (
+    print '    {%s, %d, %d, %d, %d, \"%s\\0\", \"%s\\0\"},' % (
          'NULL' if len(RULES[era['rules']]) == 0 else era['rules'],
          len(RULES[era['rules']]), era['gmtoff'], era['end'],
          era['end_save'] / 600,
