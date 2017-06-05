@@ -5,6 +5,7 @@
 
 #include <argdata.h>
 #include <errno.h>
+#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <testing.h>
@@ -26,13 +27,18 @@
         outbuf, sizeof(outbuf) - 1);                  \
   } while (0)
 
+static int fd_passthrough(void *arg, size_t fd) {
+  return fd > INT_MAX ? -1 : fd;
+}
+
 TEST(argdata_print_yaml, buffer) {
-#define TEST_BUFFER(in, out)                                 \
-  do {                                                       \
-    /* Prepare argument data input. */                       \
-    argdata_t *ad = argdata_from_buffer(in, sizeof(in) - 1); \
-    TEST_OBJECT(ad, out);                                    \
-    argdata_free(ad);                                        \
+#define TEST_BUFFER(in, out)                                           \
+  do {                                                                 \
+    /* Prepare argument data input. */                                 \
+    argdata_t *ad =                                                    \
+        argdata_from_buffer(in, sizeof(in) - 1, fd_passthrough, NULL); \
+    TEST_OBJECT(ad, out);                                              \
+    argdata_free(ad);                                                  \
   } while (0)
   TEST_BUFFER("", "!!null \"null\"");
 
@@ -52,12 +58,13 @@ TEST(argdata_print_yaml, buffer) {
   TEST_BUFFER("\x02\x01", "!!bool \"true\"");
   TEST_BUFFER("\x02\x02", "!!null \"null\"");
 
-  // File descriptors. These are fixed size.
+  // File descriptors. These are fixed size. Invalid file descriptors
+  // (in this case larger than INT_MAX) should be displayed as such.
   TEST_BUFFER("\x03", "!!null \"null\"");
   TEST_BUFFER("\x03\x00\x00\x00", "!!null \"null\"");
   TEST_BUFFER("\x03\x00\x00\x00\x00", "!fd \"0\"");
   TEST_BUFFER("\x03\x12\x34\x56\x78", "!fd \"305419896\"");
-  TEST_BUFFER("\x03\xff\xff\xff\xff", "!!null \"null\"");
+  TEST_BUFFER("\x03\xca\xfe\xba\xbe", "!fd \"invalid\"");
   TEST_BUFFER("\x03\x00\x00\x00\x00\x00", "!!null \"null\"");
 
   // Floating point values.

@@ -4,47 +4,54 @@
 // See the LICENSE file for details.
 
 #include <argdata.h>
+#include <limits.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <testing.h>
 #include <time.h>
 
-#define TEST_OBJECT(obj, out, nfds, ...)                              \
-  do {                                                                \
-    /* Compute size of resulting code. */                             \
-    size_t datalen;                                                   \
-    size_t fdslen;                                                    \
-    argdata_serialized_length(obj, &datalen, &fdslen);                \
-    ASSERT_EQ(sizeof(out) - 1, datalen);                              \
-    ASSERT_EQ(nfds, fdslen);                                          \
-                                                                      \
-    /* Generate code and compare. */                                  \
-    char data[sizeof(out) - 1];                                       \
-    int fds[nfds];                                                    \
-    int efds[] = {__VA_ARGS__};                                       \
-    ASSERT_EQ(__arraycount(efds), argdata_serialize(obj, data, fds)); \
-    ASSERT_ARREQ(out, data, sizeof(data));                            \
-    ASSERT_ARREQ(efds, fds, __arraycount(efds));                      \
-                                                                      \
-    /* Generating twice should not output different code. */          \
-    argdata_t *ad2 = argdata_from_buffer(out, sizeof(out) - 1);       \
-    argdata_serialized_length(ad2, &datalen, &fdslen);                \
-    ASSERT_EQ(sizeof(out) - 1, datalen);                              \
-    ASSERT_EQ(nfds, fdslen);                                          \
-    ASSERT_EQ(__arraycount(efds), argdata_serialize(ad2, data, fds)); \
-    argdata_free(ad2);                                                \
-    ASSERT_ARREQ(out, data, sizeof(data));                            \
-    for (size_t i = 0; i < __arraycount(efds); ++i)                   \
-      ASSERT_EQ(i, fds[i]);                                           \
+static int fd_passthrough(void *arg, size_t fd) {
+  return fd > INT_MAX ? -1 : fd;
+}
+
+#define TEST_OBJECT(obj, out, nfds, ...)                                 \
+  do {                                                                   \
+    /* Compute size of resulting code. */                                \
+    size_t datalen;                                                      \
+    size_t fdslen;                                                       \
+    argdata_serialized_length(obj, &datalen, &fdslen);                   \
+    ASSERT_EQ(sizeof(out) - 1, datalen);                                 \
+    ASSERT_EQ(nfds, fdslen);                                             \
+                                                                         \
+    /* Generate code and compare. */                                     \
+    char data[sizeof(out) - 1];                                          \
+    int fds[nfds];                                                       \
+    int efds[] = {__VA_ARGS__};                                          \
+    ASSERT_EQ(__arraycount(efds), argdata_serialize(obj, data, fds));    \
+    ASSERT_ARREQ(out, data, sizeof(data));                               \
+    ASSERT_ARREQ(efds, fds, __arraycount(efds));                         \
+                                                                         \
+    /* Generating twice should not output different code. */             \
+    argdata_t *ad2 =                                                     \
+        argdata_from_buffer(out, sizeof(out) - 1, fd_passthrough, NULL); \
+    argdata_serialized_length(ad2, &datalen, &fdslen);                   \
+    ASSERT_EQ(sizeof(out) - 1, datalen);                                 \
+    ASSERT_EQ(nfds, fdslen);                                             \
+    ASSERT_EQ(__arraycount(efds), argdata_serialize(ad2, data, fds));    \
+    argdata_free(ad2);                                                   \
+    ASSERT_ARREQ(out, data, sizeof(data));                               \
+    for (size_t i = 0; i < __arraycount(efds); ++i)                      \
+      ASSERT_EQ(i, fds[i]);                                              \
   } while (0)
 
 TEST(argdata_serialize, buffer) {
-#define TEST_BUFFER(in, out, nfds, ...)                      \
-  do {                                                       \
-    argdata_t *ad = argdata_from_buffer(in, sizeof(in) - 1); \
-    TEST_OBJECT(ad, out, nfds, ##__VA_ARGS__);               \
-    argdata_free(ad);                                        \
+#define TEST_BUFFER(in, out, nfds, ...)                                \
+  do {                                                                 \
+    argdata_t *ad =                                                    \
+        argdata_from_buffer(in, sizeof(in) - 1, fd_passthrough, NULL); \
+    TEST_OBJECT(ad, out, nfds, ##__VA_ARGS__);                         \
+    argdata_free(ad);                                                  \
   } while (0)
   // Null.
   TEST_BUFFER("", "", 0);
@@ -60,13 +67,14 @@ TEST(argdata_serialize, buffer) {
   TEST_BUFFER("\x02\x01", "\x02\x01", 0);
   TEST_BUFFER("\x02\x02", "\x02\x02", 0);
 
-  // File descriptors. Only 32-bit non-negative file descriptors should
-  // get remapped.
+  // File descriptors. With the fd_passthrough function provided, any
+  // invalid file descriptor should be remapped to UINT32_MAX, so that
+  // it remains invalid when deserialized.
   TEST_BUFFER("\x03", "\x03", 0);
   TEST_BUFFER("\x03\x00\x00\x00", "\x03\x00\x00\x00", 0);
   TEST_BUFFER("\x03\x00\x00\x00\x00", "\x03\x00\x00\x00\x00", 1, 0);
   TEST_BUFFER("\x03\x00\x00\x00\x13", "\x03\x00\x00\x00\x00", 1, 19);
-  TEST_BUFFER("\x03\xff\xff\xff\xff", "\x03\xff\xff\xff\xff", 0);
+  TEST_BUFFER("\x03\xca\xfe\xba\xbe", "\x03\xff\xff\xff\xff", 1);
 
   // Integer values.
   TEST_BUFFER("\x05Integers should not get modified",

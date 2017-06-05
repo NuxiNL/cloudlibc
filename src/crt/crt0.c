@@ -101,6 +101,10 @@ static cloudabi_errno_t default_syscall(void) {
   return CLOUDABI_ENOSYS;
 }
 
+static int fd_passthrough(void *arg, size_t fd) {
+  return fd > INT_MAX ? -1 : fd;
+}
+
 // Links program to the vDSO.
 //
 // The vDSO provides a function for every system call. This function
@@ -404,6 +408,6 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // Invoke program_main(). If program_main() is not part of the
   // application, the C library provides a copy that calls main().
   argdata_t ad;
-  argdata_init_buffer(&ad, at_argdata, at_argdatalen);
+  argdata_init_buffer(&ad, at_argdata, at_argdatalen, fd_passthrough, NULL);
   program_main(&ad);
 }

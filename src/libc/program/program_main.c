@@ -16,7 +16,7 @@ int main(int, char **, char **);
 noreturn void program_main(const argdata_t *ad) {
   // Copy the argument data over to a writable null-terminated buffer.
   char arg[ad->length + 1];
-  memcpy(arg, ad->buffer, ad->length);
+  memcpy(arg, ad->buffer.buffer, ad->length);
   arg[ad->length] = '\0';
 
   // Count the number of arguments.
