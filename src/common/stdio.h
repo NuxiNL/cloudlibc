@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -74,9 +74,10 @@ struct __lockable _FILE {
     F_EOF = 0x1,    // Stream is at end-of-file.
     F_ERROR = 0x2,  // An I/O error has occurred.
   } flags;
-  int orientation;  // Wide-oriented or byte-oriented stream.
-  int buftype;      // _IOFBF, _IOLBF or _IONBF.
-  off_t offset;     // Negative if stream is not seekable.
+  int orientation;    // Wide-oriented or byte-oriented stream.
+  int buftype;        // _IOFBF, _IOLBF or _IONBF.
+  bool should_flush;  // Whether funlockfile() should flush.
+  off_t offset;       // Negative if stream is not seekable.
 
   char ungetc[MB_LEN_MAX * 4];  // ungetc() buffer. Filled from the back.
   size_t ungetclen;             // Number of characters pushed back.
@@ -126,9 +127,10 @@ struct __lockable _FILE {
     } tmpfile;
   };
 
-  // Per-stream lock. This must remain the last member of the object,
+  // Per-stream lock. These must remain the last member of the object,
   // as fswap() will copy all structure members up to the lock.
   pthread_mutex_t lock;
+  unsigned int lockcount;
 #define FILE_COPYSIZE offsetof(FILE, lock)
 };
 
@@ -195,15 +197,24 @@ static inline bool fop_close(FILE *stream) {
 static inline void __flockfile(FILE *file)
     __locks_exclusive(*file) __no_lock_analysis {
   pthread_mutex_lock(&file->lock);
+  ++file->lockcount;
 }
 
 static inline int __ftrylockfile(FILE *file)
     __trylocks_exclusive(0, *file) __no_lock_analysis {
-  return pthread_mutex_trylock(&file->lock);
+  if (pthread_mutex_trylock(&file->lock) != 0)
+    return 1;
+  ++file->lockcount;
+  return 0;
 }
 
 static inline void __funlockfile(FILE *file)
     __unlocks(*file) __no_lock_analysis {
+  assert(file->lockcount > 0 && "Invalid lock recursion count");
+  if (--file->lockcount == 0 && file->should_flush) {
+    fop_flush(file);
+    file->should_flush = false;
+  }
   pthread_mutex_unlock(&file->lock);
 }
 
@@ -312,7 +323,13 @@ static inline bool fwrite_peek(FILE *stream, char **writebuf,
 
 static inline void fwrite_produce(FILE *stream, size_t buflen)
     __requires_exclusive(*stream) {
-  // TODO(ed): Honour buffering mechanism.
+  // Determine whether funlockfile() should flush.
+  if ((stream->buftype == _IOLBF &&
+       memchr(stream->writebuf, '\n', buflen) != NULL) ||
+      (stream->buftype == _IONBF && buflen > 0))
+    stream->should_flush = true;
+
+  // Progress write buffer pointer.
   assert(buflen <= stream->writebuflen &&
          "Attempted to produce more data than the buffer can hold");
   stream->writebuf += buflen;
