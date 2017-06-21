@@ -11,13 +11,16 @@
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
-#include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "argdata.h"
+
+#if !defined(alignof) && defined(_MSC_VER)
+#define alignof __alignof
+#endif
 
 struct argdata_t {
   enum { AD_BUFFER, AD_BINARY, AD_MAP, AD_SEQ, AD_STR } type;
@@ -44,17 +47,23 @@ struct argdata_t {
 };
 
 struct argdata_map_iterator_impl {
-  alignas(long) int error;
+  ARGDATA_MAX_ALIGN size_t index;
+  enum { ADM_BUFFER, ADM_MAP } type;
   union {
-    const uint8_t *buf;
-    const argdata_t *const *keys;
+    struct {
+      const uint8_t *buffer;
+      size_t length;
+      int (*convert_fd)(void *, size_t);
+      void *convert_fd_arg;
+      argdata_t key;
+      argdata_t value;
+    } buffer;
+    struct {
+      const argdata_t *const *keys;
+      const argdata_t *const *values;
+      size_t count;
+    } map;
   };
-  const argdata_t *const *values;  // When NULL, we're iterating a buffer.
-  size_t len;
-  int (*convert_fd)(void *, size_t);
-  void *convert_fd_arg;
-  argdata_t key;
-  argdata_t value;
 };
 
 static_assert(sizeof(struct argdata_map_iterator_impl) <=
@@ -63,18 +72,26 @@ static_assert(sizeof(struct argdata_map_iterator_impl) <=
 static_assert(alignof(struct argdata_map_iterator_impl) ==
                   alignof(argdata_map_iterator_t),
               "Invalid alignment");
-static_assert(offsetof(struct argdata_map_iterator_impl, error) ==
-                  offsetof(argdata_map_iterator_t, error),
+static_assert(offsetof(struct argdata_map_iterator_impl, index) ==
+                  offsetof(argdata_map_iterator_t, index),
               "Invalid offset");
 
 struct argdata_seq_iterator_impl {
-  alignas(long) int error;
-  const uint8_t *buf;
-  const argdata_t *const *entries;  // When NULL, we're iterating a buffer.
-  size_t len;
-  int (*convert_fd)(void *, size_t);
-  void *convert_fd_arg;
-  argdata_t value;
+  ARGDATA_MAX_ALIGN size_t index;
+  enum { ADS_BUFFER, ADS_SEQ } type;
+  union {
+    struct {
+      const uint8_t *buffer;
+      size_t length;
+      int (*convert_fd)(void *, size_t);
+      void *convert_fd_arg;
+      argdata_t entry;
+    } buffer;
+    struct {
+      const argdata_t *const *entries;
+      size_t count;
+    } seq;
+  };
 };
 
 static_assert(sizeof(struct argdata_seq_iterator_impl) <=
@@ -83,8 +100,8 @@ static_assert(sizeof(struct argdata_seq_iterator_impl) <=
 static_assert(alignof(struct argdata_seq_iterator_impl) ==
                   alignof(argdata_seq_iterator_t),
               "Invalid align");
-static_assert(offsetof(struct argdata_seq_iterator_impl, error) ==
-                  offsetof(argdata_seq_iterator_t, error),
+static_assert(offsetof(struct argdata_seq_iterator_impl, index) ==
+                  offsetof(argdata_seq_iterator_t, index),
               "Invalid offset");
 
 enum {

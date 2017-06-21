@@ -152,11 +152,11 @@ TEST(argdata_reader_pull, socket_fd_passing) {
     // Receive message 1 through the UNIX socket.
     ASSERT_EQ(0, argdata_reader_pull(ar, fds[0]));
     argdata_seq_iterator_t it;
-    ASSERT_EQ(0, argdata_seq_iterate(argdata_reader_get(ar), &it));
+    argdata_seq_iterate(argdata_reader_get(ar), &it);
 
     // First file descriptor should be a directory. Release it.
     const argdata_t *fd_object;
-    ASSERT_TRUE(argdata_seq_next(&it, &fd_object));
+    ASSERT_TRUE(argdata_seq_get(&it, &fd_object));
     ASSERT_EQ(0, argdata_get_fd(fd_object, &fd_directory));
     struct stat sb;
     ASSERT_EQ(0, fstat(fd_directory, &sb));
@@ -164,25 +164,30 @@ TEST(argdata_reader_pull, socket_fd_passing) {
     argdata_reader_release_fd(ar, fd_directory);
 
     // Second file descriptor should be a socket.
+    argdata_seq_next(&it);
     int fd_socket;
-    ASSERT_TRUE(argdata_seq_next(&it, &fd_object));
+    ASSERT_TRUE(argdata_seq_get(&it, &fd_object));
     ASSERT_EQ(0, argdata_get_fd(fd_object, &fd_socket));
     ASSERT_EQ(0, fstat(fd_socket, &sb));
     ASSERT_TRUE(S_ISSOCK(sb.st_mode));
 
     // Third file descriptor was a directory, but has been released.
+    argdata_seq_next(&it);
+    ASSERT_TRUE(argdata_seq_get(&it, &fd_object));
     int fd_bad;
-    ASSERT_TRUE(argdata_seq_next(&it, &fd_object));
     ASSERT_EQ(EBADF, argdata_get_fd(fd_object, &fd_bad));
 
     // Fourth file descriptor should still be a socket.
-    ASSERT_TRUE(argdata_seq_next(&it, &fd_object));
+    argdata_seq_next(&it);
+    ASSERT_TRUE(argdata_seq_get(&it, &fd_object));
     ASSERT_EQ(0, argdata_get_fd(fd_object, &fd_socket));
     ASSERT_EQ(0, fstat(fd_socket, &sb));
     ASSERT_TRUE(S_ISSOCK(sb.st_mode));
 
     // End of sequence.
-    ASSERT_FALSE(argdata_seq_next(&it, &fd_object));
+    argdata_seq_next(&it);
+    ASSERT_FALSE(argdata_seq_get(&it, &fd_object));
+    ASSERT_EQ(ARGDATA_ITERATOR_END, it.index);
 
     // Receive message 2 through the UNIX socket.
     ASSERT_EQ(0, argdata_reader_pull(ar, fds[0]));

@@ -150,11 +150,12 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
   // Maps.
   {
     argdata_map_iterator_t it;
-    if (argdata_map_iterate(ad, &it) == 0) {
+    argdata_map_iterate(ad, &it);
+    if (it.index != ARGDATA_ITERATOR_INVALID) {
       const argdata_t *key;
       const argdata_t *value;
       size_t index = 0;
-      while (argdata_map_next(&it, &key, &value)) {
+      while (argdata_map_get(&it, &key, &value)) {
         if (index == 0)
           fputs("!!map {", fp);
         print_space(depth + 2, fp);
@@ -164,6 +165,7 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
         fputs(": ", fp);
         print_yaml(value, fp, depth + 2);
         fputc(',', fp);
+        argdata_map_next(&it);
         ++index;
       }
       if (index == 0) {
@@ -181,15 +183,17 @@ static void print_yaml(const argdata_t *ad, FILE *fp, unsigned int depth) {
   // Sequences.
   {
     argdata_seq_iterator_t it;
-    if (argdata_seq_iterate(ad, &it) == 0) {
+    argdata_seq_iterate(ad, &it);
+    if (it.index != ARGDATA_ITERATOR_INVALID) {
       const argdata_t *value;
       size_t index = 0;
-      while (argdata_seq_next(&it, &value)) {
+      while (argdata_seq_get(&it, &value)) {
         if (index == 0)
           fputs("!!seq [", fp);
         print_space(depth + 2, fp);
         print_yaml(value, fp, depth + 2);
         fputc(',', fp);
+        argdata_seq_next(&it);
         ++index;
       }
       if (index == 0) {

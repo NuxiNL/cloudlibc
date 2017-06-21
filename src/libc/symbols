@@ -68,6 +68,7 @@ argdata_get_int_u
 argdata_get_str
 argdata_get_str_c
 argdata_get_timestamp
+argdata_map_get
 argdata_map_iterate
 argdata_map_next
 argdata_null
@@ -77,6 +78,7 @@ argdata_reader_free
 argdata_reader_get
 argdata_reader_pull
 argdata_reader_release_fd
+argdata_seq_get
 argdata_seq_iterate
 argdata_seq_next
 argdata_serialize

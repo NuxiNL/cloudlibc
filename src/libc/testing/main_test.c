@@ -22,19 +22,18 @@ void program_main(const argdata_t *ad) {
   const argdata_t *key;
   const argdata_t *value;
   argdata_map_iterate(ad, &it);
-  while (argdata_map_next(&it, &key, &value)) {
-    // Fetch key.
+  while (argdata_map_get(&it, &key, &value)) {
+    // Fetch key and set value depending on key.
     const char *keystr;
-    if (argdata_get_str_c(key, &keystr) != 0)
-      continue;
-
-    // Set value depending on key.
-    if (strcmp(keystr, "tmpdir") == 0)
-      argdata_get_fd(value, &tmpdir);
-    else if (strcmp(keystr, "logfile") == 0)
-      argdata_get_fd(value, &logfile);
-    else if (strcmp(keystr, "nthreads") == 0)
-      argdata_get_int(value, &nthreads);
+    if (argdata_get_str_c(key, &keystr) == 0) {
+      if (strcmp(keystr, "tmpdir") == 0)
+        argdata_get_fd(value, &tmpdir);
+      else if (strcmp(keystr, "logfile") == 0)
+        argdata_get_fd(value, &logfile);
+      else if (strcmp(keystr, "nthreads") == 0)
+        argdata_get_int(value, &nthreads);
+    }
+    argdata_map_next(&it);
   }
 
   // Set up stderr.
