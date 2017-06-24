@@ -214,10 +214,40 @@ static bool pipe_write_peek(FILE *file) __requires_exclusive(*file) {
 
 #define pipe_seek espipe
 
-static bool pipe_setvbuf(FILE *file, size_t bufsize)
-    __requires_exclusive(*file) {
-  // TODO(ed): Implement.
-  return false;
+static bool pipe_setvbuf(FILE *file, size_t size) __requires_exclusive(*file) {
+  // Disallow resizing the buffers if it means we'd have to throw away data.
+  size_t readbuf_used = file->readbuflen;
+  size_t writebuf_used = file->writebuf - file->pipe.written;
+  if (size < readbuf_used || size < writebuf_used)
+    return false;
+
+  // Allocate new read/write buffers.
+  char *new_readbuf = malloc(size);
+  if (new_readbuf == NULL)
+    return NULL;
+  char *new_writebuf = malloc(size);
+  if (new_writebuf == NULL) {
+    free(new_readbuf);
+    return NULL;
+  }
+
+  // Copy data from the existing read/write buffers and discard those.
+  memcpy(new_readbuf, file->readbuf, readbuf_used);
+  free(file->pipe.readbuf);
+  memcpy(new_writebuf, file->pipe.written, writebuf_used);
+  free(file->pipe.writebuf);
+
+  // Install new buffer.
+  file->pipe.readbuf = new_readbuf;
+  file->pipe.writebuf = file->pipe.written = new_writebuf;
+  file->pipe.bufsize = size;
+
+  // Update buffer accessors.
+  file->readbuf = file->pipe.readbuf;
+  file->readbuflen = readbuf_used;
+  file->writebuf = file->pipe.writebuf + writebuf_used;
+  file->writebuflen = file->pipe.bufsize - writebuf_used;
+  return true;
 }
 
 static bool pipe_flush(FILE *file) __requires_exclusive(*file) {
