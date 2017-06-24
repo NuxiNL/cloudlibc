@@ -129,7 +129,7 @@ static bool file_setvbuf(FILE *file, size_t size) __requires_exclusive(*file) {
   // Grow/shrink buffer using realloc().
   char *new_buf = realloc(file->file.buf, size);
   if (new_buf == NULL)
-    return NULL;
+    return false;
   file->file.buf = new_buf;
   file->file.bufsize = size;
   return true;
@@ -224,11 +224,11 @@ static bool pipe_setvbuf(FILE *file, size_t size) __requires_exclusive(*file) {
   // Allocate new read/write buffers.
   char *new_readbuf = malloc(size);
   if (new_readbuf == NULL)
-    return NULL;
+    return false;
   char *new_writebuf = malloc(size);
   if (new_writebuf == NULL) {
     free(new_readbuf);
-    return NULL;
+    return false;
   }
 
   // Copy data from the existing read/write buffers and discard those.
