@@ -18,12 +18,6 @@ ssize_t sendmsg(int socket, const struct msghdr *message, int flags) {
     return -1;
   }
 
-  // Destination address cannot be specified in this environment.
-  if (message->msg_name != NULL || message->msg_namelen > 0) {
-    errno = ENOTCAPABLE;
-    return -1;
-  }
-
   // Number of I/O vectors must be positive.
   if (message->msg_iovlen <= 0) {
     errno = EMSGSIZE;

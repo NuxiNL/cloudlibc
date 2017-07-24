@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -99,13 +99,15 @@ TEST(accept, example_sockaddr_un) {
   ASSERT_LE(0, fd2);
   ASSERT_EQ(0, connectat(fd2, fd_tmp, "foo"));
 
-  // Accept connection and fetch the socket address.
-  struct sockaddr_un sun;
-  size_t slen = sizeof(sun);
-  int fd3 = accept(fd1, (struct sockaddr *)&sun, &slen);
+  // Accept connection and fetch the socket address. In this
+  // implementation, we always obtain AF_UNSPEC. Connection metadata
+  // must be tracked by higher-level layers.
+  struct sockaddr sa;
+  size_t slen = sizeof(sa);
+  int fd3 = accept(fd1, &sa, &slen);
   ASSERT_LE(0, fd3);
-  ASSERT_EQ(sizeof(sun), slen);
-  ASSERT_EQ(AF_UNIX, sun.sun_family);
+  ASSERT_EQ(sizeof(sa), slen);
+  ASSERT_EQ(AF_UNSPEC, sa.sa_family);
 
   ASSERT_EQ(0, close(fd1));
   ASSERT_EQ(0, close(fd2));

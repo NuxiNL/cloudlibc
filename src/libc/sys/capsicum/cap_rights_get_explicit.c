@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -82,10 +82,6 @@ static_assert(CAP_UNLINKAT == CLOUDABI_RIGHT_FILE_UNLINK, "Value mismatch");
 static_assert(CAP_ACCEPT == CLOUDABI_RIGHT_SOCK_ACCEPT, "Value mismatch");
 static_assert(CAP_BIND == CLOUDABI_RIGHT_SOCK_BIND_SOCKET, "Value mismatch");
 static_assert(CAP_CONNECT == CLOUDABI_RIGHT_SOCK_CONNECT_SOCKET,
-              "Value mismatch");
-static_assert(CAP_GETPEERNAME == CLOUDABI_RIGHT_SOCK_STAT_GET,
-              "Value mismatch");
-static_assert(CAP_GETSOCKNAME == CLOUDABI_RIGHT_SOCK_STAT_GET,
               "Value mismatch");
 static_assert(CAP_GETSOCKOPT == CLOUDABI_RIGHT_SOCK_STAT_GET, "Value mismatch");
 static_assert(CAP_LISTEN == CLOUDABI_RIGHT_SOCK_LISTEN, "Value mismatch");

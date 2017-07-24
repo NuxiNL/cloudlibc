@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -53,7 +53,7 @@ TEST(socketpair, rights) {
   ASSERT_EQ(0, close(fds[1]));
 }
 
-TEST_SEPARATE_PROCESS(socketpair, example_stream) {
+TEST(socketpair, example_stream) {
   // Create socket pair.
   int fds[2];
   ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
@@ -66,28 +66,6 @@ TEST_SEPARATE_PROCESS(socketpair, example_stream) {
   ASSERT_EQ(0, fstat(fds[1], &sb));
   ASSERT_TRUE(S_ISSOCK(sb.st_mode));
 
-  // Test socket addresses.
-  struct sockaddr_un su;
-  size_t sul = sizeof(su);
-  ASSERT_EQ(0, getsockname(fds[0], (struct sockaddr *)&su, &sul));
-  ASSERT_EQ(sizeof(su), sul);
-  ASSERT_EQ(AF_UNIX, su.sun_family);
-
-  sul = sizeof(su);
-  ASSERT_EQ(0, getsockname(fds[0], (struct sockaddr *)&su, &sul));
-  ASSERT_EQ(sizeof(su), sul);
-  ASSERT_EQ(AF_UNIX, su.sun_family);
-
-  sul = sizeof(su);
-  ASSERT_EQ(0, getsockname(fds[1], (struct sockaddr *)&su, &sul));
-  ASSERT_EQ(sizeof(su), sul);
-  ASSERT_EQ(AF_UNIX, su.sun_family);
-
-  sul = sizeof(su);
-  ASSERT_EQ(0, getsockname(fds[1], (struct sockaddr *)&su, &sul));
-  ASSERT_EQ(sizeof(su), sul);
-  ASSERT_EQ(AF_UNIX, su.sun_family);
-
   // Send a message into one socket.
   ASSERT_EQ(6, write(fds[0], "Hello ", 6));
   ASSERT_EQ(6, write(fds[0], "world!", 6));
@@ -97,13 +75,8 @@ TEST_SEPARATE_PROCESS(socketpair, example_stream) {
   ASSERT_EQ(12, read(fds[1], buf, sizeof(buf)));
   ASSERT_ARREQ("Hello world!", buf, 12);
 
-  // Close one side. We can't obtain the peer name anymore.
+  // Close descriptors.
   ASSERT_EQ(0, close(fds[1]));
-  ASSERT_EQ(0, getsockname(fds[0], (struct sockaddr *)&su, &sul));
-  ASSERT_EQ(-1, getpeername(fds[0], (struct sockaddr *)&su, &sul));
-  ASSERT_EQ(ENOTCONN, errno);
-
-  // Close the other side.
   ASSERT_EQ(0, close(fds[0]));
 }
 

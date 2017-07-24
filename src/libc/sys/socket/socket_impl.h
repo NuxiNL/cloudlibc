@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -15,8 +15,8 @@
 #include <cloudabi_types.h>
 #include <errno.h>
 #include <stdalign.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
 static_assert(sizeof(struct sockaddr_storage) >= sizeof(struct sockaddr),
               "struct sockaddr_storage too small");
@@ -37,11 +37,6 @@ static_assert(alignof(struct sockaddr_storage) == alignof(struct sockaddr_un),
 
 static_assert(SOCK_DGRAM == CLOUDABI_FILETYPE_SOCKET_DGRAM, "Value mismatch");
 static_assert(SOCK_STREAM == CLOUDABI_FILETYPE_SOCKET_STREAM, "Value mismatch");
-
-static_assert(AF_UNSPEC == CLOUDABI_AF_UNSPEC, "Value mismatch");
-static_assert(AF_INET == CLOUDABI_AF_INET, "Value mismatch");
-static_assert(AF_INET6 == CLOUDABI_AF_INET6, "Value mismatch");
-static_assert(AF_UNIX == CLOUDABI_AF_UNIX, "Value mismatch");
 
 // Returns whether a socket domain, type and protocol correspond to a
 // valid UNIX socket.
@@ -64,49 +59,6 @@ static inline int is_unix_socket(int domain, int type, int protocol) {
     return EPROTONOSUPPORT;
 
   return 0;
-}
-
-// Converts an internal socket address structure to a public socket
-// address structure.
-static inline size_t convert_sockaddr(const cloudabi_sockaddr_t *in,
-                                      struct sockaddr *out, size_t outlen) {
-  union {
-    struct sockaddr def;
-    struct sockaddr_in in;
-    struct sockaddr_in6 in6;
-    struct sockaddr_un un;
-  } ret;
-  size_t len;
-
-  switch (in->sa_family) {
-    case CLOUDABI_AF_INET: {
-      ret.in = (struct sockaddr_in){.sin_family = AF_INET};
-      memcpy(&ret.in.sin_addr, in->sa_inet.addr, sizeof(ret.in.sin_addr));
-      ret.in.sin_port = htons(in->sa_inet.port);
-      len = sizeof(ret.in);
-      break;
-    }
-    case CLOUDABI_AF_INET6: {
-      ret.in6 = (struct sockaddr_in6){.sin6_family = AF_INET6};
-      memcpy(&ret.in6.sin6_addr, in->sa_inet6.addr, sizeof(ret.in6.sin6_addr));
-      ret.in6.sin6_port = htons(in->sa_inet6.port);
-      len = sizeof(ret.in6);
-      break;
-    }
-    case CLOUDABI_AF_UNIX: {
-      ret.un = (struct sockaddr_un){.sun_family = AF_UNIX};
-      len = sizeof(ret.un);
-      break;
-    }
-    default: {
-      ret.def = (struct sockaddr){.sa_family = AF_UNSPEC};
-      len = sizeof(ret.def);
-      break;
-    }
-  }
-
-  memcpy(out, &ret, len < outlen ? len : outlen);
-  return len;
 }
 
 // Returns the control message header stored at a provided memory

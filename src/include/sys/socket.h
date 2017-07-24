@@ -38,8 +38,10 @@
 //   Sending and receiving out-of-band data is unsupported.
 // - SOCK_SEQPACKET and MSG_EOR:
 //   Sequential packet sockets are unsupported.
-// - bind(), connect() and sendto():
-//   Requires global network address space.
+// - struct msghdr::msg_name, struct msghdr::msg_namelen, bind(),
+//   connect(), getpeername(), getsockname(), recvfrom() and sendto():
+//   Requires global network address space. Sockets don't have addresses
+//   associated with them.
 // - setsockopt():
 //   Socket parameters cannot be adjusted.
 
@@ -78,8 +80,6 @@ struct sockaddr_storage {
 };
 
 struct msghdr {
-  void *msg_name;         // Optional address.
-  size_t msg_namelen;     // Size of address.
   struct iovec *msg_iov;  // Scatter/gather array.
   int msg_iovlen;         // Members in msg_iov.
   void *msg_control;      // Ancillary data.
@@ -144,13 +144,9 @@ struct cmsghdr *CMSG_NXTHDR(const struct msghdr *, const struct cmsghdr *);
 int accept(int, struct sockaddr *__restrict, size_t *__restrict);
 int bindat(int, int, const char *);
 int connectat(int, int, const char *);
-int getpeername(int, struct sockaddr *__restrict, size_t *__restrict);
-int getsockname(int, struct sockaddr *__restrict, size_t *__restrict);
 int getsockopt(int, int, int, void *__restrict, size_t *__restrict);
 int listen(int, int);
 ssize_t recv(int, void *, size_t, int);
-ssize_t recvfrom(int, void *__restrict, size_t, int,
-                 struct sockaddr *__restrict, size_t *__restrict);
 ssize_t recvmsg(int, struct msghdr *, int);
 ssize_t send(int, const void *, size_t, int);
 ssize_t sendmsg(int, const struct msghdr *, int);
@@ -158,14 +154,5 @@ int shutdown(int, int);
 int socket(int, int, int);
 int socketpair(int, int, int, int *);
 __END_DECLS
-
-#if _CLOUDLIBC_INLINE_FUNCTIONS
-static __inline ssize_t __recv(int __socket, void *__buffer, size_t __length,
-                               int __flags) {
-  return recvfrom(__socket, __buffer, __length, __flags, _NULL, _NULL);
-}
-#define recv(socket, buffer, length, flags) \
-  __recv(socket, buffer, length, flags)
-#endif
 
 #endif

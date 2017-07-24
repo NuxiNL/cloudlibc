@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -9,23 +9,27 @@
 
 #include <cloudabi_syscalls.h>
 #include <errno.h>
+#include <string.h>
 
 #include "socket_impl.h"
 
 int accept(int socket, struct sockaddr *restrict address,
            size_t *restrict address_len) {
   // Accept incoming connection.
-  cloudabi_sockstat_t ss;
   cloudabi_fd_t fd;
-  cloudabi_errno_t error =
-      cloudabi_sys_sock_accept(socket, address != NULL ? &ss : NULL, &fd);
+  cloudabi_errno_t error = cloudabi_sys_sock_accept(socket, NULL, &fd);
   if (error != 0) {
     errno = errno_fixup_socket(socket, error);
     return -1;
   }
 
-  // Convert peer address to address family specific sockaddr structure.
-  if (address != NULL)
-    *address_len = convert_sockaddr(&ss.ss_peername, address, *address_len);
+  // This implementation does not keep track of connection metadata.
+  // If an address is requested, return AF_UNSPEC.
+  if (address != NULL) {
+    struct sockaddr sa = {.sa_family = AF_UNSPEC};
+    if (*address_len > sizeof(sa))
+      *address_len = sizeof(sa);
+    memcpy(address, &sa, *address_len);
+  }
   return fd;
 }

@@ -852,11 +852,11 @@ static cloudabi_errno_t syscall_fallback_random_get(void *buf, size_t nbyte) {
 }
 
 static cloudabi_errno_t syscall_fallback_sock_accept(cloudabi_fd_t sock,
-                                                     cloudabi_sockstat_t *buf,
+                                                     void *unused,
                                                      cloudabi_fd_t *conn) {
   register uint64_t reg_x8 asm("x8") = 45;
   register uint64_t reg_x0 asm("x0") = (uint64_t)sock;
-  register uint64_t reg_x1 asm("x1") = (uint64_t)buf;
+  register uint64_t reg_x1 asm("x1") = (uint64_t)unused;
   register uint64_t okay;
   asm volatile(
       "\tsvc 0\n"
@@ -1777,11 +1777,11 @@ static cloudabi_errno_t syscall_fallback_random_get(void *buf, size_t nbyte) {
 }
 
 static cloudabi_errno_t syscall_fallback_sock_accept(cloudabi_fd_t sock,
-                                                     cloudabi_sockstat_t *buf,
+                                                     void *unused,
                                                      cloudabi_fd_t *conn) {
   register uint64_t reg_rax asm("rax") = 45;
   register uint64_t reg_rdi asm("rdi") = (uint64_t)sock;
-  register uint64_t reg_rsi asm("rsi") = (uint64_t)buf;
+  register uint64_t reg_rsi asm("rsi") = (uint64_t)unused;
   register char okay;
   asm volatile(
       "\tsyscall\n"

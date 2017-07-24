@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -46,6 +46,8 @@
 //   Not applicable to this environment.
 // - CAP_FSTATFS:
 //   Filesystem-level statistics not available.
+// - CAP_GETPEERNAME and CAP_GETSOCKNAME:
+//   Sockets do not have addresses associated with them.
 // - CAP_MKNODAT:
 //   Device nodes cannot be created.
 // - CAP_SETSOCKOPT:
@@ -130,8 +132,6 @@ typedef struct {
 #define CAP_ACCEPT _CAP_BIT(33)
 #define CAP_BIND _CAP_BIT(35)
 #define CAP_CONNECT _CAP_BIT(37)
-#define CAP_GETPEERNAME CAP_GETSOCKOPT
-#define CAP_GETSOCKNAME CAP_GETSOCKOPT
 #define CAP_GETSOCKOPT _CAP_BIT(40)
 #define CAP_LISTEN _CAP_BIT(38)
 #define CAP_RECV CAP_READ
@@ -139,12 +139,11 @@ typedef struct {
 #define CAP_SHUTDOWN _CAP_BIT(39)
 
 // Commonly used socket operations.
-#define CAP_SOCK_CLIENT                                               \
-  (CAP_CONNECT | CAP_GETPEERNAME | CAP_GETSOCKNAME | CAP_GETSOCKOPT | \
-   CAP_RECV | CAP_SEND | CAP_SHUTDOWN)
-#define CAP_SOCK_SERVER                                        \
-  (CAP_ACCEPT | CAP_BIND | CAP_GETPEERNAME | CAP_GETSOCKNAME | \
-   CAP_GETSOCKOPT | CAP_LISTEN | CAP_RECV | CAP_SEND | CAP_SHUTDOWN)
+#define CAP_SOCK_CLIENT \
+  (CAP_CONNECT | CAP_GETSOCKOPT | CAP_RECV | CAP_SEND | CAP_SHUTDOWN)
+#define CAP_SOCK_SERVER                                                        \
+  (CAP_ACCEPT | CAP_BIND | CAP_GETSOCKOPT | CAP_LISTEN | CAP_RECV | CAP_SEND | \
+   CAP_SHUTDOWN)
 
 // Polling.
 #define CAP_EVENT _CAP_BIT(28)

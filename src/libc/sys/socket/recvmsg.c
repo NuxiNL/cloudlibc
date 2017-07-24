@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -7,11 +7,10 @@
 
 #include <sys/socket.h>
 
+#include <assert.h>
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <stdint.h>
-
-#include "socket_impl.h"
 
 static_assert(MSG_PEEK == CLOUDABI_SOCK_RECV_PEEK, "Value mismatch");
 static_assert(MSG_WAITALL == CLOUDABI_SOCK_RECV_WAITALL, "Value mismatch");
@@ -65,10 +64,5 @@ ssize_t recvmsg(int socket, struct msghdr *message, int flags) {
     // No ancillary data to return.
     message->msg_controllen = 0;
   }
-
-  // Convert peer address to address family specific sockaddr structure.
-  if (message->msg_name != NULL)
-    message->msg_namelen = convert_sockaddr(&ro.ro_peername, message->msg_name,
-                                            message->msg_namelen);
   return ro.ro_datalen;
 }

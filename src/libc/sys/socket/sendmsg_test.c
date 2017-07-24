@@ -46,13 +46,6 @@ TEST(sendmsg, bad) {
   ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
   ASSERT_EQ(-1, sendmsg(fds[0], &message, 0xdeadc0de));
   ASSERT_EQ(EOPNOTSUPP, errno);
-
-  // Destination address cannot be specified in this implementation.
-  struct sockaddr_un sun = {.sun_family = AF_UNIX};
-  message.msg_name = &sun;
-  message.msg_namelen = sizeof(sun);
-  ASSERT_EQ(-1, sendmsg(fds[0], &message, 0));
-  ASSERT_EQ(ENOTCAPABLE, errno);
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
 }

@@ -385,13 +385,11 @@ getdelim
 getenv
 getline
 getnameinfo
-getpeername
 getprotobyname
 getprotobynumber
 getrusage
 getservbyname
 getservbyport
-getsockname
 getsockopt
 getsubopt
 gettext
@@ -728,7 +726,6 @@ readv
 realloc
 reallocarray
 recv
-recvfrom
 recvmsg
 regcomp
 regcomp_l
