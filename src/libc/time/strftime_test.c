@@ -47,7 +47,9 @@ TEST(strftime, d_t_fmt) {
 
 TEST(strftime, Ffmt) {
   struct tm tm = {
-      .tm_year = 115, .tm_mon = 2, .tm_mday = 6,
+      .tm_year = 115,
+      .tm_mon = 2,
+      .tm_mday = 6,
   };
   char buf[13];
   ASSERT_EQ(10, strftime(buf, sizeof(buf), "%F", &tm));

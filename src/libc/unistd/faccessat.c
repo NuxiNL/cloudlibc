@@ -21,7 +21,8 @@ int faccessat(int fd, const char *path, int amode, int flag) {
 
   // Check for target file existence and obtain the file type.
   cloudabi_lookup_t lookup = {
-      .fd = fd, .flags = CLOUDABI_LOOKUP_SYMLINK_FOLLOW,
+      .fd = fd,
+      .flags = CLOUDABI_LOOKUP_SYMLINK_FOLLOW,
   };
   cloudabi_filestat_t file;
   cloudabi_errno_t error =

@@ -10,7 +10,9 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
-typedef struct { atomic_uint count; } refcount_t;
+typedef struct {
+  atomic_uint count;
+} refcount_t;
 
 #define REFCOUNT_INIT(count) \
   { ATOMIC_VAR_INIT(count) }

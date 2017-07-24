@@ -12,7 +12,9 @@
 TEST(mq_setattr, bad) {
   mqd_t mqd;
   struct mq_attr attr = {
-      .mq_flags = 0, .mq_maxmsg = 100, .mq_msgsize = 100,
+      .mq_flags = 0,
+      .mq_maxmsg = 100,
+      .mq_msgsize = 100,
   };
   ASSERT_EQ(0, mq_init(&mqd, &attr));
 
@@ -27,7 +29,9 @@ TEST(mq_setattr, example) {
   mqd_t mqd;
   {
     struct mq_attr attr = {
-        .mq_flags = 0, .mq_maxmsg = 100, .mq_msgsize = 100,
+        .mq_flags = 0,
+        .mq_maxmsg = 100,
+        .mq_msgsize = 100,
     };
     ASSERT_EQ(0, mq_init(&mqd, &attr));
   }

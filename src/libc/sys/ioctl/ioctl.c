@@ -15,7 +15,8 @@ int ioctl(int fildes, int request, ...) {
       // Poll the file descriptor to determine how many bytes can be read.
       cloudabi_subscription_t subscriptions[2] = {
           {
-              .type = CLOUDABI_EVENTTYPE_FD_READ, .fd_readwrite.fd = fildes,
+              .type = CLOUDABI_EVENTTYPE_FD_READ,
+              .fd_readwrite.fd = fildes,
           },
           {
               .type = CLOUDABI_EVENTTYPE_CLOCK,

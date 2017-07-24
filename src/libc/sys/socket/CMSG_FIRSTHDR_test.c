@@ -26,7 +26,8 @@ TEST(CMSG_FIRSTHDR, examples) {
   {
     struct cmsghdr cmsg;
     struct msghdr mhdr = {
-        .msg_control = &cmsg, .msg_controllen = CMSG_LEN(0) - 1,
+        .msg_control = &cmsg,
+        .msg_controllen = CMSG_LEN(0) - 1,
     };
     ASSERT_EQ(NULL, CMSG_FIRSTHDR(&mhdr));
   }
@@ -35,7 +36,8 @@ TEST(CMSG_FIRSTHDR, examples) {
   {
     struct cmsghdr cmsg;
     struct msghdr mhdr = {
-        .msg_control = &cmsg, .msg_controllen = CMSG_LEN(0),
+        .msg_control = &cmsg,
+        .msg_controllen = CMSG_LEN(0),
     };
     ASSERT_EQ(&cmsg, CMSG_FIRSTHDR(&mhdr));
   }

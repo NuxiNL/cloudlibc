@@ -20,7 +20,9 @@ struct inputbuf {
 int regncomp_l(regex_t *restrict preg, const char *restrict pattern, size_t len,
                int cflags, locale_t locale) {
   struct inputbuf buf = {
-      .ctype = locale->ctype, .buf = pattern, .len = len,
+      .ctype = locale->ctype,
+      .buf = pattern,
+      .len = len,
   };
   return regex_compile(preg, &buf, cflags, locale);
 }

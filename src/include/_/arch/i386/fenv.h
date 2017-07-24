@@ -42,7 +42,9 @@ typedef struct {
   __uint32_t __mxcsr;
 } fenv_t;
 
-typedef struct { __uint8_t __exceptions; } fexcept_t;
+typedef struct {
+  __uint8_t __exceptions;
+} fexcept_t;
 
 // Exception flags stored in the mxcsr register.
 #define FE_INVALID 0x01

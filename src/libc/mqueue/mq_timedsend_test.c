@@ -12,7 +12,9 @@
 TEST(mq_timedsend, bad) {
   mqd_t mqd;
   struct mq_attr attr = {
-      .mq_flags = O_NONBLOCK, .mq_maxmsg = 1, .mq_msgsize = 10,
+      .mq_flags = O_NONBLOCK,
+      .mq_maxmsg = 1,
+      .mq_msgsize = 10,
   };
   ASSERT_EQ(0, mq_init(&mqd, &attr));
 
@@ -64,7 +66,9 @@ TEST(mq_timedsend, blocking) {
   // should be allowed to provide an invalid abstime.
   mqd_t mqd;
   struct mq_attr attr = {
-      .mq_flags = 0, .mq_maxmsg = 1, .mq_msgsize = 5,
+      .mq_flags = 0,
+      .mq_maxmsg = 1,
+      .mq_msgsize = 5,
   };
   ASSERT_EQ(0, mq_init(&mqd, &attr));
   ASSERT_EQ(

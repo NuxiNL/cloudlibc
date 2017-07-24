@@ -117,7 +117,8 @@ void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
   testing_logfile = logfile;
 
   struct testing_state state = {
-      .tmpdir = tmpdir, .test_start = __start___tests,
+      .tmpdir = tmpdir,
+      .test_start = __start___tests,
   };
 
   if (nthreads <= 1) {

@@ -4,13 +4,16 @@
 // See the LICENSE file for details.
 
 static char const *const aliases_0[] = {
-    "ip", NULL,
+    "ip",
+    NULL,
 };
 static char const *const aliases_84[] = {
-    "iptm", NULL,
+    "iptm",
+    NULL,
 };
 static char const *const aliases_255[] = {
-    "raw", NULL,
+    "raw",
+    NULL,
 };
 static const char *const aliases_none[] = {NULL};
 static const struct protoent entries[] = {

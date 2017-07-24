@@ -39,8 +39,12 @@
 #endif
 #include <_/cdefs.h>
 
-typedef struct { struct __jmp_buf __jmp_buf; } jmp_buf[1];
-typedef struct { struct __jmp_buf __jmp_buf; } sigjmp_buf[1];
+typedef struct {
+  struct __jmp_buf __jmp_buf;
+} jmp_buf[1];
+typedef struct {
+  struct __jmp_buf __jmp_buf;
+} sigjmp_buf[1];
 
 __BEGIN_DECLS
 _Noreturn void longjmp(jmp_buf, int);

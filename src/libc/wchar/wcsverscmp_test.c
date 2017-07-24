@@ -10,11 +10,21 @@ TEST(wcsverscmp, order) {
   const wchar_t *strings[] = {
       L"",
 
-      L"000", L"00", L"01", L"010", L"09", L"0", L"1", L"2.6.20", L"2.6.21",
-      L"9", L"10",
+      L"000",
+      L"00",
+      L"01",
+      L"010",
+      L"09",
+      L"0",
+      L"1",
+      L"2.6.20",
+      L"2.6.21",
+      L"9",
+      L"10",
 
       // From https://sourceware.org/bugzilla/show_bug.cgi?id=9913.
-      L"B0075022800016.gbp.corp.com", L"B007502280067.gbp.corp.com",
+      L"B0075022800016.gbp.corp.com",
+      L"B007502280067.gbp.corp.com",
       L"B007502357019.GBP.CORP.COM",
   };
   for (size_t i = 0; i < __arraycount(strings); ++i) {

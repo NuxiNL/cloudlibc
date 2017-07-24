@@ -21,7 +21,8 @@ int pdwait(int fd, siginfo_t *infop, int options) {
   // return immediately.
   cloudabi_subscription_t subscriptions[2] = {
       {
-          .type = CLOUDABI_EVENTTYPE_PROC_TERMINATE, .proc_terminate.fd = fd,
+          .type = CLOUDABI_EVENTTYPE_PROC_TERMINATE,
+          .proc_terminate.fd = fd,
       },
       {
           .type = CLOUDABI_EVENTTYPE_CLOCK,

@@ -204,7 +204,9 @@ typedef _Atomic(__uintmax_t) atomic_uintmax_t;
 #define atomic_store(object, desired) \
   atomic_store_explicit(object, desired, memory_order_seq_cst)
 
-typedef struct { atomic_bool __value; } atomic_flag;
+typedef struct {
+  atomic_bool __value;
+} atomic_flag;
 
 __BEGIN_DECLS
 void atomic_flag_clear_explicit(volatile atomic_flag *, memory_order);

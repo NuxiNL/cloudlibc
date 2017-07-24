@@ -492,7 +492,8 @@ static inline void f16dec(long double f, unsigned char *digits, size_t *ndigits,
   } value = {.f = f};
   static_assert(sizeof(value.f) == sizeof(value.i), "Size mismatch");
   f16_part_t parts[F16_NPARTS] = {
-      value.i[1] << 15 | value.i[0] >> 49, value.i[0] << 15,
+      value.i[1] << 15 | value.i[0] >> 49,
+      value.i[0] << 15,
   };
   *exponent = (value.i[1] >> 48) & 0x7fff;
 #else

@@ -30,21 +30,32 @@ struct lconv *localeconv_l(locale_t locale) {
 #define WSTRING(category, field) \
   .field = (char *)COMPILE_WSTRING(locale, category, field)
       // Fields provided by LC_NUMERIC.
-      WSTRING(numeric, decimal_point), WSTRING(numeric, thousands_sep),
+      WSTRING(numeric, decimal_point),
+      WSTRING(numeric, thousands_sep),
       STRING(numeric, grouping),
 
       // Fields provided by LC_MONETARY.
       WSTRING(monetary, mon_decimal_point),
-      WSTRING(monetary, mon_thousands_sep), STRING(monetary, mon_grouping),
-      WSTRING(monetary, positive_sign), WSTRING(monetary, negative_sign),
-      WSTRING(monetary, currency_symbol), CHAR(monetary, frac_digits),
-      CHAR(monetary, p_cs_precedes), CHAR(monetary, p_sep_by_space),
-      CHAR(monetary, p_sign_posn), CHAR(monetary, n_cs_precedes),
-      CHAR(monetary, n_sep_by_space), CHAR(monetary, n_sign_posn),
-      STRING(monetary, int_curr_symbol), CHAR(monetary, int_frac_digits),
-      CHAR(monetary, int_p_cs_precedes), CHAR(monetary, int_p_sep_by_space),
-      CHAR(monetary, int_p_sign_posn), CHAR(monetary, int_n_cs_precedes),
-      CHAR(monetary, int_n_sep_by_space), CHAR(monetary, int_n_sign_posn),
+      WSTRING(monetary, mon_thousands_sep),
+      STRING(monetary, mon_grouping),
+      WSTRING(monetary, positive_sign),
+      WSTRING(monetary, negative_sign),
+      WSTRING(monetary, currency_symbol),
+      CHAR(monetary, frac_digits),
+      CHAR(monetary, p_cs_precedes),
+      CHAR(monetary, p_sep_by_space),
+      CHAR(monetary, p_sign_posn),
+      CHAR(monetary, n_cs_precedes),
+      CHAR(monetary, n_sep_by_space),
+      CHAR(monetary, n_sign_posn),
+      STRING(monetary, int_curr_symbol),
+      CHAR(monetary, int_frac_digits),
+      CHAR(monetary, int_p_cs_precedes),
+      CHAR(monetary, int_p_sep_by_space),
+      CHAR(monetary, int_p_sign_posn),
+      CHAR(monetary, int_n_cs_precedes),
+      CHAR(monetary, int_n_sep_by_space),
+      CHAR(monetary, int_n_sign_posn),
 #undef CHAR
 #undef STRING
 #undef WSTRING

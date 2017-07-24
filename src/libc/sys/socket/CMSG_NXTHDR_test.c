@@ -27,7 +27,8 @@ TEST(CMSG_NXTHDR, first) {
   {
     struct cmsghdr cmsg;
     struct msghdr mhdr = {
-        .msg_control = &cmsg, .msg_controllen = CMSG_LEN(0) - 1,
+        .msg_control = &cmsg,
+        .msg_controllen = CMSG_LEN(0) - 1,
     };
     ASSERT_EQ(NULL, CMSG_NXTHDR(&mhdr, NULL));
   }
@@ -36,7 +37,8 @@ TEST(CMSG_NXTHDR, first) {
   {
     struct cmsghdr cmsg;
     struct msghdr mhdr = {
-        .msg_control = &cmsg, .msg_controllen = CMSG_LEN(0),
+        .msg_control = &cmsg,
+        .msg_controllen = CMSG_LEN(0),
     };
     ASSERT_EQ(&cmsg, CMSG_NXTHDR(&mhdr, NULL));
   }
@@ -50,7 +52,8 @@ TEST(CMSG_NXTHDR, second) {
     // Ancillary data is too small to fit a second element.
     {
       struct msghdr mhdr = {
-          .msg_control = cmsg, .msg_controllen = firstlen + CMSG_LEN(0) - 1,
+          .msg_control = cmsg,
+          .msg_controllen = firstlen + CMSG_LEN(0) - 1,
       };
       struct cmsghdr *first = CMSG_NXTHDR(&mhdr, NULL);
       first->cmsg_len = CMSG_LEN(i);
@@ -61,7 +64,8 @@ TEST(CMSG_NXTHDR, second) {
     // Ancillary data is just large enough to fit a second element.
     {
       struct msghdr mhdr = {
-          .msg_control = cmsg, .msg_controllen = firstlen + CMSG_LEN(0),
+          .msg_control = cmsg,
+          .msg_controllen = firstlen + CMSG_LEN(0),
       };
       struct cmsghdr *first = CMSG_NXTHDR(&mhdr, NULL);
       ASSERT_EQ(cmsg, first);
@@ -75,7 +79,8 @@ TEST(CMSG_NXTHDR, hundred) {
   // Create a message containing 100 control message headers.
   alignas(struct cmsghdr) char cmsg[100][CMSG_SPACE(10)];
   struct msghdr mhdr = {
-      .msg_control = cmsg, .msg_controllen = sizeof(cmsg),
+      .msg_control = cmsg,
+      .msg_controllen = sizeof(cmsg),
   };
 
   // Iterate through all of them.

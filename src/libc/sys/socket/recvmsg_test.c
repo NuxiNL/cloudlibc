@@ -16,7 +16,8 @@ TEST(recvmsg, bad) {
   char b;
   struct iovec biov = {.iov_base = &b, .iov_len = 1};
   struct msghdr message = {
-      .msg_iov = &biov, .msg_iovlen = 1,
+      .msg_iov = &biov,
+      .msg_iovlen = 1,
   };
   ASSERT_EQ(-1, recvmsg(-1, &message, 0));
   ASSERT_EQ(EBADF, errno);
@@ -59,7 +60,8 @@ TEST(recvmsg, msg_trunc) {
     char buf[4];
     struct iovec iov = {.iov_base = buf, .iov_len = sizeof(buf)};
     struct msghdr msg = {
-        .msg_iov = &iov, .msg_iovlen = 1,
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
     };
     ASSERT_EQ(sizeof(buf), recvmsg(fds[1], &msg, MSG_PEEK));
     ASSERT_ARREQ("Hell", buf, 4);
@@ -71,7 +73,8 @@ TEST(recvmsg, msg_trunc) {
     char buf[5];
     struct iovec iov = {.iov_base = buf, .iov_len = sizeof(buf)};
     struct msghdr msg = {
-        .msg_iov = &iov, .msg_iovlen = 1,
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
     };
     ASSERT_EQ(sizeof(buf), recvmsg(fds[1], &msg, 0));
     ASSERT_ARREQ("Hello", buf, 5);

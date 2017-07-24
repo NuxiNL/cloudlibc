@@ -128,7 +128,10 @@ TEST(argdata_reader_pull, socket_fd_passing) {
     argdata_t *fd_directory = argdata_create_fd(fd_tmp);
     argdata_t *fd_socket = argdata_create_fd(fds[1]);
     const argdata_t *fields[] = {
-        fd_directory, fd_socket, fd_directory, fd_socket,
+        fd_directory,
+        fd_socket,
+        fd_directory,
+        fd_socket,
     };
     argdata_t *seq =
         argdata_create_seq(fields, sizeof(fields) / sizeof(fields[0]));

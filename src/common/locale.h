@@ -268,7 +268,8 @@ static inline size_t numeric_grouping_init(struct numeric_grouping *ng,
       // Don't do any grouping anymore. Place all of the remaining
       // digits in a group.
       *ng = (struct numeric_grouping){
-          .grouping = grouping, .steps = ndigits,
+          .grouping = grouping,
+          .steps = ndigits,
       };
       return ngroupings;
     } else if (grouping[1] == '\0') {

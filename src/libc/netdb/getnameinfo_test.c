@@ -54,27 +54,26 @@ TEST(getnameinfo, bad) {
   } while (0)
 
 TEST(getnameinfo, inet) {
-#define TEST_INET(addr, port, flags, node, service)                         \
-  do {                                                                      \
-    /* Perform conversion. */                                               \
-    struct sockaddr_in sin = {                                              \
-        .sin_family = AF_INET,                                              \
-        .sin_addr.s_addr = htonl(addr),                                     \
-        .sin_port = htons(port),                                            \
-    };                                                                      \
-    TEST_SOCKADDR(sin, flags, node, service);                               \
-                                                                            \
-    /* Also test IPv4-mapped IPv6 address representation. */                \
-    struct sockaddr_in6 sin6 = {                                            \
-        .sin6_family = AF_INET6,                                            \
-        .sin6_addr.s6_addr =                                                \
-            {                                                               \
-                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
-                0xff, 0xff, (addr >> 24) & 0xff, (addr >> 16) & 0xff,       \
-                (addr >> 8) & 0xff, addr & 0xff,                            \
-            },                                                              \
-        .sin6_port = htons(port)};                                          \
-    TEST_SOCKADDR(sin6, flags, "::ffff:" node, service);                    \
+#define TEST_INET(addr, port, flags, node, service)                           \
+  do {                                                                        \
+    /* Perform conversion. */                                                 \
+    struct sockaddr_in sin = {                                                \
+        .sin_family = AF_INET,                                                \
+        .sin_addr.s_addr = htonl(addr),                                       \
+        .sin_port = htons(port),                                              \
+    };                                                                        \
+    TEST_SOCKADDR(sin, flags, node, service);                                 \
+                                                                              \
+    /* Also test IPv4-mapped IPv6 address representation. */                  \
+    struct sockaddr_in6 sin6 = {                                              \
+        .sin6_family = AF_INET6,                                              \
+        .sin6_addr.s6_addr = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+                              0x00, 0x00, 0xff, 0xff, (addr >> 24) & 0xff,    \
+                              (addr >> 16) & 0xff, (addr >> 8) & 0xff,        \
+                              addr & 0xff},                                   \
+        .sin6_port = htons(port),                                             \
+    };                                                                        \
+    TEST_SOCKADDR(sin6, flags, "::ffff:" node, service);                      \
   } while (0)
   TEST_INET(0x00000000, 0, NI_NUMERICSERV, "0.0.0.0", "0");
   TEST_INET(0x00000000, 0, 0, "0.0.0.0", "0");
@@ -99,14 +98,13 @@ TEST(getnameinfo, inet6) {
                    a14, a15, scope_id, port, flags, node, service)             \
   do {                                                                         \
     /* Perform conversion. */                                                  \
-    struct sockaddr_in6 sin6 = {.sin6_family = AF_INET6,                       \
-                                .sin6_addr.s6_addr =                           \
-                                    {                                          \
-                                        a0, a1, a2, a3, a4, a5, a6, a7, a8,    \
-                                        a9, a10, a11, a12, a13, a14, a15,      \
-                                    },                                         \
-                                .sin6_scope_id = scope_id,                     \
-                                .sin6_port = htons(port)};                     \
+    struct sockaddr_in6 sin6 = {                                               \
+        .sin6_family = AF_INET6,                                               \
+        .sin6_addr.s6_addr = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,     \
+                              a11, a12, a13, a14, a15},                        \
+        .sin6_scope_id = scope_id,                                             \
+        .sin6_port = htons(port),                                              \
+    };                                                                         \
     TEST_SOCKADDR(sin6, flags, node, service);                                 \
   } while (0)
   TEST_INET6(0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x92, 0x2b, 0x34,

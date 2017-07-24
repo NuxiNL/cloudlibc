@@ -40,10 +40,10 @@ static_assert((LOG_UPTO(LOG_WARNING) | LOG_MASK(LOG_DEBUG)) ==
               "Test vector provided by POSIX failed");
 
 static const char messages[][10] = {
-        [LOG_ALERT] = "ALERT    \0",  [LOG_CRIT] = "CRITICAL \0",
-        [LOG_DEBUG] = "DEBUG    \0",  [LOG_EMERG] = "EMERGENCY\0",
-        [LOG_ERR] = "ERROR    \0",    [LOG_INFO] = "INFO     \0",
-        [LOG_NOTICE] = "NOTICE   \0", [LOG_WARNING] = "WARNING  \0",
+    [LOG_ALERT] = "ALERT    \0",  [LOG_CRIT] = "CRITICAL \0",
+    [LOG_DEBUG] = "DEBUG    \0",  [LOG_EMERG] = "EMERGENCY\0",
+    [LOG_ERR] = "ERROR    \0",    [LOG_INFO] = "INFO     \0",
+    [LOG_NOTICE] = "NOTICE   \0", [LOG_WARNING] = "WARNING  \0",
 };
 
 void vsyslog_l(int priority, locale_t locale, const char *message, va_list ap) {

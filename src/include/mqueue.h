@@ -53,7 +53,9 @@ typedef __ssize_t ssize_t;
 #define _SSIZE_T_DECLARED
 #endif
 
-typedef struct { struct __mqd *__mqd; } mqd_t;
+typedef struct {
+  struct __mqd *__mqd;
+} mqd_t;
 
 struct mq_attr {
   long mq_flags;    // Message queue flags.

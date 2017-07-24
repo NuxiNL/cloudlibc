@@ -21,7 +21,9 @@ int pthread_atfork(void (*prepare)(void), void (*parent)(void),
   if (entry == NULL)
     return ENOMEM;
   *entry = (struct pthread_atfork){
-      .prepare = prepare, .parent = parent, .child = child,
+      .prepare = prepare,
+      .parent = parent,
+      .child = child,
   };
 
   // Store it in the global list of fork handlers.

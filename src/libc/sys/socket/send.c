@@ -21,7 +21,8 @@ ssize_t send(int socket, const void *buffer, size_t length, int flags) {
   // Prepare input parameters.
   cloudabi_ciovec_t iov = {.buf = buffer, .buf_len = length};
   cloudabi_send_in_t si = {
-      .si_data = &iov, .si_data_len = 1,
+      .si_data = &iov,
+      .si_data_len = 1,
   };
 
   // Perform system call.

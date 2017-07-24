@@ -16,7 +16,9 @@ TEST(mq_sendreceive, ordering) {
   mqd_t mqd;
   {
     struct mq_attr attr = {
-        .mq_flags = 0, .mq_maxmsg = sizeof(messages), .mq_msgsize = 1,
+        .mq_flags = 0,
+        .mq_maxmsg = sizeof(messages),
+        .mq_msgsize = 1,
     };
     ASSERT_EQ(0, mq_init(&mqd, &attr));
   }

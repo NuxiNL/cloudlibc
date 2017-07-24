@@ -76,7 +76,9 @@
 #include <_/types.h>
 
 typedef __uint64_t __cap_rights_bits_t;
-typedef struct { __cap_rights_bits_t __value; } cap_rights_t;
+typedef struct {
+  __cap_rights_bits_t __value;
+} cap_rights_t;
 
 #define _CAP_BIT(f) (_UINT64_C(1) << (f))
 #define _CAP_SENTINEL _UINT64_C(0)

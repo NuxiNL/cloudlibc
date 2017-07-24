@@ -28,7 +28,9 @@ ssize_t recvfrom(int socket, void *restrict buffer, size_t length, int flags,
   // Prepare input parameters.
   cloudabi_iovec_t iov = {.buf = buffer, .buf_len = length};
   cloudabi_recv_in_t ri = {
-      .ri_data = &iov, .ri_data_len = 1, .ri_flags = flags,
+      .ri_data = &iov,
+      .ri_data_len = 1,
+      .ri_flags = flags,
   };
 
   // Perform system call.

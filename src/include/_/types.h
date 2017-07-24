@@ -205,11 +205,15 @@ typedef struct {
 typedef __uint16_t __mode_t;
 typedef __uint32_t __nlink_t;
 typedef __int64_t __off_t;
-typedef struct { struct __pthread_key *__key; } __pthread_key_t;
+typedef struct {
+  struct __pthread_key *__key;
+} __pthread_key_t;
 typedef struct __pthread *__pthread_t;
 typedef __uint8_t __sa_family_t;
 typedef struct __siginfo __siginfo_t;
-typedef struct { __uint32_t __mask; } __sigset_t;
+typedef struct {
+  __uint32_t __mask;
+} __sigset_t;
 typedef __int_least24_t __suseconds_t;
 typedef __int64_t __time_t;
 typedef __uint64_t __useconds_t;
@@ -238,7 +242,9 @@ typedef struct {
   __uint32_t __remaining;
   __uint32_t __generation;
 } __pthread_barrier_t;
-typedef struct { _Atomic(__uint32_t) __state; } __pthread_once_t;
+typedef struct {
+  _Atomic(__uint32_t) __state;
+} __pthread_once_t;
 
 _Static_assert(sizeof(__pthread_barrier_t) == 56, "ABI broken");
 _Static_assert(sizeof(__pthread_cond_t) == 12, "ABI broken");
@@ -249,7 +255,9 @@ typedef struct {
   int __detachstate;
   __size_t __stacksize;
 } __pthread_attr_t;
-typedef struct { int __pshared; } __pthread_barrierattr_t;
+typedef struct {
+  int __pshared;
+} __pthread_barrierattr_t;
 typedef struct {
   __clockid_t __clock;
   int __pshared;

@@ -115,7 +115,8 @@ TEST(sendmsg, example) {
         {.iov_base = strings[1], .iov_len = sizeof(strings[1])},
         {.iov_base = strings[2], .iov_len = sizeof(strings[2])}};
     struct msghdr message = {
-        .msg_iov = iov, .msg_iovlen = __arraycount(iov),
+        .msg_iov = iov,
+        .msg_iovlen = __arraycount(iov),
     };
 
     ASSERT_EQ(12, recvmsg(fds[1], &message, 0));
@@ -165,7 +166,8 @@ TEST(sendmsg, fd_passing) {
     ASSERT_EQ(0, pipe(pfds));
     _Alignas(struct cmsghdr) char cmsgbuf[CMSG_SPACE(sizeof(pfds))];
     struct msghdr msghdr = {
-        .msg_control = cmsgbuf, .msg_controllen = sizeof(cmsgbuf),
+        .msg_control = cmsgbuf,
+        .msg_controllen = sizeof(cmsgbuf),
     };
     {
       struct cmsghdr *cmsghdr = CMSG_FIRSTHDR(&msghdr);

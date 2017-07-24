@@ -12,7 +12,9 @@
 TEST(mq_timedreceive, bad) {
   mqd_t mqd;
   struct mq_attr attr = {
-      .mq_flags = O_NONBLOCK, .mq_maxmsg = 10, .mq_msgsize = 10,
+      .mq_flags = O_NONBLOCK,
+      .mq_maxmsg = 10,
+      .mq_msgsize = 10,
   };
   ASSERT_EQ(0, mq_init(&mqd, &attr));
 
@@ -56,7 +58,9 @@ static void *push_message(void *argument) {
 TEST(mq_timedreceive, blocking) {
   mqd_t mqd;
   struct mq_attr attr = {
-      .mq_flags = 0, .mq_maxmsg = 1, .mq_msgsize = 5,
+      .mq_flags = 0,
+      .mq_maxmsg = 1,
+      .mq_msgsize = 5,
   };
   ASSERT_EQ(0, mq_init(&mqd, &attr));
 

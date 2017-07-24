@@ -81,7 +81,8 @@ ssize_t kevent(int fd, const struct kevent *in, size_t nin, struct kevent *out,
     const cloudabi_event_t *ev = &events[i];
     struct kevent *ke = &out[i];
     *ke = (struct kevent){
-        .udata = (void *)ev->userdata, .filter = ev->type,
+        .udata = (void *)ev->userdata,
+        .filter = ev->type,
     };
     switch (ev->type) {
       case CLOUDABI_EVENTTYPE_CLOCK:

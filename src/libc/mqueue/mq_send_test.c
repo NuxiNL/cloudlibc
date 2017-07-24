@@ -12,7 +12,9 @@
 TEST(mq_send, bad) {
   mqd_t mqd;
   struct mq_attr attr = {
-      .mq_flags = O_NONBLOCK, .mq_maxmsg = 1, .mq_msgsize = 10,
+      .mq_flags = O_NONBLOCK,
+      .mq_maxmsg = 1,
+      .mq_msgsize = 10,
   };
   ASSERT_EQ(0, mq_init(&mqd, &attr));
 
@@ -43,7 +45,9 @@ static void *pull_message(void *argument) {
 TEST(mq_send, blocking) {
   mqd_t mqd;
   struct mq_attr attr = {
-      .mq_flags = 0, .mq_maxmsg = 1, .mq_msgsize = 5,
+      .mq_flags = 0,
+      .mq_maxmsg = 1,
+      .mq_msgsize = 5,
   };
   ASSERT_EQ(0, mq_init(&mqd, &attr));
   ASSERT_EQ(0, mq_send(mqd, "Hello", 5, 123));
