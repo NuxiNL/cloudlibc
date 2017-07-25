@@ -6,7 +6,6 @@
 #include <common/crt.h>
 #include <common/pthread.h>
 #include <common/refcount.h>
-#include <common/syscall_fallback.h>
 #include <common/tls.h>
 
 #include <argdata_impl.h>
@@ -337,13 +336,8 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 
   // Make it possible to invoke system calls by attaching the
   // implementations provided by the vDSO.
-  // TODO(ed): If the vDSO is missing, we currently fall back to using
-  // implementations that invoke "syscall" directly. These should be
-  // removed as soon as all supported operating systems provide a vDSO.
   if (at_sysinfo_ehdr != NULL)
     link_vdso(&cloudabi_syscalls, at_sysinfo_ehdr);
-  else
-    syscall_fallback_setup(&cloudabi_syscalls);
 
 #if PIE_RELOCATOR
   // Terminate immediately if there was a relocation that we didn't
