@@ -19,6 +19,13 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     return -1;
   }
 
+  // This implementation does not support polling for exceptional
+  // conditions, such as out-of-band data on TCP sockets.
+  if (errorfds != NULL && errorfds->__nfds > 0) {
+    errno = ENOSYS;
+    return -1;
+  }
+
   // Replace NULL pointers by the empty set.
   fd_set empty;
   FD_ZERO(&empty);
@@ -26,8 +33,6 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     readfds = &empty;
   if (writefds == NULL)
     writefds = &empty;
-  if (errorfds == NULL)
-    errorfds = &empty;
 
   // Determine the maximum number of events.
   size_t maxevents = readfds->__nfds + writefds->__nfds + 1;
@@ -93,14 +98,9 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     }
   }
 
-  // Clear result sets. Save a copy of the error set.
+  // Clear and set entries in the result sets.
   FD_ZERO(readfds);
   FD_ZERO(writefds);
-  fd_set oerrorfds;
-  FD_COPY(errorfds, &oerrorfds);
-  FD_ZERO(errorfds);
-
-  // Set entries in the result sets.
   for (size_t i = 0; i < nevents; ++i) {
     const cloudabi_event_t *event = &events[i];
     int fd = event->fd_readwrite.fd;
@@ -108,12 +108,7 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
       readfds->__fds[readfds->__nfds++] = fd;
     } else if (event->type == CLOUDABI_EVENTTYPE_FD_WRITE) {
       writefds->__fds[writefds->__nfds++] = fd;
-    } else {
-      continue;
     }
-
-    if (event->error != 0 && FD_ISSET(fd, &oerrorfds))
-      FD_SET(fd, errorfds);
   }
-  return readfds->__nfds + writefds->__nfds + errorfds->__nfds;
+  return readfds->__nfds + writefds->__nfds;
 }
