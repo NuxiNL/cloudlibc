@@ -128,7 +128,7 @@ TEST(poll, socket) {
     ASSERT_EQ(0, pfds[1].revents);
   }
 
-  // Write some data into it. We can now read from the pipe.
+  // Write some data into it. We can now read from the socket.
   {
     ASSERT_EQ(3, write(fds[1], "Hi\n", 3));
     struct pollfd pfds[] = {
