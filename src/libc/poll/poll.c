@@ -6,6 +6,7 @@
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <poll.h>
+#include <stdbool.h>
 
 int poll(struct pollfd *fds, size_t nfds, int timeout) {
   // Construct events for poll().
@@ -16,6 +17,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
     struct pollfd *pollfd = &fds[i];
     if (pollfd->fd < 0)
       continue;
+    bool created_events = false;
     if ((pollfd->events & POLLRDNORM) != 0) {
       cloudabi_subscription_t *subscription = &subscriptions[nevents++];
       *subscription = (cloudabi_subscription_t){
@@ -24,6 +26,7 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
           .fd_readwrite.fd = pollfd->fd,
           .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
       };
+      created_events = true;
     }
     if ((pollfd->events & POLLWRNORM) != 0) {
       cloudabi_subscription_t *subscription = &subscriptions[nevents++];
@@ -33,6 +36,15 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
           .fd_readwrite.fd = pollfd->fd,
           .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
       };
+      created_events = true;
+    }
+
+    // As entries are decomposed into separate read/write subscriptions,
+    // we cannot detect POLLERR, POLLHUP and POLLNVAL if POLLRDNORM and
+    // POLLWRNORM are not specified. Disallow this for now.
+    if (!created_events) {
+      errno = ENOSYS;
+      return -1;
     }
   }
 

@@ -12,6 +12,16 @@
 #include <time.h>
 #include <unistd.h>
 
+TEST(poll, enosys) {
+  // For now, not setting POLLRDNORM/POLLWRNORM is not supported. Each
+  // entry is decomposed into separate read/write polls, meaning that if
+  // none of these flags are provided, we would simply get stuck
+  // indefinitely.
+  struct pollfd pfd = {.fd = fd_tmp, .events = 0};
+  ASSERT_EQ(-1, poll(&pfd, 1, -1));
+  ASSERT_EQ(ENOSYS, errno);
+}
+
 TEST(poll, pipe) {
   // Poll an empty pipe. Data can be written into it.
   int fds[2];
@@ -41,7 +51,7 @@ TEST(poll, pipe) {
     struct pollfd pfds[] = {
         {.fd = fds[0], .events = POLLRDNORM},
         {.fd = fds[1], .events = POLLWRNORM},
-        {.fd = fds[1], .events = 0},
+        {.fd = -123, .events = POLLRDNORM},
     };
     ASSERT_EQ(2, poll(pfds, __arraycount(pfds), -1));
     ASSERT_EQ(POLLRDNORM, pfds[0].revents);
