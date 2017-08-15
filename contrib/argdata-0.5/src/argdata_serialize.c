@@ -30,36 +30,41 @@ static void encode(const argdata_t *ad, uint8_t *buf, int *fds,
       const uint8_t *ibuf = ad->buffer.buffer;
       size_t ilen = ad->length;
 
-      if (fds != NULL) {
-        // Copy over the field type byte.
-        --ilen;
-        switch ((*buf++ = *ibuf++)) {
-          case ADT_MAP:
-          case ADT_SEQ: {
-            // Scan map and sequence entries for file descriptors.
-            for (;;) {
-              argdata_t iad;
-              if (parse_subfield(&iad, &ibuf, &ilen, ad->buffer.convert_fd,
-                                 ad->buffer.convert_fd_arg) != 0)
-                break;
-              encode_subfield(&iad, &buf, fds, fdslen);
-            }
-            break;
+      // Copy over the field type byte.
+      --ilen;
+      switch ((*buf++ = *ibuf++)) {
+        case ADT_MAP:
+        case ADT_SEQ: {
+          // Scan map and sequence entries for file descriptors.
+          for (;;) {
+            argdata_t iad;
+            if (parse_subfield(&iad, &ibuf, &ilen, ad->buffer.convert_fd,
+                               ad->buffer.convert_fd_arg) != 0)
+              break;
+            encode_subfield(&iad, &buf, fds, fdslen);
           }
-          case ADT_FD: {
-            // Remap file descriptors to be sequential starting at zero.
-            // Map invalid file descriptors to index UINT32_MAX, so that
-            // they also appear as such when deserialized.
-            uint32_t raw_fd;
-            if (parse_fd(&raw_fd, &ibuf, &ilen) == 0) {
-              int fd = ad->buffer.convert_fd(ad->buffer.convert_fd_arg, raw_fd);
-              if (fd >= 0)
-                encode_fd(map_fd(fd, fds, fdslen), &buf);
-              else
-                encode_fd(UINT32_MAX, &buf);
-            }
-            break;
+          break;
+        }
+        case ADT_FD: {
+          // Remap file descriptors to be sequential starting at zero.
+          // Map invalid file descriptors to index UINT32_MAX, so that
+          // they also appear as such when deserialized.
+          //
+          // Hack: if no file descriptor remapping table is provided,
+          // encode the file descriptor number literally. This is used
+          // by cloudabi-run to invoke cloudabi-reexec with the right
+          // file descriptor numbers.
+          uint32_t raw_fd;
+          if (parse_fd(&raw_fd, &ibuf, &ilen) == 0) {
+            int fd = ad->buffer.convert_fd(ad->buffer.convert_fd_arg, raw_fd);
+            if (fd < 0)
+              encode_fd(UINT32_MAX, &buf);
+            else if (fds == NULL)
+              encode_fd(fd, &buf);
+            else
+              encode_fd(map_fd(fd, fds, fdslen), &buf);
           }
+          break;
         }
       }
 

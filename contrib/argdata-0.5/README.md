@@ -49,7 +49,8 @@ Argdata values have one of the following types:
 
 This repository contains a C library for handling argdata. See the
 (well-commented) [argdata.h](src/argdata.h) for the details. A C++ interface is
-available for the same library in [argdata.hpp](src/argdata.hpp).
+available for the same library in [argdata.hpp](src/argdata.hpp). This
+repository also provides [some example source files](examples).
 
 ## Binary encoding
 
@@ -148,5 +149,5 @@ as opposed to integers which use only as many bytes as needed. The reason for
 this, is to allow substitution of file descriptors in encoded argdata. If the
 file descriptors were variable length, changing the value could involve
 resizing and thus re-encoding (part of) the argdata. Being able to substitute
-the these values is useful since in many cases file descriptor numbers cannot
+these values is useful since in many cases file descriptor numbers cannot
 be chosen freely.
