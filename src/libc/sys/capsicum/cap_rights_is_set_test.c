@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -23,5 +23,5 @@ TEST(cap_rights_is_set, example) {
   ASSERT_EQ(&rights,
             cap_rights_set(&rights, CAP_WRITE, CAP_FSTAT, CAP_UNLINKAT));
   ASSERT_TRUE(cap_rights_is_set(&rights, CAP_READ, CAP_WRITE));
-  ASSERT_FALSE(cap_rights_is_set(&rights, CAP_READ, CAP_WRITE, CAP_CONNECT));
+  ASSERT_FALSE(cap_rights_is_set(&rights, CAP_READ, CAP_WRITE, CAP_GETSOCKOPT));
 }

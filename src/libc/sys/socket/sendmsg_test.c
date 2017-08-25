@@ -28,12 +28,6 @@ TEST(sendmsg, bad) {
   ASSERT_EQ(-1, sendmsg(-1, &(struct msghdr){.msg_iovlen = -42}, 0));
   ASSERT_EQ(EMSGSIZE, errno);
 
-  // Not connected.
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  ASSERT_EQ(-1, sendmsg(fd, &message, 0));
-  ASSERT_EQ(ENOTCONN, errno);
-  ASSERT_EQ(0, close(fd));
-
   // Not a socket.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

@@ -21,20 +21,6 @@ TEST(argdata_writer_push, ebadf) {
   argdata_writer_free(aw);
 }
 
-TEST(argdata_writer_push, enotconn) {
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  ASSERT_LE(0, fd);
-
-  // Attempting to send a message across an unconnected socket.
-  argdata_writer_t *aw = argdata_writer_create();
-  ASSERT_NE(NULL, aw);
-  argdata_writer_set(aw, &argdata_null);
-  ASSERT_EQ(ENOTCONN, argdata_writer_push(aw, fd));
-  argdata_writer_free(aw);
-
-  ASSERT_EQ(0, close(fd));
-}
-
 TEST(argdata_writer_push, enotsock) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

@@ -70,19 +70,6 @@ TEST(argdata_reader_pull, emsgsize_fds) {
 }
 #endif
 
-TEST(argdata_reader_pull, enotconn) {
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  ASSERT_LE(0, fd);
-
-  // Attempting to read a message from an unconnected socket.
-  argdata_reader_t *ar = argdata_reader_create(16, 16);
-  ASSERT_NE(NULL, ar);
-  ASSERT_EQ(ENOTCONN, argdata_reader_pull(ar, fd));
-  argdata_reader_free(ar);
-
-  ASSERT_EQ(0, close(fd));
-}
-
 TEST(argdata_reader_pull, pipe) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

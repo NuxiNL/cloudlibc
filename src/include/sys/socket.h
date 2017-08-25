@@ -24,10 +24,6 @@
 // <sys/socket.h> - main sockets header
 //
 // Extensions:
-// - bindat(), connectat():
-//   Allows for binding of UNIX domain sockets without requiring the
-//   global filesystem namespace. Also present on FreeBSD, though having
-//   a different prototype.
 // - CMSG_LEN() and CMSG_SPACE():
 //   Part of RFC 2292 and upcoming versions of POSIX.
 // - PF_*:
@@ -38,8 +34,9 @@
 //   Sending and receiving out-of-band data is unsupported.
 // - SOCK_SEQPACKET and MSG_EOR:
 //   Sequential packet sockets are unsupported.
-// - struct msghdr::msg_name, struct msghdr::msg_namelen, bind(),
-//   connect(), getpeername(), getsockname(), recvfrom() and sendto():
+// - SOMAXCONN, struct msghdr::msg_name, struct msghdr::msg_namelen,
+//   bind(), connect(), getpeername(), getsockname(), listen(),
+//   recvfrom(), sendto() and socket():
 //   Requires global network address space. Sockets don't have addresses
 //   associated with them.
 // - setsockopt():
@@ -111,8 +108,6 @@ struct cmsghdr {
 #define SO_ERROR 2       // Socket error status.
 #define SO_TYPE 3        // Socket type.
 
-#define SOMAXCONN _INT_MAX  // The maximum backlog queue length.
-
 // Input flags for recvmsg().
 #define MSG_PEEK 0x4      // Leave received data in queue.
 #define MSG_WAITALL 0x10  // Attempt to fill the read buffer.
@@ -142,16 +137,12 @@ __BEGIN_DECLS
 struct cmsghdr *CMSG_FIRSTHDR(const struct msghdr *);
 struct cmsghdr *CMSG_NXTHDR(const struct msghdr *, const struct cmsghdr *);
 int accept(int, struct sockaddr *__restrict, size_t *__restrict);
-int bindat(int, int, const char *);
-int connectat(int, int, const char *);
 int getsockopt(int, int, int, void *__restrict, size_t *__restrict);
-int listen(int, int);
 ssize_t recv(int, void *, size_t, int);
 ssize_t recvmsg(int, struct msghdr *, int);
 ssize_t send(int, const void *, size_t, int);
 ssize_t sendmsg(int, const struct msghdr *, int);
 int shutdown(int, int);
-int socket(int, int, int);
 int socketpair(int, int, int, int *);
 __END_DECLS
 

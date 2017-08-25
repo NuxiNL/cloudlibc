@@ -1,24 +1,35 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <sys/socket.h>
 
+#include <assert.h>
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 
-#include "socket_impl.h"
+static_assert(SOCK_DGRAM == CLOUDABI_FILETYPE_SOCKET_DGRAM, "Value mismatch");
+static_assert(SOCK_STREAM == CLOUDABI_FILETYPE_SOCKET_STREAM, "Value mismatch");
 
 int socketpair(int domain, int type, int protocol, int *socket_vector) {
   // We can only allocate UNIX socket pairs. Validate the parameters in
   // userspace.
-  {
-    int error = is_unix_socket(domain, type, protocol);
-    if (error != 0) {
-      errno = error;
+  if (domain != AF_UNIX) {
+    errno = EAFNOSUPPORT;
+    return -1;
+  }
+  switch (type) {
+    case SOCK_DGRAM:
+    case SOCK_STREAM:
+      break;
+    default:
+      errno = EPROTOTYPE;
       return -1;
-    }
+  }
+  if (protocol != 0) {
+    errno = EPROTONOSUPPORT;
+    return -1;
   }
 
   // Create socket pair.

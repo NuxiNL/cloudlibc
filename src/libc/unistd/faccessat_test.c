@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -46,11 +46,12 @@ TEST(faccessat, enoent) {
 }
 
 TEST(faccessat, enotdir) {
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  ASSERT_LE(0, fd);
-  ASSERT_EQ(-1, faccessat(fd, "hello", R_OK, 0));
+  int fds[2];
+  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+  ASSERT_EQ(-1, faccessat(fds[0], "hello", R_OK, 0));
   ASSERT_EQ(ENOTDIR, errno);
-  ASSERT_EQ(0, close(fd));
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
 }
 
 TEST(faccessat, ok) {

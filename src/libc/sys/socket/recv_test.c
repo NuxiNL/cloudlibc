@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -16,12 +16,6 @@ TEST(recv, bad) {
   char b;
   ASSERT_EQ(-1, recv(-1, &b, 1, 0));
   ASSERT_EQ(EBADF, errno);
-
-  // Not connected.
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  ASSERT_EQ(-1, recv(fd, &b, 1, 0));
-  ASSERT_EQ(ENOTCONN, errno);
-  ASSERT_EQ(0, close(fd));
 
   // Not a socket.
   int fds[2];

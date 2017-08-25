@@ -3,8 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/event.h>
 #include <sys/select.h>
-#include <sys/socket.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -14,7 +14,7 @@
 
 TEST_SEPARATE_PROCESS(select, ebadf) {
   // Create a bad file descriptor number.
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+  int fd = kqueue();
   ASSERT_LE(0, fd);
   ASSERT_EQ(0, close(fd));
 

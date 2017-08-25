@@ -12,8 +12,6 @@
 #include <netinet/in.h>
 
 #include <assert.h>
-#include <cloudabi_types.h>
-#include <errno.h>
 #include <stdalign.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -34,32 +32,6 @@ static_assert(sizeof(struct sockaddr_storage) >= sizeof(struct sockaddr_un),
               "struct sockaddr_storage too small");
 static_assert(alignof(struct sockaddr_storage) == alignof(struct sockaddr_un),
               "struct sockaddr_un alignment incorrect");
-
-static_assert(SOCK_DGRAM == CLOUDABI_FILETYPE_SOCKET_DGRAM, "Value mismatch");
-static_assert(SOCK_STREAM == CLOUDABI_FILETYPE_SOCKET_STREAM, "Value mismatch");
-
-// Returns whether a socket domain, type and protocol correspond to a
-// valid UNIX socket.
-static inline int is_unix_socket(int domain, int type, int protocol) {
-  // AF_UNIX indicates a UNIX socket.
-  if (domain != AF_UNIX)
-    return EAFNOSUPPORT;
-
-  // Valid socket types.
-  switch (type) {
-    case SOCK_DGRAM:
-    case SOCK_STREAM:
-      break;
-    default:
-      return EPROTOTYPE;
-  }
-
-  // Protocol number must be zero.
-  if (protocol != 0)
-    return EPROTONOSUPPORT;
-
-  return 0;
-}
 
 // Returns the control message header stored at a provided memory
 // address, ensuring that it is stored within the ancillary data buffer

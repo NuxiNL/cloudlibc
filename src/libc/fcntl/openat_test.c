@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -25,14 +25,6 @@ TEST(openat, bad) {
   ASSERT_EQ(ENOTCAPABLE, errno);
   ASSERT_EQ(-1, openat(fd_tmp, "/etc/passwd", O_WRONLY | O_CREAT));
   ASSERT_EQ(ENOTCAPABLE, errno);
-
-  // Opening a socket should return EOPNOTSUPP.
-  fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  ASSERT_LE(0, fd);
-  ASSERT_EQ(0, bindat(fd, fd_tmp, "socket"));
-  ASSERT_EQ(-1, openat(fd_tmp, "socket", O_RDWR));
-  ASSERT_EQ(EOPNOTSUPP, errno);
-  ASSERT_EQ(0, close(fd));
 }
 
 TEST(openat, o_append) {
@@ -109,22 +101,21 @@ TEST(openat, o_directory) {
     ASSERT_EQ(O_RDONLY, fcntl(fd, F_GETFL));
     cap_rights_t base, inheriting;
     ASSERT_EQ(0, cap_rights_get_explicit(fd, &base, &inheriting));
-    ASSERT_EQ(CAP_BINDAT | CAP_CONNECTAT | CAP_CREATE | CAP_EVENT | CAP_FCNTL |
-                  CAP_FSTAT | CAP_FSTATAT | CAP_FSYNC | CAP_FUTIMES |
-                  CAP_FUTIMESAT | CAP_LINKAT_SOURCE | CAP_LINKAT_TARGET |
-                  CAP_LOOKUP | CAP_MKDIRAT | CAP_MKFIFOAT | CAP_POSIX_FADVISE |
-                  CAP_READDIR | CAP_READLINKAT | CAP_RENAMEAT_SOURCE |
-                  CAP_RENAMEAT_TARGET | CAP_SYMLINKAT | CAP_UNLINKAT,
+    ASSERT_EQ(CAP_CREATE | CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_FSTATAT |
+                  CAP_FSYNC | CAP_FUTIMES | CAP_FUTIMESAT | CAP_LINKAT_SOURCE |
+                  CAP_LINKAT_TARGET | CAP_LOOKUP | CAP_MKDIRAT | CAP_MKFIFOAT |
+                  CAP_POSIX_FADVISE | CAP_READDIR | CAP_READLINKAT |
+                  CAP_RENAMEAT_SOURCE | CAP_RENAMEAT_TARGET | CAP_SYMLINKAT |
+                  CAP_UNLINKAT,
               base.__value);
-    ASSERT_EQ(CAP_BINDAT | CAP_CONNECTAT | CAP_CREATE | CAP_EVENT | CAP_FCNTL |
-                  CAP_FDATASYNC | CAP_FEXECVE | CAP_FSTAT | CAP_FSTATAT |
-                  CAP_FSYNC | CAP_FTRUNCATE | CAP_FUTIMES | CAP_FUTIMESAT |
-                  CAP_LINKAT_SOURCE | CAP_LINKAT_TARGET | CAP_LOOKUP |
-                  CAP_MKDIRAT | CAP_MKFIFOAT | CAP_MMAP_RWX |
-                  CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE | CAP_PREAD |
-                  CAP_PWRITE | CAP_READ | CAP_READDIR | CAP_READLINKAT |
-                  CAP_RENAMEAT_SOURCE | CAP_RENAMEAT_TARGET | CAP_SEEK |
-                  CAP_SYMLINKAT | CAP_UNLINKAT | CAP_WRITE,
+    ASSERT_EQ(CAP_CREATE | CAP_EVENT | CAP_FCNTL | CAP_FDATASYNC | CAP_FEXECVE |
+                  CAP_FSTAT | CAP_FSTATAT | CAP_FSYNC | CAP_FTRUNCATE |
+                  CAP_FUTIMES | CAP_FUTIMESAT | CAP_LINKAT_SOURCE |
+                  CAP_LINKAT_TARGET | CAP_LOOKUP | CAP_MKDIRAT | CAP_MKFIFOAT |
+                  CAP_MMAP_RWX | CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE |
+                  CAP_PREAD | CAP_PWRITE | CAP_READ | CAP_READDIR |
+                  CAP_READLINKAT | CAP_RENAMEAT_SOURCE | CAP_RENAMEAT_TARGET |
+                  CAP_SEEK | CAP_SYMLINKAT | CAP_UNLINKAT | CAP_WRITE,
               inheriting.__value);
     ASSERT_EQ(0, close(fd));
   }

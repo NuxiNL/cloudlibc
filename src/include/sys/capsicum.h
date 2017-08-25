@@ -46,8 +46,10 @@
 //   Not applicable to this environment.
 // - CAP_FSTATFS:
 //   Filesystem-level statistics not available.
-// - CAP_GETPEERNAME and CAP_GETSOCKNAME:
-//   Sockets do not have addresses associated with them.
+// - CAP_BIND, CAP_BINDAT, CAP_CONNECT, CAP_CONNECTAT, CAP_GETPEERNAME,
+//   CAP_GETSOCKNAME and CAP_LISTEN:
+//   Requires global network address space. Sockets don't have addresses
+//   associated with them.
 // - CAP_MKNODAT:
 //   Device nodes cannot be created.
 // - CAP_SETSOCKOPT:
@@ -111,8 +113,6 @@ typedef struct {
 #define CAP_WRITE _CAP_BIT(6)
 
 // VFS methods.
-#define CAP_BINDAT _CAP_BIT(34)
-#define CAP_CONNECTAT _CAP_BIT(36)
 #define CAP_FSTAT _CAP_BIT(19)
 #define CAP_FSTATAT _CAP_BIT(22)
 #define CAP_FUTIMES _CAP_BIT(21)
@@ -130,20 +130,15 @@ typedef struct {
 
 // Socket operations.
 #define CAP_ACCEPT _CAP_BIT(33)
-#define CAP_BIND _CAP_BIT(35)
-#define CAP_CONNECT _CAP_BIT(37)
 #define CAP_GETSOCKOPT _CAP_BIT(40)
-#define CAP_LISTEN _CAP_BIT(38)
 #define CAP_RECV CAP_READ
 #define CAP_SEND CAP_WRITE
 #define CAP_SHUTDOWN _CAP_BIT(39)
 
 // Commonly used socket operations.
-#define CAP_SOCK_CLIENT \
-  (CAP_CONNECT | CAP_GETSOCKOPT | CAP_RECV | CAP_SEND | CAP_SHUTDOWN)
-#define CAP_SOCK_SERVER                                                        \
-  (CAP_ACCEPT | CAP_BIND | CAP_GETSOCKOPT | CAP_LISTEN | CAP_RECV | CAP_SEND | \
-   CAP_SHUTDOWN)
+#define CAP_SOCK_CLIENT (CAP_GETSOCKOPT | CAP_RECV | CAP_SEND | CAP_SHUTDOWN)
+#define CAP_SOCK_SERVER \
+  (CAP_ACCEPT | CAP_GETSOCKOPT | CAP_RECV | CAP_SEND | CAP_SHUTDOWN)
 
 // Polling.
 #define CAP_EVENT _CAP_BIT(28)
@@ -180,7 +175,16 @@ __END_DECLS
 
 #if _CLOUDLIBC_INLINE_FUNCTIONS
 static __inline void _CAP_ALL(cap_rights_t *__rights) {
-  __rights->__value = _CAP_BIT(41) - 1;
+  __rights->__value =
+      CAP_ACCEPT | CAP_CREATE | CAP_EVENT | CAP_FCNTL | CAP_FDATASYNC |
+      CAP_FEXECVE | CAP_FSTAT | CAP_FSTATAT | CAP_FSYNC | CAP_FTRUNCATE |
+      CAP_FUTIMES | CAP_FUTIMESAT | CAP_GETSOCKOPT | CAP_KQUEUE_CHANGE |
+      CAP_KQUEUE_EVENT | CAP_LINKAT_SOURCE | CAP_LINKAT_TARGET | CAP_LOOKUP |
+      CAP_MKDIRAT | CAP_MKFIFOAT | CAP_MMAP | CAP_MMAP_X | CAP_PDWAIT |
+      CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE | CAP_PREAD | CAP_PWRITE |
+      CAP_READ | CAP_READDIR | CAP_READLINKAT | CAP_RENAMEAT_SOURCE |
+      CAP_RENAMEAT_TARGET | CAP_SEEK | CAP_SEEK_TELL | CAP_SHUTDOWN |
+      CAP_SYMLINKAT | CAP_UNLINKAT | CAP_WRITE;
 }
 #define CAP_ALL(rights) _CAP_ALL(rights)
 

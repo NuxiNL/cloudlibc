@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -18,11 +18,11 @@ TEST(cap_rights_set, example) {
   ASSERT_EQ(&rights1, cap_rights_set(&rights1, CAP_READ));
   ASSERT_NE(rights1.__value, rights2.__value);
 
-  // CAP_CONNECT missing in rights2.
-  ASSERT_EQ(&rights1, cap_rights_set(&rights1, CAP_WRITE, CAP_CONNECT));
+  // CAP_GETSOCKOPT missing in rights2.
+  ASSERT_EQ(&rights1, cap_rights_set(&rights1, CAP_WRITE, CAP_GETSOCKOPT));
   ASSERT_NE(rights1.__value, rights2.__value);
 
   // Sets should now be identical.
-  ASSERT_EQ(&rights2, cap_rights_set(&rights2, CAP_CONNECT));
+  ASSERT_EQ(&rights2, cap_rights_set(&rights2, CAP_GETSOCKOPT));
   ASSERT_EQ(rights1.__value, rights2.__value);
 }

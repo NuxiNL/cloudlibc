@@ -124,7 +124,6 @@ backtrace
 backtrace_symbols
 backtrace_symbols_fd
 basename
-bindat
 bsearch
 btowc
 btowc_l
@@ -206,7 +205,6 @@ cnd_wait
 conj
 conjf
 conjl
-connectat
 copysign
 copysignf
 copysignl
@@ -495,7 +493,6 @@ lgammal
 lgammal_r
 linkat
 lio_listio
-listen
 llabs
 lldiv
 llrint
@@ -804,7 +801,6 @@ sinl
 sleep
 snprintf
 snprintf_l
-socket
 socketpair
 sqrt
 sqrtf
