@@ -19,13 +19,9 @@ int socketpair(int domain, int type, int protocol, int *socket_vector) {
     errno = EAFNOSUPPORT;
     return -1;
   }
-  switch (type) {
-    case SOCK_DGRAM:
-    case SOCK_STREAM:
-      break;
-    default:
-      errno = EPROTOTYPE;
-      return -1;
+  if (type != SOCK_DGRAM && type != SOCK_STREAM) {
+    errno = EPROTOTYPE;
+    return -1;
   }
   if (protocol != 0) {
     errno = EPROTONOSUPPORT;
