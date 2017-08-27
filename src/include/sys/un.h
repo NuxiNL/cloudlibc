@@ -25,7 +25,7 @@
 //
 // Features missing:
 // - struct sockaddr_un::sun_path:
-//   Not used by this implementation.
+//   This implementation only supports unnamed socket pairs.
 
 #ifndef _SYS_UN_H_
 #define _SYS_UN_H_
