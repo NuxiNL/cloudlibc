@@ -30,17 +30,16 @@
 //   Present on most other systems.
 //
 // Features missing:
-// - SO_OOBINLINE, MSG_OOB and sockatmark():
-//   Sending and receiving out-of-band data is unsupported.
 // - SOCK_SEQPACKET and MSG_EOR:
 //   Sequential packet sockets are unsupported.
-// - SOMAXCONN, struct msghdr::msg_name, struct msghdr::msg_namelen,
-//   bind(), connect(), getpeername(), getsockname(), listen(),
-//   recvfrom(), sendto() and socket():
-//   Requires global network address space. Sockets don't have addresses
-//   associated with them.
-// - setsockopt():
+// - SO_* and setsockopt():
 //   Socket parameters cannot be adjusted.
+// - SOMAXCONN, struct msghdr::msg_name, struct msghdr::msg_namelen,
+//   accept(), bind(), connect(), getpeername(), getsockname(), listen(),
+//   recvfrom(), sendto() and socket():
+//   Only anonymous, addressless sockets are supported.
+// - MSG_OOB and sockatmark():
+//   Sending and receiving out-of-band data is unsupported.
 
 #ifndef _SYS_SOCKET_H_
 #define _SYS_SOCKET_H_
@@ -104,9 +103,7 @@ struct cmsghdr {
 #define CMSG_LEN(len) __offsetof(struct cmsghdr, __cmsg_data[len])
 #define CMSG_SPACE(len) __roundup(CMSG_LEN(len), _Alignof(struct cmsghdr))
 
-#define SO_ACCEPTCONN 1  // Socket is accepting connections.
-#define SO_ERROR 2       // Socket error status.
-#define SO_TYPE 3        // Socket type.
+#define SO_TYPE 3  // Socket type.
 
 // Input flags for recvmsg().
 #define MSG_PEEK 0x4      // Leave received data in queue.
@@ -136,7 +133,6 @@ struct cmsghdr {
 __BEGIN_DECLS
 struct cmsghdr *CMSG_FIRSTHDR(const struct msghdr *);
 struct cmsghdr *CMSG_NXTHDR(const struct msghdr *, const struct cmsghdr *);
-int accept(int, struct sockaddr *__restrict, size_t *__restrict);
 int getsockopt(int, int, int, void *__restrict, size_t *__restrict);
 ssize_t recv(int, void *, size_t, int);
 ssize_t recvmsg(int, struct msghdr *, int);

@@ -12,35 +12,25 @@
 TEST(getsockopt, bad) {
   // Bad file descriptor.
   size_t len = 0;
-  ASSERT_EQ(-1, getsockopt(-1, SOL_SOCKET, SO_ACCEPTCONN, NULL, &len));
-  ASSERT_EQ(EBADF, errno);
-  ASSERT_EQ(-1, getsockopt(-1, SOL_SOCKET, SO_ERROR, NULL, &len));
-  ASSERT_EQ(EBADF, errno);
   ASSERT_EQ(-1, getsockopt(-1, SOL_SOCKET, SO_TYPE, NULL, &len));
   ASSERT_EQ(EBADF, errno);
 
   // Not a socket.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(-1, getsockopt(fds[0], SOL_SOCKET, SO_ACCEPTCONN, NULL, &len));
-  ASSERT_EQ(ENOTSOCK, errno);
-  ASSERT_EQ(-1, getsockopt(fds[0], SOL_SOCKET, SO_ERROR, NULL, &len));
-  ASSERT_EQ(ENOTSOCK, errno);
   ASSERT_EQ(-1, getsockopt(fds[0], SOL_SOCKET, SO_TYPE, NULL, &len));
   ASSERT_EQ(ENOTSOCK, errno);
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
 
   // Bad level.
-  ASSERT_EQ(-1, getsockopt(-1, 0xdeadc0de, SO_ERROR, NULL, &len));
+  ASSERT_EQ(-1, getsockopt(-1, 0xdeadc0de, SO_TYPE, NULL, &len));
   ASSERT_EQ(ENOPROTOOPT, errno);
 
   // Bad option name.
   ASSERT_EQ(-1, getsockopt(-1, SOL_SOCKET, 0xdeadc0de, NULL, &len));
   ASSERT_EQ(ENOPROTOOPT, errno);
 }
-
-// TODO(ed): Any way to test SO_ERROR?
 
 TEST(getsockopt, type) {
 #define TEST_SOCKTYPE(socktype)                                             \

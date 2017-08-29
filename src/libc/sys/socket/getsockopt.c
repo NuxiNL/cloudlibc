@@ -3,8 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <common/errno.h>
-
 #include <sys/socket.h>
 
 #include <cloudabi_syscalls.h>
@@ -21,29 +19,6 @@ int getsockopt(int socket, int level, int option_name,
 
   int value;
   switch (option_name) {
-    case SO_ACCEPTCONN: {
-      // Socket is accepting incoming connections.
-      cloudabi_sockstat_t ss;
-      cloudabi_errno_t error = cloudabi_sys_sock_stat_get(socket, &ss, 0);
-      if (error != 0) {
-        errno = errno_fixup_socket(socket, error);
-        return -1;
-      }
-      value = (ss.ss_state & CLOUDABI_SOCKSTATE_ACCEPTCONN) != 0;
-      break;
-    }
-    case SO_ERROR: {
-      // Fetch and clear socket error state.
-      cloudabi_sockstat_t ss;
-      cloudabi_errno_t error = cloudabi_sys_sock_stat_get(
-          socket, &ss, CLOUDABI_SOCKSTAT_CLEAR_ERROR);
-      if (error != 0) {
-        errno = errno_fixup_socket(socket, error);
-        return -1;
-      }
-      value = ss.ss_error;
-      break;
-    }
     case SO_TYPE: {
       // Return the type of the socket. This information can simply be
       // obtained by looking at the file descriptor type.
@@ -52,15 +27,12 @@ int getsockopt(int socket, int level, int option_name,
         errno = EBADF;
         return -1;
       }
-      switch (fsb.fs_filetype) {
-        case CLOUDABI_FILETYPE_SOCKET_DGRAM:
-        case CLOUDABI_FILETYPE_SOCKET_STREAM:
-          value = fsb.fs_filetype;
-          break;
-        default:
-          errno = ENOTSOCK;
-          return -1;
+      if (fsb.fs_filetype != CLOUDABI_FILETYPE_SOCKET_DGRAM &&
+          fsb.fs_filetype != CLOUDABI_FILETYPE_SOCKET_STREAM) {
+        errno = ENOTSOCK;
+        return -1;
       }
+      value = fsb.fs_filetype;
       break;
     }
     default: {

@@ -18,11 +18,11 @@ TEST(cap_rights_set, example) {
   ASSERT_EQ(&rights1, cap_rights_set(&rights1, CAP_READ));
   ASSERT_NE(rights1.__value, rights2.__value);
 
-  // CAP_GETSOCKOPT missing in rights2.
-  ASSERT_EQ(&rights1, cap_rights_set(&rights1, CAP_WRITE, CAP_GETSOCKOPT));
+  // CAP_FCNTL missing in rights2.
+  ASSERT_EQ(&rights1, cap_rights_set(&rights1, CAP_WRITE, CAP_FCNTL));
   ASSERT_NE(rights1.__value, rights2.__value);
 
   // Sets should now be identical.
-  ASSERT_EQ(&rights2, cap_rights_set(&rights2, CAP_GETSOCKOPT));
+  ASSERT_EQ(&rights2, cap_rights_set(&rights2, CAP_FCNTL));
   ASSERT_EQ(rights1.__value, rights2.__value);
 }
