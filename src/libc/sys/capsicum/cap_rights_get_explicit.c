@@ -67,8 +67,6 @@ static_assert(CAP_LINKAT_TARGET == CLOUDABI_RIGHT_FILE_LINK_TARGET,
               "Value mismatch");
 static_assert(CAP_MKDIRAT == CLOUDABI_RIGHT_FILE_CREATE_DIRECTORY,
               "Value mismatch");
-static_assert(CAP_MKFIFOAT == CLOUDABI_RIGHT_FILE_CREATE_FIFO,
-              "Value mismatch");
 static_assert(CAP_RENAMEAT_SOURCE == CLOUDABI_RIGHT_FILE_RENAME_SOURCE,
               "Value mismatch");
 static_assert(CAP_RENAMEAT_TARGET == CLOUDABI_RIGHT_FILE_RENAME_TARGET,

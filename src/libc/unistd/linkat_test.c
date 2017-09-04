@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -16,13 +16,15 @@ TEST(linkat, directory) {
   ASSERT_EQ(EPERM, errno);
 }
 
-TEST(linkat, fifo) {
-  ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo1"));
-  ASSERT_EQ(0, linkat(fd_tmp, "fifo1", fd_tmp, "fifo2", 0));
+TEST(linkat, reg) {
+  int fd = openat(fd_tmp, "reg1", O_CREAT | O_WRONLY);
+  ASSERT_LE(0, fd);
+  ASSERT_EQ(0, close(fd));
+  ASSERT_EQ(0, linkat(fd_tmp, "reg1", fd_tmp, "reg2", 0));
 
   struct stat sb1, sb2;
-  ASSERT_EQ(0, fstatat(fd_tmp, "fifo1", &sb1, 0));
-  ASSERT_EQ(0, fstatat(fd_tmp, "fifo2", &sb2, 0));
+  ASSERT_EQ(0, fstatat(fd_tmp, "reg1", &sb1, 0));
+  ASSERT_EQ(0, fstatat(fd_tmp, "reg2", &sb2, 0));
   ASSERT_EQ(sb1.st_dev, sb2.st_dev);
   ASSERT_EQ(sb1.st_ino, sb2.st_ino);
   ASSERT_EQ(2, sb1.st_nlink);

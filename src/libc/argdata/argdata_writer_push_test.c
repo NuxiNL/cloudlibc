@@ -7,6 +7,7 @@
 
 #include <argdata.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <testing.h>
 #include <unistd.h>
 
@@ -22,21 +23,20 @@ TEST(argdata_writer_push, ebadf) {
 }
 
 TEST(argdata_writer_push, enotsock) {
-  int fds[2];
-  ASSERT_EQ(0, pipe(fds));
+  int fd = openat(fd_tmp, "reg1", O_CREAT | O_WRONLY);
+  ASSERT_LE(0, fd);
 
-  // Attempting to push a file descriptor through a pipe.
+  // Attempting to push a file descriptor through a regular file.
   argdata_writer_t *aw = argdata_writer_create();
   ASSERT_NE(NULL, aw);
   argdata_t *ad = argdata_create_fd(fd_tmp);
   ASSERT_NE(NULL, ad);
   argdata_writer_set(aw, ad);
-  ASSERT_EQ(ENOTSOCK, argdata_writer_push(aw, fds[1]));
+  ASSERT_EQ(ENOTSOCK, argdata_writer_push(aw, fd));
   argdata_writer_free(aw);
   argdata_free(ad);
 
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+  ASSERT_EQ(0, close(fd));
 }
 
 TEST_SEPARATE_PROCESS(argdata_writer_push, epipe) {

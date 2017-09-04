@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/event.h>
 #include <sys/socket.h>
 
 #include <errno.h>
@@ -18,24 +19,28 @@ TEST(recv, bad) {
   ASSERT_EQ(EBADF, errno);
 
   // Not a socket.
-  int fds[2];
-  ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(-1, recv(fds[0], &b, 1, 0));
-  ASSERT_EQ(ENOTSOCK, errno);
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+  {
+    int fd = kqueue();
+    ASSERT_LE(0, fd);
+    ASSERT_EQ(-1, recv(fd, &b, 1, 0));
+    ASSERT_EQ(ENOTSOCK, errno);
+    ASSERT_EQ(0, close(fd));
+  }
 
-  // Blocking recv() on non-blocking file descriptor.
-  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
-  ASSERT_EQ(0, fcntl(fds[0], F_SETFL, O_NONBLOCK));
-  ASSERT_EQ(-1, recv(fds[0], &b, 1, 0));
-  ASSERT_TRUE(errno == EAGAIN || errno == EWOULDBLOCK);
+  {
+    // Blocking recv() on non-blocking file descriptor.
+    int fds[2];
+    ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+    ASSERT_EQ(0, fcntl(fds[0], F_SETFL, O_NONBLOCK));
+    ASSERT_EQ(-1, recv(fds[0], &b, 1, 0));
+    ASSERT_TRUE(errno == EAGAIN || errno == EWOULDBLOCK);
 
-  // Bad flags.
-  ASSERT_EQ(-1, recv(fds[0], &b, 1, 0xdeadc0de));
-  ASSERT_EQ(EOPNOTSUPP, errno);
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+    // Bad flags.
+    ASSERT_EQ(-1, recv(fds[0], &b, 1, 0xdeadc0de));
+    ASSERT_EQ(EOPNOTSUPP, errno);
+    ASSERT_EQ(0, close(fds[0]));
+    ASSERT_EQ(0, close(fds[1]));
+  }
 }
 
 TEST(recv, example) {

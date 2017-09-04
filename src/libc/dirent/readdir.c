@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -18,7 +18,7 @@
 static_assert(DT_BLK == CLOUDABI_FILETYPE_BLOCK_DEVICE, "Value mismatch");
 static_assert(DT_CHR == CLOUDABI_FILETYPE_CHARACTER_DEVICE, "Value mismatch");
 static_assert(DT_DIR == CLOUDABI_FILETYPE_DIRECTORY, "Value mismatch");
-static_assert(DT_FIFO == CLOUDABI_FILETYPE_FIFO, "Value mismatch");
+static_assert(DT_FIFO == CLOUDABI_FILETYPE_SOCKET_STREAM, "Value mismatch");
 static_assert(DT_LNK == CLOUDABI_FILETYPE_SYMBOLIC_LINK, "Value mismatch");
 static_assert(DT_REG == CLOUDABI_FILETYPE_REGULAR_FILE, "Value mismatch");
 static_assert(DT_UNKNOWN == CLOUDABI_FILETYPE_UNKNOWN, "Value mismatch");

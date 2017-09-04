@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -46,17 +46,22 @@ TEST(pipe, rights) {
   ASSERT_EQ(0, pipe(fds));
 
   // Validate default rights on both sides of the pipe.
-  cap_rights_t base, inheriting;
+  cap_rights_t base, inheriting, all;
+  CAP_ALL(&all);
   ASSERT_EQ(0, cap_rights_get_explicit(fds[0], &base, &inheriting));
-  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_READ, base.__value);
-  ASSERT_EQ(0, inheriting.__value);
+  ASSERT_EQ(CAP_READ | CAP_WRITE | CAP_FCNTL | CAP_FSTAT | CAP_SOCK_CLIENT |
+                CAP_SOCK_SERVER | CAP_EVENT,
+            base.__value);
+  ASSERT_EQ(all.__value, inheriting.__value);
   ASSERT_EQ(0, cap_rights_get_explicit(fds[1], &base, &inheriting));
-  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_WRITE, base.__value);
-  ASSERT_EQ(0, inheriting.__value);
+  ASSERT_EQ(CAP_READ | CAP_WRITE | CAP_FCNTL | CAP_FSTAT | CAP_SOCK_CLIENT |
+                CAP_SOCK_SERVER | CAP_EVENT,
+            base.__value);
+  ASSERT_EQ(all.__value, inheriting.__value);
 
   // Validate access modes.
-  ASSERT_EQ(O_RDONLY, fcntl(fds[0], F_GETFL));
-  ASSERT_EQ(O_WRONLY, fcntl(fds[1], F_GETFL));
+  ASSERT_EQ(O_RDWR, fcntl(fds[0], F_GETFL));
+  ASSERT_EQ(O_RDWR, fcntl(fds[1], F_GETFL));
 
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));

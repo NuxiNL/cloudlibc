@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -21,8 +21,10 @@
 
 TEST(utimensat, example) {
   // Create a FIFO and a symlink pointing to it.
-  ASSERT_EQ(0, symlinkat("fifo", fd_tmp, "symlink"));
-  ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
+  ASSERT_EQ(0, symlinkat("reg", fd_tmp, "symlink"));
+  int fd = openat(fd_tmp, "reg", O_CREAT | O_WRONLY);
+  ASSERT_LE(0, fd);
+  ASSERT_EQ(0, close(fd));
 
   // Set timestamps to known initial values.
   {
@@ -43,8 +45,8 @@ TEST(utimensat, example) {
   TIMESPEC_EQ(123, 456, sb.st_atim);
   TIMESPEC_EQ(234, 567, sb.st_mtim);
 
-  ASSERT_EQ(0, fstatat(fd_tmp, "fifo", &sb, 0));
-  ASSERT_TRUE(S_ISFIFO(sb.st_mode));
+  ASSERT_EQ(0, fstatat(fd_tmp, "reg", &sb, 0));
+  ASSERT_TRUE(S_ISREG(sb.st_mode));
   TIMESPEC_EQ(345, 678, sb.st_atim);
   TIMESPEC_EQ(901, 234, sb.st_mtim);
 
@@ -57,14 +59,14 @@ TEST(utimensat, example) {
   {
     struct timespec times[2] = {{.tv_nsec = UTIME_OMIT},
                                 {.tv_sec = 555, .tv_nsec = 666}};
-    ASSERT_EQ(0, utimensat(fd_tmp, "fifo", times, 0));
+    ASSERT_EQ(0, utimensat(fd_tmp, "reg", times, 0));
   }
 
   ASSERT_EQ(0, fstatat(fd_tmp, "symlink", &sb, AT_SYMLINK_NOFOLLOW));
   TIMESPEC_EQ(777, 888, sb.st_atim);
   TIMESPEC_EQ(234, 567, sb.st_mtim);
 
-  ASSERT_EQ(0, fstatat(fd_tmp, "fifo", &sb, 0));
+  ASSERT_EQ(0, fstatat(fd_tmp, "reg", &sb, 0));
   TIMESPEC_EQ(345, 678, sb.st_atim);
   TIMESPEC_EQ(555, 666, sb.st_mtim);
 
@@ -77,26 +79,26 @@ TEST(utimensat, example) {
   {
     struct timespec times[2] = {{.tv_nsec = UTIME_NOW},
                                 {.tv_nsec = UTIME_OMIT}};
-    ASSERT_EQ(0, utimensat(fd_tmp, "fifo", times, 0));
+    ASSERT_EQ(0, utimensat(fd_tmp, "reg", times, 0));
   }
 
   ASSERT_EQ(0, fstatat(fd_tmp, "symlink", &sb, AT_SYMLINK_NOFOLLOW));
   TIMESPEC_EQ(777, 888, sb.st_atim);
   ASSERT_LE(TIME_PASSED, sb.st_mtime);
 
-  ASSERT_EQ(0, fstatat(fd_tmp, "fifo", &sb, 0));
+  ASSERT_EQ(0, fstatat(fd_tmp, "reg", &sb, 0));
   ASSERT_LE(TIME_PASSED, sb.st_atime);
   TIMESPEC_EQ(555, 666, sb.st_mtim);
 
   // Null pointer.
   ASSERT_EQ(0, utimensat(fd_tmp, "symlink", NULL, AT_SYMLINK_NOFOLLOW));
-  ASSERT_EQ(0, utimensat(fd_tmp, "fifo", NULL, 0));
+  ASSERT_EQ(0, utimensat(fd_tmp, "reg", NULL, 0));
 
   ASSERT_EQ(0, fstatat(fd_tmp, "symlink", &sb, AT_SYMLINK_NOFOLLOW));
   ASSERT_LE(TIME_PASSED, sb.st_atime);
   ASSERT_LE(TIME_PASSED, sb.st_mtime);
 
-  ASSERT_EQ(0, fstatat(fd_tmp, "fifo", &sb, 0));
+  ASSERT_EQ(0, fstatat(fd_tmp, "reg", &sb, 0));
   ASSERT_LE(TIME_PASSED, sb.st_atime);
   ASSERT_LE(TIME_PASSED, sb.st_mtime);
 }

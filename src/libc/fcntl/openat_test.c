@@ -79,14 +79,11 @@ TEST(openat, o_directory) {
     ASSERT_LE(0, fd);
     ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(0, close(fd));
-    ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
     ASSERT_EQ(0, mkdirat(fd_tmp, "dir"));
   }
 
   // Attempt to open them with O_DIRECTORY.
   ASSERT_EQ(-1, openat(fd_tmp, "file", O_RDONLY | O_DIRECTORY));
-  ASSERT_EQ(ENOTDIR, errno);
-  ASSERT_EQ(-1, openat(fd_tmp, "fifo", O_RDONLY | O_DIRECTORY));
   ASSERT_EQ(ENOTDIR, errno);
   ASSERT_EQ(-1, openat(fd_tmp, "dir", O_RDWR | O_DIRECTORY));
   ASSERT_EQ(EISDIR, errno);
@@ -103,7 +100,7 @@ TEST(openat, o_directory) {
     ASSERT_EQ(0, cap_rights_get_explicit(fd, &base, &inheriting));
     ASSERT_EQ(CAP_CREATE | CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_FSTATAT |
                   CAP_FSYNC | CAP_FUTIMES | CAP_FUTIMESAT | CAP_LINKAT_SOURCE |
-                  CAP_LINKAT_TARGET | CAP_LOOKUP | CAP_MKDIRAT | CAP_MKFIFOAT |
+                  CAP_LINKAT_TARGET | CAP_LOOKUP | CAP_MKDIRAT |
                   CAP_POSIX_FADVISE | CAP_READDIR | CAP_READLINKAT |
                   CAP_RENAMEAT_SOURCE | CAP_RENAMEAT_TARGET | CAP_SYMLINKAT |
                   CAP_UNLINKAT,
@@ -111,11 +108,11 @@ TEST(openat, o_directory) {
     ASSERT_EQ(CAP_CREATE | CAP_EVENT | CAP_FCNTL | CAP_FDATASYNC | CAP_FEXECVE |
                   CAP_FSTAT | CAP_FSTATAT | CAP_FSYNC | CAP_FTRUNCATE |
                   CAP_FUTIMES | CAP_FUTIMESAT | CAP_LINKAT_SOURCE |
-                  CAP_LINKAT_TARGET | CAP_LOOKUP | CAP_MKDIRAT | CAP_MKFIFOAT |
-                  CAP_MMAP_RWX | CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE |
-                  CAP_PREAD | CAP_PWRITE | CAP_READ | CAP_READDIR |
-                  CAP_READLINKAT | CAP_RENAMEAT_SOURCE | CAP_RENAMEAT_TARGET |
-                  CAP_SEEK | CAP_SYMLINKAT | CAP_UNLINKAT | CAP_WRITE,
+                  CAP_LINKAT_TARGET | CAP_LOOKUP | CAP_MKDIRAT | CAP_MMAP_RWX |
+                  CAP_POSIX_FADVISE | CAP_POSIX_FALLOCATE | CAP_PREAD |
+                  CAP_PWRITE | CAP_READ | CAP_READDIR | CAP_READLINKAT |
+                  CAP_RENAMEAT_SOURCE | CAP_RENAMEAT_TARGET | CAP_SEEK |
+                  CAP_SYMLINKAT | CAP_UNLINKAT | CAP_WRITE,
               inheriting.__value);
     ASSERT_EQ(0, close(fd));
   }
@@ -141,38 +138,6 @@ TEST(openat, o_excl) {
     ASSERT_EQ(O_WRONLY, fcntl(fd, F_GETFL));
     ASSERT_EQ(0, close(fd));
   }
-}
-
-TEST(openat, o_nonblock) {
-  // Create a FIFO and open it for reading.
-  ASSERT_EQ(0, mkfifoat(fd_tmp, "test"));
-  int fd1 = openat(fd_tmp, "test", O_RDONLY | O_NONBLOCK);
-  ASSERT_LE(0, fd1);
-  ASSERT_EQ(O_RDONLY | O_NONBLOCK, fcntl(fd1, F_GETFL));
-  cap_rights_t base, inheriting;
-  ASSERT_EQ(0, cap_rights_get_explicit(fd1, &base, &inheriting));
-  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_READ, base.__value);
-  ASSERT_EQ(0, inheriting.__value);
-
-  int fd2 = openat(fd_tmp, "test", O_WRONLY);
-  ASSERT_LE(0, fd2);
-  ASSERT_EQ(O_WRONLY, fcntl(fd2, F_GETFL));
-  ASSERT_EQ(0, cap_rights_get_explicit(fd2, &base, &inheriting));
-  ASSERT_EQ(CAP_EVENT | CAP_FCNTL | CAP_FSTAT | CAP_WRITE, base.__value);
-  ASSERT_EQ(0, inheriting.__value);
-
-  // Reading should fail.
-  char buf[10];
-  ASSERT_EQ(-1, read(fd1, buf, sizeof(buf)));
-  ASSERT_EQ(EAGAIN, errno);
-
-  ASSERT_EQ(0, close(fd1));
-  ASSERT_EQ(0, close(fd2));
-
-  // Cannot open a FIFO without a reader.
-  ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
-  ASSERT_EQ(-1, openat(fd_tmp, "fifo", O_WRONLY | O_NONBLOCK));
-  ASSERT_EQ(ENXIO, errno);
 }
 
 TEST(openat, o_trunc) {

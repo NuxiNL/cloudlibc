@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -28,6 +28,10 @@
 //   Present on most systems and used by many pieces of software.
 // - struct crypt_data and crypt_r():
 //   Thread-safe replacement for crypt(). Present on Linux as well.
+// - pipe():
+//   As this implementation does not distinguish between pipes and
+//   socket pairs, this function creates a bidirectional pipe that
+//   supports socket operations.
 // - useconds_t and usleep():
 //   Still used actively, as it was part of POSIX up to issue 6.
 //

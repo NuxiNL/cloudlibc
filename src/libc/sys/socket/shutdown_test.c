@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/event.h>
 #include <sys/socket.h>
 
 #include <errno.h>
@@ -16,19 +17,23 @@ TEST(shutdown, bad) {
   ASSERT_EQ(EBADF, errno);
 
   // Bad shutdown type.
-  int fds[2];
-  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
-  ASSERT_EQ(-1, shutdown(fds[0], 0xdeadc0de));
-  ASSERT_EQ(EINVAL, errno);
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+  {
+    int fds[2];
+    ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+    ASSERT_EQ(-1, shutdown(fds[0], 0xdeadc0de));
+    ASSERT_EQ(EINVAL, errno);
+    ASSERT_EQ(0, close(fds[0]));
+    ASSERT_EQ(0, close(fds[1]));
+  }
 
   // Not a socket.
-  ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(-1, shutdown(fds[0], SHUT_RDWR));
-  ASSERT_EQ(ENOTSOCK, errno);
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+  {
+    int fd = kqueue();
+    ASSERT_LE(0, fd);
+    ASSERT_EQ(-1, shutdown(fd, SHUT_RDWR));
+    ASSERT_EQ(ENOTSOCK, errno);
+    ASSERT_EQ(0, close(fd));
+  }
 }
 
 TEST(shutdown, example) {

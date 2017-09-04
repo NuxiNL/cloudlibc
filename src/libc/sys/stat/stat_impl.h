@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -57,9 +57,6 @@ static inline void to_public_stat(const cloudabi_filestat_t *in,
       break;
     case CLOUDABI_FILETYPE_DIRECTORY:
       out->st_mode |= S_IFDIR;
-      break;
-    case CLOUDABI_FILETYPE_FIFO:
-      out->st_mode |= S_IFIFO;
       break;
     case CLOUDABI_FILETYPE_REGULAR_FILE:
       out->st_mode |= S_IFREG;

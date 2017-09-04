@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -9,8 +9,8 @@
 
 int pipe(int *fildes) {
   cloudabi_fd_t readfd, writefd;
-  cloudabi_errno_t error =
-      cloudabi_sys_fd_create2(CLOUDABI_FILETYPE_FIFO, &readfd, &writefd);
+  cloudabi_errno_t error = cloudabi_sys_fd_create2(
+      CLOUDABI_FILETYPE_SOCKET_STREAM, &readfd, &writefd);
   if (error != 0) {
     errno = error;
     return -1;

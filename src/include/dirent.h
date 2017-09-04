@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -65,7 +65,7 @@ struct dirent {
 #define DT_BLK 0x10   // Block device.
 #define DT_CHR 0x11   // Character device.
 #define DT_DIR 0x20   // Directory.
-#define DT_FIFO 0x30  // FIFO.
+#define DT_FIFO 0x82  // FIFO.
 #define DT_LNK 0x90   // Symbolic link.
 #define DT_REG 0x60   // Regular file.
 

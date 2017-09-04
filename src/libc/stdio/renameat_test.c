@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -29,16 +29,18 @@ TEST(renameat, example) {
   int fd2 = openat(fd_tmp, "dir2", O_RDONLY | O_DIRECTORY);
   ASSERT_LE(0, fd2);
 
-  // Create a FIFO in directory 1 and move it to directory 2.
-  ASSERT_EQ(0, mkfifoat(fd1, "fifo1"));
-  ASSERT_EQ(0, renameat(fd1, "fifo1", fd2, "fifo2"));
+  // Create a regular file in directory 1 and move it to directory 2.
+  int fdreg = openat(fd1, "reg1", O_CREAT | O_WRONLY);
+  ASSERT_LE(0, fdreg);
+  ASSERT_EQ(0, close(fdreg));
+  ASSERT_EQ(0, renameat(fd1, "reg1", fd2, "reg2"));
 
-  // Validate that the FIFO has moved.
+  // Validate that the regular file has moved.
   struct stat sb;
-  ASSERT_EQ(-1, fstatat(fd1, "fifo1", &sb, 0));
+  ASSERT_EQ(-1, fstatat(fd1, "reg1", &sb, 0));
   ASSERT_EQ(ENOENT, errno);
-  ASSERT_EQ(0, fstatat(fd2, "fifo2", &sb, 0));
-  ASSERT_TRUE(S_ISFIFO(sb.st_mode));
+  ASSERT_EQ(0, fstatat(fd2, "reg2", &sb, 0));
+  ASSERT_TRUE(S_ISREG(sb.st_mode));
 
   ASSERT_EQ(0, close(fd1));
   ASSERT_EQ(0, close(fd2));

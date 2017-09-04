@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -26,7 +26,7 @@
 // Extensions:
 // - S_TYPEISPOLL() and S_TYPEISPROC():
 //   Matches descriptors created by kqueue() and pdfork().
-// - mkdirat() and mkfifoat():
+// - mkdirat():
 //   Make mode_t parameter optional, as file permissions do not exist.
 //
 // Features missing:
@@ -35,6 +35,8 @@
 //   Filesystem access control management not available.
 // - chmod(), lstat(), mkdir(), mkfifo() and stat():
 //   Requires global filesystem namespace.
+// - mkfifoat():
+//   Only anonymous pipes are supported.
 
 #ifndef _SYS_STAT_H_
 #define _SYS_STAT_H_
@@ -92,10 +94,12 @@ struct stat {
 #define S_IFBLK 0x6000   // Block device.
 #define S_IFCHR 0x2000   // Character device.
 #define S_IFDIR 0x4000   // Directory.
-#define S_IFIFO 0x1000   // FIFO.
 #define S_IFLNK 0xa000   // Symbolic link.
 #define S_IFREG 0x8000   // Regular file.
 #define S_IFSOCK 0xc000  // Socket.
+
+// In this environment, FIFOs are identical to sockets.
+#define S_IFIFO 0xc000
 
 // File mode bits. These flags have no effect in this environment, but
 // are purely provided to keep standards conformant code compile.
@@ -139,7 +143,6 @@ int fstat(int, struct stat *);
 int fstatat(int, const char *__restrict, struct stat *__restrict, int);
 int futimens(int, const struct timespec *);
 int mkdirat(int, const char *, ...);
-int mkfifoat(int, const char *, ...);
 int utimensat(int, const char *, const struct timespec *, int);
 __END_DECLS
 

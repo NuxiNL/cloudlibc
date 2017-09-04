@@ -3,6 +3,7 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -29,19 +30,23 @@ TEST(sendmsg, bad) {
   ASSERT_EQ(EMSGSIZE, errno);
 
   // Not a socket.
-  int fds[2];
-  ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(-1, sendmsg(fds[0], &message, 0));
-  ASSERT_EQ(ENOTSOCK, errno);
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+  {
+    int fd = kqueue();
+    ASSERT_LE(0, fd);
+    ASSERT_EQ(-1, sendmsg(fd, &message, 0));
+    ASSERT_EQ(ENOTSOCK, errno);
+    ASSERT_EQ(0, close(fd));
+  }
 
   // Bad flags.
-  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
-  ASSERT_EQ(-1, sendmsg(fds[0], &message, 0xdeadc0de));
-  ASSERT_EQ(EOPNOTSUPP, errno);
-  ASSERT_EQ(0, close(fds[0]));
-  ASSERT_EQ(0, close(fds[1]));
+  {
+    int fds[2];
+    ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+    ASSERT_EQ(-1, sendmsg(fds[0], &message, 0xdeadc0de));
+    ASSERT_EQ(EOPNOTSUPP, errno);
+    ASSERT_EQ(0, close(fds[0]));
+    ASSERT_EQ(0, close(fds[1]));
+  }
 }
 
 TEST_SEPARATE_PROCESS(sendmsg, epipe) {
@@ -150,7 +155,8 @@ TEST(sendmsg, fd_passing) {
   // socket, using SCM_RIGHTS.
   {
     int pfds[2];
-    ASSERT_EQ(0, pipe(pfds));
+    pfds[0] = fd_tmp;
+    pfds[1] = openat(fd_tmp, "file", O_CREAT | O_WRONLY);
     _Alignas(struct cmsghdr) char cmsgbuf[CMSG_SPACE(sizeof(pfds))];
     struct msghdr msghdr = {
         .msg_control = cmsgbuf,
@@ -174,7 +180,6 @@ TEST(sendmsg, fd_passing) {
     msghdr.msg_iov = &iov;
     msghdr.msg_iovlen = 1;
     ASSERT_EQ(5, sendmsg(sfds[0], &msghdr, 0));
-    ASSERT_EQ(0, close(pfds[0]));
     ASSERT_EQ(0, close(pfds[1]));
   }
 
@@ -205,12 +210,10 @@ TEST(sendmsg, fd_passing) {
       // Validate and close received file descriptors.
       struct stat sb;
       ASSERT_EQ(0, fstat(pfds[0], &sb));
-      ASSERT_TRUE(S_ISFIFO(sb.st_mode));
-      ASSERT_EQ(O_RDONLY, fcntl(pfds[0], F_GETFL) & O_ACCMODE);
+      ASSERT_TRUE(S_ISDIR(sb.st_mode));
       ASSERT_EQ(0, close(pfds[0]));
       ASSERT_EQ(0, fstat(pfds[1], &sb));
-      ASSERT_TRUE(S_ISFIFO(sb.st_mode));
-      ASSERT_EQ(O_WRONLY, fcntl(pfds[1], F_GETFL) & O_ACCMODE);
+      ASSERT_TRUE(S_ISREG(sb.st_mode));
       ASSERT_EQ(0, close(pfds[1]));
     }
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -16,11 +16,13 @@ TEST(unlinkat, examples) {
   ASSERT_EQ(-1, unlinkat(fd_tmp, "nonexistent", AT_REMOVEDIR));
   ASSERT_EQ(ENOENT, errno);
 
-  ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
-  ASSERT_EQ(-1, unlinkat(fd_tmp, "fifo", AT_REMOVEDIR));
+  int fd = openat(fd_tmp, "reg", O_CREAT | O_WRONLY);
+  ASSERT_LE(0, fd);
+  ASSERT_EQ(0, close(fd));
+  ASSERT_EQ(-1, unlinkat(fd_tmp, "reg", AT_REMOVEDIR));
   ASSERT_EQ(ENOTDIR, errno);
-  ASSERT_EQ(0, unlinkat(fd_tmp, "fifo", 0));
-  ASSERT_EQ(-1, unlinkat(fd_tmp, "fifo", 0));
+  ASSERT_EQ(0, unlinkat(fd_tmp, "reg", 0));
+  ASSERT_EQ(-1, unlinkat(fd_tmp, "reg", 0));
   ASSERT_EQ(ENOENT, errno);
 
   ASSERT_EQ(0, mkdirat(fd_tmp, "dir"));
@@ -47,12 +49,14 @@ TEST(unlinkat, symlinks_directory) {
   ASSERT_EQ(ENOENT, errno);
 }
 
-TEST(unlinkat, symlinks_fifo) {
+TEST(unlinkat, symlinks_reg) {
   // The trailing slash should only be usable on symlinks to
   // directories. On symlinks to non-directories, we should always
   // return ENOTDIR.
-  ASSERT_EQ(0, mkfifoat(fd_tmp, "fifo"));
-  ASSERT_EQ(0, symlinkat("fifo", fd_tmp, "symlink"));
+  int fd = openat(fd_tmp, "reg", O_CREAT | O_WRONLY);
+  ASSERT_LE(0, fd);
+  ASSERT_EQ(0, close(fd));
+  ASSERT_EQ(0, symlinkat("reg", fd_tmp, "symlink"));
   ASSERT_EQ(-1, unlinkat(fd_tmp, "symlink/", AT_REMOVEDIR));
   ASSERT_EQ(ENOTDIR, errno);
   ASSERT_EQ(-1, unlinkat(fd_tmp, "symlink/", 0));
