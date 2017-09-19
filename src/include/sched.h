@@ -32,7 +32,7 @@
 #ifndef _SCHED_H_
 #define _SCHED_H_
 
-#include <_/struct/timespec.h>
+#include <_/struct/timespec.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _TIME_T_DECLARED

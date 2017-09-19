@@ -30,7 +30,7 @@
 #ifndef _SYS_UIO_H_
 #define _SYS_UIO_H_
 
-#include <_/struct/iovec.h>
+#include <_/struct/iovec.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _SIZE_T_DECLARED

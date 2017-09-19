@@ -24,7 +24,7 @@
 #ifndef ___TIME_SELECT_H_
 #define ___TIME_SELECT_H_
 
-#include <_/struct/timeval.h>
+#include <_/struct/timeval.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _SUSECONDS_T_DECLARED

@@ -35,7 +35,7 @@
 #ifndef _SYS_SELECT_H_
 #define _SYS_SELECT_H_
 
-#include <_/struct/timespec.h>
+#include <_/struct/timespec.h>  // IWYU pragma: export
 #include <_/time_select.h>
 
 #ifndef _SIGSET_T_DECLARED

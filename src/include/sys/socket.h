@@ -45,7 +45,7 @@
 #define _SYS_SOCKET_H_
 
 #include <_/limits.h>
-#include <_/struct/iovec.h>
+#include <_/struct/iovec.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _SA_FAMILY_T_DECLARED

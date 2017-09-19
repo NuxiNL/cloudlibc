@@ -35,7 +35,7 @@
 #ifndef _SYS_RESOURCE_H_
 #define _SYS_RESOURCE_H_
 
-#include <_/struct/timeval.h>
+#include <_/struct/timeval.h>  // IWYU pragma: export
 #include <_/types.h>
 
 // Target specifiers for getrusage().

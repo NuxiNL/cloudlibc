@@ -54,7 +54,7 @@
 #define _TIME_H_
 
 #include <_/limits.h>
-#include <_/struct/timespec.h>
+#include <_/struct/timespec.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _CLOCK_T_DECLARED

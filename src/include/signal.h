@@ -41,7 +41,7 @@
 #define _SIGNAL_H_
 
 #include <_/limits.h>
-#include <_/struct/timespec.h>
+#include <_/struct/timespec.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _PTHREAD_ATTR_T_DECLARED

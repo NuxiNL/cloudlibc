@@ -41,7 +41,7 @@
 #ifndef _SYS_STAT_H_
 #define _SYS_STAT_H_
 
-#include <_/struct/timespec.h>
+#include <_/struct/timespec.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _DEV_T_DECLARED

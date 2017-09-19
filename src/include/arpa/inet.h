@@ -38,7 +38,7 @@
 #define _ARPA_INET_H_
 
 #include <_/endian.h>
-#include <_/struct/in_addr.h>
+#include <_/struct/in_addr.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _IN_ADDR_T_DECLARED

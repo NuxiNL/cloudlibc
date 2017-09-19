@@ -33,7 +33,7 @@
 #ifndef _AIO_H_
 #define _AIO_H_
 
-#include <_/struct/timespec.h>
+#include <_/struct/timespec.h>  // IWYU pragma: export
 #include <_/types.h>
 
 #ifndef _OFF_T_DECLARED
