@@ -6,7 +6,6 @@
 #ifndef COMMON_PTHREAD_H
 #define COMMON_PTHREAD_H
 
-#include <common/pthread.h>
 #include <common/queue.h>
 #include <common/refcount.h>
 
