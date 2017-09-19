@@ -6,6 +6,7 @@
 #include <sys/ioctl.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <testing.h>
 #include <unistd.h>
 
@@ -24,8 +25,31 @@ TEST(ioctl, bad) {
   ASSERT_EQ(0, close(fds[1]));
 }
 
-TEST(ioctl, example) {
-  // Bad command.
+TEST(ioctl, fionbio) {
+  // Pipe should be blocking by default.
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(0, fcntl(fds[0], F_GETFL) & O_NONBLOCK);
+
+  // Enable blocking flag.
+  {
+    int on = 1;
+    ASSERT_EQ(0, ioctl(fds[0], FIONBIO, &on));
+    ASSERT_EQ(O_NONBLOCK, fcntl(fds[0], F_GETFL) & O_NONBLOCK);
+  }
+
+  // Disable it again.
+  {
+    int off = 0;
+    ASSERT_EQ(0, ioctl(fds[0], FIONBIO, &off));
+    ASSERT_EQ(0, fcntl(fds[0], F_GETFL) & O_NONBLOCK);
+  }
+
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
+}
+
+TEST(ioctl, fionread) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
 

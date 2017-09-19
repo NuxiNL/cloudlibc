@@ -55,6 +55,32 @@ int ioctl(int fildes, int request, ...) {
       *result = 0;
       return 0;
     }
+    case FIONBIO: {
+      // Obtain the current file descriptor flags.
+      cloudabi_fdstat_t fds;
+      cloudabi_errno_t error = cloudabi_sys_fd_stat_get(fildes, &fds);
+      if (error != 0) {
+        errno = error;
+        return -1;
+      }
+
+      // Toggle the non-blocking flag based on the argument.
+      va_list ap;
+      va_start(ap, request);
+      if (*va_arg(ap, const int *) != 0)
+        fds.fs_flags |= CLOUDABI_FDFLAG_NONBLOCK;
+      else
+        fds.fs_flags &= ~CLOUDABI_FDFLAG_NONBLOCK;
+      va_end(ap);
+
+      // Update the file descriptor flags.
+      error = cloudabi_sys_fd_stat_put(fildes, &fds, CLOUDABI_FDSTAT_FLAGS);
+      if (error != 0) {
+        errno = error;
+        return -1;
+      }
+      return 0;
+    }
     default:
       // Invalid request.
       errno = EINVAL;

@@ -29,6 +29,7 @@
 #include <_/cdefs.h>
 
 #define FIONREAD 1  // Returns the number of bytes available for reading.
+#define FIONBIO 2   // Sets or clears the non-blocking flag.
 
 __BEGIN_DECLS
 int ioctl(int, int, ...);
