@@ -487,7 +487,6 @@ lgammaf_r
 lgammal
 lgammal_r
 linkat
-lio_listio
 llabs
 lldiv
 llrint
