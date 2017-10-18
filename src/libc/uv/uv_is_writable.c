@@ -7,5 +7,5 @@
 
 int uv_is_writable(const uv_stream_t *handle) {
   // This implementation only supports bidirectional streams.
-  return handle->__fd >= 0;
+  return handle->__fd != -1;
 }

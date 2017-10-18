@@ -27,7 +27,11 @@ static void __uv_stream_stop(uv_stream_t *handle) {
     __uv_writing_streams_remove(handle);
   }
 
+  // Set the file descriptor number to -2, as opposed to -1. This allows
+  // us to distinguish between the initial state (__fd == -1) and valid
+  // (__fd >= 0).
   cloudabi_sys_fd_close(handle->__fd);
+  handle->__fd = -2;
 }
 
 void uv_close(uv_handle_t *handle, uv_close_cb close_cb) {
