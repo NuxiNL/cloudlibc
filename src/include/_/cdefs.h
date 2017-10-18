@@ -54,6 +54,8 @@
 #endif
 
 #define __offsetof(type, member) __builtin_offsetof(type, member)
+#define __containerof(ptr, type, member) \
+  ((type *)((char *)(ptr)-__offsetof(type, member)))
 
 #define __extname(x) __asm__(x)
 #define __malloc_like __attribute__((__malloc__))
