@@ -15,7 +15,6 @@ long sysconf(int name) {
     // Options that are always supported.
     case _SC_2_C_BIND:
     case _SC_ADVISORY_INFO:
-    case _SC_ASYNCHRONOUS_IO:
     case _SC_BARRIERS:
     case _SC_CLOCK_SELECTION:
     case _SC_CPUTIME:
@@ -57,6 +56,7 @@ long sysconf(int name) {
     case _SC_2_PBS_TRACK:
     case _SC_2_SW_DEV:
     case _SC_2_UPE:
+    case _SC_ASYNCHRONOUS_IO:
     case _SC_JOB_CONTROL:
     case _SC_MEMLOCK:
     case _SC_PRIORITIZED_IO:

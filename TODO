@@ -1,6 +1,5 @@
 Work in progress:
 -----------------
-aio.h		 5%	Almost all functionality missing
 regex.h		 5%	Not started
 libintl.h	10%	Add something like gettext_l()
 fnmatch.h	50%	Depends on regex.h. Still needs tests
@@ -24,7 +23,7 @@ syslog.h tar.h testing.h tgmath.h threads.h time.h uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
-ftw.h glob.h grp.h ndbm.h netinet/tcp.h nl_types.h pwd.h spawn.h
+aio.h ftw.h glob.h grp.h ndbm.h netinet/tcp.h nl_types.h pwd.h spawn.h
 stropts.h sys/ipc.h sys/msg.h sys/sem.h sys/shm.h sys/statvfs.h
 sys/utsname.h sys/wait.h termios.h trace.h ulimit.h utime.h utmpx.h
 wordexp.h
