@@ -17,6 +17,7 @@ int ioctl(int fildes, int request, ...) {
           {
               .type = CLOUDABI_EVENTTYPE_FD_READ,
               .fd_readwrite.fd = fildes,
+              .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
           },
           {
               .type = CLOUDABI_EVENTTYPE_CLOCK,
