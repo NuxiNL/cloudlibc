@@ -4,7 +4,6 @@ regex.h		 5%	Not started
 libintl.h	10%	Add something like gettext_l()
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 wchar.h		60%	Some stdio bits still missing. Many tests missing.
-sys/event.h	70%	Needs more tests
 stdio.h		80%	Needs more tests
 string.h	80%	strcoll() and strxfrm() still missing
 unistd.h	90%	fpathconf() still missing

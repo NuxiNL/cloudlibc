@@ -4,8 +4,6 @@
 // See the LICENSE file for details.
 
 #include <sys/capsicum.h>
-#include <sys/event.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
 
 #include <errno.h>
@@ -15,10 +13,12 @@
 
 TEST(openat, bad) {
   // Invalid file descriptor type.
-  int fd = kqueue();
-  ASSERT_EQ(-1, openat(fd, "hello", O_WRONLY | O_CREAT));
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(-1, openat(fds[0], "hello", O_WRONLY | O_CREAT));
   ASSERT_EQ(ENOTDIR, errno);
-  ASSERT_EQ(0, close(fd));
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
 
   // Extension: access is confined to the directory.
   ASSERT_EQ(-1, openat(fd_tmp, "../foo", O_WRONLY | O_CREAT));

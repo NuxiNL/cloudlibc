@@ -3,7 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
@@ -31,11 +30,8 @@ TEST(sendmsg, bad) {
 
   // Not a socket.
   {
-    int fd = kqueue();
-    ASSERT_LE(0, fd);
-    ASSERT_EQ(-1, sendmsg(fd, &message, 0));
+    ASSERT_EQ(-1, sendmsg(fd_tmp, &message, 0));
     ASSERT_EQ(ENOTSOCK, errno);
-    ASSERT_EQ(0, close(fd));
   }
 
   // Bad flags.

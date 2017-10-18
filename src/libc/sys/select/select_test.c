@@ -3,7 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/event.h>
 #include <sys/select.h>
 
 #include <errno.h>
@@ -14,26 +13,27 @@
 
 TEST_SEPARATE_PROCESS(select, ebadf) {
   // Create a bad file descriptor number.
-  int fd = kqueue();
-  ASSERT_LE(0, fd);
-  ASSERT_EQ(0, close(fd));
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
 
   // If the 'nfds' argument of select() doesn't exceed our bad file
   // descriptor number, polling should be unaffected.
   {
     fd_set readfds;
     FD_ZERO(&readfds);
-    FD_SET(fd, &readfds);
+    FD_SET(fds[0], &readfds);
     struct timeval timeout = {};
-    ASSERT_EQ(0, select(fd, &readfds, NULL, NULL, &timeout));
+    ASSERT_EQ(0, select(fds[0], &readfds, NULL, NULL, &timeout));
   }
 
   // In case it does, we should trigger EBADF.
   {
     fd_set readfds;
     FD_ZERO(&readfds);
-    FD_SET(fd, &readfds);
-    ASSERT_EQ(-1, select(fd + 1, &readfds, NULL, NULL, NULL));
+    FD_SET(fds[0], &readfds);
+    ASSERT_EQ(-1, select(fds[0] + 1, &readfds, NULL, NULL, NULL));
     ASSERT_EQ(EBADF, errno);
   }
 }

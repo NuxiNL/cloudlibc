@@ -24,8 +24,8 @@
 // <sys/stat.h> - data returned by the stat() function
 //
 // Extensions:
-// - S_TYPEISPOLL() and S_TYPEISPROC():
-//   Matches descriptors created by kqueue() and pdfork().
+// - S_TYPEISPROC():
+//   Matches descriptors created by pdfork().
 // - mkdirat():
 //   Make mode_t parameter optional, as file permissions do not exist.
 //
@@ -135,7 +135,6 @@ struct stat {
 
 __BEGIN_DECLS
 _Bool S_TYPEISMQ(const struct stat *);
-_Bool S_TYPEISPOLL(const struct stat *);
 _Bool S_TYPEISPROC(const struct stat *);
 _Bool S_TYPEISSEM(const struct stat *);
 _Bool S_TYPEISSHM(const struct stat *);
@@ -151,11 +150,6 @@ static __inline _Bool _S_TYPEISMQ(const struct stat *__buf __unused) {
   return 0;
 }
 #define S_TYPEISMQ(buf) _S_TYPEISMQ(buf)
-
-static __inline _Bool _S_TYPEISPOLL(const struct stat *__buf) {
-  return __buf->__st_filetype == 0x40;
-}
-#define S_TYPEISPOLL(buf) _S_TYPEISPOLL(buf)
 
 static __inline _Bool _S_TYPEISPROC(const struct stat *__buf) {
   return __buf->__st_filetype == 0x50;

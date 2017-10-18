@@ -1,11 +1,10 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/event.h>
-
 #include <errno.h>
+#include <fcntl.h>
 #include <testing.h>
 #include <unistd.h>
 
@@ -16,8 +15,7 @@ TEST(read, bad) {
   ASSERT_EQ(EBADF, errno);
 
   // Invalid file descriptor type.
-  int fd = kqueue();
-  ASSERT_LE(0, fd);
+  int fd = openat(fd_tmp, "Hello", O_CREAT | O_WRONLY);
   ASSERT_EQ(-1, read(fd, &b, 1));
   ASSERT_EQ(EBADF, errno);
   ASSERT_EQ(0, close(fd));

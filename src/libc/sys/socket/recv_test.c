@@ -3,7 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/event.h>
 #include <sys/socket.h>
 
 #include <errno.h>
@@ -20,11 +19,8 @@ TEST(recv, bad) {
 
   // Not a socket.
   {
-    int fd = kqueue();
-    ASSERT_LE(0, fd);
-    ASSERT_EQ(-1, recv(fd, &b, 1, 0));
+    ASSERT_EQ(-1, recv(fd_tmp, &b, 1, 0));
     ASSERT_EQ(ENOTSOCK, errno);
-    ASSERT_EQ(0, close(fd));
   }
 
   {

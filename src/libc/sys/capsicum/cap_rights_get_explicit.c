@@ -85,12 +85,6 @@ static_assert(CAP_SOCK_SERVER ==
                    CLOUDABI_RIGHT_SOCK_SHUTDOWN),
               "Value mismatch");
 static_assert(CAP_EVENT == CLOUDABI_RIGHT_POLL_FD_READWRITE, "Value mismatch");
-static_assert(CAP_KQUEUE ==
-                  (CLOUDABI_RIGHT_POLL_MODIFY | CLOUDABI_RIGHT_POLL_WAIT),
-              "Value mismatch");
-static_assert(CAP_KQUEUE_CHANGE == CLOUDABI_RIGHT_POLL_MODIFY,
-              "Value mismatch");
-static_assert(CAP_KQUEUE_EVENT == CLOUDABI_RIGHT_POLL_WAIT, "Value mismatch");
 static_assert(CAP_PDWAIT == CLOUDABI_RIGHT_POLL_PROC_TERMINATE,
               "Value mismatch");
 

@@ -3,7 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/event.h>
 #include <sys/socket.h>
 
 #include <errno.h>
@@ -17,11 +16,8 @@ TEST(getsockopt, bad) {
   ASSERT_EQ(EBADF, errno);
 
   // Not a socket.
-  int fd = kqueue();
-  ASSERT_LE(0, fd);
-  ASSERT_EQ(-1, getsockopt(fd, SOL_SOCKET, SO_TYPE, NULL, &len));
+  ASSERT_EQ(-1, getsockopt(fd_tmp, SOL_SOCKET, SO_TYPE, NULL, &len));
   ASSERT_EQ(ENOTSOCK, errno);
-  ASSERT_EQ(0, close(fd));
 
   // Bad level.
   ASSERT_EQ(-1, getsockopt(-1, 0xdeadc0de, SO_TYPE, NULL, &len));
