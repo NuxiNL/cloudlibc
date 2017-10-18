@@ -54,7 +54,8 @@ echo "=> Compiling sources"
 make -k -j8 -f _obj/Makefile all
 
 echo "=> Linking libraries"
-rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a _obj/librt.a _obj/libxnet.a
+rm -f _obj/libc.a _obj/libm.a _obj/libpthread.a \
+    _obj/librt.a _obj/libuv.a _obj/libxnet.a
 find src/libc ${ARGDATA} ${DOUBLE_CONVERSION} ${JEMALLOC} ${MUSL} \
     \( -name '*.[cS]' -o -name '*.cc' \) \! -name "*_test.c" | sort |
     sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.[a-zA-Z]*$/\.o/' |
@@ -63,6 +64,7 @@ ${AR} rcs _obj/libargdata.a
 ${AR} rcs _obj/libm.a
 ${AR} rcs _obj/libpthread.a
 ${AR} rcs _obj/librt.a
+${AR} rcs _obj/libuv.a
 ${AR} rcs _obj/libxnet.a
 cp _obj/src_crt_crt0.o _obj/crt0.o
 cp _obj/src_crt_crtbegin.o _obj/crtbegin.o

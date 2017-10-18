@@ -17,7 +17,8 @@ install -m 444 contrib/argdata-0.5/src/argdata.h \
 echo "=> Installing libraries"
 mkdir -p "${DESTDIR}${PREFIX}/lib"
 install -m 444 _obj/libargdata.a _obj/libc.a _obj/libm.a _obj/libpthread.a \
-    _obj/librt.a _obj/libxnet.a _obj/crt0.o _obj/crtbegin.o _obj/crtend.o \
+    _obj/librt.a _obj/libuv.a _obj/libxnet.a \
+    _obj/crt0.o _obj/crtbegin.o _obj/crtend.o \
     "${DESTDIR}${PREFIX}/lib/"
 
 echo "=> Installing unit tests"

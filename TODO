@@ -2,6 +2,7 @@ Work in progress:
 -----------------
 regex.h		 5%	Not started
 libintl.h	10%	Add something like gettext_l()
+uv.h		25%	Still lots of features and testing coverage needed
 fnmatch.h	50%	Depends on regex.h. Still needs tests
 wchar.h		60%	Some stdio bits still missing. Many tests missing.
 stdio.h		80%	Needs more tests
