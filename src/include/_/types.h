@@ -245,11 +245,17 @@ typedef struct {
 typedef struct {
   _Atomic(__uint32_t) __state;
 } __pthread_once_t;
+typedef struct {
+  __pthread_lock_t __lock;
+  __pthread_cond_t __cond;
+  __uint32_t __value;
+} __sem_t;
 
 _Static_assert(sizeof(__pthread_barrier_t) == 56, "ABI broken");
 _Static_assert(sizeof(__pthread_cond_t) == 12, "ABI broken");
 _Static_assert(sizeof(__pthread_lock_t) == 32, "ABI broken");
 _Static_assert(sizeof(__pthread_once_t) == 4, "ABI broken");
+_Static_assert(sizeof(__sem_t) == 48, "ABI broken");
 
 typedef struct {
   int __detachstate;

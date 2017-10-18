@@ -32,14 +32,9 @@
 
 #include <_/types.h>
 
-struct timespec;
+typedef __sem_t sem_t;
 
-typedef struct {
-  __pthread_lock_t __lock;
-  __pthread_cond_t __cond;
-  __uint32_t __value;
-} sem_t;
-_Static_assert(sizeof(sem_t) == 48, "ABI broken");
+struct timespec;
 
 __BEGIN_DECLS
 int sem_destroy(sem_t *);
