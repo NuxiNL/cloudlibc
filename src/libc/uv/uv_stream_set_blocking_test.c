@@ -39,3 +39,5 @@ TEST(uv_stream_set_blocking, example) {
   ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
+
+// TODO(ed): Also add tests for unopened and closed streams!
