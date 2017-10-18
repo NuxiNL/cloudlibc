@@ -89,7 +89,7 @@ static const char *compute_combined_zone_abbreviation(const char *era,
   // See if there's already a copy of this string in the stringpool.
   static _Atomic(struct cached_abbreviation *) table = ATOMIC_VAR_INIT(NULL);
   struct cached_abbreviation *first =
-      atomic_load_explicit(&table, memory_order_relaxed);
+      atomic_load_explicit(&table, memory_order_acquire);
   for (struct cached_abbreviation *ca = first; ca != NULL; ca = ca->next)
     if (strcmp(abbreviation, ca->abbreviation) == 0)
       return ca->abbreviation;
