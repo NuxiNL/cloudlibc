@@ -1,9 +1,10 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
 #include <sys/procdesc.h>
+#include <sys/select.h>
 #include <sys/stat.h>
 
 #include <errno.h>
@@ -13,6 +14,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,9 +52,28 @@ void __testing_printf(const char *format, ...) {
   va_end(ap);
 }
 
+static void check_leaked_file_descriptors(const fd_set *used_file_descriptors) {
+  bool terminate = false;
+  for (int fd = 0; fd < FD_SETSIZE; ++fd) {
+    bool should_exist = FD_ISSET(fd, used_file_descriptors);
+    struct stat sb;
+    bool does_exist = fstat(fd, &sb) == 0;
+    if (!should_exist && does_exist) {
+      terminate = true;
+      __testing_printf("File descriptor %d leaked by test\n", fd);
+    } else if (should_exist && !does_exist) {
+      terminate = true;
+      __testing_printf("File descriptor %d destroyed by test\n", fd);
+    }
+  }
+  if (terminate)
+    abort();
+}
+
 struct testing_state {
   int tmpdir;                           // Temporary directory.
   _Atomic(struct __test *) test_start;  // First test to be executed.
+  const fd_set *used_file_descriptors;  // File descriptor leaking check.
 };
 
 static void run_test(struct testing_state *state, struct __test *test) {
@@ -102,6 +123,8 @@ static void *run_tests(void *arg) {
     } else {
       // Run the test from within the current process.
       run_test(state, test);
+      if (state->used_file_descriptors != NULL)
+        check_leaked_file_descriptors(state->used_file_descriptors);
     }
   }
 }
@@ -116,6 +139,15 @@ void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
   pthread_mutex_lock(&testing_lock);
   testing_logfile = logfile;
 
+  // Record which file descriptors are in use for leak checking.
+  fd_set used_file_descriptors;
+  FD_ZERO(&used_file_descriptors);
+  for (int fd = 0; fd < FD_SETSIZE; ++fd) {
+    struct stat sb;
+    if (fstat(fd, &sb) == 0)
+      FD_SET(fd, &used_file_descriptors);
+  }
+
   struct testing_state state = {
       .tmpdir = tmpdir,
       .test_start = __start___tests,
@@ -123,6 +155,7 @@ void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
 
   if (nthreads <= 1) {
     // Run tests sequentially.
+    state.used_file_descriptors = &used_file_descriptors;
     run_tests(&state);
   } else {
     // Spawn a number of threads to execute the tests in parallel.
@@ -131,6 +164,7 @@ void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
       ASSERT_EQ(0, pthread_create(&threads[i], NULL, run_tests, &state));
     for (size_t i = 0; i < nthreads; ++i)
       ASSERT_EQ(0, pthread_join(threads[i], NULL));
+    check_leaked_file_descriptors(&used_file_descriptors);
   }
 
   __testing_printf("=> Successfully executed %zu tests\n",
