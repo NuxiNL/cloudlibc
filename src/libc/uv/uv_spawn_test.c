@@ -20,7 +20,7 @@ static void unused_cb(uv_process_t *handle, int64_t exit_status,
   ASSERT_TRUE(false);
 }
 
-TEST(fexecve, eacces) {
+TEST(uv_spawn, eacces) {
   uv_loop_t loop;
   ASSERT_EQ(0, uv_loop_init(&loop));
 
@@ -36,7 +36,7 @@ TEST(fexecve, eacces) {
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
 
-TEST(fexecve, ebadf1) {
+TEST(uv_spawn, ebadf1) {
   uv_loop_t loop;
   ASSERT_EQ(0, uv_loop_init(&loop));
 
@@ -52,7 +52,7 @@ TEST(fexecve, ebadf1) {
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
 
-TEST(fexecve, ebadf2) {
+TEST(uv_spawn, ebadf2) {
   int executable = openat(fd_tmp, "Hello", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);
   uv_loop_t loop;
@@ -71,7 +71,7 @@ TEST(fexecve, ebadf2) {
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
 
-TEST(fexecve, enoexec) {
+TEST(uv_spawn, enoexec) {
   // Create an empty file.
   int executable = openat(fd_tmp, "Hello", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);
