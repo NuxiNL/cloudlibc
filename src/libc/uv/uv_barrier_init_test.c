@@ -18,7 +18,7 @@ static void wait(void *arg) {
   int ret = uv_barrier_wait(&state->barrier);
   ASSERT_LE(0, ret);
   if (ret > 0)
-    ASSERT_EQ(false, atomic_exchange(&state->got_serializer, true));
+    ASSERT_FALSE(atomic_exchange(&state->got_serializer, true));
 }
 
 TEST(uv_barrier_init, example) {
