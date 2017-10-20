@@ -222,6 +222,7 @@ _UV_TAILQ_DECLARE_FUNCTIONS(__uv_active_processes, uv_process_t);
 _UV_TAILQ_DECLARE_FUNCTIONS(__uv_handles, uv_handle_t);
 _UV_TAILQ_DECLARE_FUNCTIONS(__uv_reading_polls, uv_poll_t);
 _UV_TAILQ_DECLARE_FUNCTIONS(__uv_reading_streams, uv_stream_t);
+_UV_TAILQ_DECLARE_FUNCTIONS(__uv_shutdowns, uv_shutdown_t);
 _UV_TAILQ_DECLARE_FUNCTIONS(__uv_writes, uv_write_t);
 _UV_TAILQ_DECLARE_FUNCTIONS(__uv_writing_polls, uv_poll_t);
 _UV_TAILQ_DECLARE_FUNCTIONS(__uv_writing_streams, uv_stream_t);
@@ -294,6 +295,7 @@ static inline void __uv_stream_init(uv_loop_t *loop, uv_stream_t *handle,
   __uv_handle_init(loop, (uv_handle_t *)handle, type);
   handle->write_queue_size = 0;
 
+  __uv_shutdowns_init(&handle->__shutdown_queue);
   __uv_writes_init(&handle->__write_queue);
   handle->__ipc = ipc;
   handle->__fd = -1;
@@ -315,6 +317,24 @@ static inline int __uv_stream_open(uv_stream_t *handle, int fd) {
 
   handle->__fd = fd;
   return 0;
+}
+
+static inline void __uv_stream_start_writing(uv_stream_t *handle) {
+  if (__uv_shutdowns_empty(&handle->__shutdown_queue) &&
+      __uv_writes_empty(&handle->__write_queue)) {
+    // TODO(ed): This is incorrect w.r.t. reads!
+    __uv_writing_streams_insert_last(&handle->loop->__writing_streams, handle);
+    __uv_handle_start((uv_handle_t *)handle);
+  }
+}
+
+static inline void __uv_stream_stop_writing(uv_stream_t *handle) {
+  if (__uv_shutdowns_empty(&handle->__shutdown_queue) &&
+      __uv_writes_empty(&handle->__write_queue)) {
+    // TODO(ed): This is incorrect w.r.t. reads!
+    __uv_handle_stop((uv_handle_t *)handle);
+    __uv_writing_streams_remove(handle);
+  }
 }
 
 static inline void __uv_process_stop(uv_process_t *handle) {

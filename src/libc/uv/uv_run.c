@@ -110,18 +110,6 @@ static void __uv_stream_fd_read(uv_stream_t *handle,
   assert(0 && "Not implemented");
 }
 
-static void __uv_stream_finish_first_write(uv_stream_t *handle, int status) {
-  uv_write_t *write = __uv_writes_first(&handle->__write_queue);
-  free(write->__bufs);
-  __uv_writes_remove(write);
-  if (__uv_writes_empty(&handle->__write_queue)) {
-    // TODO(ed): This is incorrect w.r.t. reads!
-    __uv_handle_stop((uv_handle_t *)handle);
-    __uv_writing_streams_remove(handle);
-  }
-  write->__cb(write, status);
-}
-
 static void __uv_stream_fd_write(uv_stream_t *handle,
                                  const cloudabi_event_t *event) {
   // This code assumes uv_buf_t and cloudabi_ciovec_t are identical.
@@ -137,6 +125,7 @@ static void __uv_stream_fd_write(uv_stream_t *handle,
       "Size mismatch");
   static_assert(sizeof(cloudabi_ciovec_t) == sizeof(uv_buf_t), "Size mismatch");
 
+  // Process write requests.
   while (!__uv_writes_empty(&handle->__write_queue)) {
     // Determine the number of iovecs to write. Be conservative by
     // limiting the number to _XOPEN_IOV_MAX, as more may cause the
@@ -180,15 +169,15 @@ static void __uv_stream_fd_write(uv_stream_t *handle,
         nwritten -= write->__bufs[write->__nbufs_done++].len;
       }
 
-      if (write->__nbufs_done == write->__nbufs_total) {
-        // Write finished. Complete it.
-        assert(nwritten == 0 && "Wrote more bytes than in the request");
-        __uv_stream_finish_first_write(handle, 0);
-      } else {
+      if (write->__nbufs_done < write->__nbufs_total) {
         // Write not finished yet. Trim data that has been written.
         write->__bufs[write->__nbufs_done].base += nwritten;
         write->__bufs[write->__nbufs_done].len -= nwritten;
+        continue;
       }
+
+      // Write finished. Complete it.
+      assert(nwritten == 0 && "Wrote more bytes than in the request");
     } else if (error == CLOUDABI_EAGAIN) {
       // File descriptor is now blocking again. Stop writing.
       break;
@@ -196,13 +185,26 @@ static void __uv_stream_fd_write(uv_stream_t *handle,
       // Write failed. Discard the request.
       for (unsigned int i = write->__nbufs_done; i < write->__nbufs_total; ++i)
         handle->write_queue_size -= write->__bufs[i].len;
-      __uv_stream_finish_first_write(handle, -error);
     }
-  }
 
+    free(write->__bufs);
+    __uv_writes_remove(write);
+    __uv_stream_stop_writing(handle);
+    write->__cb(write, -error);
+  }
   assert(handle->write_queue_size == 0 && "Write queue size handling mismatch");
 
-  // TODO(ed): Perform shutdown().
+  // Process shutdown requests.
+  if (!__uv_shutdowns_empty(&handle->__shutdown_queue)) {
+    cloudabi_errno_t error =
+        cloudabi_sys_sock_shutdown(handle->__fd, CLOUDABI_SHUT_WR);
+    do {
+      uv_shutdown_t *shutdown = __uv_shutdowns_first(&handle->__shutdown_queue);
+      __uv_shutdowns_remove(shutdown);
+      __uv_stream_stop_writing(handle);
+      shutdown->__cb(shutdown, -error);
+    } while (!__uv_shutdowns_empty(&handle->__shutdown_queue));
+  }
 }
 
 static void run_closing_handles(uv_loop_t *loop) {

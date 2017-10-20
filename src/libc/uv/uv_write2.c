@@ -37,13 +37,8 @@ int uv_write2(uv_write_t *req, uv_stream_t *handle, const uv_buf_t *bufs,
   req->__cb = cb;
   __uv_req_init((uv_req_t *)req, UV_WRITE);
 
-  // Start polling the file descriptor.
-  if (__uv_writes_empty(&handle->__write_queue)) {
-    __uv_writing_streams_insert_last(&handle->loop->__writing_streams, handle);
-    __uv_handle_start((uv_handle_t *)handle);
-  }
-
   // Enqueue the write request.
+  __uv_stream_start_writing(handle);
   __uv_writes_insert_last(&handle->__write_queue, req);
   for (unsigned int i = 0; i < req->__nbufs_total; ++i)
     handle->write_queue_size += req->__bufs[i].len;

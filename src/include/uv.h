@@ -245,7 +245,8 @@ _UV_TAILQ_DECLARE_STRUCTURES(__uv_active_processes);
 _UV_TAILQ_DECLARE_STRUCTURES(__uv_handles);
 _UV_TAILQ_DECLARE_STRUCTURES(__uv_reading_polls);
 _UV_TAILQ_DECLARE_STRUCTURES(__uv_reading_streams);
-_UV_TAILQ_DECLARE_STRUCTURES(__uv_writes);  // TODO(ed): Use STAILQ?
+_UV_TAILQ_DECLARE_STRUCTURES(__uv_shutdowns);  // TODO(ed): Use STAILQ?
+_UV_TAILQ_DECLARE_STRUCTURES(__uv_writes);     // TODO(ed): Use STAILQ?
 _UV_TAILQ_DECLARE_STRUCTURES(__uv_writing_polls);
 _UV_TAILQ_DECLARE_STRUCTURES(__uv_writing_streams);
 
@@ -546,6 +547,7 @@ struct __uv_stream {
                                                                 \
   size_t write_queue_size;                                      \
                                                                 \
+  struct __uv_shutdowns_head __shutdown_queue;                  \
   struct __uv_writes_head __write_queue;                        \
   _Bool __ipc;                                                  \
   int __fd;                                                     \
@@ -558,6 +560,9 @@ struct __uv_shutdown {
   _UV_REQ_FIELDS
 
   uv_stream_t *handle;
+
+  uv_shutdown_cb __cb;
+  struct __uv_shutdowns_entry __uv_shutdowns_entry;
 };
 
 struct __uv_write {
@@ -570,7 +575,6 @@ struct __uv_write {
   unsigned int __nbufs_done;
   unsigned int __nbufs_total;
   uv_write_cb __cb;
-
   struct __uv_writes_entry __uv_writes_entry;
 };
 
