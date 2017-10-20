@@ -152,6 +152,11 @@ static void crash_result(uv_process_t *handle, int64_t exit_status,
   *(bool *)handle->data = true;
 }
 
+static void close_cb(uv_handle_t *handle) {
+  ASSERT_FALSE(*(bool *)handle->data);
+  *(bool *)handle->data = true;
+}
+
 TEST(uv_spawn, sigfpe) {
   // Create our faulty executable.
   int executable = openat(fd_tmp, "Crash", O_CREAT | O_WRONLY);
@@ -180,6 +185,12 @@ TEST(uv_spawn, sigfpe) {
   handle.data = &terminated;
   ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
   ASSERT_TRUE(terminated);
+
+  bool closed = false;
+  handle.data = &closed;
+  uv_close((uv_handle_t *)&handle, close_cb);
+  ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT_TRUE(closed);
 
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
