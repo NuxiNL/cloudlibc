@@ -9,9 +9,10 @@
 #include "uv_impl.h"
 
 int uv_loop_close(uv_loop_t *loop) {
-  // TODO(ed): Free memory and return UV_EBUSY when needed.
-  __uv_active_timers_destroy(&loop->__active_timers);
+  if (!__uv_handles_empty(&loop->__handles))
+    return UV_EBUSY;
 
+  __uv_active_timers_destroy(&loop->__active_timers);
   free(loop->__subscriptions_buffer);
   free(loop->__events_buffer);
   return 0;
