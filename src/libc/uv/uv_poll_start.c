@@ -3,9 +3,28 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <stdbool.h>
 #include <uv.h>
 
+#include "uv_impl.h"
+
 int uv_poll_start(uv_poll_t *handle, int events, uv_poll_cb cb) {
-  // TODO(ed): Implement!
-  return UV_ENOSYS;
+  uv_poll_stop(handle);
+
+  handle->__events = events;
+  handle->__cb = cb;
+
+  uv_loop_t *loop = handle->loop;
+  bool enabled = false;
+  if ((events & UV_READABLE) != 0) {
+    __uv_reading_polls_insert_last(&loop->__reading_polls, handle);
+    enabled = true;
+  }
+  if ((events & UV_WRITABLE) != 0) {
+    __uv_writing_polls_insert_last(&loop->__writing_polls, handle);
+    enabled = true;
+  }
+  if (enabled)
+    __uv_handle_start((uv_handle_t *)handle);
+  return 0;
 }

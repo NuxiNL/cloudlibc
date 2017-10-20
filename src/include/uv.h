@@ -66,6 +66,7 @@ typedef int uv_os_sock_t;
 typedef struct __uv_async uv_async_t;
 typedef struct __uv_buf uv_buf_t;
 typedef struct __uv_handle uv_handle_t;
+typedef struct __uv_poll uv_poll_t;
 typedef struct __uv_process uv_process_t;
 typedef struct __uv_shutdown uv_shutdown_t;
 typedef struct __uv_stream uv_stream_t;
@@ -479,14 +480,18 @@ __END_DECLS
 // uv_poll_t - Poll handle.
 //
 
-typedef struct {
+typedef void (*uv_poll_cb)(uv_poll_t *, int, int);
+
+struct __uv_poll {
   _UV_HANDLE_FIELDS
+
   int __fd;
+  uv_poll_cb __cb;
+  int __events;
+  int __revents;
   struct __uv_reading_polls_entry __uv_reading_polls_entry;
   struct __uv_writing_polls_entry __uv_writing_polls_entry;
-} uv_poll_t;
-
-typedef void (*uv_poll_cb)(uv_poll_t *, int, int);
+};
 
 enum uv_poll_event {
   UV_READABLE = 0x1,

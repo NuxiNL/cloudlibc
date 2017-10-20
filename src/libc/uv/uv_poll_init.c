@@ -10,9 +10,9 @@
 int uv_poll_init(uv_loop_t *loop, uv_poll_t *handle, int fd) {
   __uv_handle_init(loop, (uv_handle_t *)handle, UV_POLL);
 
-  // TODO(ed): Make the file descriptor non-blocking.
-
-  handle->__fd = -1;
+  handle->__fd = fd;
+  handle->__events = 0;
+  handle->__revents = 0;
   return 0;
 }
 
