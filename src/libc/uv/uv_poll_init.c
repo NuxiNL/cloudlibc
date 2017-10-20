@@ -12,7 +12,6 @@ int uv_poll_init(uv_loop_t *loop, uv_poll_t *handle, int fd) {
 
   handle->__fd = fd;
   handle->__events = 0;
-  handle->__revents = 0;
   return 0;
 }
 

@@ -65,11 +65,20 @@ static void __uv_async_fd_read(uv_async_t *handle,
 static void __uv_poll_fd_read(uv_poll_t *handle,
                               const cloudabi_event_t *event) {
   // TODO(ed): Implement.
+  assert((handle->__events & UV_READABLE) != 0 &&
+         "Unnecessarily polled handle for reading");
   assert(0 && "Not implemented");
 }
 
 static void __uv_poll_fd_write(uv_poll_t *handle,
                                const cloudabi_event_t *event) {
+  // TODO(ed): Implement.
+  assert((handle->__events & UV_WRITABLE) != 0 &&
+         "Unnecessarily polled handle for reading");
+  assert(0 && "Not implemented");
+}
+
+static void __uv_poll_trigger(uv_poll_t *handle) {
   // TODO(ed): Implement.
   assert(0 && "Not implemented");
 }
@@ -224,6 +233,8 @@ static int do_poll(uv_loop_t *loop, int timeout) {
     };
   }
   FOREACH(uv_poll_t, poll, __uv_reading_polls, &loop->__reading_polls) {
+    assert(poll->__revents == 0 &&
+           "Poll object still has pending events from a previous run");
     cloudabi_subscription_t *sub;
     if (!allocate_subscription(loop, &nsubscriptions, &sub))
       return UV_ENOMEM;
@@ -235,6 +246,8 @@ static int do_poll(uv_loop_t *loop, int timeout) {
     };
   }
   FOREACH(uv_poll_t, poll, __uv_writing_polls, &loop->__writing_polls) {
+    assert(poll->__revents == 0 &&
+           "Poll object still has pending events from a previous run");
     cloudabi_subscription_t *sub;
     if (!allocate_subscription(loop, &nsubscriptions, &sub))
       return UV_ENOMEM;
@@ -295,6 +308,8 @@ static int do_poll(uv_loop_t *loop, int timeout) {
     };
   }
 
+  // Grow the events buffer to match the number of subscriptions.
+  // Otherwise we wouldn't be able to extract all triggering events.
   if (loop->__events_capacity < nsubscriptions) {
     cloudabi_event_t *events =
         reallocarray(loop->__events_buffer, sizeof(cloudabi_event_t),
@@ -305,6 +320,7 @@ static int do_poll(uv_loop_t *loop, int timeout) {
     loop->__events_capacity = loop->__subscriptions_capacity;
   }
 
+  // Go to sleep.
   cloudabi_event_t *events = loop->__events_buffer;
   size_t ntriggered;
   cloudabi_errno_t error = cloudabi_sys_poll(
@@ -312,6 +328,29 @@ static int do_poll(uv_loop_t *loop, int timeout) {
   if (error != 0)
     return -error;
 
+  // uv_poll_t is implemented by registering multiple events. First
+  // iterate over all of the triggered events to recombine multiple
+  // events for the same poll object.
+  for (size_t i = 0; i < ntriggered; ++i) {
+    const cloudabi_event_t *event = &events[i];
+    uv_handle_t *handle = (uv_handle_t *)event->userdata;
+    if (handle->type == UV_POLL) {
+      switch (event->type) {
+        case CLOUDABI_EVENTTYPE_FD_READ:
+          __uv_poll_fd_read((uv_poll_t *)handle, event);
+          break;
+        case CLOUDABI_EVENTTYPE_FD_WRITE:
+          __uv_poll_fd_write((uv_poll_t *)handle, event);
+          break;
+        default:
+          assert(0 && "Unexpected event type");
+      }
+    }
+  }
+
+  // Iterate over all triggered events and invoke callbacks. Skip
+  // handles that are not active. Those may have been stopped by earlier
+  // callbacks in the same iteration.
   for (size_t i = 0; i < ntriggered; ++i) {
     const cloudabi_event_t *event = &events[i];
     uv_handle_t *handle = (uv_handle_t *)event->userdata;
@@ -324,19 +363,9 @@ static int do_poll(uv_loop_t *loop, int timeout) {
         __uv_async_fd_read((uv_async_t *)handle, event);
         break;
       }
-      case UV_POLL: {
-        switch (event->type) {
-          case CLOUDABI_EVENTTYPE_FD_READ:
-            __uv_poll_fd_read((uv_poll_t *)handle, event);
-            break;
-          case CLOUDABI_EVENTTYPE_FD_WRITE:
-            __uv_poll_fd_write((uv_poll_t *)handle, event);
-            break;
-          default:
-            assert(0 && "Unexpected event type");
-        }
+      case UV_POLL:
+        __uv_poll_trigger((uv_poll_t *)handle);
         break;
-      }
       case UV_PROCESS: {
         assert(event->type == CLOUDABI_EVENTTYPE_PROC_TERMINATE &&
                "Unexpected event type");
