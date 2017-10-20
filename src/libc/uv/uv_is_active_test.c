@@ -5,6 +5,7 @@
 
 #include <stdbool.h>
 #include <testing.h>
+#include <unistd.h>
 #include <uv.h>
 
 static void close_noop(uv_handle_t *handle) {
@@ -92,7 +93,47 @@ TEST(uv_is_active, idle) {
 }
 
 // TODO(ed): Add tests for uv_pipe_t!
-// TODO(ed): Add tests for uv_poll_t!
+
+static void poll_never_called(uv_poll_t *handle, int status, int events) {
+  ASSERT_TRUE(false);
+}
+
+TEST(uv_is_active, poll) {
+  uv_loop_t loop;
+  ASSERT_EQ(0, uv_loop_init(&loop));
+
+  // Create a file descriptor for polling.
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(0, close(fds[1]));
+
+  // Poll objects should not be active upon creation.
+  uv_poll_t poll;
+  ASSERT_EQ(0, uv_poll_init(&loop, &poll, fds[0]));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&poll));
+
+  // Starting the poll will make it active.
+  ASSERT_EQ(0, uv_poll_start(&poll, UV_READABLE, poll_never_called));
+  ASSERT_TRUE(uv_is_active((uv_handle_t *)&poll));
+
+  // Stopping the poll will make it inactive again.
+  ASSERT_EQ(0, uv_poll_stop(&poll));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&poll));
+
+  // Setting events to zero should not cause it to be started.
+  ASSERT_EQ(0, uv_poll_start(&poll, 0, poll_never_called));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&poll));
+
+  // Closing the poll, even when active, should deactivate it.
+  ASSERT_EQ(0, uv_poll_start(&poll, UV_READABLE, poll_never_called));
+  uv_close((uv_handle_t *)&poll, close_noop);
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&poll));
+
+  ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT_EQ(0, uv_loop_close(&loop));
+
+  ASSERT_EQ(0, close(fds[0]));
+}
 
 static void prepare_never_called(uv_prepare_t *handle) {
   ASSERT_TRUE(false);
