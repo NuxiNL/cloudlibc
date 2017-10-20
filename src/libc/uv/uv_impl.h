@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <cloudabi_syscalls.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <uv.h>
 
@@ -342,6 +343,47 @@ static inline int __uv_fs_execute(uv_loop_t *loop, uv_fs_t *req,
                                   uv_fs_cb after_work_cb) {
   // TODO(ed): Implement!
   return UV_ENOSYS;
+}
+
+//
+// Miscellaneous utilities.
+//
+
+static inline void __uv_print_handle(uv_handle_t *handle, FILE *stream) {
+  const char *type;
+  switch (handle->type) {
+    case UV_ASYNC:
+      type = "async";
+      break;
+    case UV_CHECK:
+      type = "check";
+      break;
+    case UV_IDLE:
+      type = "idle";
+      break;
+    case UV_NAMED_PIPE:
+      type = "pipe";
+      break;
+    case UV_POLL:
+      type = "poll";
+      break;
+    case UV_PREPARE:
+      type = "prepare";
+      break;
+    case UV_PROCESS:
+      type = "process";
+      break;
+    case UV_TCP:
+      type = "tcp";
+      break;
+    case UV_TIMER:
+      type = "timer";
+      break;
+    default:
+      assert(0 && "Unknown type");
+  }
+  fprintf(stream, "[%c%c-] %-8s %p\n", uv_has_ref(handle) ? 'R' : '-',
+          uv_is_active(handle) ? 'A' : '-', type, handle);
 }
 
 #endif
