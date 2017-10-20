@@ -110,6 +110,18 @@ static void __uv_stream_fd_read(uv_stream_t *handle,
   assert(0 && "Not implemented");
 }
 
+static void __uv_stream_finish_first_write(uv_stream_t *handle, int status) {
+  uv_write_t *write = __uv_writes_first(&handle->__write_queue);
+  free(write->__bufs);
+  __uv_writes_remove(write);
+  if (__uv_writes_empty(&handle->__write_queue)) {
+    // TODO(ed): This is incorrect w.r.t. reads!
+    __uv_handle_stop((uv_handle_t *)handle);
+    __uv_writing_streams_remove(handle);
+  }
+  write->__cb(write, status);
+}
+
 static void __uv_stream_fd_write(uv_stream_t *handle,
                                  const cloudabi_event_t *event) {
   // This code assumes uv_buf_t and cloudabi_ciovec_t are identical.
@@ -156,38 +168,35 @@ static void __uv_stream_fd_write(uv_stream_t *handle,
     } else {
       error = cloudabi_sys_fd_write(handle->__fd, iov, niov, &nwritten);
     }
-    if (error != 0) {
-      if (error == CLOUDABI_EAGAIN)
-        break;
 
-      // I/O failure. Discard all requests in the write queue.
-      // TODO(ed): Implement!
-      assert(0 && "Not implemented!");
-    }
-    write->send_handle = NULL;
-    handle->write_queue_size -= nwritten;
+    if (error == 0) {
+      // Managed to write data.
+      write->send_handle = NULL;
+      handle->write_queue_size -= nwritten;
 
-    // Progress all iovecs that are written in full.
-    while (write->__nbufs_done < write->__nbufs_total &&
-           nwritten >= write->__bufs[write->__nbufs_done].len) {
-      nwritten -= write->__bufs[write->__nbufs_done++].len;
-    }
-
-    if (write->__nbufs_done == write->__nbufs_total) {
-      // Write finished. Complete it.
-      assert(nwritten == 0 && "Wrote more bytes than in the request");
-      free(write->__bufs);
-      __uv_writes_remove(write);
-      if (__uv_writes_empty(&handle->__write_queue)) {
-        // TODO(ed): This is incorrect w.r.t. reads!
-        __uv_handle_stop((uv_handle_t *)handle);
-        __uv_writing_streams_remove(handle);
+      // Progress all iovecs that are written in full.
+      while (write->__nbufs_done < write->__nbufs_total &&
+             nwritten >= write->__bufs[write->__nbufs_done].len) {
+        nwritten -= write->__bufs[write->__nbufs_done++].len;
       }
-      write->__cb(write, 0);
+
+      if (write->__nbufs_done == write->__nbufs_total) {
+        // Write finished. Complete it.
+        assert(nwritten == 0 && "Wrote more bytes than in the request");
+        __uv_stream_finish_first_write(handle, 0);
+      } else {
+        // Write not finished yet. Trim data that has been written.
+        write->__bufs[write->__nbufs_done].base += nwritten;
+        write->__bufs[write->__nbufs_done].len -= nwritten;
+      }
+    } else if (error == CLOUDABI_EAGAIN) {
+      // File descriptor is now blocking again. Stop writing.
+      break;
     } else {
-      // Write not finished yet. Trim data that has been written.
-      write->__bufs[write->__nbufs_done].base += nwritten;
-      write->__bufs[write->__nbufs_done].len -= nwritten;
+      // Write failed. Discard the request.
+      for (unsigned int i = write->__nbufs_done; i < write->__nbufs_total; ++i)
+        handle->write_queue_size -= write->__bufs[i].len;
+      __uv_stream_finish_first_write(handle, -error);
     }
   }
 

@@ -7,6 +7,48 @@
 #include <unistd.h>
 #include <uv.h>
 
+static void write_cb_epipe(uv_write_t *req, int status) {
+  ASSERT_EQ(UV_EPIPE, status);
+  ASSERT_EQ(1, ++*(int *)req->data);
+}
+
+static void close_cb_epipe(uv_handle_t *handle) {
+  ASSERT_EQ(2, ++*(int *)handle->data);
+}
+
+TEST(uv_write, epipe) {
+  uv_loop_t loop;
+  ASSERT_EQ(0, uv_loop_init(&loop));
+
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(0, close(fds[0]));
+  uv_pipe_t out;
+  ASSERT_EQ(0, uv_pipe_init(&loop, &out, 0));
+  ASSERT_EQ(0, uv_pipe_open(&out, fds[1]));
+
+  // Writing to the close pipe should generate EPIPE.
+  uv_buf_t buf = uv_buf_init((char *)"Hello", 5);
+  uv_write_t req;
+  int state = 0;
+  req.data = &state;
+  ASSERT_EQ(0, uv_write(&req, (uv_stream_t *)&out, &buf, 1, write_cb_epipe));
+
+  // Run the loop to force writes to complete.
+  ASSERT_EQ(0, state);
+  ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT_EQ(1, state);
+
+  // Schedule that the pipe is closed.
+  out.data = &state;
+  uv_close((uv_handle_t *)&out, close_cb_epipe);
+
+  ASSERT_EQ(1, state);
+  ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT_EQ(2, state);
+  ASSERT_EQ(0, uv_loop_close(&loop));
+}
+
 // Use a state number to validate that callbacks are actually run.
 static void write_cb1_success(uv_write_t *req, int status) {
   ASSERT_EQ(0, status);
@@ -31,7 +73,7 @@ TEST(uv_write, example) {
   ASSERT_EQ(0, pipe(fds));
   uv_pipe_t out;
   ASSERT_EQ(0, uv_pipe_init(&loop, &out, 0));
-  ASSERT_EQ(0, uv_pipe_open(&out, fds[0]));
+  ASSERT_EQ(0, uv_pipe_open(&out, fds[1]));
 
   // Schedule that data is written into the pipe.
   uv_buf_t bufs1[2] = {
@@ -62,9 +104,9 @@ TEST(uv_write, example) {
 
   // Extract data from the other end of the pipe.
   char buf[29];
-  ASSERT_EQ(28, read(fds[1], buf, sizeof(buf)));
+  ASSERT_EQ(28, read(fds[0], buf, sizeof(buf)));
   ASSERT_ARREQ("Hello World!\nGoodbye World!\n", buf, 28);
-  ASSERT_EQ(0, close(fds[1]));
+  ASSERT_EQ(0, close(fds[0]));
 
   // Schedule that the pipe is closed.
   out.data = &state;
