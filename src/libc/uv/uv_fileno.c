@@ -5,12 +5,7 @@
 
 #include <uv.h>
 
-#include "uv_impl.h"
-
 int uv_fileno(const uv_handle_t *handle, uv_os_fd_t *fd) {
-  if (uv_is_closing(handle))
-    return UV_EBADF;
-
   switch (handle->type) {
     case UV_NAMED_PIPE:
     case UV_TCP: {
@@ -21,6 +16,8 @@ int uv_fileno(const uv_handle_t *handle, uv_os_fd_t *fd) {
       return 0;
     }
     case UV_POLL: {
+      if (uv_is_closing(handle))
+        return UV_EBADF;
       uv_poll_t *poll = (uv_poll_t *)handle;
       *fd = poll->__fd;
       return 0;
