@@ -419,19 +419,26 @@ static int do_poll(uv_loop_t *loop, int timeout) {
 }
 
 int uv_run(uv_loop_t *loop, uv_run_mode mode) {
-  // "1. The loop concept of ‘now’ is updated."
-  uv_update_time(loop);
+  bool first_iteration = true;
+  do {
+    // "1. The loop concept of ‘now’ is updated."
+    uv_update_time(loop);
 
-  for (;;) {
     // "2. If the loop is alive an iteration is started, otherwise the
     // loop will exit immediately."
-    if (uv_loop_alive(loop) == 0)
+    if (uv_loop_alive(loop) == 0 || loop->__stop)
       break;
 
     // "3. Due timers are run."
     run_timers(loop);
 
+    // "11. Special case in case the loop was run with UV_RUN_ONCE, as
+    // it implies forward progress."
+    if (!first_iteration && mode == UV_RUN_ONCE)
+      break;
+
     // "4. Pending callbacks are called."
+    // This implementation does not have any pending callbacks.
 
     // "5. Idle handle callbacks are called."
     run_idles(loop);
@@ -440,7 +447,7 @@ int uv_run(uv_loop_t *loop, uv_run_mode mode) {
     run_prepares(loop);
 
     // "7. Poll timeout is calculated."
-    int timeout = uv_backend_timeout(loop);
+    int timeout = mode == UV_RUN_NOWAIT ? 0 : uv_backend_timeout(loop);
 
     // "8. The loop blocks for I/O."
     int error = do_poll(loop, timeout);
@@ -452,9 +459,10 @@ int uv_run(uv_loop_t *loop, uv_run_mode mode) {
 
     // "10. Close callbacks are called."
     run_closing_handles(loop);
-  }
+
+    first_iteration = false;
+  } while (mode != UV_RUN_NOWAIT);
 
   loop->__stop = false;
-  // TODO(ed): Return the right value.
-  return 0;
+  return uv_loop_alive(loop);
 }
