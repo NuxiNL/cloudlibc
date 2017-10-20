@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -8,7 +8,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <threads.h>
 
 // "Spritz -- a spongy RC4-like stream cipher and hash function"
 // by Ronald L. Rivest and Jacob C.N. Schuldt.
@@ -129,9 +128,5 @@ static inline uint8_t spritz_drip(struct spritz *s) {
 
 #undef N
 #undef Sw
-
-// Per-thread counter of how much random data can still be extracted
-// from the Spritz state. Should be set to zero when forking.
-extern thread_local size_t __arc4random_bytesleft;
 
 #endif

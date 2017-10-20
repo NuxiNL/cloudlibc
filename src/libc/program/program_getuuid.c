@@ -1,9 +1,7 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
-
-#include <common/program_getuuid.h>
 
 #include <program.h>
 #include <pthread.h>
@@ -31,6 +29,7 @@ static void generate(void) {
 }
 
 const char *program_getuuid(void) {
-  pthread_once(&__program_getuuid_init, generate);
+  static pthread_once_t init = PTHREAD_ONCE_INIT;
+  pthread_once(&init, generate);
   return uuid;
 }

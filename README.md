@@ -77,10 +77,9 @@ omitted for one of the following reasons:
   `open()`, `fopen()`, `stat()`, `mkdir()` and `wait()` have been
   omitted. For filesystem access it is possible to use the POSIX.1-2008
   `*at()` functions instead. In some other cases alternatives have been
-  developed (e.g., `pdfork()` and `pdwait()`). Fear not: most of these
-  interfaces are either available on systems such as FreeBSD or have
-  been designed in such a way that they can easily be added to existing
-  operating systems.
+  developed. Fear not: most of these interfaces are either available on
+  systems such as FreeBSD or have been designed in such a way that they
+  can easily be added to existing operating systems.
 
 * **Computing in the cloud.** <br/>
   Though it is perfectly fine to run CloudABI processes from a

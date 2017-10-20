@@ -598,7 +598,6 @@ open_memstream_l
 openat
 opendirat
 openlog
-pdfork
 pdwait
 perror
 perror_l

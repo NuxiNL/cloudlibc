@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -12,7 +12,6 @@
 
 int pthread_cond_wait(pthread_cond_t *restrict cond,
                       __pthread_lock_t *restrict lock) {
-  assert(!LIST_EMPTY(&__pthread_wrlocks) && "Bad lock count");
   assert((atomic_load_explicit(&lock->__state, memory_order_relaxed) &
           ~CLOUDABI_LOCK_KERNEL_MANAGED) ==
              (__pthread_thread_id | CLOUDABI_LOCK_WRLOCKED) &&
@@ -31,11 +30,9 @@ int pthread_cond_wait(pthread_cond_t *restrict cond,
   size_t triggered;
 
   // Remove lock from lock list while blocking.
-  LIST_REMOVE(lock, __write_locks);
   cloudabi_event_t event;
   cloudabi_errno_t error =
       cloudabi_sys_poll(&subscription, &event, 1, &triggered);
-  LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)
     __pthread_terminate(error, "Failed to wait on condition variable");

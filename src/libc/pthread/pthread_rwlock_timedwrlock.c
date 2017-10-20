@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -48,7 +48,6 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock,
         __pthread_terminate(events[i].error, "Failed to acquire write lock");
 
       // Lock acquired successfully.
-      LIST_INSERT_HEAD(&__pthread_wrlocks, rwlock, __write_locks);
       return 0;
     }
   }

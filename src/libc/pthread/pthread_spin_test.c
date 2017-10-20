@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -47,6 +47,7 @@ TEST(pthread_spin, private) __no_lock_analysis {
   ASSERT_EQ(0, pthread_join(thread, NULL));
 }
 
+#if 0  // TODO(ed): How to test this without forking?
 TEST(pthread_spin, shared) __no_lock_analysis {
   // Allocate a piece of shared memory to store the spinlock.
   pthread_spinlock_t *spin = mmap(NULL, sizeof(*spin), PROT_READ | PROT_WRITE,
@@ -80,3 +81,4 @@ TEST(pthread_spin, shared) __no_lock_analysis {
   ASSERT_EQ(0, munmap(spin, sizeof(*spin)));
   ASSERT_EQ(0, close(fd));
 }
+#endif

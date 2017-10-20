@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -24,14 +24,12 @@
 // <sys/procdesc.h> - process descriptors
 //
 // Extensions:
-// - pdfork():
-//   Flags can be omitted.
 // - pdwait():
 //   Mixture between waitid() and FreeBSD's pdwait4().
 //
 // Features missing:
-// - PD_DAEMON:
-//   Processes may not be daemonized.
+// - pdfork():
+//   Processes can only be spawned using program_spawn().
 // - pdgetpid():
 //   Process identifiers are not exposed.
 // - pdkill():
@@ -45,7 +43,6 @@
 #include <_/types.h>
 
 __BEGIN_DECLS
-int pdfork(int *, ...);
 int pdwait(int, __siginfo_t *, int);
 __END_DECLS
 

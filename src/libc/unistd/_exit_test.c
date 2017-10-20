@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -9,6 +9,7 @@
 #include <testing.h>
 #include <unistd.h>
 
+#if 0  // TODO(ed): How to test this without forking?
 TEST(_exit, example) {
   // Fork process.
   int fd;
@@ -28,3 +29,4 @@ TEST(_exit, example) {
   ASSERT_EQ(CLD_EXITED, si.si_code);
   ASSERT_EQ(123, si.si_status);
 }
+#endif

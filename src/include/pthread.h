@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -91,26 +91,14 @@
 #define _PTHREAD_FUTEX_INITIALIZER(v) _UINT32_C(v)
 #define PTHREAD_COND_INITIALIZER \
   { _PTHREAD_FUTEX_INITIALIZER(0), 3, PTHREAD_PROCESS_PRIVATE }
-#define PTHREAD_MUTEX_INITIALIZER                                 \
-  {                                                               \
-    _PTHREAD_FUTEX_INITIALIZER(0), -1, PTHREAD_PROCESS_PRIVATE, { \
-      _NULL, _NULL                                                \
-    }                                                             \
-  }
+#define PTHREAD_MUTEX_INITIALIZER \
+  { _PTHREAD_FUTEX_INITIALIZER(0), -1, PTHREAD_PROCESS_PRIVATE }
 #define PTHREAD_ONCE_INIT \
   { _PTHREAD_FUTEX_INITIALIZER(0x80000000) }
-#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP                   \
-  {                                                              \
-    _PTHREAD_FUTEX_INITIALIZER(0), 0, PTHREAD_PROCESS_PRIVATE, { \
-      _NULL, _NULL                                               \
-    }                                                            \
-  }
-#define PTHREAD_RWLOCK_INITIALIZER                                \
-  {                                                               \
-    _PTHREAD_FUTEX_INITIALIZER(0), -1, PTHREAD_PROCESS_PRIVATE, { \
-      _NULL, _NULL                                                \
-    }                                                             \
-  }
+#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP \
+  { _PTHREAD_FUTEX_INITIALIZER(0), 0, PTHREAD_PROCESS_PRIVATE }
+#define PTHREAD_RWLOCK_INITIALIZER \
+  { _PTHREAD_FUTEX_INITIALIZER(0), -1, PTHREAD_PROCESS_PRIVATE }
 
 #ifndef _PTHREAD_ATTR_T_DECLARED
 typedef __pthread_attr_t pthread_attr_t;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -15,7 +15,6 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   _Atomic(cloudabi_lock_t) *state = &rwlock->__state;
   cloudabi_lock_t old = atomic_load_explicit(state, memory_order_relaxed);
   if ((old & CLOUDABI_LOCK_WRLOCKED) != 0) {
-    assert(!LIST_EMPTY(&__pthread_wrlocks) && "Bad lock count");
     assert((old & ~CLOUDABI_LOCK_KERNEL_MANAGED) ==
                (__pthread_thread_id | CLOUDABI_LOCK_WRLOCKED) &&
            "This rwlock is write-locked by a different thread");
@@ -27,8 +26,6 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
       --rwlock->__write_recursion;
       return 0;
     }
-
-    LIST_REMOVE(rwlock, __write_locks);
 
     // Attempt to unlock from userspace.
     if ((old & CLOUDABI_LOCK_KERNEL_MANAGED) != 0 ||

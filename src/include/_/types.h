@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -230,10 +230,6 @@ typedef struct __lockable __pthread_lock {
   _Atomic(__uint32_t) __state;  // Kernelspace futex.
   __int32_t __write_recursion;  // Userspace write recursion counter.
   __uint8_t __pshared;
-  struct {
-    _Alignas(__uint64_t) struct __pthread_lock *__l_next;
-    _Alignas(__uint64_t) struct __pthread_lock **__l_prev;
-  } __write_locks;  // List pointers for per-thread list of locks.
 } __pthread_lock_t;
 typedef struct {
   __pthread_lock_t __lock;
@@ -251,11 +247,11 @@ typedef struct {
   __uint32_t __value;
 } __sem_t;
 
-_Static_assert(sizeof(__pthread_barrier_t) == 56, "ABI broken");
+_Static_assert(sizeof(__pthread_barrier_t) == 36, "ABI broken");
 _Static_assert(sizeof(__pthread_cond_t) == 12, "ABI broken");
-_Static_assert(sizeof(__pthread_lock_t) == 32, "ABI broken");
+_Static_assert(sizeof(__pthread_lock_t) == 12, "ABI broken");
 _Static_assert(sizeof(__pthread_once_t) == 4, "ABI broken");
-_Static_assert(sizeof(__sem_t) == 48, "ABI broken");
+_Static_assert(sizeof(__sem_t) == 28, "ABI broken");
 
 typedef struct {
   int __detachstate;

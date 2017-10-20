@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -27,6 +27,7 @@ TEST(raise, zero) {
   ASSERT_EQ(0, raise(0));
 }
 
+#if 0  // TODO(ed): How to test this without forking?
 static void test_signal(int sig, int code) {
   SCOPED_NOTE(sig, {
     // Spawn a child process.
@@ -78,3 +79,4 @@ TEST(raise, allsigs) {
   test_signal(SIGXCPU, CLD_KILLED);
   test_signal(SIGXFSZ, CLD_KILLED);
 }
+#endif

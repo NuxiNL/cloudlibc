@@ -56,8 +56,6 @@ noreturn void pthread_exit(void *value_ptr) {
 
   // After invoking the cleanup functions and destructors, we should not
   // have picked up any locks.
-  assert(LIST_EMPTY(&__pthread_wrlocks) &&
-         "Attempted to terminate thread while holding write locks");
   assert(__pthread_rdlocks == 0 &&
          "Attempted to terminate thread while holding read locks");
 

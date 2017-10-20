@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -48,6 +48,7 @@ TEST(pthread_mutex, private) __no_lock_analysis {
   ASSERT_EQ(0, pthread_join(thread, NULL));
 }
 
+#if 0  // TODO(ed): How to test this without forking?
 TEST(pthread_mutex, shared) __no_lock_analysis {
   // Create a temporary file to use as shared memory to store the mutex.
   int fd = openat(fd_tmp, "tmp", O_CREAT | O_RDWR);
@@ -89,3 +90,4 @@ TEST(pthread_mutex, shared) __no_lock_analysis {
   ASSERT_EQ(0, munmap(mutex, sizeof(*mutex)));
   ASSERT_EQ(0, close(fd));
 }
+#endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -18,7 +18,6 @@ int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
           &rwlock->__state, &old, __pthread_thread_id | CLOUDABI_LOCK_WRLOCKED,
           memory_order_acquire | __memory_order_hle_acquire,
           memory_order_relaxed)) {
-    LIST_INSERT_HEAD(&__pthread_wrlocks, rwlock, __write_locks);
     return 0;
   }
 
@@ -28,7 +27,6 @@ int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
       (__pthread_thread_id | CLOUDABI_LOCK_WRLOCKED)) {
     assert(rwlock->__write_recursion >= 0 &&
            "Attempted to recursively write-lock a non-recursive rwlock");
-    assert(!LIST_EMPTY(&__pthread_wrlocks) && "Bad write-lock count");
     ++rwlock->__write_recursion;
     return 0;
   }

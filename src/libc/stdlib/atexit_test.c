@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -10,6 +10,7 @@
 #include <testing.h>
 #include <unistd.h>
 
+#if 0  // TODO(ed): How to test this without forking?
 static int val = 1;
 
 static void handler1(void) {
@@ -50,3 +51,4 @@ TEST(atexit, example) {
   ASSERT_EQ(CLD_EXITED, si.si_code);
   ASSERT_EQ(86, si.si_status);
 }
+#endif

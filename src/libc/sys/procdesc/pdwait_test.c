@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -28,6 +28,7 @@ TEST(pdwait, bad) {
   ASSERT_EQ(EINVAL, pdwait(fd_tmp, NULL, 0xdeadc0de));
 }
 
+#if 0  // TODO(ed): How to test this without forking?
 TEST(pdwait, cld_exited) {
   // Pick a random exit code that we should expect.
   // TODO(ed): FreeBSD and NetBSD still truncate the exit code to 8
@@ -105,3 +106,4 @@ TEST(pdwait, wnohang) {
   ASSERT_EQ(0, si.si_signo);
   ASSERT_EQ(0, close(fd));
 }
+#endif

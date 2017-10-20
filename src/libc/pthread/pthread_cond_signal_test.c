@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -86,6 +86,7 @@ TEST(pthread_cond_signal, one_unlocked) {
   ASSERT_EQ(0, pthread_cond_destroy(&block.cond));
 }
 
+#if 0  // TODO(ed): How to test this without forking?
 TEST(pthread_cond_signal, one_shared) {
   // Let another process wait on the condition variable.
   struct block *block = mmap(NULL, sizeof(*block), PROT_READ | PROT_WRITE,
@@ -127,3 +128,4 @@ TEST(pthread_cond_signal, one_shared) {
   ASSERT_EQ(0, pthread_cond_destroy(&block->cond));
   ASSERT_EQ(0, munmap(block, sizeof(*block)));
 }
+#endif

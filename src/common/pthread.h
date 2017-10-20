@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -32,19 +32,6 @@ static_assert(PTHREAD_STACK_DEFAULT % PTHREAD_UNSAFE_STACK_ALIGNMENT == 0,
 // pthread_exit() to determine whether the process should be terminated
 // gracefully if the number of threads would reach zero.
 extern refcount_t __pthread_num_threads;
-
-// A fork handler installed through pthread_atfork().
-struct pthread_atfork {
-  void (*prepare)(void);  // Function to be called before forking.
-  void (*parent)(void);   // Function to be called by the parent.
-  void (*child)(void);    // Function to be called by the child.
-
-  struct pthread_atfork *previous;  // Previous list element.
-  struct pthread_atfork *next;      // Next list element.
-};
-
-// Pointer to the last object in the list of fork handlers.
-extern _Atomic(struct pthread_atfork *) __pthread_atfork_last;
 
 // Keys.
 //
@@ -104,11 +91,6 @@ extern thread_local SLIST_HEAD(pthread_specifics,
 // calling into the kernel.
 // TODO(ed): Determine the right number!
 #define LOCK_RETRY_COUNT 1
-
-// A list of unique write locks acquired. This list is used by pdfork()
-// to transfer ownership of mutexes to the new thread in the new process.
-extern thread_local LIST_HEAD(pthread_wrlocks,
-                              __pthread_lock) __pthread_wrlocks;
 
 // The number of read locks acquired. This is used by
 // pthread_rwlock_rdlock() to determine whether to ignore waiting

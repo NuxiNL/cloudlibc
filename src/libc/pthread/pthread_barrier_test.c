@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -69,6 +69,7 @@ TEST(pthread_barrier, private) {
   ASSERT_EQ(0, pthread_barrier_destroy(&data.barrier));
 }
 
+#if 0  // TODO(ed): How to test this without forking?
 TEST(pthread_barrier, shared) {
   // Same as above, but using a process-shared barrier.
   struct data *data = mmap(NULL, sizeof(*data), PROT_READ | PROT_WRITE,
@@ -100,3 +101,4 @@ TEST(pthread_barrier, shared) {
   ASSERT_EQ(0, pthread_barrier_destroy(&data->barrier));
   ASSERT_EQ(0, munmap(data, sizeof(*data)));
 }
+#endif

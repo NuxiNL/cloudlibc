@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -42,11 +42,9 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
   size_t triggered;
 
   // Remove lock from lock list while blocking.
-  LIST_REMOVE(lock, __write_locks);
   cloudabi_event_t events[__arraycount(subscriptions)];
   cloudabi_errno_t error = cloudabi_sys_poll(
       subscriptions, events, __arraycount(subscriptions), &triggered);
-  LIST_INSERT_HEAD(&__pthread_wrlocks, lock, __write_locks);
 
   if (error != 0)
     __pthread_terminate(error, "Failed to wait on condition variable");

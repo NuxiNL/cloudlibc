@@ -25,7 +25,7 @@
 //
 // Extensions:
 // - S_TYPEISPROC():
-//   Matches descriptors created by pdfork().
+//   Matches descriptors created by program_spawn().
 // - mkdirat():
 //   Make mode_t parameter optional, as file permissions do not exist.
 //

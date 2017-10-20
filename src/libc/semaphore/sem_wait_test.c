@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -42,6 +42,7 @@ TEST(sem_wait, private) {
   ASSERT_EQ(0, sem_destroy(&sem));
 }
 
+#if 0  // TODO(ed): How to test this without forking?
 TEST(sem_wait, shared) {
   // Spawn a subprocess that will post on the semaphore.
   sem_t *sem = mmap(NULL, sizeof(*sem), PROT_READ | PROT_WRITE,
@@ -62,3 +63,4 @@ TEST(sem_wait, shared) {
   ASSERT_EQ(0, sem_destroy(sem));
   ASSERT_EQ(0, munmap(sem, sizeof(*sem)));
 }
+#endif
