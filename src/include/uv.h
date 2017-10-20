@@ -488,6 +488,7 @@ struct __uv_poll {
   int __fd;
   uv_poll_cb __cb;
   int __events;
+  int __status;
   int __revents;
   struct __uv_reading_polls_entry __uv_reading_polls_entry;
   struct __uv_writing_polls_entry __uv_writing_polls_entry;

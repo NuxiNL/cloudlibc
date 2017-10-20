@@ -64,23 +64,37 @@ static void __uv_async_fd_read(uv_async_t *handle,
 
 static void __uv_poll_fd_read(uv_poll_t *handle,
                               const cloudabi_event_t *event) {
-  // TODO(ed): Implement.
   assert((handle->__events & UV_READABLE) != 0 &&
          "Unnecessarily polled handle for reading");
-  assert(0 && "Not implemented");
+  if (event->error == 0) {
+    handle->__revents |= UV_READABLE;
+    if ((event->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP) != 0)
+      handle->__revents |= UV_DISCONNECT;
+  } else {
+    handle->__status = -event->error;
+  }
 }
 
 static void __uv_poll_fd_write(uv_poll_t *handle,
                                const cloudabi_event_t *event) {
-  // TODO(ed): Implement.
   assert((handle->__events & UV_WRITABLE) != 0 &&
          "Unnecessarily polled handle for reading");
-  assert(0 && "Not implemented");
+  if (event->error == 0) {
+    handle->__revents |= UV_WRITABLE;
+    if ((event->fd_readwrite.flags & CLOUDABI_EVENT_FD_READWRITE_HANGUP) != 0)
+      handle->__revents |= UV_DISCONNECT;
+  } else {
+    handle->__status = -event->error;
+  }
 }
 
 static void __uv_poll_trigger(uv_poll_t *handle) {
-  // TODO(ed): Implement.
-  assert(0 && "Not implemented");
+  if (handle->__status != 0)
+    handle->__cb(handle, handle->__status, 0);
+  else if (handle->__revents != 0)
+    handle->__cb(handle, 0, handle->__revents);
+  handle->__status = 0;
+  handle->__revents = 0;
 }
 
 static void __uv_process_proc_terminate(uv_process_t *handle,
@@ -233,7 +247,7 @@ static int do_poll(uv_loop_t *loop, int timeout) {
     };
   }
   FOREACH(uv_poll_t, poll, __uv_reading_polls, &loop->__reading_polls) {
-    assert(poll->__revents == 0 &&
+    assert(poll->__status == 0 && poll->__revents == 0 &&
            "Poll object still has pending events from a previous run");
     cloudabi_subscription_t *sub;
     if (!allocate_subscription(loop, &nsubscriptions, &sub))
@@ -246,7 +260,7 @@ static int do_poll(uv_loop_t *loop, int timeout) {
     };
   }
   FOREACH(uv_poll_t, poll, __uv_writing_polls, &loop->__writing_polls) {
-    assert(poll->__revents == 0 &&
+    assert(poll->__status == 0 && poll->__revents == 0 &&
            "Poll object still has pending events from a previous run");
     cloudabi_subscription_t *sub;
     if (!allocate_subscription(loop, &nsubscriptions, &sub))

@@ -9,6 +9,7 @@
 
 int uv_poll_stop(uv_poll_t *poll) {
   // Discard any pending notifications.
+  poll->__status = 0;
   poll->__revents = 0;
 
   bool disabled = false;
