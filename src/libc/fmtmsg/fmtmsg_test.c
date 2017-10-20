@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <testing.h>
 
-TEST_SEPARATE_PROCESS(fmtmsg, bad) {
+TEST_SINGLE_THREADED(fmtmsg, bad) {
   // Replace stderr by a non-writable stream. fmtmsg() should fail.
   char buf;
   FILE *fp = fmemopen(&buf, 1, "r");
@@ -16,9 +16,11 @@ TEST_SEPARATE_PROCESS(fmtmsg, bad) {
   fswap(fp, stderr);
   ASSERT_EQ(MM_NOTOK,
             fmtmsg(MM_PRINT, "Hello", MM_WARNING, "Text", "Action", "Tag"));
+  fswap(fp, stderr);
+  ASSERT_EQ(0, fclose(fp));
 }
 
-TEST_SEPARATE_PROCESS(fmtmsg, example) {
+TEST_SINGLE_THREADED(fmtmsg, example) {
 #define TEST_FMTMSG(label, severity, text, action, tag, output)             \
   do {                                                                      \
     /* Replace stderr by a memory stream. */                                \

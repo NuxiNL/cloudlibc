@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -32,7 +32,7 @@ TEST(fflush, eagain) {
   ASSERT_EQ(0, close(fds[0]));
 }
 
-TEST_SEPARATE_PROCESS(fflush, ebadf) {
+TEST_SINGLE_THREADED(fflush, ebadf) {
   // Create a stream to one end of a pipe.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
@@ -51,7 +51,7 @@ TEST_SEPARATE_PROCESS(fflush, ebadf) {
   ASSERT_EQ(EOF, fclose(fp));
 }
 
-TEST_SEPARATE_PROCESS(fflush, epipe) {
+TEST_SINGLE_THREADED(fflush, epipe) {
   // Create a pipe of which the read side is closed.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

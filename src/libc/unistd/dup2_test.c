@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -10,7 +10,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(dup2, bad) {
+TEST_SINGLE_THREADED(dup2, bad) {
   // Source file descriptor is invalid.
   ASSERT_EQ(-1, dup2(-1, fd_tmp));
   ASSERT_EQ(EBADF, errno);

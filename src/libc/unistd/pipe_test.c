@@ -11,7 +11,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(pipe, readwrite) {
+TEST_SINGLE_THREADED(pipe, readwrite) {
   // Create pipe.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

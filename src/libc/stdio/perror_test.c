@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -8,7 +8,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(perror, example) {
+TEST_SINGLE_THREADED(perror, example) {
   // Reconfigure stderr to use a pipe.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
@@ -25,7 +25,9 @@ TEST_SEPARATE_PROCESS(perror, example) {
   perror("");
   errno = EBADF;
   perror("Hello");
-  fflush(stderr);
+
+  fswap(stderr, fp);
+  ASSERT_EQ(0, fclose(fp));
 
   // Validate output.
   char buf[84];
@@ -36,4 +38,5 @@ TEST_SEPARATE_PROCESS(perror, example) {
       "Function not implemented\n"
       "Hello: Bad file descriptor\n",
       buf, sizeof(buf) - 1);
+  ASSERT_EQ(0, close(fds[0]));
 }

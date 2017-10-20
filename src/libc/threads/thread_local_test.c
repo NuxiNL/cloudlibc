@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -19,10 +19,6 @@ static int validate(void *arg) {
 }
 
 TEST(thread_local, direct) {
-  validate(NULL);
-}
-
-TEST_SEPARATE_PROCESS(thread_local, process) {
   validate(NULL);
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -15,7 +15,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(syslog, example) {
+TEST_SINGLE_THREADED(syslog, example) {
   // Set log mask to a fixed value.
   setlogmask(LOG_MASK(LOG_DEBUG));
   ASSERT_EQ(LOG_MASK(LOG_DEBUG), setlogmask(0));
@@ -27,7 +27,9 @@ TEST_SEPARATE_PROCESS(syslog, example) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
   ASSERT_EQ(0, fcntl(fds[0], F_SETFL, fcntl(fds[0], F_GETFL) | O_NONBLOCK));
-  fswap(stderr, fdopen(fds[1], "w"));
+  FILE *fp = fdopen(fds[1], "w");
+  ASSERT_NE(NULL, fp);
+  fswap(stderr, fp);
 
   // Priority has been masked.
   {
@@ -96,4 +98,8 @@ TEST_SEPARATE_PROCESS(syslog, example) {
       "Failed to open file /etc/passwd for reading: No such file or directory",
       "Failed to open file %2$s for %1$s: %m", "reading", "/etc/passwd");
 #undef TEST_EXAMPLE
+
+  ASSERT_EQ(0, close(fds[0]));
+  fswap(stderr, fp);
+  ASSERT_EQ(0, fclose(fp));
 }

@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <wchar.h>
 
-TEST_SEPARATE_PROCESS(dwprintf, bad) {
+TEST_SINGLE_THREADED(dwprintf, bad) {
   // Bad file descriptor.
   ASSERT_EQ(-1, dwprintf(-1, L"Hello, world\n"));
   ASSERT_EQ(EBADF, errno);

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -48,7 +48,7 @@ static void traverse(const posix_tnode *node, VISIT visit, int level) {
   }
 }
 
-TEST_SEPARATE_PROCESS(twalk, example) {
+TEST_SINGLE_THREADED(twalk, example) {
   // The numbers to insert into the tree.
   for (size_t i = 0; i < NELEMENTS; ++i)
     numbers[i] = i;

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -70,7 +70,7 @@ TEST(fputc, enospc) {
   ASSERT_EQ(0, fclose(fp));
 }
 
-TEST_SEPARATE_PROCESS(fputc, epipe) {
+TEST_SINGLE_THREADED(fputc, epipe) {
   // Create a stream to non-blocking write side of a pipe that has
   // already been closed.
   int fds[2];

@@ -74,6 +74,7 @@ struct testing_state {
   int tmpdir;                           // Temporary directory.
   _Atomic(struct __test *) test_start;  // First test to be executed.
   const fd_set *used_file_descriptors;  // File descriptor leaking check.
+  bool run_single_threaded;             // Run tests that are single threaded.
 };
 
 static void run_test(struct testing_state *state, struct __test *test) {
@@ -103,25 +104,7 @@ static void *run_tests(void *arg) {
     if (test >= __stop___tests)
       return NULL;
 
-    if (test->__separate_process) {
-      // Execute test in a separate subprocess.
-      int fd;
-      int ret = pdfork(&fd);
-      if (ret == 0) {
-        run_test(state, test);
-        _Exit(0);
-      }
-
-      // Wait for the subprocess to terminate.
-      ASSERT_LT(0, ret);
-      siginfo_t si;
-      ASSERT_EQ(0, pdwait(fd, &si, 0));
-      ASSERT_EQ(0, close(fd));
-      ASSERT_EQ(SIGCHLD, si.si_signo);
-      ASSERT_EQ(CLD_EXITED, si.si_code);
-      ASSERT_EQ(0, si.si_status);
-    } else {
-      // Run the test from within the current process.
+    if (test->__single_threaded == state->run_single_threaded) {
       run_test(state, test);
       if (state->used_file_descriptors != NULL)
         check_leaked_file_descriptors(state->used_file_descriptors);
@@ -148,17 +131,21 @@ void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
       FD_SET(fd, &used_file_descriptors);
   }
 
+  // Start off with tests that don't need to be run single threaded.
   struct testing_state state = {
       .tmpdir = tmpdir,
       .test_start = __start___tests,
+      .run_single_threaded = false,
   };
-
   if (nthreads <= 1) {
-    // Run tests sequentially.
+    // Threading is disabled, so we can do used file descriptor checking
+    // per test.
     state.used_file_descriptors = &used_file_descriptors;
     run_tests(&state);
   } else {
-    // Spawn a number of threads to execute the tests in parallel.
+    // Spawn a number of threads to execute the tests in parallel,
+    // meaning that we can only check for leaked file descriptors
+    // afterwards.
     pthread_t threads[nthreads];
     for (size_t i = 0; i < nthreads; ++i)
       ASSERT_EQ(0, pthread_create(&threads[i], NULL, run_tests, &state));
@@ -166,6 +153,12 @@ void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
       ASSERT_EQ(0, pthread_join(threads[i], NULL));
     check_leaked_file_descriptors(&used_file_descriptors);
   }
+
+  // Rewind and run all of the tests that require to be run single threaded.
+  state.test_start = __start___tests;
+  state.used_file_descriptors = &used_file_descriptors;
+  state.run_single_threaded = true;
+  run_tests(&state);
 
   __testing_printf("=> Successfully executed %zu tests\n",
                    __stop___tests - __start___tests);

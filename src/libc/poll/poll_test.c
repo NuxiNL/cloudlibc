@@ -180,7 +180,7 @@ TEST(poll, file) {
   ASSERT_EQ(0, close(fd));
 }
 
-TEST_SEPARATE_PROCESS(poll, pollnval) {
+TEST_SINGLE_THREADED(poll, pollnval) {
   // Create a bad file descriptor number.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
@@ -189,6 +189,8 @@ TEST_SEPARATE_PROCESS(poll, pollnval) {
   struct pollfd pfd = {.fd = fds[0], POLLRDNORM | POLLWRNORM};
   ASSERT_EQ(1, poll(&pfd, 1, -1));
   ASSERT_EQ(POLLNVAL, pfd.revents);
+
+  ASSERT_EQ(0, close(fds[1]));
 }
 
 TEST(poll, sleep) {

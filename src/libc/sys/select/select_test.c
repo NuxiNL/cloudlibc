@@ -11,7 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(select, ebadf) {
+TEST_SINGLE_THREADED(select, ebadf) {
   // Create a bad file descriptor number.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

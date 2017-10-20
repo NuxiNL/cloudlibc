@@ -33,7 +33,7 @@ TEST(send, bad) {
   }
 }
 
-TEST_SEPARATE_PROCESS(send, epipe) {
+TEST_SINGLE_THREADED(send, epipe) {
   // Close one side of the connection. Sending a packet should fail, but
   // should not generate a SIGPIPE.
   int fds[2];

@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016-2017 Nuxi, https://nuxi.nl/
 //
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
@@ -8,7 +8,7 @@
 #include <testing.h>
 #include <unistd.h>
 
-TEST_SEPARATE_PROCESS(psiginfo, example) {
+TEST_SINGLE_THREADED(psiginfo, example) {
   // Reconfigure stderr to use a pipe.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
@@ -25,7 +25,9 @@ TEST_SEPARATE_PROCESS(psiginfo, example) {
   psiginfo(&info, "");
   info.si_signo = SIGFPE;
   psiginfo(&info, "Hello");
-  fflush(stderr);
+
+  fswap(stderr, fp);
+  ASSERT_EQ(0, fclose(fp));
 
   // Validate output.
   char buf[77];
@@ -36,4 +38,5 @@ TEST_SEPARATE_PROCESS(psiginfo, example) {
       "Bus error\n"
       "Hello: Floating point exception\n",
       buf, sizeof(buf) - 1);
+  ASSERT_EQ(0, close(fds[0]));
 }

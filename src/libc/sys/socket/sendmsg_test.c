@@ -45,7 +45,7 @@ TEST(sendmsg, bad) {
   }
 }
 
-TEST_SEPARATE_PROCESS(sendmsg, epipe) {
+TEST_SINGLE_THREADED(sendmsg, epipe) {
   // Connection has been closed.
   int fds[2];
   ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));

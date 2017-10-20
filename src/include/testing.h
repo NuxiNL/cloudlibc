@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -79,14 +79,14 @@
 //     ...
 //   }
 //
-//   TEST_SEPARATE_PROCESS(module, name) {
+//   TEST_SINGLE_THREADED(module, name) {
 //     ...
 //   }
 
 struct __test {
   const char *__name;
   void (*__func)(int);
-  _Bool __separate_process;
+  _Bool __single_threaded;
 };
 
 #define TEST(module, name)                                               \
@@ -94,7 +94,7 @@ struct __test {
   static struct __test __test_obj_##module##_##name __section("__tests") \
       __used = {#module "::" #name, __test_func_##module##_##name, 0};   \
   static void __test_func_##module##_##name(int fd_tmp)
-#define TEST_SEPARATE_PROCESS(module, name)                              \
+#define TEST_SINGLE_THREADED(module, name)                               \
   static void __test_func_##module##_##name(int);                        \
   static struct __test __test_obj_##module##_##name __section("__tests") \
       __used = {#module "::" #name, __test_func_##module##_##name, 1};   \
