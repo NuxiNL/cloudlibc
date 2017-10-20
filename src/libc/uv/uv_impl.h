@@ -295,10 +295,11 @@ static inline void __uv_stream_init(uv_loop_t *loop, uv_stream_t *handle,
   __uv_handle_init(loop, (uv_handle_t *)handle, type);
   handle->write_queue_size = 0;
 
-  __uv_shutdowns_init(&handle->__shutdown_queue);
-  __uv_writes_init(&handle->__write_queue);
   handle->__ipc = ipc;
   handle->__fd = -1;
+  handle->__read_cb = NULL;
+  __uv_shutdowns_init(&handle->__shutdown_queue);
+  __uv_writes_init(&handle->__write_queue);
 }
 
 static inline int __uv_stream_open(uv_stream_t *handle, int fd) {
@@ -319,20 +320,38 @@ static inline int __uv_stream_open(uv_stream_t *handle, int fd) {
   return 0;
 }
 
+static inline void __uv_stream_start_reading(uv_stream_t *handle) {
+  if (handle->__read_cb == NULL) {
+    __uv_reading_streams_insert_last(&handle->loop->__reading_streams, handle);
+    if (__uv_shutdowns_empty(&handle->__shutdown_queue) &&
+        __uv_writes_empty(&handle->__write_queue))
+      __uv_handle_start((uv_handle_t *)handle);
+  }
+}
+
 static inline void __uv_stream_start_writing(uv_stream_t *handle) {
   if (__uv_shutdowns_empty(&handle->__shutdown_queue) &&
       __uv_writes_empty(&handle->__write_queue)) {
-    // TODO(ed): This is incorrect w.r.t. reads!
     __uv_writing_streams_insert_last(&handle->loop->__writing_streams, handle);
-    __uv_handle_start((uv_handle_t *)handle);
+    if (handle->__read_cb == NULL)
+      __uv_handle_start((uv_handle_t *)handle);
   }
+}
+
+static inline void __uv_stream_stop_reading(uv_stream_t *handle) {
+  assert(handle->__read_cb == NULL &&
+         "Stream not actually stopped for reading");
+  __uv_reading_streams_remove(handle);
+  if (__uv_shutdowns_empty(&handle->__shutdown_queue) &&
+      __uv_writes_empty(&handle->__write_queue))
+    __uv_handle_stop((uv_handle_t *)handle);
 }
 
 static inline void __uv_stream_stop_writing(uv_stream_t *handle) {
   if (__uv_shutdowns_empty(&handle->__shutdown_queue) &&
       __uv_writes_empty(&handle->__write_queue)) {
-    // TODO(ed): This is incorrect w.r.t. reads!
-    __uv_handle_stop((uv_handle_t *)handle);
+    if (handle->__read_cb == NULL)
+      __uv_handle_stop((uv_handle_t *)handle);
     __uv_writing_streams_remove(handle);
   }
 }

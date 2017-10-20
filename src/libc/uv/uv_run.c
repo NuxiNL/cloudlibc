@@ -106,8 +106,62 @@ static void __uv_process_proc_terminate(uv_process_t *handle,
 
 static void __uv_stream_fd_read(uv_stream_t *handle,
                                 const cloudabi_event_t *event) {
-  // TODO(ed): Implement.
-  assert(0 && "Not implemented");
+  // This code assumes uv_buf_t and cloudabi_iovec_t are identical.
+  static_assert(offsetof(cloudabi_iovec_t, buf) == offsetof(uv_buf_t, base),
+                "Offset mismatch");
+  static_assert(
+      sizeof(((cloudabi_iovec_t *)0)->buf) == sizeof(((uv_buf_t *)0)->base),
+      "Size mismatch");
+  static_assert(offsetof(cloudabi_iovec_t, buf_len) == offsetof(uv_buf_t, len),
+                "Offset mismatch");
+  static_assert(
+      sizeof(((cloudabi_iovec_t *)0)->buf_len) == sizeof(((uv_buf_t *)0)->len),
+      "Size mismatch");
+  static_assert(sizeof(cloudabi_iovec_t) == sizeof(uv_buf_t), "Size mismatch");
+
+  // uv_read_stop() might have been called in the meantime.
+  if (handle->__read_cb == NULL)
+    return;
+
+  // Place an upper bound on the number of reads we're willing to do to
+  // prevent starvation of other handles.
+  for (int i = 0; i < 100; ++i) {
+    uv_buf_t buf = uv_buf_init(NULL, 0);
+    handle->__alloc_cb((uv_handle_t *)handle, 65536, &buf);
+    if (buf.base == NULL || buf.len == 0) {
+      // Allocator ran out of memory.
+      handle->__read_cb(handle, UV_ENOBUFS, &buf);
+      break;
+    }
+
+    // TODO(ed): Add support for file descriptor receiving.
+    assert(!handle->__ipc && "Not implemented");
+
+    size_t nread;
+    cloudabi_errno_t error =
+        cloudabi_sys_fd_read(handle->__fd, (cloudabi_iovec_t *)&buf, 1, &nread);
+    if (error == CLOUDABI_EAGAIN) {
+      // Spurious wakeup.
+      handle->__read_cb(handle, 0, &buf);
+      break;
+    } else if (error != 0) {
+      // TODO(ed): Deal with read errors!
+      assert(0 && "Not implemented");
+    } else if (nread > 0) {
+      // Successfully read data.
+      bool partial_read = nread < buf.len;
+      handle->__read_cb(handle, nread, &buf);
+      if (partial_read)
+        break;
+    } else {
+      // End-of-file.
+      uv_read_cb cb = handle->__read_cb;
+      handle->__read_cb = NULL;
+      __uv_stream_stop_reading(handle);
+      cb(handle, UV_EOF, &buf);
+      break;
+    }
+  }
 }
 
 static void __uv_stream_fd_write(uv_stream_t *handle,
