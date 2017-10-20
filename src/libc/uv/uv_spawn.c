@@ -60,7 +60,7 @@ int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
   free(fds);
   cloudabi_sys_fd_close(error_write_fd);
 
-  // Attempt to read any error code form the the pipe.
+  // Attempt to read any error code from the pipe.
   {
     cloudabi_errno_t exec_error;
     cloudabi_iovec_t buf = {.buf = &exec_error, .buf_len = sizeof(exec_error)};
