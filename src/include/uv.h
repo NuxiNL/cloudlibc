@@ -518,7 +518,7 @@ struct __uv_process {
   _UV_HANDLE_FIELDS
 
   uv_exit_cb __cb;
-  __uint32_t __fd;
+  int __fd;
   struct __uv_active_processes_entry __uv_active_processes_entry;
 };
 

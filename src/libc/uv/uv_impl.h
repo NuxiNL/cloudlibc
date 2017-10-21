@@ -356,9 +356,16 @@ static inline void __uv_stream_stop_writing(uv_stream_t *handle) {
   }
 }
 
+static inline void __uv_process_kill(uv_process_t *handle) {
+  if (handle->__fd >= 0) {
+    cloudabi_sys_fd_close(handle->__fd);
+    handle->__fd = -1;
+  }
+}
+
 static inline void __uv_process_stop(uv_process_t *handle) {
   if (uv_is_active((uv_handle_t *)handle)) {
-    cloudabi_sys_fd_close(handle->__fd);
+    __uv_process_kill(handle);
     __uv_active_processes_remove(handle);
     __uv_handle_stop((uv_handle_t *)handle);
   }

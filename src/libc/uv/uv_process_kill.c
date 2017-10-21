@@ -5,7 +5,9 @@
 
 #include <uv.h>
 
+#include "uv_impl.h"
+
 int uv_process_kill(uv_process_t *handle, int signum) {
-  // TODO(ed): Implement!
-  return UV_ENOSYS;
+  __uv_process_kill(handle);
+  return 0;
 }

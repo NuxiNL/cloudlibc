@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <cloudabi_syscalls.h>
 #include <limits.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -293,6 +294,24 @@ static bool allocate_subscription(uv_loop_t *loop, size_t *nsubscriptions,
   return true;
 }
 
+static bool allocate_event(uv_loop_t *loop, size_t *nevents,
+                           cloudabi_event_t **ev) {
+  if (*nevents == loop->__events_capacity) {
+    size_t capacity = 4;
+    while (capacity <= *nevents)
+      capacity *= 2;
+    cloudabi_event_t *events =
+        reallocarray(loop->__events_buffer, sizeof(cloudabi_event_t), capacity);
+    if (events == NULL)
+      return false;
+    loop->__events_buffer = events;
+    loop->__events_capacity = capacity;
+  }
+  cloudabi_event_t *events = loop->__events_buffer;
+  *ev = &events[(*nevents)++];
+  return true;
+}
+
 static int do_poll(uv_loop_t *loop, int timeout) {
 #define FOREACH(vartype, var, headtype, head)                                 \
   for (vartype *var = headtype##_empty(head) ? NULL : headtype##_first(head); \
@@ -300,6 +319,7 @@ static int do_poll(uv_loop_t *loop, int timeout) {
        var = var == headtype##_last(head) ? NULL : headtype##_next(var))
   // Create subscription for all of the active handles.
   size_t nsubscriptions = 0;
+  size_t nevents = 0;
   FOREACH(uv_async_t, async, __uv_active_asyncs, &loop->__active_asyncs) {
     cloudabi_subscription_t *sub;
     if (!allocate_subscription(loop, &nsubscriptions, &sub))
@@ -339,14 +359,30 @@ static int do_poll(uv_loop_t *loop, int timeout) {
   }
   FOREACH(uv_process_t, process, __uv_active_processes,
           &loop->__active_processes) {
-    cloudabi_subscription_t *sub;
-    if (!allocate_subscription(loop, &nsubscriptions, &sub))
-      return UV_ENOMEM;
-    *sub = (cloudabi_subscription_t){
-        .userdata = (uintptr_t)process,
-        .type = CLOUDABI_EVENTTYPE_PROC_TERMINATE,
-        .proc_terminate.fd = process->__fd,
-    };
+    if (process->__fd >= 0) {
+      // Process descriptor is still open. Ask the kernel whether the
+      // process is still running.
+      cloudabi_subscription_t *sub;
+      if (!allocate_subscription(loop, &nsubscriptions, &sub))
+        return UV_ENOMEM;
+      *sub = (cloudabi_subscription_t){
+          .userdata = (uintptr_t)process,
+          .type = CLOUDABI_EVENTTYPE_PROC_TERMINATE,
+          .proc_terminate.fd = process->__fd,
+      };
+    } else {
+      // Process has been killed using uv_process_kill(). We can no
+      // longer poll on it, so generate a fictive SIGKILL event.
+      cloudabi_event_t *ev;
+      if (!allocate_event(loop, &nevents, &ev))
+        return UV_ENOMEM;
+      *ev = (cloudabi_event_t){
+          .userdata = (uintptr_t)process,
+          .type = CLOUDABI_EVENTTYPE_PROC_TERMINATE,
+          .proc_terminate.fd = process->__fd,
+          .proc_terminate.signal = SIGKILL,
+      };
+    }
   }
   FOREACH(uv_stream_t, stream, __uv_reading_streams, &loop->__reading_streams) {
     cloudabi_subscription_t *sub;
@@ -372,6 +408,11 @@ static int do_poll(uv_loop_t *loop, int timeout) {
   }
 #undef FOREACH
 
+  // If the loop above has already yielded events, then we should do a
+  // non-blocking poll to extend the results.
+  if (nevents > 0)
+    timeout = 0;
+
   // Add one extra subscription for the timeout, if any.
   if (timeout >= 0) {
     cloudabi_subscription_t *sub;
@@ -389,28 +430,34 @@ static int do_poll(uv_loop_t *loop, int timeout) {
 
   // Grow the events buffer to match the number of subscriptions.
   // Otherwise we wouldn't be able to extract all triggering events.
-  if (loop->__events_capacity < nsubscriptions) {
+  if (loop->__events_capacity < nevents + nsubscriptions) {
+    size_t capacity = 4;
+    while (capacity < nevents + nsubscriptions)
+      capacity *= 2;
     cloudabi_event_t *events =
-        reallocarray(loop->__events_buffer, sizeof(cloudabi_event_t),
-                     loop->__subscriptions_capacity);
+        reallocarray(loop->__events_buffer, sizeof(cloudabi_event_t), capacity);
     if (events == NULL)
       return UV_ENOMEM;
     loop->__events_buffer = events;
-    loop->__events_capacity = loop->__subscriptions_capacity;
+    loop->__events_capacity = capacity;
   }
 
   // Go to sleep.
   cloudabi_event_t *events = loop->__events_buffer;
-  size_t ntriggered;
-  cloudabi_errno_t error = cloudabi_sys_poll(
-      loop->__subscriptions_buffer, events, nsubscriptions, &ntriggered);
-  if (error != 0)
-    return -error;
+  {
+    size_t ntriggered;
+    cloudabi_errno_t error =
+        cloudabi_sys_poll(loop->__subscriptions_buffer, events + nevents,
+                          nsubscriptions, &ntriggered);
+    if (error != 0)
+      return -error;
+    nevents += ntriggered;
+  }
 
   // uv_poll_t is implemented by registering multiple events. First
   // iterate over all of the triggered events to recombine multiple
   // events for the same poll object.
-  for (size_t i = 0; i < ntriggered; ++i) {
+  for (size_t i = 0; i < nevents; ++i) {
     const cloudabi_event_t *event = &events[i];
     uv_handle_t *handle = (uv_handle_t *)event->userdata;
     if (handle->type == UV_POLL) {
@@ -430,7 +477,7 @@ static int do_poll(uv_loop_t *loop, int timeout) {
   // Iterate over all triggered events and invoke callbacks. Skip
   // handles that are not active. Those may have been stopped by earlier
   // callbacks in the same iteration.
-  for (size_t i = 0; i < ntriggered; ++i) {
+  for (size_t i = 0; i < nevents; ++i) {
     const cloudabi_event_t *event = &events[i];
     uv_handle_t *handle = (uv_handle_t *)event->userdata;
     if (!uv_is_active(handle))
