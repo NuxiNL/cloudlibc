@@ -108,7 +108,7 @@ TEST(uv_spawn, enoexec) {
 //       div rax
 //     $ nasm -f elf64 tiny.asm
 //     $ ld -pie -o tiny tiny.o
-//     $ strip tiny
+//     $ strip -s tiny
 //     $ brandelf -f 17 tiny
 //     $ xxd --include tiny
 //
