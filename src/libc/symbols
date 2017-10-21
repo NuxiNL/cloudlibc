@@ -998,6 +998,7 @@ uv_prepare_start
 uv_prepare_stop
 uv_print_active_handles
 uv_print_all_handles
+uv_process_kill
 uv_queue_work
 uv_read_start
 uv_read_stop

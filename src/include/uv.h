@@ -528,8 +528,8 @@ typedef struct {
   const argdata_t *argdata;
 } uv_process_options_t;
 
-// TODO(ed): Add uv_process_kill()?
 __BEGIN_DECLS
+int uv_process_kill(uv_process_t *, int);
 int uv_spawn(uv_loop_t *, uv_process_t *, const uv_process_options_t *);
 __END_DECLS
 
