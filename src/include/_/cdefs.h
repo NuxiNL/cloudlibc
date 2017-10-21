@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -23,6 +23,11 @@
 
 #ifndef ___CDEFS_H_
 #define ___CDEFS_H_
+
+// Version information.
+#define __cloudlibc__ 1
+#define __cloudlibc_major__ 0
+#define __cloudlibc_minor__ 87
 
 #ifdef __cplusplus
 #define __BEGIN_DECLS extern "C" {
