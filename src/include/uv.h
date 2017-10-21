@@ -22,6 +22,85 @@
 // SUCH DAMAGE.
 
 // <uv.h> - event loops
+//
+// Extensions:
+// - uv_process_options_t::argdata and uv_process_options_t::executable:
+//   Allows for spawning of subprocesses similar to <program.h>'s
+//   program_exec().
+//
+// Features missing:
+// - UV_CONNECT, uv_connect_cb, uv_connect_t, uv_connection_cb,
+//   uv_listen(), uv_pipe_bind(), uv_pipe_connect(),
+//   uv_pipe_pending_instances(), uv_tcp_bind(), uv_tcp_connect() and
+//   uv_tcp_simultaneous_accepts()
+//   Requires global network namespace.
+// - UV_FS_ACCESS, UV_FS_CHMOD, UV_FS_CHOWN, UV_FS_COPYFILE, UV_FS_LINK,
+//   UV_FS_LSTAT, UV_FS_MKDIR, UV_FS_MKDTEMP, UV_FS_READLINK,
+//   UV_FS_REALPATH, UV_FS_RENAME, UV_FS_RMDIR, UV_FS_SCANDIR,
+//   UV_FS_STAT, UV_FS_SYMLINK, UV_FS_UNLINK, UV_FS_UTIME, UV_FS_O_*,
+//   uv_dirent_t, uv_fs_t::path, uv_fs_t::ptr, uv_chdir():, uv_cwd(),
+//   uv_exepath(), uv_fs_access(), uv_fs_chmod(), uv_fs_copyfile(),
+//   uv_fs_link(), uv_fs_lstat(), uv_fs_mkdir(), uv_fs_mkdtemp(),
+//   uv_fs_open(), uv_fs_readlink(), uv_fs_realpath(), uv_fs_rename(),
+//   uv_fs_rmdir(), uv_fs_scandir(), uv_fs_scandir_next(), uv_fs_stat(),
+//   uv_fs_symlink(), uv_fs_unlink(), uv_fs_utime(), uv_os_homedir() and
+//   uv_os_tmpdir():
+//   Global filesystem namespace is not available.
+// - UV_FS_EVENT, UV_FS_POLL, uv_fs_event* and uv_fs_poll*:
+//   File system activity monitoring is not available.
+// - UV_FS_FCHMOD, UV_FS_FCHOWN, uv_fs_fchmod(), uv_fs_fchown(),
+//   uv_os_free_passwd() and uv_os_get_passwd():
+//   UNIX credential management is not available.
+// - UV_LOOP_BLOCK_SIGNAL, UV_SIGNAL, uv_signal_cb, uv_signal_t,
+//   uv_loop_configure(), uv_signal_init() uv_signal_start(),
+//   uv_signal_start_oneshot() and uv_signal_stop():
+//   Signals cannot be handled in this environment. Consider sending
+//   RPCs over sockets instead.
+// - UV_PRIORITIZED:
+//   Sending and receiving out-of-band data is unsupported.
+// - UV_TTY* and uv_tty*:
+//   Terminal management is not available.
+// - UV_UDP*, uv_udp* and uv_membership:
+//   Requires datagram sockets to remain unbound, granting them access
+//   to the global network namespace. This is unsupported by this
+//   environment.
+// - uv_calloc_func, uv_free_func, uv_malloc_func, uv_realloc_func,
+//   uv_default_loop() and uv_replace_allocator():
+//   Introduces global state, which this implementation attempts to
+//   avoid to improve thread safety.
+// - uv_lib_t, uv_dlclose(), uv_dlerror(), uv_dlopen() and uv_dlsym():
+//   This environment does not support loading libraries dynamically.
+// - uv_process_flags, uv_process_options_t::args,
+//   uv_process_options_t::cwd, uv_process_options_t::env,
+//   uv_process_options_t::file, uv_process_options_t::flags,
+//   uv_process_options_t::gid, uv_process_options_t::stdio,
+//   uv_process_options_t::stdio_count, uv_process_options_t::uid,
+//   uv_stdio_container_t, uv_stdio_flags and
+//   uv_disable_stdio_inheritance():
+//   Launching unsandboxed processes is unsupported, as this would
+//   circumvent this environment's security framework.
+// - uv_process_t::pid and uv_kill():
+//   Global process namespace cannot be accessed.
+// - uv_backend_fd():
+//   Event loops provided by this implementation are not backed by a
+//   file descriptor.
+// - uv_cpu_info(), uv_free_cpu_info(), uv_free_interface_addresses(),
+//   uv_get_total_memory(), uv_interface_addresses(), uv_loadavg(),
+//   uv_os_gethostname(), uv_resident_set_memory() and uv_uptime():
+//   System-wide resource statistics are not available.
+// - uv_get_process_title(), uv_set_process_title() and uv_setup_args():
+//   Process title cannot be modified in this environment.
+// - uv_loop_fork():
+//   This environment does not support forking, which is why this
+//   function is not necessary.
+// - uv_pipe_getpeername(), uv_pipe_getsockname(), uv_tcp_getpeername() and
+//   uv_tcp_getsockname():
+//   Socket address metadata is not available in this environment.
+// - uv_os_setenv() and uv_os_unsetenv():
+//   Environment variables are not available.
+// - uv_recv_buffer_size(), uv_send_buffer_size(), uv_tcp_keepalive() and
+//   uv_tcp_nodelay():
+//   Socket attributes cannot be adjusted.
 
 #ifndef _UV_H_
 #define _UV_H_
