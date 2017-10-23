@@ -3,9 +3,15 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <stddef.h>
 #include <uv.h>
 
+#include "uv_impl.h"
+
 int uv_read_stop(uv_stream_t *stream) {
-  // TODO(ed): Implement!
-  return UV_ENOSYS;
+  if (stream->__read_cb != NULL) {
+    stream->__read_cb = NULL;
+    __uv_stream_stop_reading(stream);
+  }
+  return 0;
 }

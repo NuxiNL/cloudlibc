@@ -3,6 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <sys/socket.h>
+
 #include <stdbool.h>
 #include <testing.h>
 #include <unistd.h>
@@ -92,7 +94,53 @@ TEST(uv_is_active, idle) {
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
 
-// TODO(ed): Add tests for uv_pipe_t!
+static void stream_alloc_never_called(uv_handle_t *handle,
+                                      size_t suggested_size, uv_buf_t *buf) {
+  ASSERT_TRUE(false);
+}
+
+static void stream_read_never_called(uv_stream_t *stream, ssize_t nread,
+                                     const uv_buf_t *buf) {
+  ASSERT_TRUE(false);
+}
+
+TEST(uv_is_active, pipe) {
+  uv_loop_t loop;
+  ASSERT_EQ(0, uv_loop_init(&loop));
+
+  // Create a file descriptor for the pipe object.
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+  ASSERT_EQ(0, close(fds[1]));
+
+  // Streams should not be active upon creation.
+  uv_pipe_t pipe;
+  ASSERT_EQ(0, uv_pipe_init(&loop, &pipe, 0));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&pipe));
+  ASSERT_EQ(0, uv_pipe_open(&pipe, fds[0]));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&pipe));
+
+  // TODO(ed): Add testing coverage for uv_shutdown_t and uv_write_t.
+  // These may be executed immediately, leaving the stream inactive.
+
+  // Reading from the stream will make it active.
+  ASSERT_EQ(0, uv_read_start((uv_stream_t *)&pipe, stream_alloc_never_called,
+                             stream_read_never_called));
+  ASSERT_TRUE(uv_is_active((uv_handle_t *)&pipe));
+
+  // Stop reading the stream will make it inactive again.
+  ASSERT_EQ(0, uv_read_stop((uv_stream_t *)&pipe));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&pipe));
+
+  // Closing the stream, even when reading, should deactivate it.
+  ASSERT_EQ(0, uv_read_start((uv_stream_t *)&pipe, stream_alloc_never_called,
+                             stream_read_never_called));
+  uv_close((uv_handle_t *)&pipe, close_noop);
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&pipe));
+
+  ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT_EQ(0, uv_loop_close(&loop));
+}
 
 static void poll_never_called(uv_poll_t *handle, int status, int events) {
   ASSERT_TRUE(false);
@@ -166,6 +214,43 @@ TEST(uv_is_active, prepare) {
 }
 
 // TODO(ed): Add tests for uv_process_t!
-// TODO(ed): Add tests for uv_stream_t!
-// TODO(ed): Add tests for uv_tcp_t!
+
+TEST(uv_is_active, tcp) {
+  uv_loop_t loop;
+  ASSERT_EQ(0, uv_loop_init(&loop));
+
+  // Create a file descriptor for the tcp object.
+  int fds[2];
+  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+  ASSERT_EQ(0, close(fds[1]));
+
+  // Streams should not be active upon creation.
+  uv_tcp_t tcp;
+  ASSERT_EQ(0, uv_tcp_init(&loop, &tcp));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&tcp));
+  ASSERT_EQ(0, uv_tcp_open(&tcp, fds[0]));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&tcp));
+
+  // TODO(ed): Add testing coverage for uv_shutdown_t and uv_write_t.
+  // These may be executed immediately, leaving the stream inactive.
+
+  // Reading from the stream will make it active.
+  ASSERT_EQ(0, uv_read_start((uv_stream_t *)&tcp, stream_alloc_never_called,
+                             stream_read_never_called));
+  ASSERT_TRUE(uv_is_active((uv_handle_t *)&tcp));
+
+  // Stop reading the stream will make it inactive again.
+  ASSERT_EQ(0, uv_read_stop((uv_stream_t *)&tcp));
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&tcp));
+
+  // Closing the stream, even when reading, should deactivate it.
+  ASSERT_EQ(0, uv_read_start((uv_stream_t *)&tcp, stream_alloc_never_called,
+                             stream_read_never_called));
+  uv_close((uv_handle_t *)&tcp, close_noop);
+  ASSERT_FALSE(uv_is_active((uv_handle_t *)&tcp));
+
+  ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT_EQ(0, uv_loop_close(&loop));
+}
+
 // TODO(ed): Add tests for uv_timer_t!
