@@ -212,16 +212,17 @@
     head->__capacity = 0;                                                      \
   }                                                                            \
                                                                                \
-  static inline void name##_destroy(struct name##_head *head) {                \
-    free(head->__elements);                                                    \
-  }                                                                            \
-                                                                               \
   static inline size_t name##_count(struct name##_head *head) {                \
     return head->__length;                                                     \
   }                                                                            \
                                                                                \
   static inline bool name##_empty(struct name##_head *head) {                  \
     return name##_count(head) == 0;                                            \
+  }                                                                            \
+                                                                               \
+  static inline void name##_destroy(struct name##_head *head) {                \
+    assert(name##_empty(head) && "Attempted to destroy a used buffer");        \
+    free(head->__elements);                                                    \
   }                                                                            \
                                                                                \
   static inline type name##_first(struct name##_head *head) {                  \

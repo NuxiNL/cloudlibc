@@ -174,8 +174,12 @@ static void __uv_stream_fd_read(uv_stream_t *handle,
       handle->__read_cb(handle, 0, &buf);
       break;
     } else if (error != 0) {
-      // TODO(ed): Deal with read errors!
-      assert(0 && "Not implemented");
+      // Read error.
+      uv_read_cb cb = handle->__read_cb;
+      handle->__read_cb = NULL;
+      __uv_stream_stop_reading(handle);
+      cb(handle, -error, &buf);
+      break;
     } else if (nread > 0) {
       // Successfully read data.
       bool partial_read = nread < buf.len;
@@ -298,7 +302,22 @@ static void run_closing_handles(uv_loop_t *loop) {
     __uv_closing_handles_remove_first(&closing_handles);
     __uv_handles_remove(handle);
 
-    // TODO(ed): Actually free resources!
+    if (handle->type == UV_NAMED_PIPE || handle->type == UV_TCP) {
+      // Cancel all of the pending shutdowns and writes.
+      uv_stream_t *stream = (uv_stream_t *)handle;
+      while (!__uv_shutdowns_empty(&stream->__shutdown_queue)) {
+        uv_shutdown_t *req = __uv_shutdowns_first(&stream->__shutdown_queue);
+        __uv_shutdowns_remove(req);
+        req->__cb(req, UV_ECANCELED);
+      }
+      while (!__uv_writes_empty(&stream->__write_queue)) {
+        uv_write_t *req = __uv_writes_first(&stream->__write_queue);
+        __uv_writes_remove(req);
+        req->__cb(req, UV_ECANCELED);
+      }
+      __uv_pending_fds_destroy(&stream->__pending_fds);
+    }
+
     handle->__close_cb(handle);
   }
 }
