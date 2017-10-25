@@ -312,6 +312,7 @@ static void run_closing_handles(uv_loop_t *loop) {
       }
       while (!__uv_writes_empty(&stream->__write_queue)) {
         uv_write_t *req = __uv_writes_first(&stream->__write_queue);
+        free(req->__bufs);
         __uv_writes_remove(req);
         req->__cb(req, UV_ECANCELED);
       }
