@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <uv.h>
 
 #define _UV_SLIST_DECLARE_FUNCTIONS(name, type)                      \
@@ -173,9 +174,9 @@
                                                                                \
   static inline bool name##_insert(struct name##_head *heap, type *element) {  \
     if (heap->__length == heap->__capacity) {                                  \
-      size_t new_capacity = heap->__capacity < 16 ? 16 : heap->__capacity * 2; \
-      uv_timer_t **new_elements =                                              \
-          reallocarray(heap->__elements, new_capacity, sizeof(uv_timer_t *));  \
+      size_t new_capacity = heap->__capacity < 4 ? 4 : heap->__capacity * 2;   \
+      type **new_elements =                                                    \
+          reallocarray(heap->__elements, new_capacity, sizeof(type *));        \
       if (new_elements == NULL)                                                \
         return false;                                                          \
       heap->__elements = new_elements;                                         \
@@ -203,6 +204,61 @@
     name##_changed(heap, root);                                                \
   }
 
+#define _UV_CIRCLEBUF_DECLARE_FUNCTIONS(name, type)                            \
+  static inline void name##_init(struct name##_head *head) {                   \
+    head->__elements = NULL;                                                   \
+    head->__offset = 0;                                                        \
+    head->__length = 0;                                                        \
+    head->__capacity = 0;                                                      \
+  }                                                                            \
+                                                                               \
+  static inline void name##_destroy(struct name##_head *head) {                \
+    free(head->__elements);                                                    \
+  }                                                                            \
+                                                                               \
+  static inline size_t name##_count(struct name##_head *head) {                \
+    return head->__length;                                                     \
+  }                                                                            \
+                                                                               \
+  static inline bool name##_empty(struct name##_head *head) {                  \
+    return name##_count(head) == 0;                                            \
+  }                                                                            \
+                                                                               \
+  static inline type name##_first(struct name##_head *head) {                  \
+    assert(!name##_empty(head) && "Attempted to access empty buffer");         \
+    return head->__elements[head->__offset];                                   \
+  }                                                                            \
+                                                                               \
+  static inline void name##_remove_first(struct name##_head *head) {           \
+    assert(!name##_empty(head) && "Attempted to access empty buffer");         \
+    head->__offset = (head->__offset + 1) % head->__capacity;                  \
+    --head->__length;                                                          \
+  }                                                                            \
+  static inline bool name##_insert_last(struct name##_head *head,              \
+                                        type element) {                        \
+    if (head->__length == head->__capacity) {                                  \
+      /* Capacity reached. Resize the buffer. */                               \
+      size_t new_capacity = head->__capacity < 4 ? 4 : head->__capacity * 2;   \
+      type *new_elements =                                                     \
+          reallocarray(head->__elements, new_capacity, sizeof(type));          \
+      if (new_elements == NULL)                                                \
+        return false;                                                          \
+      if (head->__offset + head->__length > head->__capacity) {                \
+        /* Old contents wrapped around. Restore the wrapping. */               \
+        size_t trailing_elements = head->__capacity - head->__offset;          \
+        size_t new_offset = new_capacity - trailing_elements;                  \
+        memmove(new_elements + new_offset, new_elements + head->__offset,      \
+                trailing_elements * sizeof(type));                             \
+        head->__offset = new_offset;                                           \
+      }                                                                        \
+      head->__elements = new_elements;                                         \
+      head->__capacity = new_capacity;                                         \
+    }                                                                          \
+    head->__elements[(head->__offset + head->__length++) % head->__capacity] = \
+        element;                                                               \
+    return true;                                                               \
+  }
+
 static inline int __uv_active_timers_cmp(const uv_timer_t *a,
                                          const uv_timer_t *b) {
   if (a->__timeout < b->__timeout)
@@ -212,6 +268,7 @@ static inline int __uv_active_timers_cmp(const uv_timer_t *a,
   return 0;
 }
 
+_UV_CIRCLEBUF_DECLARE_FUNCTIONS(__uv_pending_fds, int);
 _UV_HEAP_DECLARE_FUNCTIONS(__uv_active_timers, uv_timer_t);
 _UV_SLIST_DECLARE_FUNCTIONS(__uv_closing_handles, uv_handle_t);
 _UV_TAILQ_DECLARE_FUNCTIONS(__uv_active_asyncs, uv_async_t);
@@ -300,6 +357,7 @@ static inline void __uv_stream_init(uv_loop_t *loop, uv_stream_t *handle,
   handle->__read_cb = NULL;
   __uv_shutdowns_init(&handle->__shutdown_queue);
   __uv_writes_init(&handle->__write_queue);
+  __uv_pending_fds_init(&handle->__pending_fds);
 }
 
 static inline int __uv_stream_open(uv_stream_t *handle, int fd) {

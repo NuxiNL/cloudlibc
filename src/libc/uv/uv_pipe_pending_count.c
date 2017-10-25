@@ -5,7 +5,8 @@
 
 #include <uv.h>
 
+#include "uv_impl.h"
+
 int uv_pipe_pending_count(uv_pipe_t *handle) {
-  // TODO(ed): Implement!
-  return UV_ENOSYS;
+  return __uv_pending_fds_count(&handle->__pending_fds);
 }

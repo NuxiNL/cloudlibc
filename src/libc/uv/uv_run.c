@@ -120,13 +120,11 @@ static void __uv_stream_fd_read(uv_stream_t *handle,
       "Size mismatch");
   static_assert(sizeof(cloudabi_iovec_t) == sizeof(uv_buf_t), "Size mismatch");
 
-  // uv_read_stop() might have been called in the meantime.
-  if (handle->__read_cb == NULL)
-    return;
-
   // Place an upper bound on the number of reads we're willing to do to
-  // prevent starvation of other handles.
-  for (int i = 0; i < 100; ++i) {
+  // prevent starvation of other handles. Take into account that the
+  // stream may have been stopped for reading in the meantime.
+  for (int read_iteration = 0; handle->__read_cb != NULL && read_iteration < 20;
+       ++read_iteration) {
     uv_buf_t buf = uv_buf_init(NULL, 0);
     handle->__alloc_cb((uv_handle_t *)handle, 65536, &buf);
     if (buf.base == NULL || buf.len == 0) {
@@ -135,12 +133,42 @@ static void __uv_stream_fd_read(uv_stream_t *handle,
       break;
     }
 
-    // TODO(ed): Add support for file descriptor receiving.
-    assert(!handle->__ipc && "Not implemented");
-
+    cloudabi_errno_t error;
     size_t nread;
-    cloudabi_errno_t error =
-        cloudabi_sys_fd_read(handle->__fd, (cloudabi_iovec_t *)&buf, 1, &nread);
+    if (handle->__ipc) {
+      // Stream is capable of receiving file descriptors. Allow
+      // receiving up to 64 file descriptors in one go, which is the
+      // same limit that the official implementation uses.
+      cloudabi_fd_t received_fds[64];
+      cloudabi_recv_in_t ri = {
+          .ri_data = (cloudabi_iovec_t *)&buf,
+          .ri_data_len = 1,
+          .ri_fds = received_fds,
+          .ri_fds_len = __arraycount(received_fds),
+      };
+      cloudabi_recv_out_t ro;
+      error = cloudabi_sys_sock_recv(handle->__fd, &ri, &ro);
+      if (error == 0) {
+        nread = ro.ro_datalen;
+
+        // Enqueue received file descriptors.
+        for (size_t i = 0; i < ro.ro_fdslen; ++i) {
+          if (!__uv_pending_fds_insert_last(&handle->__pending_fds,
+                                            received_fds[i])) {
+            do {
+              cloudabi_sys_fd_close(received_fds[i]);
+            } while (++i < ro.ro_fdslen);
+            error = CLOUDABI_ENOMEM;
+            break;
+          }
+        }
+      }
+    } else {
+      // Stream without IPC. Don't assume it supports socket operations.
+      error = cloudabi_sys_fd_read(handle->__fd, (cloudabi_iovec_t *)&buf, 1,
+                                   &nread);
+    }
+
     if (error == CLOUDABI_EAGAIN) {
       // Spurious wakeup.
       handle->__read_cb(handle, 0, &buf);

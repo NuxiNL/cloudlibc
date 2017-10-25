@@ -76,10 +76,10 @@ TEST(uv_read_start, ipc_disabled) {
     struct iovec iov = {.iov_base = (char *)"BC", .iov_len = 2};
     alignas(struct cmsghdr) char control[CMSG_SPACE(sizeof(fds))];
     struct msghdr msg = {
-      .msg_iov = &iov,
-      .msg_iovlen = 1,
-      .msg_control = control,
-      .msg_controllen = sizeof(control),
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
+        .msg_control = control,
+        .msg_controllen = sizeof(control),
     };
     struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
     cmsg->cmsg_len = CMSG_LEN(sizeof(fds));
@@ -126,6 +126,150 @@ TEST(uv_read_start, ipc_disabled) {
   ASSERT_EQ(0, uv_pipe_pending_count(&pipe));
 
   uv_close((uv_handle_t *)&pipe, close_cb);
+  ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT_EQ(0, uv_loop_close(&loop));
+}
+
+TEST(uv_read_start, ipc_enabled) {
+  uv_loop_t loop;
+  ASSERT_EQ(0, uv_loop_init(&loop));
+
+  int fds[2];
+  ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+  uv_pipe_t stream;
+  ASSERT_EQ(0, uv_pipe_init(&loop, &stream, 1));
+  ASSERT_EQ(0, uv_pipe_open(&stream, fds[0]));
+
+  // Write two groups of two file descriptors into the socket. Each of
+  // the file descriptors is a pipe containing a short message.
+  {
+    struct iovec iov = {.iov_base = (char *)"ABCDE", .iov_len = 5};
+    alignas(struct cmsghdr) char control[CMSG_SPACE(sizeof(fds))];
+    struct msghdr msg = {
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
+        .msg_control = control,
+        .msg_controllen = sizeof(control),
+    };
+    struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
+    cmsg->cmsg_len = CMSG_LEN(sizeof(fds));
+    cmsg->cmsg_level = SOL_SOCKET;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    int *data = (int *)CMSG_DATA(cmsg);
+    {
+      int mfds[2];
+      ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, mfds));
+      ASSERT_EQ(3, write(mfds[1], "Foo", 3));
+      ASSERT_EQ(0, close(mfds[1]));
+      data[0] = mfds[0];
+    }
+    {
+      int mfds[2];
+      ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, mfds));
+      ASSERT_EQ(3, write(mfds[1], "Bar", 3));
+      ASSERT_EQ(0, close(mfds[1]));
+      data[1] = mfds[0];
+    }
+    ASSERT_EQ(5, sendmsg(fds[1], &msg, 0));
+    ASSERT_EQ(0, close(data[0]));
+    ASSERT_EQ(0, close(data[1]));
+  }
+  {
+    struct iovec iov = {.iov_base = (char *)"FGHIJ", .iov_len = 5};
+    alignas(struct cmsghdr) char control[CMSG_SPACE(sizeof(fds))];
+    struct msghdr msg = {
+        .msg_iov = &iov,
+        .msg_iovlen = 1,
+        .msg_control = control,
+        .msg_controllen = sizeof(control),
+    };
+    struct cmsghdr *cmsg = CMSG_FIRSTHDR(&msg);
+    cmsg->cmsg_len = CMSG_LEN(sizeof(fds));
+    cmsg->cmsg_level = SOL_SOCKET;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    int *data = (int *)CMSG_DATA(cmsg);
+    {
+      int mfds[2];
+      ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, mfds));
+      ASSERT_EQ(3, write(mfds[1], "Baz", 3));
+      ASSERT_EQ(0, close(mfds[1]));
+      data[0] = mfds[0];
+    }
+    {
+      int mfds[2];
+      ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, mfds));
+      ASSERT_EQ(3, write(mfds[1], "Qux", 3));
+      ASSERT_EQ(0, close(mfds[1]));
+      data[1] = mfds[0];
+    }
+    ASSERT_EQ(5, sendmsg(fds[1], &msg, 0));
+    ASSERT_EQ(0, close(data[0]));
+    ASSERT_EQ(0, close(data[1]));
+  }
+  ASSERT_EQ(0, close(fds[1]));
+
+  // We should be able to read them back in two runs.
+  struct state state = {};
+  stream.data = &state;
+  ASSERT_EQ(0, uv_read_start((uv_stream_t *)&stream, alloc_cb, read_cb));
+  ASSERT_EQ(1, uv_run(&loop, UV_RUN_ONCE));
+  ASSERT_EQ(1, state.allocs);
+  ASSERT_EQ(1, state.reads);
+  ASSERT_EQ(5, state.bytes);
+  ASSERT_EQ(0, state.eofs);
+  ASSERT_EQ(2, uv_pipe_pending_count(&stream));
+  ASSERT_EQ(1, uv_run(&loop, UV_RUN_ONCE));
+  ASSERT_EQ(2, state.allocs);
+  ASSERT_EQ(2, state.reads);
+  ASSERT_EQ(10, state.bytes);
+  ASSERT_EQ(0, state.eofs);
+  ASSERT_EQ(4, uv_pipe_pending_count(&stream));
+
+  // Extract three of the four file descriptors.
+  ASSERT_EQ(UV_NAMED_PIPE, uv_pipe_pending_type(&stream));
+  uv_pipe_t received1;
+  ASSERT_EQ(0, uv_pipe_init(&loop, &received1, 0));
+  ASSERT_EQ(0, uv_accept((uv_stream_t *)&stream, (uv_stream_t *)&received1));
+  {
+    int fd;
+    ASSERT_EQ(0, uv_fileno((uv_handle_t *)&received1, &fd));
+    char buf[4];
+    ASSERT_EQ(3, read(fd, buf, sizeof(buf)));
+    ASSERT_ARREQ("Foo", buf, 3);
+  }
+  uv_close((uv_handle_t *)&received1, close_cb);
+  ASSERT_EQ(3, uv_pipe_pending_count(&stream));
+
+  ASSERT_EQ(UV_NAMED_PIPE, uv_pipe_pending_type(&stream));
+  uv_pipe_t received2;
+  ASSERT_EQ(0, uv_pipe_init(&loop, &received2, 0));
+  ASSERT_EQ(0, uv_accept((uv_stream_t *)&stream, (uv_stream_t *)&received2));
+  {
+    int fd;
+    ASSERT_EQ(0, uv_fileno((uv_handle_t *)&received2, &fd));
+    char buf[4];
+    ASSERT_EQ(3, read(fd, buf, sizeof(buf)));
+    ASSERT_ARREQ("Bar", buf, 3);
+  }
+  uv_close((uv_handle_t *)&received2, close_cb);
+  ASSERT_EQ(2, uv_pipe_pending_count(&stream));
+
+  ASSERT_EQ(UV_NAMED_PIPE, uv_pipe_pending_type(&stream));
+  uv_pipe_t received3;
+  ASSERT_EQ(0, uv_pipe_init(&loop, &received3, 0));
+  ASSERT_EQ(0, uv_accept((uv_stream_t *)&stream, (uv_stream_t *)&received3));
+  {
+    int fd;
+    ASSERT_EQ(0, uv_fileno((uv_handle_t *)&received3, &fd));
+    char buf[4];
+    ASSERT_EQ(3, read(fd, buf, sizeof(buf)));
+    ASSERT_ARREQ("Baz", buf, 3);
+  }
+  uv_close((uv_handle_t *)&received3, close_cb);
+  ASSERT_EQ(1, uv_pipe_pending_count(&stream));
+
+  // Clean up.
+  uv_close((uv_handle_t *)&stream, close_cb);
   ASSERT_EQ(0, uv_run(&loop, UV_RUN_DEFAULT));
   ASSERT_EQ(0, uv_loop_close(&loop));
 }

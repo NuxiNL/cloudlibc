@@ -314,6 +314,15 @@ struct __uv_queue_link {
     uint64_t __sequence;                        \
   }
 
+#define _UV_CIRCLEBUF_DECLARE_STRUCTURES(name, type) \
+  struct name##_head {                               \
+    type *__elements;                                \
+    size_t __offset;                                 \
+    size_t __length;                                 \
+    size_t __capacity;                               \
+  };
+
+_UV_CIRCLEBUF_DECLARE_STRUCTURES(__uv_pending_fds, int);
 _UV_HEAP_DECLARE_STRUCTURES(__uv_active_timers, uv_timer_t);
 _UV_SLIST_DECLARE_STRUCTURES(__uv_closing_handles, uv_handle_t);
 _UV_TAILQ_DECLARE_STRUCTURES(__uv_active_asyncs);
@@ -632,6 +641,7 @@ struct __uv_stream {
   uv_read_cb __read_cb;                                         \
   struct __uv_shutdowns_head __shutdown_queue;                  \
   struct __uv_writes_head __write_queue;                        \
+  struct __uv_pending_fds_head __pending_fds;                   \
   struct __uv_reading_streams_entry __uv_reading_streams_entry; \
   struct __uv_writing_streams_entry __uv_writing_streams_entry;
   _UV_STREAM_FIELDS

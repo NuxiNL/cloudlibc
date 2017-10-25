@@ -25,7 +25,6 @@ static void __uv_stream_stop(uv_stream_t *handle) {
   uv_read_stop(handle);
 
   // Stop the stream for writing.
-  // TODO(ed): Properly cancel shutdowns and writes!
   if (!__uv_shutdowns_empty(&handle->__shutdown_queue) ||
       !__uv_writes_empty(&handle->__write_queue)) {
     __uv_handle_stop((uv_handle_t *)handle);
@@ -37,6 +36,12 @@ static void __uv_stream_stop(uv_stream_t *handle) {
   // valid (__fd >= 0).
   cloudabi_sys_fd_close(handle->__fd);
   handle->__fd = -2;
+
+  // Close pending incoming file descriptors.
+  while (!__uv_pending_fds_empty(&handle->__pending_fds)) {
+    cloudabi_sys_fd_close(__uv_pending_fds_first(&handle->__pending_fds));
+    __uv_pending_fds_remove_first(&handle->__pending_fds);
+  }
 }
 
 void uv_close(uv_handle_t *handle, uv_close_cb close_cb) {
