@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -26,6 +26,9 @@
 // Extensions:
 // - NI_MAXHOST and NI_MAXSERV:
 //   Present on most other systems.
+// - struct hostent and h_addr:
+//   Part of POSIX issue 6. Still used by lots of code and even various
+//   public APIs.
 // - gai_strerror_l():
 //   gai_strerror() always uses the C locale.
 //
@@ -64,6 +67,16 @@ typedef __size_t socklen_t;
 typedef __uint32_t uint32_t;
 #define _UINT32_T_DECLARED
 #endif
+
+struct hostent {
+  char *h_name;        // Official name of the host.
+  char **h_aliases;    // Alternative host names.
+  int h_addrtype;      // Address type.
+  int h_length;        // The length, in bytes, of the address.
+  char **h_addr_list;  // Network addresses.
+};
+
+#define h_addr h_addr_list[0]
 
 struct protoent {
   char *p_name;      // Official name of the protocol.
