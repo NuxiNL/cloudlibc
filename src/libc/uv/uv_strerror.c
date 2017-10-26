@@ -11,7 +11,7 @@ const char *uv_strerror(int err) {
   switch (err) {
 #define ENTRY(name, description) \
   case UV_##name:                \
-    return #description;
+    return description;
     UV_ERRNO_MAP(ENTRY)
 #undef ENTRY
     default:
