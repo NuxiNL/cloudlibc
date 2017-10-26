@@ -349,16 +349,19 @@ static inline void __uv_handle_stop(uv_handle_t *handle) {
 }
 
 static inline void __uv_stream_init(uv_loop_t *loop, uv_stream_t *handle,
-                                    uv_handle_type type, bool ipc) {
+                                    uv_handle_type type) {
   __uv_handle_init(loop, (uv_handle_t *)handle, type);
   handle->write_queue_size = 0;
 
-  handle->__ipc = ipc;
   handle->__fd = -1;
   handle->__read_cb = NULL;
   __uv_shutdowns_init(&handle->__shutdown_queue);
   __uv_writes_init(&handle->__write_queue);
   __uv_pending_fds_init(&handle->__pending_fds);
+}
+
+static inline bool __uv_stream_has_ipc(uv_stream_t *handle) {
+  return handle->type == UV_NAMED_PIPE && ((uv_pipe_t *)handle)->ipc != 0;
 }
 
 static inline int __uv_stream_open(uv_stream_t *handle, int fd) {

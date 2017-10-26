@@ -725,7 +725,6 @@ struct uv_stream_s {
                                                                 \
   size_t write_queue_size;                                      \
                                                                 \
-  _Bool __ipc;                                                  \
   int __fd;                                                     \
   uv_alloc_cb __alloc_cb;                                       \
   uv_read_cb __read_cb;                                         \
@@ -794,6 +793,8 @@ __END_DECLS
 
 struct uv_pipe_s {
   _UV_STREAM_FIELDS
+
+  int ipc;
 };
 
 __BEGIN_DECLS

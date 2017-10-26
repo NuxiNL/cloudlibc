@@ -8,6 +8,7 @@
 #include "uv_impl.h"
 
 int uv_pipe_init(uv_loop_t *loop, uv_pipe_t *handle, int ipc) {
-  __uv_stream_init(loop, (uv_stream_t *)handle, UV_NAMED_PIPE, ipc != 0);
+  __uv_stream_init(loop, (uv_stream_t *)handle, UV_NAMED_PIPE);
+  handle->ipc = ipc;
   return 0;
 }

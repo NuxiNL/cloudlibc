@@ -14,7 +14,7 @@ int uv_write2(uv_write_t *req, uv_stream_t *handle, const uv_buf_t *bufs,
   // Sanity checks on the write request.
   if (handle->__fd < 0 || (send_handle != NULL && send_handle->__fd < 0))
     return UV_EBADF;
-  if (send_handle != NULL && !handle->__ipc)
+  if (send_handle != NULL && !__uv_stream_has_ipc(handle))
     return UV_EINVAL;
 
   // Never create write requests with zero buffers, as we assume that

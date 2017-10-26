@@ -135,7 +135,7 @@ static void __uv_stream_fd_read(uv_stream_t *handle,
 
     cloudabi_errno_t error;
     size_t nread;
-    if (handle->__ipc) {
+    if (__uv_stream_has_ipc(handle)) {
       // Stream is capable of receiving file descriptors. Allow
       // receiving up to 64 file descriptors in one go, which is the
       // same limit that the official implementation uses.
