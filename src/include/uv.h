@@ -142,18 +142,31 @@ typedef int uv_file;
 typedef int uv_os_fd_t;
 typedef int uv_os_sock_t;
 
-typedef struct __uv_async uv_async_t;
-typedef struct __uv_buf uv_buf_t;
-typedef struct __uv_check uv_check_t;
-typedef struct __uv_handle uv_handle_t;
-typedef struct __uv_idle uv_idle_t;
-typedef struct __uv_poll uv_poll_t;
-typedef struct __uv_prepare uv_prepare_t;
-typedef struct __uv_process uv_process_t;
-typedef struct __uv_shutdown uv_shutdown_t;
-typedef struct __uv_stream uv_stream_t;
-typedef struct __uv_timer uv_timer_t;
-typedef struct __uv_write uv_write_t;
+typedef struct uv_async_s uv_async_t;
+typedef struct uv_check_s uv_check_t;
+typedef struct uv_fs_s uv_fs_t;
+typedef struct uv_getaddrinfo_s uv_getaddrinfo_t;
+typedef struct uv_getnameinfo_s uv_getnameinfo_t;
+typedef struct uv_handle_s uv_handle_t;
+typedef struct uv_idle_s uv_idle_t;
+typedef struct uv_loop_s uv_loop_t;
+typedef struct uv_pipe_s uv_pipe_t;
+typedef struct uv_poll_s uv_poll_t;
+typedef struct uv_prepare_s uv_prepare_t;
+typedef struct uv_process_options_s uv_process_options_t;
+typedef struct uv_process_s uv_process_t;
+typedef struct uv_req_s uv_req_t;
+typedef struct uv_shutdown_s uv_shutdown_t;
+typedef struct uv_stream_s uv_stream_t;
+typedef struct uv_tcp_s uv_tcp_t;
+typedef struct uv_timer_s uv_timer_t;
+typedef struct uv_work_s uv_work_t;
+typedef struct uv_write_s uv_write_t;
+
+typedef struct {
+  char *base;
+  size_t len;
+} uv_buf_t;
 
 typedef enum {
   UV_UNKNOWN_HANDLE = 0,
@@ -363,7 +376,7 @@ __END_DECLS
 // uv_loop_t - Event loop.
 //
 
-typedef struct {
+struct uv_loop_s {
   void *data;
 
   uint64_t __now;
@@ -389,8 +402,7 @@ typedef struct {
   size_t __events_capacity;
   void *__subscriptions_buffer;
   size_t __subscriptions_capacity;
-
-} uv_loop_t;
+};
 
 typedef enum {
   UV_RUN_DEFAULT = 0,
@@ -419,7 +431,7 @@ __END_DECLS
 typedef void (*uv_alloc_cb)(uv_handle_t *, size_t, uv_buf_t *);
 typedef void (*uv_close_cb)(uv_handle_t *);
 
-struct __uv_handle {
+struct uv_handle_s {
 #define _UV_HANDLE_FIELDS                                       \
   _Alignas(__max_align_t) uv_loop_t *loop;                      \
   uv_handle_type type;                                          \
@@ -448,13 +460,13 @@ __END_DECLS
 // uv_req_t - Base request.
 //
 
-typedef struct {
+struct uv_req_s {
 #define _UV_REQ_FIELDS                \
   _Alignas(__max_align_t) void *data; \
   uv_req_type type;
 
   _UV_REQ_FIELDS
-} uv_req_t;
+};
 
 __BEGIN_DECLS
 int uv_cancel(uv_req_t *);
@@ -467,7 +479,7 @@ __END_DECLS
 
 typedef void (*uv_timer_cb)(uv_timer_t *);
 
-struct __uv_timer {
+struct uv_timer_s {
   _UV_HANDLE_FIELDS
 
   uv_timer_cb __cb;
@@ -491,7 +503,7 @@ __END_DECLS
 
 typedef void (*uv_prepare_cb)(uv_prepare_t *);
 
-struct __uv_prepare {
+struct uv_prepare_s {
   _UV_HANDLE_FIELDS
 
   uv_prepare_cb __cb;
@@ -510,7 +522,7 @@ __END_DECLS
 
 typedef void (*uv_check_cb)(uv_check_t *);
 
-struct __uv_check {
+struct uv_check_s {
   _UV_HANDLE_FIELDS
 
   uv_check_cb __cb;
@@ -529,7 +541,7 @@ __END_DECLS
 
 typedef void (*uv_idle_cb)(uv_idle_t *);
 
-struct __uv_idle {
+struct uv_idle_s {
   _UV_HANDLE_FIELDS
 
   uv_idle_cb __cb;
@@ -548,7 +560,7 @@ __END_DECLS
 
 typedef void (*uv_async_cb)(uv_async_t *);
 
-struct __uv_async {
+struct uv_async_s {
   _UV_HANDLE_FIELDS
 
   __uint32_t __readfd;
@@ -568,7 +580,7 @@ __END_DECLS
 
 typedef void (*uv_poll_cb)(uv_poll_t *, int, int);
 
-struct __uv_poll {
+struct uv_poll_s {
   _UV_HANDLE_FIELDS
 
   int __fd;
@@ -599,7 +611,7 @@ __END_DECLS
 
 typedef void (*uv_exit_cb)(uv_process_t *, int64_t, int);
 
-struct __uv_process {
+struct uv_process_s {
   _UV_HANDLE_FIELDS
 
   uv_exit_cb __cb;
@@ -607,11 +619,11 @@ struct __uv_process {
   struct __uv_active_processes_entry __uv_active_processes_entry;
 };
 
-typedef struct {
+struct uv_process_options_s {
   uv_exit_cb exit_cb;
   uv_file executable;
   const argdata_t *argdata;
-} uv_process_options_t;
+};
 
 __BEGIN_DECLS
 int uv_process_kill(uv_process_t *, int);
@@ -626,7 +638,7 @@ typedef void (*uv_read_cb)(uv_stream_t *, ssize_t, const uv_buf_t *);
 typedef void (*uv_shutdown_cb)(uv_shutdown_t *, int);
 typedef void (*uv_write_cb)(uv_write_t *, int);
 
-struct __uv_stream {
+struct uv_stream_s {
 #define _UV_STREAM_FIELDS                                       \
   _UV_HANDLE_FIELDS                                             \
                                                                 \
@@ -644,7 +656,7 @@ struct __uv_stream {
   _UV_STREAM_FIELDS
 };
 
-struct __uv_shutdown {
+struct uv_shutdown_s {
   _UV_REQ_FIELDS
 
   uv_stream_t *handle;
@@ -653,7 +665,7 @@ struct __uv_shutdown {
   struct __uv_shutdowns_entry __uv_shutdowns_entry;
 };
 
-struct __uv_write {
+struct uv_write_s {
   _UV_REQ_FIELDS
 
   uv_stream_t *handle;
@@ -685,9 +697,9 @@ __END_DECLS
 // uv_tcp_t - TCP handle.
 //
 
-typedef struct {
+struct uv_tcp_s {
   _UV_STREAM_FIELDS
-} uv_tcp_t;
+};
 
 __BEGIN_DECLS
 int uv_tcp_init(uv_loop_t *, uv_tcp_t *);
@@ -699,9 +711,9 @@ __END_DECLS
 // uv_pipe_t - Pipe handle.
 //
 
-typedef struct {
+struct uv_pipe_s {
   _UV_STREAM_FIELDS
-} uv_pipe_t;
+};
 
 __BEGIN_DECLS
 int uv_pipe_init(uv_loop_t *, uv_pipe_t *, int);
@@ -744,7 +756,7 @@ typedef enum {
   UV_FS_WRITE,
 } uv_fs_type;
 
-typedef struct {
+struct uv_fs_s {
 #define _UV_WORK_FIELDS \
   _UV_REQ_FIELDS        \
   uv_loop_t *loop;
@@ -778,7 +790,7 @@ typedef struct {
       double __mtime;
     } __futime;
   } __arguments;
-} uv_fs_t;
+};
 
 typedef void (*uv_fs_cb)(uv_fs_t *);
 
@@ -803,9 +815,9 @@ __END_DECLS
 // Thread pool work scheduling.
 //
 
-typedef struct {
+struct uv_work_s {
   _UV_WORK_FIELDS
-} uv_work_t;
+};
 
 typedef void (*uv_work_cb)(uv_work_t *);
 typedef void (*uv_after_work_cb)(uv_work_t *, int);
@@ -818,18 +830,18 @@ __END_DECLS
 // DNS utility functions.
 //
 
-typedef struct {
+struct uv_getaddrinfo_s {
   _UV_WORK_FIELDS
 
   struct addrinfo *addrinfo;
-} uv_getaddrinfo_t;
+};
 
-typedef struct {
+struct uv_getnameinfo_s {
   _UV_WORK_FIELDS
 
   char host[57];
   char service[64];
-} uv_getnameinfo_t;
+};
 
 typedef void (*uv_getaddrinfo_cb)(uv_getaddrinfo_t *, int, struct addrinfo *);
 typedef void (*uv_getnameinfo_cb)(uv_getnameinfo_t *, int, const char *,
@@ -908,11 +920,6 @@ __END_DECLS
 //
 // Miscellaneous utilities.
 //
-
-struct __uv_buf {
-  char *base;
-  size_t len;
-};
 
 typedef struct {
   long tv_sec;
