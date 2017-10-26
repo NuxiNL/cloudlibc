@@ -144,8 +144,11 @@ typedef int uv_os_sock_t;
 
 typedef struct __uv_async uv_async_t;
 typedef struct __uv_buf uv_buf_t;
+typedef struct __uv_check uv_check_t;
 typedef struct __uv_handle uv_handle_t;
+typedef struct __uv_idle uv_idle_t;
 typedef struct __uv_poll uv_poll_t;
+typedef struct __uv_prepare uv_prepare_t;
 typedef struct __uv_process uv_process_t;
 typedef struct __uv_shutdown uv_shutdown_t;
 typedef struct __uv_stream uv_stream_t;
@@ -486,8 +489,6 @@ __END_DECLS
 // uv_prepare_t - Prepare handle.
 //
 
-typedef struct __uv_prepare uv_prepare_t;
-
 typedef void (*uv_prepare_cb)(uv_prepare_t *);
 
 struct __uv_prepare {
@@ -507,8 +508,6 @@ __END_DECLS
 // uv_check_t - Check handle.
 //
 
-typedef struct __uv_check uv_check_t;
-
 typedef void (*uv_check_cb)(uv_check_t *);
 
 struct __uv_check {
@@ -527,8 +526,6 @@ __END_DECLS
 //
 // uv_idle_t - Idle handle.
 //
-
-typedef struct __uv_idle uv_idle_t;
 
 typedef void (*uv_idle_cb)(uv_idle_t *);
 
