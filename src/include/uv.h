@@ -142,60 +142,60 @@ typedef int uv_file;
 typedef int uv_os_fd_t;
 typedef int uv_os_sock_t;
 
-typedef struct uv_async_s uv_async_t;
-typedef struct uv_check_s uv_check_t;
-typedef struct uv_fs_s uv_fs_t;
-typedef struct uv_getaddrinfo_s uv_getaddrinfo_t;
-typedef struct uv_getnameinfo_s uv_getnameinfo_t;
-typedef struct uv_handle_s uv_handle_t;
-typedef struct uv_idle_s uv_idle_t;
-typedef struct uv_loop_s uv_loop_t;
-typedef struct uv_pipe_s uv_pipe_t;
-typedef struct uv_poll_s uv_poll_t;
-typedef struct uv_prepare_s uv_prepare_t;
-typedef struct uv_process_options_s uv_process_options_t;
-typedef struct uv_process_s uv_process_t;
-typedef struct uv_req_s uv_req_t;
-typedef struct uv_shutdown_s uv_shutdown_t;
-typedef struct uv_stream_s uv_stream_t;
-typedef struct uv_tcp_s uv_tcp_t;
-typedef struct uv_timer_s uv_timer_t;
-typedef struct uv_work_s uv_work_t;
-typedef struct uv_write_s uv_write_t;
-
 typedef struct {
   char *base;
   size_t len;
 } uv_buf_t;
 
+// clang-format off
+
+#define _UV_ENUM_ENTRY(upper, lower) UV_##upper,
+#define _UV_STRUCT_TYPE(upper, lower) \
+  typedef struct uv_##lower##_s uv_##lower##_t;
+
+#define UV_HANDLE_TYPE_MAP(func) \
+  func(ASYNC, async)             \
+  func(CHECK, check)             \
+  func(HANDLE, handle)           \
+  func(IDLE, idle)               \
+  func(NAMED_PIPE, pipe)         \
+  func(POLL, poll)               \
+  func(PREPARE, prepare)         \
+  func(PROCESS, process)         \
+  func(STREAM, stream)           \
+  func(TCP, tcp)                 \
+  func(TIMER, timer)
+
 typedef enum {
   UV_UNKNOWN_HANDLE = 0,
-  UV_ASYNC,
-  UV_CHECK,
+  UV_HANDLE_TYPE_MAP(_UV_ENUM_ENTRY)
   UV_FILE,
-  UV_HANDLE,
-  UV_IDLE,
-  UV_NAMED_PIPE,
-  UV_POLL,
-  UV_PREPARE,
-  UV_PROCESS,
-  UV_STREAM,
-  UV_TCP,
-  UV_TIMER,
   UV_HANDLE_TYPE_MAX,
 } uv_handle_type;
 
+UV_HANDLE_TYPE_MAP(_UV_STRUCT_TYPE)
+
+#define UV_REQ_TYPE_MAP(func)    \
+  func(FS, fs)                   \
+  func(GETADDRINFO, getaddrinfo) \
+  func(GETNAMEINFO, getnameinfo) \
+  func(REQ, req)                 \
+  func(SHUTDOWN, shutdown)       \
+  func(WORK, work)               \
+  func(WRITE, write)
+
 typedef enum {
   UV_UNKNOWN_REQ = 0,
-  UV_FS,
-  UV_GETADDRINFO,
-  UV_GETNAMEINFO,
-  UV_REQ,
-  UV_SHUTDOWN,
-  UV_WORK,
-  UV_WRITE,
+  UV_REQ_TYPE_MAP(_UV_ENUM_ENTRY)
   UV_REQ_TYPE_MAX,
 } uv_req_type;
+
+UV_REQ_TYPE_MAP(_UV_STRUCT_TYPE)
+
+#undef _UV_ENUM_ENTRY
+#undef _UV_TYPE_ENTRY
+
+// clang-format on
 
 //
 // Error handling.
@@ -376,7 +376,7 @@ __END_DECLS
 // uv_loop_t - Event loop.
 //
 
-struct uv_loop_s {
+typedef struct uv_loop_s {
   void *data;
 
   uint64_t __now;
@@ -402,7 +402,7 @@ struct uv_loop_s {
   size_t __events_capacity;
   void *__subscriptions_buffer;
   size_t __subscriptions_capacity;
-};
+} uv_loop_t;
 
 typedef enum {
   UV_RUN_DEFAULT = 0,
@@ -619,11 +619,11 @@ struct uv_process_s {
   struct __uv_active_processes_entry __uv_active_processes_entry;
 };
 
-struct uv_process_options_s {
+typedef struct uv_process_options_s {
   uv_exit_cb exit_cb;
   uv_file executable;
   const argdata_t *argdata;
-};
+} uv_process_options_t;
 
 __BEGIN_DECLS
 int uv_process_kill(uv_process_t *, int);

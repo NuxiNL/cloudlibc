@@ -457,33 +457,12 @@ static inline int __uv_fs_execute(uv_loop_t *loop, uv_fs_t *req,
 static inline void __uv_print_handle(uv_handle_t *handle, FILE *stream) {
   const char *type;
   switch (handle->type) {
-    case UV_ASYNC:
-      type = "async";
-      break;
-    case UV_CHECK:
-      type = "check";
-      break;
-    case UV_IDLE:
-      type = "idle";
-      break;
-    case UV_NAMED_PIPE:
-      type = "pipe";
-      break;
-    case UV_POLL:
-      type = "poll";
-      break;
-    case UV_PREPARE:
-      type = "prepare";
-      break;
-    case UV_PROCESS:
-      type = "process";
-      break;
-    case UV_TCP:
-      type = "tcp";
-      break;
-    case UV_TIMER:
-      type = "timer";
-      break;
+#define ENTRY(upper, lower) \
+  case UV_##upper:          \
+    type = #lower;          \
+    break;
+    UV_HANDLE_TYPE_MAP(ENTRY)
+#undef ENTRY
     default:
       assert(0 && "Unknown type");
   }

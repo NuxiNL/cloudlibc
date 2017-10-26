@@ -7,20 +7,11 @@
 
 size_t uv_req_size(uv_req_type type) {
   switch (type) {
-    case UV_FS:
-      return sizeof(uv_fs_t);
-    case UV_GETADDRINFO:
-      return sizeof(uv_getaddrinfo_t);
-    case UV_GETNAMEINFO:
-      return sizeof(uv_getnameinfo_t);
-    case UV_REQ:
-      return sizeof(uv_req_t);
-    case UV_SHUTDOWN:
-      return sizeof(uv_shutdown_t);
-    case UV_WORK:
-      return sizeof(uv_work_t);
-    case UV_WRITE:
-      return sizeof(uv_write_t);
+#define ENTRY(upper, lower) \
+  case UV_##upper:          \
+    return sizeof(uv_##lower##_t);
+    UV_REQ_TYPE_MAP(ENTRY)
+#undef ENTRY
     default:
       return -1;
   }
