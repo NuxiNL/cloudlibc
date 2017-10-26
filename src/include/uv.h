@@ -195,11 +195,90 @@ UV_REQ_TYPE_MAP(_UV_STRUCT_TYPE)
 #undef _UV_ENUM_ENTRY
 #undef _UV_TYPE_ENTRY
 
-// clang-format on
-
 //
 // Error handling.
 //
+
+#define UV_ERRNO_MAP(func)                                         \
+  func(E2BIG, "argument list too long")                            \
+  func(EACCES, "permission denied")                                \
+  func(EADDRINUSE, "address already in use")                       \
+  func(EADDRNOTAVAIL, "address not available")                     \
+  func(EAFNOSUPPORT, "address family not supported")               \
+  func(EAGAIN, "resource temporarily unavailable")                 \
+  func(EAI_ADDRFAMILY, "address family not supported")             \
+  func(EAI_AGAIN, "temporary failure")                             \
+  func(EAI_BADFLAGS, "bad ai_flags value")                         \
+  func(EAI_BADHINTS, "invalid value for hints")                    \
+  func(EAI_CANCELED, "request canceled")                           \
+  func(EAI_FAIL, "permanent failure")                              \
+  func(EAI_FAMILY, "ai_family not supported")                      \
+  func(EAI_MEMORY, "out of memory")                                \
+  func(EAI_NODATA, "no address")                                   \
+  func(EAI_NONAME, "unknown node or service")                      \
+  func(EAI_OVERFLOW, "argument buffer overflow")                   \
+  func(EAI_PROTOCOL, "resolved protocol is unknown")               \
+  func(EAI_SERVICE, "service not available for socket type")       \
+  func(EAI_SOCKTYPE, "socket type not supported")                  \
+  func(EALREADY, "connection already in progress")                 \
+  func(EBADF, "bad file descriptor")                               \
+  func(EBUSY, "resource busy or locked")                           \
+  func(ECANCELED, "operation canceled")                            \
+  func(ECHARSET, "invalid Unicode character")                      \
+  func(ECONNABORTED, "software caused connection abort")           \
+  func(ECONNREFUSED, "connection refused")                         \
+  func(ECONNRESET, "connection reset by peer")                     \
+  func(EDESTADDRREQ, "destination address required")               \
+  func(EEXIST, "file already exists")                              \
+  func(EFAULT, "bad address in system call argument")              \
+  func(EFBIG, "file too large")                                    \
+  func(EHOSTDOWN, "host is down")                                  \
+  func(EHOSTUNREACH, "host is unreachable")                        \
+  func(EINTR, "interrupted system call")                           \
+  func(EINVAL, "invalid argument")                                 \
+  func(EIO, "i/o error")                                           \
+  func(EISCONN, "socket is already connected")                     \
+  func(EISDIR, "illegal operation on a directory")                 \
+  func(ELOOP, "too many symbolic links encountered")               \
+  func(EMFILE, "too many open files")                              \
+  func(EMLINK, "too many links")                                   \
+  func(EMSGSIZE, "message too long")                               \
+  func(ENAMETOOLONG, "name too long")                              \
+  func(ENETDOWN, "network is down")                                \
+  func(ENETUNREACH, "network is unreachable")                      \
+  func(ENFILE, "file table overflow")                              \
+  func(ENOBUFS, "no buffer space available")                       \
+  func(ENODEV, "no such device")                                   \
+  func(ENOENT, "no such file or directory")                        \
+  func(ENOMEM, "not enough memory")                                \
+  func(ENONET, "machine is not on the network")                    \
+  func(ENOPROTOOPT, "protocol not available")                      \
+  func(ENOSPC, "no space left on device")                          \
+  func(ENOSYS, "function not implemented")                         \
+  func(ENOTCONN, "socket is not connected")                        \
+  func(ENOTDIR, "not a directory")                                 \
+  func(ENOTEMPTY, "directory not empty")                           \
+  func(ENOTSOCK, "socket operation on non-socket")                 \
+  func(ENOTSUP, "operation not supported on socket")               \
+  func(ENXIO, "no such device or address")                         \
+  func(EOF, "end of file")                                         \
+  func(EPERM, "operation not permitted")                           \
+  func(EPIPE, "broken pipe")                                       \
+  func(EPROTO, "protocol error")                                   \
+  func(EPROTONOSUPPORT, "protocol not supported")                  \
+  func(EPROTOTYPE, "protocol wrong type for socket")               \
+  func(ERANGE, "result too large")                                 \
+  func(EREMOTEIO, "remote I/O error")                              \
+  func(EROFS, "read-only file system")                             \
+  func(ESHUTDOWN, "cannot send after transport endpoint shutdown") \
+  func(ESPIPE, "invalid seek")                                     \
+  func(ESRCH, "no such process")                                   \
+  func(ETIMEDOUT, "connection timed out")                          \
+  func(ETXTBSY, "text file is busy")                               \
+  func(EXDEV, "cross-device link not permitted")                   \
+  func(UNKNOWN, "unknown error")
+
+// clang-format on
 
 typedef enum {
   // C/POSIX error codes. Map these to [-1000, 0).
@@ -278,10 +357,12 @@ typedef enum {
   UV_EAI_NODATA = -2004,
   UV_EAI_PROTOCOL = -2005,
   UV_ECHARSET = -2006,
-  UV_ENONET = -2007,
-  UV_EOF = -2008,
-  UV_ESHUTDOWN = -2009,
-  UV_UNKNOWN = -2010,
+  UV_EHOSTDOWN = -2007,
+  UV_ENONET = -2008,
+  UV_EOF = -2009,
+  UV_EREMOTEIO = -2010,
+  UV_ESHUTDOWN = -2011,
+  UV_UNKNOWN = -2012,
 } uv_errno_t;
 
 __BEGIN_DECLS
