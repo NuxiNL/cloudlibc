@@ -27,7 +27,7 @@
 // Version information.
 #define __cloudlibc__ 1
 #define __cloudlibc_major__ 0
-#define __cloudlibc_minor__ 90
+#define __cloudlibc_minor__ 91
 
 #ifdef __cplusplus
 #define __BEGIN_DECLS extern "C" {
