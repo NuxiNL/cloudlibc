@@ -45,6 +45,7 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     if (fd < nfds) {
       cloudabi_subscription_t *subscription = &subscriptions[nevents++];
       *subscription = (cloudabi_subscription_t){
+          .userdata = fd,
           .type = CLOUDABI_EVENTTYPE_FD_READ,
           .fd_readwrite.fd = fd,
           .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
@@ -58,6 +59,7 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
     if (fd < nfds) {
       cloudabi_subscription_t *subscription = &subscriptions[nevents++];
       *subscription = (cloudabi_subscription_t){
+          .userdata = fd,
           .type = CLOUDABI_EVENTTYPE_FD_WRITE,
           .fd_readwrite.fd = fd,
           .fd_readwrite.flags = CLOUDABI_SUBSCRIPTION_FD_READWRITE_POLL,
@@ -103,7 +105,7 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
   FD_ZERO(writefds);
   for (size_t i = 0; i < nevents; ++i) {
     const cloudabi_event_t *event = &events[i];
-    int fd = event->fd_readwrite.fd;
+    int fd = event->userdata;
     if (event->type == CLOUDABI_EVENTTYPE_FD_READ) {
       readfds->__fds[readfds->__nfds++] = fd;
     } else if (event->type == CLOUDABI_EVENTTYPE_FD_WRITE) {

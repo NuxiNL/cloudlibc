@@ -427,7 +427,6 @@ static int do_poll(uv_loop_t *loop, int timeout) {
       *ev = (cloudabi_event_t){
           .userdata = (uintptr_t)process,
           .type = CLOUDABI_EVENTTYPE_PROC_TERMINATE,
-          .proc_terminate.fd = process->__fd,
           .proc_terminate.signal = SIGKILL,
       };
     }
