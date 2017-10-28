@@ -75,8 +75,7 @@
 //   uv_process_options_t::file, uv_process_options_t::flags,
 //   uv_process_options_t::gid, uv_process_options_t::stdio,
 //   uv_process_options_t::stdio_count, uv_process_options_t::uid,
-//   uv_stdio_container_t, uv_stdio_flags and
-//   uv_disable_stdio_inheritance():
+//   uv_stdio_container_t and uv_stdio_flags:
 //   Launching unsandboxed processes is unsupported, as this would
 //   circumvent this environment's security framework.
 // - uv_process_t::pid and uv_kill():
@@ -707,6 +706,7 @@ typedef struct uv_process_options_s {
 } uv_process_options_t;
 
 __BEGIN_DECLS
+void uv_disable_stdio_inheritance(void);
 int uv_process_kill(uv_process_t *, int);
 int uv_spawn(uv_loop_t *, uv_process_t *, const uv_process_options_t *);
 __END_DECLS
@@ -802,6 +802,14 @@ int uv_pipe_init(uv_loop_t *, uv_pipe_t *, int);
 int uv_pipe_open(uv_pipe_t *, uv_file);
 int uv_pipe_pending_count(uv_pipe_t *);
 uv_handle_type uv_pipe_pending_type(uv_pipe_t *);
+__END_DECLS
+
+//
+// uv_tty_t - TTY handle.
+//
+
+__BEGIN_DECLS
+int uv_tty_reset_mode(void);
 __END_DECLS
 
 //

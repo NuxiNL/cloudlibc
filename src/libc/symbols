@@ -934,6 +934,7 @@ uv_cond_init
 uv_cond_signal
 uv_cond_timedwait
 uv_cond_wait
+uv_disable_stdio_inheritance
 uv_err_name
 uv_fileno
 uv_freeaddrinfo
@@ -1038,6 +1039,7 @@ uv_timer_start
 uv_timer_stop
 uv_translate_sys_error
 uv_try_write
+uv_tty_reset_mode
 uv_unref
 uv_update_time
 uv_version
