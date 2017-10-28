@@ -105,11 +105,10 @@ int pselect(int nfds, fd_set *restrict readfds, fd_set *restrict writefds,
   FD_ZERO(writefds);
   for (size_t i = 0; i < nevents; ++i) {
     const cloudabi_event_t *event = &events[i];
-    int fd = event->userdata;
     if (event->type == CLOUDABI_EVENTTYPE_FD_READ) {
-      readfds->__fds[readfds->__nfds++] = fd;
+      readfds->__fds[readfds->__nfds++] = event->userdata;
     } else if (event->type == CLOUDABI_EVENTTYPE_FD_WRITE) {
-      writefds->__fds[writefds->__nfds++] = fd;
+      writefds->__fds[writefds->__nfds++] = event->userdata;
     }
   }
   return readfds->__nfds + writefds->__nfds;
