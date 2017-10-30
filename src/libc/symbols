@@ -910,6 +910,7 @@ tss_set
 twalk
 tzname
 tzset
+uname
 ungetc
 ungetwc
 unlinkat

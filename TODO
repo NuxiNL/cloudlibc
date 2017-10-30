@@ -19,11 +19,11 @@ semaphore.h setjmp.h signal.h stdalign.h stdarg.h stdatomic.h stdbool.h
 stddef.h stdint.h stdlib.h stdnoreturn.h strings.h sys/capsicum.h
 sys/mman.h sys/procdesc.h sys/resource.h sys/select.h sys/socket.h
 sys/stat.h sys/time.h sys/times.h sys/types.h sys/uio.h sys/un.h
-syslog.h tar.h testing.h tgmath.h threads.h time.h uchar.h wctype.h
+sys/utsname.h syslog.h tar.h testing.h tgmath.h threads.h time.h uchar.h
+wctype.h
 
 Will not be implemented:
 ------------------------
 aio.h ftw.h glob.h grp.h ndbm.h netinet/tcp.h nl_types.h pwd.h spawn.h
 stropts.h sys/ipc.h sys/msg.h sys/sem.h sys/shm.h sys/statvfs.h
-sys/utsname.h sys/wait.h termios.h trace.h ulimit.h utime.h utmpx.h
-wordexp.h
+sys/wait.h termios.h trace.h ulimit.h utime.h utmpx.h wordexp.h
