@@ -30,7 +30,7 @@
 #ifndef _SYS_UTSNAME_H_
 #define _SYS_UTSNAME_H_
 
-#include <_/types.h>
+#include <_/cdefs.h>
 
 struct utsname {
   char sysname[32];  // Name of this implementation of the operating system.
