@@ -58,8 +58,6 @@
 //   RPCs over sockets instead.
 // - UV_PRIORITIZED:
 //   Sending and receiving out-of-band data is unsupported.
-// - UV_TTY* and uv_tty*:
-//   Terminal management is not available.
 // - UV_UDP*, uv_udp* and uv_membership:
 //   Requires datagram sockets to remain unbound, granting them access
 //   to the global network namespace. This is unsupported by this
@@ -80,6 +78,8 @@
 //   circumvent this environment's security framework.
 // - uv_process_t::pid and uv_kill():
 //   Global process namespace cannot be accessed.
+// - uv_tty_mode_t, uv_tty_set_mode() and uv_tty_get_winsize():
+//   Terminal attributes cannot be configured.
 // - uv_backend_fd():
 //   Event loops provided by this implementation are not backed by a
 //   file descriptor.
@@ -163,7 +163,8 @@ typedef struct {
   func(PROCESS, process)         \
   func(STREAM, stream)           \
   func(TCP, tcp)                 \
-  func(TIMER, timer)
+  func(TIMER, timer)             \
+  func(TTY, tty)
 
 typedef enum {
   UV_UNKNOWN_HANDLE = 0,
@@ -808,7 +809,12 @@ __END_DECLS
 // uv_tty_t - TTY handle.
 //
 
+struct uv_tty_s {
+  _UV_STREAM_FIELDS
+};
+
 __BEGIN_DECLS
+int uv_tty_init(uv_loop_t *, uv_tty_t *, uv_file, int);
 int uv_tty_reset_mode(void);
 __END_DECLS
 

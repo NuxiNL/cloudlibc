@@ -1040,6 +1040,7 @@ uv_timer_start
 uv_timer_stop
 uv_translate_sys_error
 uv_try_write
+uv_tty_init
 uv_tty_reset_mode
 uv_unref
 uv_update_time

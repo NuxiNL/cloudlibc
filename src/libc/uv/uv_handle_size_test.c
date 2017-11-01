@@ -18,6 +18,7 @@ TEST(uv_handle_size, example) {
   ASSERT_EQ(sizeof(uv_process_t), uv_handle_size(UV_PROCESS));
   ASSERT_EQ(sizeof(uv_stream_t), uv_handle_size(UV_STREAM));
   ASSERT_EQ(sizeof(uv_tcp_t), uv_handle_size(UV_TCP));
+  ASSERT_EQ(sizeof(uv_tty_t), uv_handle_size(UV_TTY));
   ASSERT_EQ(sizeof(uv_timer_t), uv_handle_size(UV_TIMER));
   ASSERT_EQ(-1, uv_handle_size(UV_FILE));
   ASSERT_EQ(-1, uv_handle_size(UV_HANDLE_TYPE_MAX));

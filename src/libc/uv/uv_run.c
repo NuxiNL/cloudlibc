@@ -302,7 +302,8 @@ static void run_closing_handles(uv_loop_t *loop) {
     __uv_closing_handles_remove_first(&closing_handles);
     __uv_handles_remove(handle);
 
-    if (handle->type == UV_NAMED_PIPE || handle->type == UV_TCP) {
+    if (handle->type == UV_NAMED_PIPE || handle->type == UV_TCP ||
+        handle->type == UV_TTY) {
       // Cancel all of the pending shutdowns and writes.
       uv_stream_t *stream = (uv_stream_t *)handle;
       while (!__uv_shutdowns_empty(&stream->__shutdown_queue)) {
@@ -546,7 +547,8 @@ static int do_poll(uv_loop_t *loop, int timeout) {
         break;
       }
       case UV_NAMED_PIPE:
-      case UV_TCP: {
+      case UV_TCP:
+      case UV_TTY: {
         switch (event->type) {
           case CLOUDABI_EVENTTYPE_FD_READ:
             __uv_stream_fd_read((uv_stream_t *)handle, event);

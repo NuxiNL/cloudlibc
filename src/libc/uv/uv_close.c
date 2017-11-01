@@ -60,6 +60,7 @@ void uv_close(uv_handle_t *handle, uv_close_cb close_cb) {
       break;
     case UV_NAMED_PIPE:
     case UV_TCP:
+    case UV_TTY:
       __uv_stream_stop((uv_stream_t *)handle);
       break;
     case UV_POLL:

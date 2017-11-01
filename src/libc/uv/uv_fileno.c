@@ -8,7 +8,8 @@
 int uv_fileno(const uv_handle_t *handle, uv_os_fd_t *fd) {
   switch (handle->type) {
     case UV_NAMED_PIPE:
-    case UV_TCP: {
+    case UV_TCP:
+    case UV_TTY: {
       uv_stream_t *stream = (uv_stream_t *)handle;
       if (stream->__fd < 0)
         return UV_EBADF;
