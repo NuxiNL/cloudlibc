@@ -26,15 +26,18 @@ TEST(uv_guess_handle, regular_file) {
   ASSERT_EQ(0, close(fd));
 }
 
+#ifdef __CloudABI__
 TEST(uv_guess_handle, socket_dgram) {
-  // This implementation does not support uv_udp_t.
+  // The official implementation maps datagram sockets to
+  // UV_UNKNOWN_HANDLE. In our case it makes more sense to pick UV_UDP.
   int fds[2];
   ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_DGRAM, 0, fds));
-  ASSERT_EQ(UV_UNKNOWN_HANDLE, uv_guess_handle(fds[0]));
-  ASSERT_EQ(UV_UNKNOWN_HANDLE, uv_guess_handle(fds[1]));
+  ASSERT_EQ(UV_UDP, uv_guess_handle(fds[0]));
+  ASSERT_EQ(UV_UDP, uv_guess_handle(fds[1]));
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
 }
+#endif
 
 TEST(uv_guess_handle, socket_stream) {
   int fds[2];

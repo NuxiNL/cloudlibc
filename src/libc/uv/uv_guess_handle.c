@@ -18,6 +18,8 @@ uv_handle_type uv_guess_handle(uv_file file) {
     case CLOUDABI_FILETYPE_CHARACTER_DEVICE:
     case CLOUDABI_FILETYPE_SOCKET_STREAM:
       return UV_NAMED_PIPE;
+    case CLOUDABI_FILETYPE_SOCKET_DGRAM:
+      return UV_UDP;
     default:
       return UV_UNKNOWN_HANDLE;
   }
