@@ -29,10 +29,15 @@
 //   program_exec().
 //
 // Features missing:
-// - UV_CONNECT, uv_connect_cb, uv_connect_t, uv_connection_cb,
-//   uv_listen(), uv_pipe_bind(), uv_pipe_connect(),
-//   uv_pipe_pending_instances(), uv_tcp_bind(), uv_tcp_connect() and
-//   uv_tcp_simultaneous_accepts()
+// - UV_CONNECT, UV_UDP_IPV6ONLY, UV_UDP_REUSEADDR, UV_UDP_SEND,
+//   uv_connect_cb, uv_connect_t, uv_connection_cb, uv_membership,
+//   uv_udp_send_cb, uv_udp_send_t, uv_udp_t::send_queue_count,
+//   uv_udp_t::send_queue_size, uv_listen(), uv_pipe_bind(),
+//   uv_pipe_connect(), uv_pipe_pending_instances(), uv_tcp_bind(),
+//   uv_tcp_connect(), uv_tcp_simultaneous_accepts(), uv_udp_bind(),
+//   uv_udp_send(), uv_udp_set_broadcast(), uv_udp_set_membership(),
+//   uv_udp_set_multicast_interface(), uv_udp_set_multicast_loop(),
+//   uv_udp_set_multicast_ttl(), uv_udp_set_ttl() and uv_udp_try_send():
 //   Requires global network namespace.
 // - UV_FS_ACCESS, UV_FS_CHMOD, UV_FS_CHOWN, UV_FS_COPYFILE, UV_FS_LINK,
 //   UV_FS_LSTAT, UV_FS_MKDIR, UV_FS_MKDTEMP, UV_FS_READLINK,
@@ -58,10 +63,6 @@
 //   RPCs over sockets instead.
 // - UV_PRIORITIZED:
 //   Sending and receiving out-of-band data is unsupported.
-// - UV_UDP*, uv_udp* and uv_membership:
-//   Requires datagram sockets to remain unbound, granting them access
-//   to the global network namespace. This is unsupported by this
-//   environment.
 // - uv_calloc_func, uv_free_func, uv_malloc_func, uv_realloc_func,
 //   uv_default_loop() and uv_replace_allocator():
 //   Introduces global state, which this implementation attempts to
@@ -92,8 +93,8 @@
 // - uv_loop_fork():
 //   This environment does not support forking, which is why this
 //   function is not necessary.
-// - uv_pipe_getpeername(), uv_pipe_getsockname(), uv_tcp_getpeername() and
-//   uv_tcp_getsockname():
+// - uv_pipe_getpeername(), uv_pipe_getsockname(), uv_tcp_getpeername(),
+//   uv_tcp_getsockname(), uv_udp_getsockname():
 //   Socket address metadata is not available in this environment.
 // - uv_os_setenv() and uv_os_unsetenv():
 //   Environment variables are not available.
@@ -164,7 +165,8 @@ typedef struct {
   func(STREAM, stream)           \
   func(TCP, tcp)                 \
   func(TIMER, timer)             \
-  func(TTY, tty)
+  func(TTY, tty)                 \
+  func(UDP, udp)
 
 typedef enum {
   UV_UNKNOWN_HANDLE = 0,
@@ -816,6 +818,29 @@ struct uv_tty_s {
 __BEGIN_DECLS
 int uv_tty_init(uv_loop_t *, uv_tty_t *, uv_file, int);
 int uv_tty_reset_mode(void);
+__END_DECLS
+
+//
+// uv_udp_t - UDP handle.
+//
+
+typedef void (*uv_udp_recv_cb)(uv_udp_t *, ssize_t, const uv_buf_t *,
+                               const struct sockaddr *, unsigned int);
+
+struct uv_udp_s {
+  _UV_HANDLE_FIELDS
+};
+
+enum uv_udp_flags {
+  UV_UDP_PARTIAL = 0x1,
+};
+
+__BEGIN_DECLS
+int uv_udp_init(uv_loop_t *, uv_udp_t *);
+int uv_udp_init_ex(uv_loop_t *, uv_udp_t *, unsigned int);
+int uv_udp_open(uv_udp_t *, uv_os_sock_t);
+int uv_udp_recv_start(uv_udp_t *, uv_alloc_cb, uv_udp_recv_cb);
+int uv_udp_recv_stop(uv_udp_t *);
 __END_DECLS
 
 //

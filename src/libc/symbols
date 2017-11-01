@@ -1042,6 +1042,11 @@ uv_translate_sys_error
 uv_try_write
 uv_tty_init
 uv_tty_reset_mode
+uv_udp_init
+uv_udp_init_ex
+uv_udp_open
+uv_udp_recv_start
+uv_udp_recv_stop
 uv_unref
 uv_update_time
 uv_version
