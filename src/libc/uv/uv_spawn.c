@@ -3,6 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
+
 #include <argdata.h>
 #include <cloudabi_syscalls.h>
 #include <stdlib.h>
@@ -49,8 +51,10 @@ int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
   // In the child process, attempt to execute. If that fails, write the
   // error code into the pipe.
   if (process_fd == CLOUDABI_PROCESS_CHILD) {
-    cloudabi_errno_t error = cloudabi_sys_proc_exec(
-        options->executable, data, datalen, (cloudabi_fd_t *)fds, fdslen);
+    cloudabi_errno_t error = errno_fixup_executable(
+        options->executable,
+        cloudabi_sys_proc_exec(options->executable, data, datalen,
+                               (cloudabi_fd_t *)fds, fdslen));
     cloudabi_ciovec_t error_buf = {.buf = &error, .buf_len = sizeof(error)};
     size_t nwritten;
     cloudabi_sys_fd_write(error_write_fd, &error_buf, 1, &nwritten);

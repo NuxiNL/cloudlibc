@@ -20,6 +20,19 @@ static inline cloudabi_errno_t errno_fixup_directory(cloudabi_fd_t fd,
   return error;
 }
 
+// Translates ENOTCAPABLE to EBADF if a regular file or EACCES otherwise.
+static inline cloudabi_errno_t errno_fixup_executable(cloudabi_fd_t fd,
+                                                      cloudabi_errno_t error) {
+  if (error == CLOUDABI_ENOTCAPABLE) {
+    cloudabi_fdstat_t fds;
+    if (cloudabi_sys_fd_stat_get(fd, &fds) == 0)
+      return fds.fs_filetype == CLOUDABI_FILETYPE_REGULAR_FILE
+                 ? CLOUDABI_EBADF
+                 : CLOUDABI_EACCES;
+  }
+  return error;
+}
+
 // Translates ENOTCAPABLE to EINVAL if not a process.
 static inline cloudabi_errno_t errno_fixup_process(cloudabi_fd_t fd,
                                                    cloudabi_errno_t error) {

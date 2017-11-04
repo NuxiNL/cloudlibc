@@ -3,6 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/errno.h>
+
 #include <argdata.h>
 #include <cloudabi_syscalls.h>
 #include <program.h>
@@ -35,8 +37,9 @@ int program_exec(int fd, const argdata_t *ad) {
 
     // Execute the new process, providing it the serialized argument data
     // and a list of file descriptors.
-    error =
-        cloudabi_sys_proc_exec(fd, data, datalen, (cloudabi_fd_t *)fds, fdslen);
+    error = errno_fixup_executable(
+        fd, cloudabi_sys_proc_exec(fd, data, datalen, (cloudabi_fd_t *)fds,
+                                   fdslen));
     cloudabi_sys_mem_unmap(mapping, mappinglen);
   }
   return error;
