@@ -26,16 +26,15 @@
 // Extensions:
 // - NI_MAXHOST and NI_MAXSERV:
 //   Present on most other systems.
-// - struct hostent and h_addr:
-//   Part of POSIX issue 6. Still used by lots of code and even various
-//   public APIs.
+// - h_addr:
+//   Present on most other systems for compatibility.
 // - gai_strerror_l():
 //   gai_strerror() always uses the C locale.
 //
 // Features missing:
-// - struct hostent, struct netent, endhostent(), endnetent(),
-//   gethostent(), getnetbyaddr(), getnetbyname(), getnetent(),
-//   sethostent() and setnetent():
+// - struct netent, endhostent(), endnetent(), gethostent(),
+//   getnetbyaddr(), getnetbyname(), getnetent(), sethostent() and
+//   setnetent():
 //   System-wide host and network database not available.
 // - getprotoent() and getservent():
 //   Not thread-safe.
