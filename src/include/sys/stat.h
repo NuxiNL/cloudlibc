@@ -24,8 +24,6 @@
 // <sys/stat.h> - data returned by the stat() function
 //
 // Extensions:
-// - S_TYPEISPROC():
-//   Matches descriptors created by program_spawn().
 // - mkdirat():
 //   Make mode_t parameter optional, as file permissions do not exist.
 //
@@ -135,7 +133,6 @@ struct stat {
 
 __BEGIN_DECLS
 _Bool S_TYPEISMQ(const struct stat *);
-_Bool S_TYPEISPROC(const struct stat *);
 _Bool S_TYPEISSEM(const struct stat *);
 _Bool S_TYPEISSHM(const struct stat *);
 int fstat(int, struct stat *);
@@ -150,11 +147,6 @@ static __inline _Bool _S_TYPEISMQ(const struct stat *__buf __unused) {
   return 0;
 }
 #define S_TYPEISMQ(buf) _S_TYPEISMQ(buf)
-
-static __inline _Bool _S_TYPEISPROC(const struct stat *__buf) {
-  return __buf->__st_filetype == 0x50;
-}
-#define S_TYPEISPROC(buf) _S_TYPEISPROC(buf)
 
 static __inline _Bool _S_TYPEISSEM(const struct stat *__buf __unused) {
   return 0;
