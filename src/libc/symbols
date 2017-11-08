@@ -615,7 +615,7 @@ preadv
 program_exec
 program_getpid
 program_main
-program_spawn
+program_spawn_deprecated
 pselect
 psiginfo
 psiginfo_l

@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <program.h>
 
-int program_spawn(int fd, const argdata_t *ad) {
+int program_spawn_deprecated(int fd, const argdata_t *ad) {
   // Fork the current process.
   cloudabi_fd_t ret;
   cloudabi_tid_t tid;

@@ -58,7 +58,7 @@
 //   POSIX credential management is not available.
 // - pid_t, fork(), getpgid(), getpgrp(), getpid(), getppid(), getsid(),
 //   setpgid() and setsid():
-//   Requires global process namespace. Use program_spawn() instead.
+//   Requires global process namespace. Use <program.h> instead.
 // - access(), chown(), execl(), execle(), execlp(), execv(), execve(),
 //   execvp(), lchown(), link(), pathconf(), readlink(),
 //   rmdir(), symlink(), truncate() and unlink():

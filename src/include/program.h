@@ -37,7 +37,12 @@ __BEGIN_DECLS
 int program_exec(int, const argdata_t *);
 const char *program_getpid(void);
 _Noreturn void program_main(const argdata_t *);
-int program_spawn(int, const argdata_t *);
+__END_DECLS
+
+// Deprecated features that should be removed at some point.
+
+__BEGIN_DECLS
+int program_spawn_deprecated(int, const argdata_t *);
 __END_DECLS
 
 #endif
