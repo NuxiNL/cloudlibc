@@ -23,11 +23,6 @@
 
 // <uv.h> - event loops
 //
-// Extensions:
-// - uv_process_options_t::argdata and uv_process_options_t::executable:
-//   Allows for spawning of subprocesses similar to <program.h>'s
-//   program_exec().
-//
 // Features missing:
 // - UV_CONNECT, UV_UDP_IPV6ONLY, UV_UDP_REUSEADDR, UV_UDP_SEND,
 //   uv_connect_cb, uv_connect_t, uv_connection_cb, uv_membership,
@@ -69,14 +64,11 @@
 //   avoid to improve thread safety.
 // - uv_lib_t, uv_dlclose(), uv_dlerror(), uv_dlopen() and uv_dlsym():
 //   This environment does not support loading libraries dynamically.
-// - uv_process_flags, uv_process_options_t::args,
-//   uv_process_options_t::cwd, uv_process_options_t::env,
-//   uv_process_options_t::file, uv_process_options_t::flags,
-//   uv_process_options_t::gid, uv_process_options_t::stdio,
-//   uv_process_options_t::stdio_count, uv_process_options_t::uid,
-//   uv_stdio_container_t and uv_stdio_flags:
+// - uv_process_flags, uv_process_options_t, uv_stdio_container_t,
+//   uv_stdio_flags and uv_spawn():
 //   Launching unsandboxed processes is unsupported, as this would
-//   circumvent this environment's security framework.
+//   circumvent this environment's security framework. Use <program.h>'s
+//   program_spawn() instead.
 // - uv_process_t::pid and uv_kill():
 //   Global process namespace cannot be accessed.
 // - uv_tty_mode_t, uv_tty_set_mode() and uv_tty_get_winsize():
@@ -702,16 +694,9 @@ struct uv_process_s {
   struct __uv_active_processes_entry __uv_active_processes_entry;
 };
 
-typedef struct uv_process_options_s {
-  uv_exit_cb exit_cb;
-  uv_file executable;
-  const argdata_t *argdata;
-} uv_process_options_t;
-
 __BEGIN_DECLS
 void uv_disable_stdio_inheritance(void);
 int uv_process_kill(uv_process_t *, int);
-int uv_spawn(uv_loop_t *, uv_process_t *, const uv_process_options_t *);
 __END_DECLS
 
 //

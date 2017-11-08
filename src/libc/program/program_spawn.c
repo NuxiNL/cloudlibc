@@ -4,25 +4,26 @@
 // See the LICENSE file for details.
 
 #include <common/errno.h>
+#include <common/uv.h>
 
 #include <argdata.h>
 #include <cloudabi_syscalls.h>
+#include <errno.h>
+#include <program.h>
 #include <stdlib.h>
 #include <uv.h>
 
-#include <common/uv.h>
-
-int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
-             const uv_process_options_t *options) {
+int program_spawn(uv_loop_t *loop, uv_process_t *handle, int fd,
+                  const argdata_t *ad, uv_exit_cb cb) {
   // Serialize the argument data.
   size_t datalen;
   size_t fdslen;
-  argdata_serialized_length(options->argdata, &datalen, &fdslen);
+  argdata_serialized_length(ad, &datalen, &fdslen);
   int *fds = malloc(fdslen * sizeof(int) + datalen);
   if (fds == NULL)
-    return UV_ENOMEM;
+    return ENOMEM;
   char *data = (char *)&fds[fdslen];
-  fdslen = argdata_serialize(options->argdata, data, fds);
+  fdslen = argdata_serialize(ad, data, fds);
 
   // Create a pipe to send proc_exec()'s error code back to the parent.
   cloudabi_fd_t error_read_fd, error_write_fd;
@@ -31,7 +32,7 @@ int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
         CLOUDABI_FILETYPE_SOCKET_STREAM, &error_read_fd, &error_write_fd);
     if (error != 0) {
       free(fds);
-      return -error;
+      return error;
     }
   }
 
@@ -44,7 +45,7 @@ int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
       free(fds);
       cloudabi_sys_fd_close(error_read_fd);
       cloudabi_sys_fd_close(error_write_fd);
-      return -error;
+      return error;
     }
   }
 
@@ -52,9 +53,8 @@ int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
   // error code into the pipe.
   if (process_fd == CLOUDABI_PROCESS_CHILD) {
     cloudabi_errno_t error = errno_fixup_executable(
-        options->executable,
-        cloudabi_sys_proc_exec(options->executable, data, datalen,
-                               (cloudabi_fd_t *)fds, fdslen));
+        fd, cloudabi_sys_proc_exec(fd, data, datalen, (cloudabi_fd_t *)fds,
+                                   fdslen));
     cloudabi_ciovec_t error_buf = {.buf = &error, .buf_len = sizeof(error)};
     size_t nwritten;
     cloudabi_sys_fd_write(error_write_fd, &error_buf, 1, &nwritten);
@@ -74,7 +74,7 @@ int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
     cloudabi_sys_fd_close(error_read_fd);
     if (error == 0 && nread == sizeof(exec_error) && exec_error != 0) {
       cloudabi_sys_fd_close(process_fd);
-      return -exec_error;
+      return exec_error;
     }
   }
 
@@ -82,7 +82,7 @@ int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
   __uv_handle_init(loop, (uv_handle_t *)handle, UV_PROCESS);
   __uv_handle_start((uv_handle_t *)handle);
   __uv_active_processes_insert_last(&loop->__active_processes, handle);
-  handle->__cb = options->exit_cb;
+  handle->__cb = cb;
   handle->__fd = process_fd;
   return 0;
 }

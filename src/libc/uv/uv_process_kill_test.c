@@ -7,6 +7,7 @@
 
 #include <argdata.h>
 #include <fcntl.h>
+#include <program.h>
 #include <signal.h>
 #include <testing.h>
 #include <unistd.h>
@@ -86,12 +87,8 @@ TEST(uv_process_kill, example) {
 
   // Execution should succeed.
   uv_process_t handle;
-  uv_process_options_t options = {
-      .exit_cb = kill_result,
-      .executable = executable,
-      .argdata = &argdata_null,
-  };
-  ASSERT_EQ(0, uv_spawn(&loop, &handle, &options));
+  ASSERT_EQ(
+      0, program_spawn(&loop, &handle, executable, &argdata_null, kill_result));
   ASSERT_EQ(0, close(executable));
 
   // No termination should be observed.

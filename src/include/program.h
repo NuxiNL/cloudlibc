@@ -26,17 +26,23 @@
 #ifndef _PROGRAM_H_
 #define _PROGRAM_H_
 
-#include <_/cdefs.h>
+#include <_/types.h>
 
 #ifndef argdata_t
 typedef struct argdata_t argdata_t;
 #define argdata_t argdata_t
 #endif
 
+struct uv_loop_s;
+struct uv_process_s;
+
 __BEGIN_DECLS
 int program_exec(int, const argdata_t *);
 const char *program_getpid(void);
 _Noreturn void program_main(const argdata_t *);
+int program_spawn(struct uv_loop_s *, struct uv_process_s *, int,
+                  const argdata_t *,
+                  void (*)(struct uv_process_s *, __int64_t, int));
 __END_DECLS
 
 // TODO(ed): Remove the deprecated features below.

@@ -613,6 +613,7 @@ preadv
 program_exec
 program_getpid
 program_main
+program_spawn
 program_spawn_deprecated
 program_wait_deprecated
 pselect
@@ -1018,7 +1019,6 @@ uv_sem_post
 uv_sem_trywait
 uv_sem_wait
 uv_shutdown
-uv_spawn
 uv_stop
 uv_stream_set_blocking
 uv_strerror

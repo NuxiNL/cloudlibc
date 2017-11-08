@@ -8,6 +8,7 @@
 #include <argdata.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <program.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <testing.h>
@@ -20,39 +21,30 @@ static void unused_cb(uv_process_t *handle, int64_t exit_status,
   ASSERT_TRUE(false);
 }
 
-TEST(uv_spawn, eacces) {
+TEST(program_spawn, eacces) {
   uv_loop_t loop;
   ASSERT_EQ(0, uv_loop_init(&loop));
 
   // Attempt to execute a directory file descriptor.
   uv_process_t handle;
-  uv_process_options_t options = {
-      .exit_cb = unused_cb,
-      .executable = fd_tmp,
-      .argdata = &argdata_null,
-  };
-  ASSERT_EQ(UV_EACCES, uv_spawn(&loop, &handle, &options));
+  ASSERT_EQ(EACCES,
+            program_spawn(&loop, &handle, fd_tmp, &argdata_null, unused_cb));
 
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
 
-TEST(uv_spawn, ebadf1) {
+TEST(program_spawn, ebadf1) {
   uv_loop_t loop;
   ASSERT_EQ(0, uv_loop_init(&loop));
 
   // Invalid file descriptor number.
   uv_process_t handle;
-  uv_process_options_t options = {
-      .exit_cb = unused_cb,
-      .executable = -1,
-      .argdata = &argdata_null,
-  };
-  ASSERT_EQ(UV_EBADF, uv_spawn(&loop, &handle, &options));
+  ASSERT_EQ(EBADF, program_spawn(&loop, &handle, -1, &argdata_null, unused_cb));
 
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
 
-TEST(uv_spawn, ebadf2) {
+TEST(program_spawn, ebadf2) {
   int executable = openat(fd_tmp, "Hello", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);
   uv_loop_t loop;
@@ -60,18 +52,14 @@ TEST(uv_spawn, ebadf2) {
 
   // Executable is not open for executing.
   uv_process_t handle;
-  uv_process_options_t options = {
-      .exit_cb = unused_cb,
-      .executable = executable,
-      .argdata = &argdata_null,
-  };
-  ASSERT_EQ(UV_EBADF, uv_spawn(&loop, &handle, &options));
+  ASSERT_EQ(EBADF, program_spawn(&loop, &handle, executable, &argdata_null,
+                                 unused_cb));
   ASSERT_EQ(0, close(executable));
 
   ASSERT_EQ(0, uv_loop_close(&loop));
 }
 
-TEST(uv_spawn, enoexec) {
+TEST(program_spawn, enoexec) {
   // Create an empty file.
   int executable = openat(fd_tmp, "Hello", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);
@@ -84,12 +72,8 @@ TEST(uv_spawn, enoexec) {
 
   // Unsupported file format.
   uv_process_t handle;
-  uv_process_options_t options = {
-      .exit_cb = unused_cb,
-      .executable = executable,
-      .argdata = &argdata_null,
-  };
-  ASSERT_EQ(-ENOEXEC, uv_spawn(&loop, &handle, &options));
+  ASSERT_EQ(ENOEXEC, program_spawn(&loop, &handle, executable, &argdata_null,
+                                   unused_cb));
   ASSERT_EQ(0, close(executable));
 
   ASSERT_EQ(0, uv_loop_close(&loop));
@@ -157,7 +141,7 @@ static void close_cb(uv_handle_t *handle) {
   *(bool *)handle->data = true;
 }
 
-TEST(uv_spawn, sigfpe) {
+TEST(program_spawn, sigfpe) {
   // Create our faulty executable.
   int executable = openat(fd_tmp, "Crash", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);
@@ -172,12 +156,8 @@ TEST(uv_spawn, sigfpe) {
 
   // Execution should succeed.
   uv_process_t handle;
-  uv_process_options_t options = {
-      .exit_cb = crash_result,
-      .executable = executable,
-      .argdata = &argdata_null,
-  };
-  ASSERT_EQ(0, uv_spawn(&loop, &handle, &options));
+  ASSERT_EQ(0, program_spawn(&loop, &handle, executable, &argdata_null,
+                             crash_result));
   ASSERT_EQ(0, close(executable));
 
   // Let the process run until termination.
