@@ -3,7 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/procdesc.h>
 #include <sys/select.h>
 #include <sys/stat.h>
 

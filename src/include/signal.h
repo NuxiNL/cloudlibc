@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -30,10 +30,8 @@
 //   psignal() always uses the C locale.
 //
 // Features missing:
-// - pid_t, siginfo_t::si_pid, kill() and killpg():
+// - pid_t, kill() and killpg():
 //   Requires global process namespace.
-// - siginfo_t::si_uid and uid_t:
-//   POSIX credential management is not available.
 // - Everything else:
 //   Installing signal handlers is not supported.
 
@@ -91,20 +89,7 @@ typedef __size_t size_t;
 
 #define NSIG 27  // Last signal plus one.
 
-// Signal codes returned by pdwait().
-#define CLD_KILLED 1  // Child has terminated abnormally.
-#define CLD_EXITED 2  // Child has exited.
-
-struct __siginfo {
-  int si_signo;   // Signal number.
-  int si_code;    // Signal code.
-  int si_status;  // Exit value or signal.
-};
-typedef __siginfo_t siginfo_t;
-
 __BEGIN_DECLS
-void psiginfo(const siginfo_t *, const char *);
-void psiginfo_l(const siginfo_t *, const char *, __locale_t);
 void psignal(int, const char *);
 void psignal_l(int, const char *, __locale_t);
 int raise(int);

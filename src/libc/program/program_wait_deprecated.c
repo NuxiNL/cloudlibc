@@ -5,14 +5,13 @@
 
 #include <common/errno.h>
 
-#include <sys/procdesc.h>
-
 #include <cloudabi_syscalls.h>
 #include <errno.h>
+#include <program.h>
 #include <signal.h>
 #include <stdlib.h>
 
-int pdwait(int fd, siginfo_t *infop, int options) {
+int program_wait_deprecated(int fd, siginfo_t *infop, int options) {
   if ((options & ~WNOHANG) != 0)
     return EINVAL;
 

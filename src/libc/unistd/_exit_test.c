@@ -3,8 +3,6 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/procdesc.h>
-
 #include <signal.h>
 #include <testing.h>
 #include <unistd.h>

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -47,7 +47,7 @@
 //   and srandom():
 //   Randomizer is seeded securely by default. There is no need to seed
 //   manually.
-// - WEXITSTATUS(), WIFEXITED(), WIFSIGNALED(), WIFSTOPPED(),
+// - WEXITSTATUS(), WIFEXITED(), WIFSIGNALED(), WIFSTOPPED(), WNOHANG,
 //   WSTOPSIG(), WTERMSIG(), WUNTRACED:
 //   Only useful if system() would actually work.
 // - l64a():
@@ -105,9 +105,6 @@ typedef __wchar_t wchar_t;
 
 // Keep existing code happy that assumes that MB_CUR_MAX_L is a macro.
 #define MB_CUR_MAX_L MB_CUR_MAX_L
-
-// Flags for pdwait().
-#define WNOHANG 0x1
 
 #define alloca(size) __builtin_alloca(size)
 

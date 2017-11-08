@@ -4,7 +4,6 @@
 // See the LICENSE file for details.
 
 #include <sys/mman.h>
-#include <sys/procdesc.h>
 
 #include <errno.h>
 #include <pthread.h>

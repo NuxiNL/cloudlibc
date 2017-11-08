@@ -210,7 +210,6 @@ typedef struct {
 } __pthread_key_t;
 typedef struct __pthread *__pthread_t;
 typedef __uint8_t __sa_family_t;
-typedef struct __siginfo __siginfo_t;
 typedef struct {
   __uint32_t __mask;
 } __sigset_t;

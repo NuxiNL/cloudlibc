@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -39,10 +39,22 @@ const char *program_getpid(void);
 _Noreturn void program_main(const argdata_t *);
 __END_DECLS
 
-// Deprecated features that should be removed at some point.
+// TODO(ed): Remove the deprecated features below.
+
+#define CLD_KILLED 1
+#define CLD_EXITED 2
+
+#define WNOHANG 0x1
+
+typedef struct {
+  int si_signo;
+  int si_code;
+  int si_status;
+} siginfo_t;
 
 __BEGIN_DECLS
 int program_spawn_deprecated(int, const argdata_t *);
+int program_wait_deprecated(int, siginfo_t *, int);
 __END_DECLS
 
 #endif

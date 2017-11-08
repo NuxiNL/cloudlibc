@@ -598,7 +598,6 @@ open_memstream_l
 openat
 opendirat
 openlog
-pdwait
 perror
 perror_l
 pipe
@@ -616,9 +615,8 @@ program_exec
 program_getpid
 program_main
 program_spawn_deprecated
+program_wait_deprecated
 pselect
-psiginfo
-psiginfo_l
 psignal
 psignal_l
 pthread_atfork

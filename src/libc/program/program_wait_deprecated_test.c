@@ -3,29 +3,28 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <sys/procdesc.h>
-
 #include <errno.h>
+#include <program.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <testing.h>
 #include <unistd.h>
 
-TEST(pdwait, bad) {
+TEST(program_wait_deprecated, bad) {
   // Bad file descriptor.
-  ASSERT_EQ(EBADF, pdwait(0xdeadc0de, NULL, 0));
-  ASSERT_EQ(EBADF, pdwait(0xdeadc0de, NULL, WNOHANG));
+  ASSERT_EQ(EBADF, program_wait_deprecated(0xdeadc0de, NULL, 0));
+  ASSERT_EQ(EBADF, program_wait_deprecated(0xdeadc0de, NULL, WNOHANG));
 
   // Invalid file descriptor type.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(EINVAL, pdwait(fds[0], NULL, 0));
+  ASSERT_EQ(EINVAL, program_wait_deprecated(fds[0], NULL, 0));
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
 
   // Invalid flags.
-  ASSERT_EQ(EINVAL, pdwait(fd_tmp, NULL, 0xdeadc0de));
+  ASSERT_EQ(EINVAL, program_wait_deprecated(fd_tmp, NULL, 0xdeadc0de));
 }
 
 #if 0  // TODO(ed): How to test this without forking?
