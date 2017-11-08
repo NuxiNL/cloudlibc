@@ -6,10 +6,10 @@
 #include <program.h>
 #include <testing.h>
 
-TEST(program_getuuid, format) {
+TEST(program_getpid, format) {
   // Validate the format of the resulting UUID. As we're generating
   // random UUIDs, the version number should be set to four.
-  const char *uuid = program_getuuid();
+  const char *uuid = program_getpid();
 #define ASSERT_XDIGIT(c) \
   ASSERT_TRUE(((c) >= '0' && (c) <= '9') || ((c) >= 'a' && (c) <= 'f'))
   ASSERT_XDIGIT(uuid[0]);
@@ -53,7 +53,7 @@ TEST(program_getuuid, format) {
 #undef ASSERT_XDIGIT
 }
 
-TEST(program_getuuid, cached) {
+TEST(program_getpid, cached) {
   // Successive invocations should always return the same value.
-  ASSERT_EQ(program_getuuid(), program_getuuid());
+  ASSERT_EQ(program_getpid(), program_getpid());
 }

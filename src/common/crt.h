@@ -35,6 +35,7 @@ extern uint32_t __at_ncpus;           // Number of CPUs.
 extern uint32_t __at_pagesz;          // Page size.
 extern const ElfW(Phdr) * __at_phdr;  // ELF program headers.
 extern ElfW(Half) __at_phnum;         // Number of ELF program headers.
+extern const uint8_t *__at_pid;       // Identifier of the process.
 
 // Values preserved from the ELF program headers.
 extern const void *__pt_tls_vaddr_abs;  // Initial TLS data (absolute address).

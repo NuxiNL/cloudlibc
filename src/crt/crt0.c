@@ -15,6 +15,7 @@
 #include <program.h>
 #include <stdalign.h>
 #include <stdatomic.h>
+#include <stdint.h>
 #include <threads.h>
 
 // Process-wide system call table. By default, it is filled with a
@@ -37,6 +38,7 @@ uint32_t __at_ncpus;
 uint32_t __at_pagesz;
 const ElfW(Phdr) * __at_phdr;
 ElfW(Half) __at_phnum;
+const uint8_t *__at_pid;
 
 // Values preserved from the ELF program headers.
 const void *__pt_tls_vaddr_abs;
@@ -197,6 +199,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   uint32_t at_pagesz = 1;
   const ElfW(Phdr) *at_phdr = NULL;
   ElfW(Half) at_phnum = 0;
+  const uint8_t *at_pid = NULL;
   const ElfW(Ehdr) *at_sysinfo_ehdr = NULL;
   cloudabi_tid_t at_tid = 1;
   while (auxv->a_type != CLOUDABI_AT_NULL) {
@@ -227,6 +230,9 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
         break;
       case CLOUDABI_AT_PHNUM:
         at_phnum = auxv->a_val;
+        break;
+      case CLOUDABI_AT_PID:
+        at_pid = auxv->a_ptr;
         break;
       case CLOUDABI_AT_SYSINFO_EHDR:
         at_sysinfo_ehdr = auxv->a_ptr;
@@ -362,6 +368,7 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   __at_pagesz = at_pagesz;
   __at_phdr = at_phdr;
   __at_phnum = at_phnum;
+  __at_pid = at_pid;
   __pt_tls_vaddr_abs = pt_tls_vaddr_abs;
   __pt_tls_filesz = pt_tls_filesz;
   __pt_tls_memsz_aligned = pt_tls_memsz_aligned;
