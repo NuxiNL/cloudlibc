@@ -35,8 +35,8 @@
 #ifndef _SYS_RESOURCE_H_
 #define _SYS_RESOURCE_H_
 
+#include <_/cdefs.h>
 #include <_/struct/timeval.h>  // IWYU pragma: export
-#include <_/types.h>
 
 // Target specifiers for getrusage().
 #define RUSAGE_SELF 1      // Returns information about the current process.
