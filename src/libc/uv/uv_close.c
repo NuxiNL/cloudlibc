@@ -3,12 +3,12 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <assert.h>
 #include <cloudabi_syscalls.h>
 #include <limits.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 static void __uv_async_stop(uv_async_t *handle) {
   assert(uv_is_active((uv_handle_t *)handle) &&

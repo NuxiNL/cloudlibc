@@ -3,12 +3,12 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <sys/stat.h>
 
 #include <errno.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 static ssize_t do_fstat(uv_fs_t *req) {
   struct stat sb;

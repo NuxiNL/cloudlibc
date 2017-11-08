@@ -3,9 +3,9 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <uv.h>
+#include <common/uv.h>
 
-#include "uv_impl.h"
+#include <uv.h>
 
 int uv_accept(uv_stream_t *server, uv_stream_t *client) {
   // Check whether stream has any pending incoming file descriptors.

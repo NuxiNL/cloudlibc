@@ -3,10 +3,10 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <assert.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 void uv_unref(uv_handle_t *handle) {
   if (uv_has_ref(handle)) {

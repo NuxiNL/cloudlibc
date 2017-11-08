@@ -3,9 +3,9 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <uv.h>
+#include <common/uv.h>
 
-#include "uv_impl.h"
+#include <uv.h>
 
 void uv_ref(uv_handle_t *handle) {
   if (!uv_has_ref(handle)) {

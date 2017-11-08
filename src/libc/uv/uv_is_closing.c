@@ -3,9 +3,9 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <uv.h>
+#include <common/uv.h>
 
-#include "uv_impl.h"
+#include <uv.h>
 
 #ifndef uv_is_closing
 #error "uv_is_closing is supposed to be a macro as well"

@@ -3,6 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <assert.h>
 #include <cloudabi_syscalls.h>
 #include <limits.h>
@@ -11,8 +13,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 static void run_timers(uv_loop_t *loop) {
   for (;;) {

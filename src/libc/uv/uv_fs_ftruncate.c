@@ -3,10 +3,10 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <cloudabi_syscalls.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 static ssize_t do_ftruncate(uv_fs_t *req) {
   if (req->__arguments.__ftruncate.__offset < 0)

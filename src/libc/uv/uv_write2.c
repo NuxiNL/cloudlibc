@@ -3,11 +3,11 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 int uv_write2(uv_write_t *req, uv_stream_t *handle, const uv_buf_t *bufs,
               unsigned int nbufs, uv_stream_t *send_handle, uv_write_cb cb) {

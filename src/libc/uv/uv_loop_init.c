@@ -3,10 +3,10 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <stdbool.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 int uv_loop_init(uv_loop_t *loop) {
   uv_update_time(loop);

@@ -3,10 +3,10 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <stdlib.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 int uv_loop_close(uv_loop_t *loop) {
   if (!__uv_handles_empty(&loop->__handles))

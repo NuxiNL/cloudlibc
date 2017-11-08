@@ -3,9 +3,9 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <uv.h>
+#include <common/uv.h>
 
-#include "uv_impl.h"
+#include <uv.h>
 
 int uv_tty_init(uv_loop_t *loop, uv_tty_t *handle, uv_file fd, int readable) {
   // TODO(ed): Respect 'readable' flag.

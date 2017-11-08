@@ -3,10 +3,10 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <cloudabi_syscalls.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 int uv_stream_set_blocking(uv_stream_t *handle, int blocking) {
   if (handle->__fd < 0)

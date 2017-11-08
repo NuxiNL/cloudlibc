@@ -3,12 +3,12 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <limits.h>
 #include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "uv_impl.h"
 
 struct unknown_err {
   struct unknown_err *next;

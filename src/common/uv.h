@@ -3,8 +3,8 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#ifndef UV_UV_IMPL_H
-#define UV_UV_IMPL_H
+#ifndef COMMON_UV_H
+#define COMMON_UV_H
 
 #include <assert.h>
 #include <cloudabi_syscalls.h>

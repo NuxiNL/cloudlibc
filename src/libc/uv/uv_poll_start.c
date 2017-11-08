@@ -3,10 +3,10 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <stdbool.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 int uv_poll_start(uv_poll_t *handle, int events, uv_poll_cb cb) {
   uv_poll_stop(handle);

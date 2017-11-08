@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <uv.h>
 
-#include "uv_impl.h"
+#include <common/uv.h>
 
 int uv_spawn(uv_loop_t *loop, uv_process_t *handle,
              const uv_process_options_t *options) {

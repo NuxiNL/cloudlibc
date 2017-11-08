@@ -3,10 +3,10 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
+#include <common/uv.h>
+
 #include <limits.h>
 #include <uv.h>
-
-#include "uv_impl.h"
 
 int uv_backend_timeout(const uv_loop_t *loop) {
   // Poll timeout calculation as described in step 7 of libuv's design

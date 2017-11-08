@@ -3,9 +3,9 @@
 // This file is distributed under a 2-clause BSD license.
 // See the LICENSE file for details.
 
-#include <uv.h>
+#include <common/uv.h>
 
-#include "uv_impl.h"
+#include <uv.h>
 
 void uv_print_active_handles(uv_loop_t *loop, FILE *stream) {
   struct __uv_handles_head handles;
