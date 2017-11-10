@@ -4,7 +4,9 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include <testing.h>
+#include <time.h>
 #include <unistd.h>
 
 TEST(read, bad) {
@@ -33,5 +35,34 @@ TEST(read, example) {
 
   // Close pipe.
   ASSERT_EQ(0, close(fds[0]));
+  ASSERT_EQ(0, close(fds[1]));
+}
+
+static void *sleep_then_close(void *arg) {
+  // Sleep for a moment to let the read() settle.
+  struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000L};
+  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+
+  // Close the given file handle.
+  ASSERT_EQ(0, close(*(int *)arg));
+  return NULL;
+}
+
+TEST(read, eof) {
+  // Create pipe.
+  int fds[2];
+  ASSERT_EQ(0, pipe(fds));
+
+  // Create a thread that will close one end.
+  pthread_t thread;
+  ASSERT_EQ(0,
+            pthread_create(&thread, NULL, sleep_then_close, (void *)&fds[0]));
+
+  // Read from the other end. This should block until the close occurs.
+  char buf[2];
+  ASSERT_EQ(0, read(fds[1], buf, sizeof(buf)));
+
+  // Clean up.
+  ASSERT_EQ(0, pthread_join(thread, NULL));
   ASSERT_EQ(0, close(fds[1]));
 }

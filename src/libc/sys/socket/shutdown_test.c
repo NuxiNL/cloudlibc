@@ -6,7 +6,9 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include <testing.h>
+#include <time.h>
 #include <unistd.h>
 
 TEST(shutdown, bad) {
@@ -51,4 +53,64 @@ TEST(shutdown, example) {
 
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
+}
+
+static void *sleep_then_shutdown_read(void *arg) {
+  // Sleep for a moment to let the recv() settle.
+  struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000L};
+  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+
+  // Shutdown the given file handle for reading.
+  ASSERT_EQ(0, shutdown(*(int *)arg, SHUT_RD));
+  return NULL;
+}
+
+static void *sleep_then_shutdown_write(void *arg) {
+  // Sleep for a moment to let the recv() settle.
+  struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000L};
+  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+
+  // Shutdown the given file handle for writing.
+  ASSERT_EQ(0, shutdown(*(int *)arg, SHUT_WR));
+  return NULL;
+}
+
+TEST(shutdown, eof) {
+  {
+    int fds[2];
+    ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+
+    // Create a thread that will shutdown one end for writing.
+    pthread_t thread;
+    ASSERT_EQ(0, pthread_create(&thread, NULL, sleep_then_shutdown_write,
+                                (void *)&fds[0]));
+
+    // Read from the other end. This should block until the shutdown occurs.
+    char buf[2];
+    ASSERT_EQ(0, recv(fds[1], buf, sizeof(buf), 0));
+
+    // Clean up.
+    ASSERT_EQ(0, pthread_join(thread, NULL));
+    ASSERT_EQ(0, close(fds[0]));
+    ASSERT_EQ(0, close(fds[1]));
+  }
+
+  {
+    int fds[2];
+    ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+
+    // Create a thread that will shutdown one end for reading.
+    pthread_t thread;
+    ASSERT_EQ(0, pthread_create(&thread, NULL, sleep_then_shutdown_read,
+                                (void *)&fds[0]));
+
+    // Read from the same end. This should block until the shutdown occurs.
+    char buf[2];
+    ASSERT_EQ(0, recv(fds[0], buf, sizeof(buf), 0));
+
+    // Clean up.
+    ASSERT_EQ(0, pthread_join(thread, NULL));
+    ASSERT_EQ(0, close(fds[0]));
+    ASSERT_EQ(0, close(fds[1]));
+  }
 }
