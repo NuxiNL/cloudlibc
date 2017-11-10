@@ -1,7 +1,6 @@
 // Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
-// This file is distributed under a 2-clause BSD license.
-// See the LICENSE file for details.
+// SPDX-License-Identifier: BSD-2-Clause
 
 #include <assert.h>
 #include <errno.h>

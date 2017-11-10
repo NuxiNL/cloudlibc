@@ -1,7 +1,6 @@
 // Copyright (c) 2015 Nuxi, https://nuxi.nl/
 //
-// This file is distributed under a 2-clause BSD license.
-// See the LICENSE file for details.
+// SPDX-License-Identifier: BSD-2-Clause
 
 // localedump dumps the values of nl_langinfo() and localeconv() for the
 // current locale. This can be used to validate whether the locale data
