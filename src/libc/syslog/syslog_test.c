@@ -32,7 +32,8 @@ TEST_SINGLE_THREADED(syslog, example) {
   {
     syslog(LOG_CRIT, "Should be discarded");
     fflush(stderr);
-    ASSERT_EQ(-1, read(fds[0], NULL, 1));
+    char b;
+    ASSERT_EQ(-1, read(fds[0], &b, 1));
     ASSERT_EQ(EAGAIN, errno);
   }
 
