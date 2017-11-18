@@ -55,6 +55,7 @@ fi
 (cat << EOF
 __addtf3
 __aeabi_d2lz
+__aeabi_d2ulz
 __aeabi_f2lz
 __aeabi_idivmod
 __aeabi_l2d
