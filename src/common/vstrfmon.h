@@ -257,7 +257,7 @@ ssize_t NAME(char_t *restrict s, size_t maxsize, locale_t locale,
           // Use number of fractional digits from the locale if not
           // specified. If the locale does not offer a sane value, fall
           // back to using two.
-          char frac_digits =
+          int frac_digits =
               international ? monetary->int_frac_digits : monetary->frac_digits;
           right_precision =
               frac_digits >= 0 && frac_digits != CHAR_MAX ? frac_digits : 2;
