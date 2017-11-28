@@ -15,10 +15,16 @@ int uname(struct utsname *uname) {
     .version = CLOUDLIBC_VERSION "\0",
 #if defined(__aarch64__)
     .machine = "aarch64\0",
-#elif defined(__arm__)
-    .machine = "arm\0",
+#elif defined(__arm__) && __ARM_ARCH == 6
+    .machine = "armv6\0",
+#elif defined(__arm__) && __ARM_ARCH == 7
+    .machine = "armv7\0",
 #elif defined(__i386__)
     .machine = "i386\0",
+#elif defined(__riscv) && __riscv_xlen == 32
+    .machine = "riscv32\0",
+#elif defined(__riscv) && __riscv_xlen == 64
+    .machine = "riscv64\0",
 #elif defined(__x86_64__)
     .machine = "x86_64\0",
 #else
