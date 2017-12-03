@@ -135,27 +135,28 @@ typedef _Atomic(__uintmax_t) atomic_uintmax_t;
 // Clang atomic intrinsics.
 #define atomic_compare_exchange_strong_explicit(object, expected, desired, \
                                                 success, failure)          \
-  __c11_atomic_compare_exchange_strong(object, expected, desired, success, \
-                                       failure)
+  __c11_atomic_compare_exchange_strong(object, expected, desired,          \
+                                       (int)(success), (int)(failure))
 #define atomic_compare_exchange_weak_explicit(object, expected, desired, \
                                               success, failure)          \
-  __c11_atomic_compare_exchange_weak(object, expected, desired, success, \
-                                     failure)
+  __c11_atomic_compare_exchange_weak(object, expected, desired,          \
+                                     (int)(success), (int)(failure))
 #define atomic_exchange_explicit(object, desired, order) \
-  __c11_atomic_exchange(object, desired, order)
+  __c11_atomic_exchange(object, desired, (int)(order))
 #define atomic_fetch_add_explicit(object, operand, order) \
-  __c11_atomic_fetch_add(object, operand, order)
+  __c11_atomic_fetch_add(object, operand, (int)(order))
 #define atomic_fetch_and_explicit(object, operand, order) \
-  __c11_atomic_fetch_and(object, operand, order)
+  __c11_atomic_fetch_and(object, operand, (int)(order))
 #define atomic_fetch_or_explicit(object, operand, order) \
-  __c11_atomic_fetch_or(object, operand, order)
+  __c11_atomic_fetch_or(object, operand, (int)(order))
 #define atomic_fetch_sub_explicit(object, operand, order) \
-  __c11_atomic_fetch_sub(object, operand, order)
+  __c11_atomic_fetch_sub(object, operand, (int)(order))
 #define atomic_fetch_xor_explicit(object, operand, order) \
-  __c11_atomic_fetch_xor(object, operand, order)
-#define atomic_load_explicit(object, order) __c11_atomic_load(object, order)
+  __c11_atomic_fetch_xor(object, operand, (int)(order))
+#define atomic_load_explicit(object, order) \
+  __c11_atomic_load(object, (int)(order))
 #define atomic_store_explicit(object, desired, order) \
-  __c11_atomic_store(object, desired, order)
+  __c11_atomic_store(object, desired, (int)(order))
 #else
 // GCC atomic intrinsics.
 #define atomic_compare_exchange_strong_explicit(object, expected, desired, \
