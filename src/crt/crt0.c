@@ -179,7 +179,7 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
 // On architectures that support PC-relative addressing, we provide
 // support for running Position Independent Executables. These require
 // to apply relocations to data segments during early startup.
-#if defined(__aarch64__) || defined(__x86_64__) || defined(__riscv)
+#if defined(__aarch64__) || defined(__riscv) || defined(__x86_64__)
 #define PIE_RELOCATOR 1
 #elif defined(__arm__) || defined(__i386__)
 #define PIE_RELOCATOR 0
