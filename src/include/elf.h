@@ -285,6 +285,8 @@ typedef struct {
 #define EM_VISIUM 221
 #define EM_FT32 222
 #define EM_MOXIE 223
+#define EM_AMDGPU 224
+#define EM_RISCV 243
 
 #define EV_NONE 0     // Invalid version.
 #define EV_CURRENT 1  // Current version.
