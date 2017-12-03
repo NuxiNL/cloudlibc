@@ -269,7 +269,7 @@ typedef unsigned szind_t;
 #  ifdef __powerpc__
 #    define LG_QUANTUM		4
 #  endif
-#  ifdef __riscv__
+#  ifdef __riscv
 #    define LG_QUANTUM		4
 #  endif
 #  ifdef __s390__
