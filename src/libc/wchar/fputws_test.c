@@ -21,14 +21,14 @@ TEST(fputws, eagain) {
   int ret;
   for (;;) {
     ret = fputws(L"Hello", fp);
-    if (ret == WEOF)
+    if (ret == -1)
       break;
     ASSERT_LE(0, ret);
     ASSERT_FALSE(ferror(fp));
   }
 
   // Final write should have failed with EAGAIN.
-  ASSERT_EQ(WEOF, ret);
+  ASSERT_EQ(-1, ret);
   ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(EAGAIN, errno);
 
@@ -48,7 +48,7 @@ TEST(fputws, ebadf) {
   ASSERT_NE(NULL, fp);
 
   // Writing to the read side should fail.
-  ASSERT_EQ(WEOF, fputws(L"Hello", fp));
+  ASSERT_EQ(-1, fputws(L"Hello", fp));
   ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(EBADF, errno);
 
@@ -62,7 +62,7 @@ TEST(fputws, eilseq) {
   ASSERT_NE(NULL, fp);
 
   // Writing a Unicode character should fail.
-  ASSERT_EQ(WEOF, fputws(L"☃", fp));
+  ASSERT_EQ(-1, fputws(L"☃", fp));
   ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(EILSEQ, errno);
 
@@ -75,7 +75,7 @@ TEST(fputws, enospc) {
   ASSERT_NE(NULL, fp);
 
   // Writing a multiple characters shall fail.
-  ASSERT_EQ(WEOF, fputws(L"Hello", fp));
+  ASSERT_EQ(-1, fputws(L"Hello", fp));
   ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(ENOSPC, errno);
 
@@ -94,14 +94,14 @@ TEST_SINGLE_THREADED(fputws, epipe) {
   int ret;
   for (;;) {
     ret = fputws(L"Hello", fp);
-    if (ret == WEOF)
+    if (ret == -1)
       break;
     ASSERT_LE(0, ret);
     ASSERT_FALSE(ferror(fp));
   }
 
   // Final write should have failed with EPIPE.
-  ASSERT_EQ(WEOF, ret);
+  ASSERT_EQ(-1, ret);
   ASSERT_TRUE(ferror(fp));
   ASSERT_EQ(EPIPE, errno);
 
