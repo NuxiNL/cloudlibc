@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <wchar.h>
 
 static_assert(INT8_MIN == INT8_C(-0x80), "Value mismatch");
 static_assert(INT16_MIN == INT16_C(-0x8000), "Value mismatch");
@@ -90,8 +91,12 @@ static_assert(PTRDIFF_MAX >= 0xffff, "Limit too low");
 
 static_assert(SIZE_MAX >= 0xffff, "Limit too low");
 
-static_assert(WCHAR_MIN <= -0x7f, "Limit too low");
-static_assert(WCHAR_MAX >= 0x7f, "Limit too low");
+static_assert((wchar_t)-1 < 0 ? WCHAR_MIN <= -0x7f : WCHAR_MIN == 0,
+              "Limit too low");
+static_assert((wchar_t)-1 < 0 ? WCHAR_MAX >= 0x7f : WCHAR_MIN >= 0xff,
+              "Limit too low");
 
-static_assert(WINT_MIN <= -0x7fff, "Limit too low");
-static_assert(WINT_MAX >= 0x7fff, "Limit too low");
+static_assert((wint_t)-1 < 0 ? WINT_MIN <= -0x7fff : WINT_MIN == 0,
+              "Limit too low");
+static_assert((wint_t)-1 < 0 ? WINT_MAX >= 0x7fff : WINT_MAX >= 0xffff,
+              "Limit too low");

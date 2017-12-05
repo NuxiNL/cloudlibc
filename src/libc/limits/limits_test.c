@@ -155,8 +155,10 @@ static_assert(CHARCLASS_NAME_MAX >= _POSIX2_CHARCLASS_NAME_MAX,
 #endif
 
 static_assert(CHAR_BIT == 8, "Value mismatch");
-static_assert(CHAR_MAX == UCHAR_MAX || CHAR_MAX == SCHAR_MAX, "Value mismatch");
-static_assert(CHAR_MIN == SCHAR_MIN || CHAR_MIN == 0, "Value mismatch");
+static_assert((char)-1 < 0 ? CHAR_MAX == SCHAR_MAX : CHAR_MAX == UCHAR_MAX,
+              "Value mismatch");
+static_assert((char)-1 < 0 ? CHAR_MIN == SCHAR_MIN : CHAR_MIN == 0,
+              "Value mismatch");
 static_assert(INT_MAX >= 2147483647, "Limit too low");
 static_assert(INT_MIN <= -2147483647, "Limit too low");
 static_assert(LLONG_MAX >= 9223372036854775807LL, "Limit too low");
