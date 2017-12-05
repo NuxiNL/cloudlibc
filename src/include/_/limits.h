@@ -212,22 +212,22 @@
 #error "Size of long long unknown"
 #endif
 
-#define _SCHAR_MIN (-__SCHAR_MAX__ - 1)
+#define _SCHAR_MIN (-_SCHAR_MAX - 1)
 #define _SCHAR_MAX __SCHAR_MAX__
-#define _SHRT_MIN (-__SHRT_MAX__ - 1)
+#define _SHRT_MIN (-_SHRT_MAX - 1)
 #define _SHRT_MAX __SHRT_MAX__
-#define _INT_MIN (-__INT_MAX__ - 1)
+#define _INT_MIN (-_INT_MAX - 1)
 #define _INT_MAX __INT_MAX__
-#define _LONG_MIN (-__LONG_MAX__ - 1)
+#define _LONG_MIN (-_LONG_MAX - 1)
 #define _LONG_MAX __LONG_MAX__
-#define _LLONG_MIN (-__LONG_LONG_MAX__ - 1)
+#define _LLONG_MIN (-_LLONG_MAX - 1)
 #define _LLONG_MAX __LONG_LONG_MAX__
 
-#define _UCHAR_MAX (__SCHAR_MAX__ * 2 + 1)
-#define _USHRT_MAX (__SHRT_MAX__ * 2 + 1)
-#define _UINT_MAX (__INT_MAX__ * 2U + 1U)
-#define _ULONG_MAX (__LONG_MAX__ * 2UL + 1UL)
-#define _ULLONG_MAX (__LONG_LONG_MAX__ * 2ULL + 1ULL)
+#define _UCHAR_MAX (_SCHAR_MAX * 2 + 1)
+#define _USHRT_MAX (_SHRT_MAX * 2 + 1)
+#define _UINT_MAX (_INT_MAX * 2U + 1U)
+#define _ULONG_MAX (_LONG_MAX * 2UL + 1UL)
+#define _ULLONG_MAX (_LLONG_MAX * 2ULL + 1ULL)
 
 #ifdef __CHAR_UNSIGNED__
 #define _CHAR_MIN 0
@@ -239,17 +239,17 @@
 
 // Other machine-dependent type definitions.
 
-#define _INTPTR_MIN (-__INTPTR_MAX__ - 1)
+#define _INTPTR_MIN (-_INTPTR_MAX - 1)
 #define _INTPTR_MAX __INTPTR_MAX__
 #define _UINTPTR_MAX __UINTPTR_MAX__
 
-#define _INTMAX_MIN (-__INTMAX_MAX__ - 1)
+#define _INTMAX_MIN (-_INTMAX_MAX - 1)
 #define _INTMAX_MAX __INTMAX_MAX__
 #define _INTMAX_C(c) _INTN_C(c, __INTMAX_C_SUFFIX__)
 #define _UINTMAX_MAX __UINTMAX_MAX__
 #define _UINTMAX_C(c) _INTN_C(c, __UINTMAX_C_SUFFIX__)
 
-#define _PTRDIFF_MIN (-__PTRDIFF_MAX__ - 1)
+#define _PTRDIFF_MIN (-_PTRDIFF_MAX - 1)
 #define _PTRDIFF_MAX __PTRDIFF_MAX__
 
 #define _SSIZE_MAX _PTRDIFF_MAX
@@ -269,13 +269,13 @@ _Static_assert(__WINT_WIDTH__ == 32, "Unsupported wint_t size");
 #ifdef __WCHAR_UNSIGNED__
 #define _WCHAR_MIN 0
 #else
-#define _WCHAR_MIN (-__WCHAR_MAX__ - 1)
+#define _WCHAR_MIN (-_WCHAR_MAX - 1)
 #endif
 #define _WCHAR_MAX __WCHAR_MAX__
 #ifdef __WINT_UNSIGNED__
 #define _WINT_MIN 0
 #else
-#define _WINT_MIN (-__WINT_MAX__ - 1)
+#define _WINT_MIN (-_WINT_MAX - 1)
 #endif
 #define _WINT_MAX __WINT_MAX__
 
