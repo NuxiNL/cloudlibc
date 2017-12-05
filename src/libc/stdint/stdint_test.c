@@ -93,7 +93,7 @@ static_assert(SIZE_MAX >= 0xffff, "Limit too low");
 
 static_assert((wchar_t)-1 < 0 ? WCHAR_MIN <= -0x7f : WCHAR_MIN == 0,
               "Limit too low");
-static_assert((wchar_t)-1 < 0 ? WCHAR_MAX >= 0x7f : WCHAR_MIN >= 0xff,
+static_assert((wchar_t)-1 < 0 ? WCHAR_MAX >= 0x7f : WCHAR_MAX >= 0xff,
               "Limit too low");
 
 static_assert((wint_t)-1 < 0 ? WINT_MIN <= -0x7fff : WINT_MIN == 0,
