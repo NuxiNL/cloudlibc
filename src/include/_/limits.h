@@ -29,11 +29,6 @@
 
 // Standard signed integer types.
 
-#define _INTN_MIN(s) __INTN_MIN(s)
-#define __INTN_MIN(s) _INT##s##_MIN
-#define _INTN_MAX(s) __INTN_MAX(s)
-#define __INTN_MAX(s) _INT##s##_MAX
-
 #define _INT8_MIN (-_INT8_MAX - 1)
 #define _INT8_MAX _INT8_C(0x7f)
 #define _INT16_MIN (-_INT16_MAX - 1)
@@ -127,9 +122,6 @@
 
 // Standard unsigned integer types.
 
-#define _UINTN_MAX(s) __UINTN_MAX(s)
-#define __UINTN_MAX(s) _UINT##s##_MAX
-
 #define _UINT8_MAX _UINT8_C(0xff)
 #define _UINT16_MAX _UINT16_C(0xffff)
 #ifdef __UINT24_TYPE__
@@ -220,22 +212,22 @@
 #error "Size of long long unknown"
 #endif
 
-#define _SCHAR_MIN _INTN_MIN(_CHAR_BIT)
-#define _SCHAR_MAX _INTN_MAX(_CHAR_BIT)
-#define _SHRT_MIN _INTN_MIN(_SHRT_BIT)
-#define _SHRT_MAX _INTN_MAX(_SHRT_BIT)
-#define _INT_MIN _INTN_MIN(_INT_BIT)
-#define _INT_MAX _INTN_MAX(_INT_BIT)
-#define _LONG_MIN _INTN_MIN(_LONG_BIT)
-#define _LONG_MAX _INTN_MAX(_LONG_BIT)
-#define _LLONG_MIN _INTN_MIN(_LLONG_BIT)
-#define _LLONG_MAX _INTN_MAX(_LLONG_BIT)
+#define _SCHAR_MIN (-__SCHAR_MAX__ - 1)
+#define _SCHAR_MAX __SCHAR_MAX__
+#define _SHRT_MIN (-__SHRT_MAX__ - 1)
+#define _SHRT_MAX __SHRT_MAX__
+#define _INT_MIN (-__INT_MAX__ - 1)
+#define _INT_MAX __INT_MAX__
+#define _LONG_MIN (-__LONG_MAX__ - 1)
+#define _LONG_MAX __LONG_MAX__
+#define _LLONG_MIN (-__LONG_LONG_MAX__ - 1)
+#define _LLONG_MAX __LONG_LONG_MAX__
 
-#define _UCHAR_MAX _UINTN_MAX(_CHAR_BIT)
-#define _USHRT_MAX _UINTN_MAX(_SHRT_BIT)
-#define _UINT_MAX _UINTN_MAX(_INT_BIT)
-#define _ULONG_MAX _UINTN_MAX(_LONG_BIT)
-#define _ULLONG_MAX _UINTN_MAX(_LLONG_BIT)
+#define _UCHAR_MAX (__SCHAR_MAX__ * 2 + 1)
+#define _USHRT_MAX (__SHRT_MAX__ * 2 + 1)
+#define _UINT_MAX (__INT_MAX__ * 2U + 1U)
+#define _ULONG_MAX (__LONG_MAX__ * 2UL + 1UL)
+#define _ULLONG_MAX (__LONG_LONG_MAX__ * 2ULL + 1ULL)
 
 #ifdef __CHAR_UNSIGNED__
 #define _CHAR_MIN 0
@@ -247,30 +239,33 @@
 
 // Other machine-dependent type definitions.
 
-#define _INTPTR_MIN _INTN_MIN(__INTPTR_WIDTH__)
-#define _INTPTR_MAX _INTN_MAX(__INTPTR_WIDTH__)
-#define _UINTPTR_MAX _UINTN_MAX(__INTPTR_WIDTH__)
+#define _INTPTR_MIN (-__INTPTR_MAX__ - 1)
+#define _INTPTR_MAX __INTPTR_MAX__
+#define _UINTPTR_MAX __UINTPTR_MAX__
 
-#define _INTMAX_MIN _INTN_MIN(__INTMAX_WIDTH__)
-#define _INTMAX_MAX _INTN_MAX(__INTMAX_WIDTH__)
-#define _INTMAX_C(c) __INTMAX_C(c, __INTMAX_WIDTH__)
-#define __INTMAX_C(c, w) ___INTMAX_C(c, w)
-#define ___INTMAX_C(c, w) _INT##w##_C(c)
-#define _UINTMAX_MAX _UINTN_MAX(__INTMAX_WIDTH__)
-#define _UINTMAX_C(c) __UINTMAX_C(c, __INTMAX_WIDTH__)
-#define __UINTMAX_C(c, w) ___UINTMAX_C(c, w)
-#define ___UINTMAX_C(c, w) _UINT##w##_C(c)
+#define _INTMAX_MIN (-__INTMAX_MAX__ - 1)
+#define _INTMAX_MAX __INTMAX_MAX__
+#define _INTMAX_C(c) _INTN_C(c, __INTMAX_C_SUFFIX__)
+#define _UINTMAX_MAX __UINTMAX_MAX__
+#define _UINTMAX_C(c) _INTN_C(c, __UINTMAX_C_SUFFIX__)
 
-#define _PTRDIFF_MIN _INTN_MIN(__PTRDIFF_WIDTH__)
-#define _PTRDIFF_MAX _INTN_MAX(__PTRDIFF_WIDTH__)
+#define _PTRDIFF_MIN (-__PTRDIFF_MAX__ - 1)
+#define _PTRDIFF_MAX __PTRDIFF_MAX__
 
-#define _SSIZE_MAX _INTN_MAX(__SIZE_WIDTH__)
-#define _SIZE_MAX _UINTN_MAX(__SIZE_WIDTH__)
+#define _SSIZE_MAX _PTRDIFF_MAX
+#define _SIZE_MAX __SIZE_MAX__
 
-#define _WCHAR_MIN _INTN_MIN(__WCHAR_WIDTH__)
-#define _WCHAR_MAX _INTN_MAX(__WCHAR_WIDTH__)
+#define _WCHAR_MIN (-__WCHAR_MAX__ - 1)
+#define _WCHAR_MAX __WCHAR_MAX__
 
-#define _WINT_MIN _INTN_MIN(__WINT_WIDTH__)
-#define _WINT_MAX _INTN_MAX(__WINT_WIDTH__)
+// TODO(ed): Add __WINT_MIN__ and __WINT_MAX__ to Clang!
+_Static_assert(__WINT_WIDTH__ == 32, "Unsupported wint_t size");
+#ifdef __WINT_UNSIGNED__
+#define _WINT_MIN 0
+#define _WINT_MAX _UINT32_MAX
+#else
+#define _WINT_MIN _INT32_MIN
+#define _WINT_MAX _INT32_MAX
+#endif
 
 #endif
