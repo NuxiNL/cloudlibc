@@ -162,6 +162,10 @@ typedef __WINT_TYPE__ __wint_t;
 typedef struct {
   _Alignas(__BIGGEST_ALIGNMENT__) char __a;
 } __max_align_t;
+_Static_assert(_Alignof(__max_align_t) >= _Alignof(__intmax_t),
+               "Alignment of max_align_t too low");
+_Static_assert(_Alignof(__max_align_t) >= _Alignof(long double),
+               "Alignment of max_align_t too low");
 
 // Machine-independent definitions.
 
