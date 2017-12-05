@@ -255,21 +255,28 @@
 #define _SSIZE_MAX _PTRDIFF_MAX
 #define _SIZE_MAX __SIZE_MAX__
 
+// Compatibility for versions of Clang that don't define __WINT_MAX__.
+// TODO(ed): Remove this once Clang 6.0 has been released.
+#ifndef __WINT_MAX__
+_Static_assert(__WINT_WIDTH__ == 32, "Unsupported wint_t size");
+#ifdef __WINT_UNSIGNED__
+#define __WINT_MAX__ _UINT32_MAX
+#else
+#define __WINT_MAX__ _INT32_MAX
+#endif
+#endif
+
 #ifdef __WCHAR_UNSIGNED__
 #define _WCHAR_MIN 0
 #else
 #define _WCHAR_MIN (-__WCHAR_MAX__ - 1)
 #endif
 #define _WCHAR_MAX __WCHAR_MAX__
-
-// TODO(ed): Add __WINT_MIN__ and __WINT_MAX__ to Clang!
-_Static_assert(__WINT_WIDTH__ == 32, "Unsupported wint_t size");
 #ifdef __WINT_UNSIGNED__
 #define _WINT_MIN 0
-#define _WINT_MAX _UINT32_MAX
 #else
-#define _WINT_MIN _INT32_MIN
-#define _WINT_MAX _INT32_MAX
+#define _WINT_MIN (-__WINT_MAX__ - 1)
 #endif
+#define _WINT_MAX __WINT_MAX__
 
 #endif
