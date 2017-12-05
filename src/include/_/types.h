@@ -145,34 +145,19 @@ typedef __uint_least64_t __uint_fast64_t;
 
 // Other machine-dependent type definitions.
 
-#define ___intn_t(width) __int##width##_t
-#define __intn_t(width) ___intn_t(width)
-#define ___uintn_t(width) __uint##width##_t
-#define __uintn_t(width) ___uintn_t(width)
+typedef __INTPTR_TYPE__ __intptr_t;
+typedef __UINTPTR_TYPE__ __uintptr_t;
 
-typedef __intn_t(__INTPTR_WIDTH__) __intptr_t;
-typedef __uintn_t(__INTPTR_WIDTH__) __uintptr_t;
+typedef __INTMAX_TYPE__ __intmax_t;
+typedef __UINTMAX_TYPE__ __uintmax_t;
 
-typedef __intn_t(__INTMAX_WIDTH__) __intmax_t;
-typedef __uintn_t(__INTMAX_WIDTH__) __uintmax_t;
+typedef __PTRDIFF_TYPE__ __ptrdiff_t;
 
-typedef __intn_t(__PTRDIFF_WIDTH__) __ptrdiff_t;
+typedef __ptrdiff_t __ssize_t;
+typedef __SIZE_TYPE__ __size_t;
 
-typedef __intn_t(__SIZE_WIDTH__) __ssize_t;
-typedef __uintn_t(__SIZE_WIDTH__) __size_t;
-
-#ifdef __WCHAR_UNSIGNED__
-typedef __uintn_t(__WCHAR_WIDTH__) __wchar_t;
-#else
-typedef __intn_t(__WCHAR_WIDTH__) __wchar_t;
-#endif
-
-typedef __intn_t(__WINT_WIDTH__) __wint_t;
-
-#undef ___intn_t
-#undef __intn_t
-#undef ___uintn_t
-#undef __uintn_t
+typedef __WCHAR_TYPE__ __wchar_t;
+typedef __WINT_TYPE__ __wint_t;
 
 typedef struct {
   _Alignas(_Alignof(__intmax_t)) __intmax_t __a;
