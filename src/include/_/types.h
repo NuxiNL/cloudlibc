@@ -160,8 +160,7 @@ typedef __WCHAR_TYPE__ __wchar_t;
 typedef __WINT_TYPE__ __wint_t;
 
 typedef struct {
-  _Alignas(_Alignof(__intmax_t)) __intmax_t __a;
-  _Alignas(_Alignof(long double)) long double __b;
+  _Alignas(__BIGGEST_ALIGNMENT__) char __a;
 } __max_align_t;
 
 // Machine-independent definitions.
