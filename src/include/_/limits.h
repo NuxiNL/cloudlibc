@@ -255,7 +255,11 @@
 #define _SSIZE_MAX _PTRDIFF_MAX
 #define _SIZE_MAX __SIZE_MAX__
 
+#ifdef __WCHAR_UNSIGNED__
+#define _WCHAR_MIN 0
+#else
 #define _WCHAR_MIN (-__WCHAR_MAX__ - 1)
+#endif
 #define _WCHAR_MAX __WCHAR_MAX__
 
 // TODO(ed): Add __WINT_MIN__ and __WINT_MAX__ to Clang!
