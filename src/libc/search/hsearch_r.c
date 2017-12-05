@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <errno.h>
+#include <limits.h>
 #include <search.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -28,9 +29,10 @@ static size_t hsearch_hash(size_t offset_basis, const char *str) {
   while (*str != '\0') {
     hash ^= (uint8_t)*str++;
     // clang-format off
-    hash *= _Generic((size_t)0,
-                     uint32_t: UINT32_C(16777619),
-                     uint64_t: UINT64_C(1099511628211));
+    if (sizeof(size_t) * CHAR_BIT <= 32)
+      hash *= UINT32_C(16777619);
+    else
+      hash *= UINT64_C(1099511628211);
     // clang-format on
   }
   return hash;
