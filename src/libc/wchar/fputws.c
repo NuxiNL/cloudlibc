@@ -29,7 +29,7 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
     size_t writebuflen;
     if (!fwrite_peek(stream, &writebuf, &writebuflen)) {
       funlockfile(stream);
-      return WEOF;
+      return -1;
     }
     if (writebuflen < MB_LEN_MAX) {
       // If the remaining space in the write buffer is smaller than
@@ -39,7 +39,7 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
       // putwc() for this character.
       if (putwc_unlocked(*c32s++, stream) == WEOF) {
         funlockfile(stream);
-        return WEOF;
+        return -1;
       }
     } else {
       // Call into c32stombs() to convert multiple wide characters in
@@ -49,7 +49,7 @@ int fputws(const wchar_t *restrict ws, FILE *restrict stream) {
       if (written == -1) {
         stream->flags |= F_ERROR;
         funlockfile(stream);
-        return WEOF;
+        return -1;
       }
       fwrite_produce(stream, written);
     }
