@@ -27,6 +27,9 @@ const fenv_t __fe_dfl_env = {
 
     // Initial SSE state.
     .__mxcsr = 0x1f80,
+#elif defined(__riscv)
+    // Use round to nearest as the default rounding mode.
+    .__fcsr = FE_TONEAREST,
 #else
 #error "Unsupported platform"
 #endif
