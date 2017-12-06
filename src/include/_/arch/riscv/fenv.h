@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -21,41 +21,32 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 // SUCH DAMAGE.
 
-// <fenv.h> - floating-point environment
+#ifndef ___ARCH_RISCV_FENV_H_
+#define ___ARCH_RISCV_FENV_H_
 
-#ifndef _FENV_H_
-#define _FENV_H_
+#include <_/types.h>
 
-#if defined(__aarch64__)
-#include <_/arch/aarch64/fenv.h>
-#elif defined(__arm__)
-#include <_/arch/arm/fenv.h>
-#elif defined(__i386__) || defined(__x86_64__)
-#include <_/arch/i386/fenv.h>
-#elif defined(__riscv)
-#include <_/arch/riscv/fenv.h>
-#else
-#error "Unknown architecture"
-#endif
-#include <_/cdefs.h>
+typedef struct {
+  __uint32_t __fcsr;
+} fenv_t;
+typedef struct {
+  __uint8_t __exceptions;
+} fexcept_t;
 
-// Default floating-point environment.
-extern const fenv_t __fe_dfl_env;
-static const fenv_t *const FE_DFL_ENV = &__fe_dfl_env;
-#define FE_DFL_ENV FE_DFL_ENV
+// Exception flags stored in the fcsr register.
+#define FE_INEXACT 0x01
+#define FE_UNDERFLOW 0x02
+#define FE_OVERFLOW 0x04
+#define FE_DIVBYZERO 0x08
+#define FE_INVALID 0x10
 
-__BEGIN_DECLS
-int feclearexcept(int);
-int fegetenv(fenv_t *);
-int fegetexceptflag(fexcept_t *, int);
-int fegetround(void);
-int feholdexcept(fenv_t *);
-int feraiseexcept(int);
-int fesetenv(const fenv_t *);
-int fesetexceptflag(const fexcept_t *, int);
-int fesetround(int);
-int fetestexcept(int);
-int feupdateenv(const fenv_t *);
-__END_DECLS
+#define FE_ALL_EXCEPT \
+  (FE_INEXACT | FE_UNDERFLOW | FE_OVERFLOW | FE_DIVBYZERO | FE_INVALID)
+
+// Rounding modes stored in the fcsr register.
+#define FE_TONEAREST 0x00
+#define FE_TOWARDZERO 0x20
+#define FE_DOWNWARD 0x40
+#define FE_UPWARD 0x60
 
 #endif
