@@ -763,7 +763,6 @@ sem_wait
 send
 sendmsg
 setbuf
-setjmp
 setlocale
 setlogmask
 setprotoent
@@ -777,7 +776,6 @@ sigemptyset
 sigfillset
 sigismember
 siglongjmp
-sigsetjmp
 sin
 sinf
 sinh

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -26,31 +26,27 @@
 #ifndef _SETJMP_H_
 #define _SETJMP_H_
 
-#if defined(__aarch64__)
-#include <_/arch/aarch64/setjmp.h>
-#elif defined(__arm__)
-#include <_/arch/arm/setjmp.h>
-#elif defined(__i386__)
-#include <_/arch/i386/setjmp.h>
-#elif defined(__x86_64__)
-#include <_/arch/x86_64/setjmp.h>
-#else
-#error "Unknown architecture"
-#endif
 #include <_/cdefs.h>
 
-typedef struct {
-  struct __jmp_buf __jmp_buf;
-} jmp_buf[1];
-typedef struct {
-  struct __jmp_buf __jmp_buf;
-} sigjmp_buf[1];
+struct __jmp_buf {
+  int __val;
+  void *__ptr[5];
+};
+typedef struct __jmp_buf jmp_buf[1];
+typedef jmp_buf sigjmp_buf;
+
+#define setjmp(env)                  \
+  ({                                 \
+    struct __jmp_buf *__env = (env); \
+    __env->__val = 0;                \
+    __builtin_setjmp(__env->__ptr);  \
+    __env->__val;                    \
+  })
+#define sigsetjmp(env, savemask) setjmp(env)
 
 __BEGIN_DECLS
 _Noreturn void longjmp(jmp_buf, int);
 _Noreturn void siglongjmp(sigjmp_buf, int);
-int setjmp(jmp_buf);
-int sigsetjmp(sigjmp_buf, int);
 __END_DECLS
 
 #endif
