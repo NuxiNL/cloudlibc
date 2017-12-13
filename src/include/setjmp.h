@@ -26,14 +26,29 @@
 #ifndef _SETJMP_H_
 #define _SETJMP_H_
 
-#include <_/cdefs.h>
+#include <_/types.h>
 
-struct __jmp_buf {
+#ifdef __aarch64__
+
+// The compiler doesn't support __builtin_longjmp() and __builtin_setjmp().
+// Implement longjmp() and setjmp() as C library functions. These are
+// less efficient.
+
+typedef __uint64_t jmp_buf[21];
+
+__BEGIN_DECLS
+int setjmp(jmp_buf) __extname("__setjmp");
+__END_DECLS
+
+#else
+
+// The compiler supports __builtin_longjmp() and __builtin_setjmp().
+// Implement longjmp() and setjmp() on top of these intrinsics.
+
+typedef struct __jmp_buf {
   int __val;
   void *__ptr[5];
-};
-typedef struct __jmp_buf jmp_buf[1];
-typedef jmp_buf sigjmp_buf;
+} jmp_buf[1];
 
 #define setjmp(env)                  \
   ({                                 \
@@ -42,6 +57,10 @@ typedef jmp_buf sigjmp_buf;
     __builtin_setjmp(__env->__ptr);  \
     __env->__val;                    \
   })
+
+#endif
+
+typedef jmp_buf sigjmp_buf;
 #define sigsetjmp(env, savemask) setjmp(env)
 
 __BEGIN_DECLS

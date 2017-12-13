@@ -4,8 +4,7 @@
 
 #include <setjmp.h>
 
-// Clang doesn't provide setjmp()/longjmp() support on some architectures.
-#if !defined(__aarch64__) && !defined(__riscv)
+#ifndef __aarch64__
 
 void longjmp(jmp_buf env, int val) {
   env->__val = val == 0 ? 1 : val;
