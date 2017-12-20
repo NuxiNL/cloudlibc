@@ -65,7 +65,8 @@
 //   avoid to improve thread safety.
 // - uv_lib_t, uv_dlclose(), uv_dlerror(), uv_dlopen() and uv_dlsym():
 //   This environment does not support loading libraries dynamically.
-// - uv_pid_t, uv_process_t::pid, uv_kill() and uv_os_getppid():
+// - uv_pid_t, uv_process_t::pid, uv_kill(), uv_os_getpid() and
+//   uv_os_getppid():
 //   Global process namespace cannot be accessed.
 // - uv_process_flags, uv_process_options_t, uv_stdio_container_t,
 //   uv_stdio_flags and uv_spawn():
@@ -437,7 +438,7 @@ _UV_TAILQ_DECLARE_STRUCTURES(__uv_writing_streams);
 //
 
 #define UV_VERSION_MAJOR 1
-#define UV_VERSION_MINOR 16
+#define UV_VERSION_MINOR 18
 #define UV_VERSION_PATCH 0
 #define UV_VERSION_IS_RELEASE 0
 #define UV_VERSION_SUFFIX "cloudlibc"
