@@ -28,14 +28,15 @@
 //   uv_connect_cb, uv_connect_t, uv_connection_cb, uv_membership,
 //   uv_udp_send_cb, uv_udp_send_t, uv_udp_t::send_queue_count,
 //   uv_udp_t::send_queue_size, uv_listen(), uv_pipe_bind(),
-//   uv_pipe_connect(), uv_pipe_pending_instances(), uv_tcp_bind(),
-//   uv_tcp_connect(), uv_tcp_simultaneous_accepts(), uv_udp_bind(),
-//   uv_udp_send(), uv_udp_set_broadcast(), uv_udp_set_membership(),
-//   uv_udp_set_multicast_interface(), uv_udp_set_multicast_loop(),
-//   uv_udp_set_multicast_ttl(), uv_udp_set_ttl() and uv_udp_try_send():
+//   uv_pipe_chmod(), uv_pipe_connect(), uv_pipe_pending_instances(),
+//   uv_tcp_bind(), uv_tcp_connect(), uv_tcp_simultaneous_accepts(),
+//   uv_udp_bind(), uv_udp_send(), uv_udp_set_broadcast(),
+//   uv_udp_set_membership(), uv_udp_set_multicast_interface(),
+//   uv_udp_set_multicast_loop(), uv_udp_set_multicast_ttl(),
+//   uv_udp_set_ttl() and uv_udp_try_send():
 //   Requires global network namespace.
 // - UV_FS_ACCESS, UV_FS_CHMOD, UV_FS_CHOWN, UV_FS_COPYFILE, UV_FS_LINK,
-//   UV_FS_LSTAT, UV_FS_MKDIR, UV_FS_MKDTEMP, UV_FS_READLINK,
+//   UV_FS_LSTAT, UV_FS_MKDIR, UV_FS_MKDTEMP, UV_FS_O_*, UV_FS_READLINK,
 //   UV_FS_REALPATH, UV_FS_RENAME, UV_FS_RMDIR, UV_FS_SCANDIR,
 //   UV_FS_STAT, UV_FS_SYMLINK, UV_FS_UNLINK, UV_FS_UTIME, UV_FS_O_*,
 //   uv_dirent_t, uv_fs_t::path, uv_fs_t::ptr, uv_chdir():, uv_cwd(),
@@ -64,13 +65,13 @@
 //   avoid to improve thread safety.
 // - uv_lib_t, uv_dlclose(), uv_dlerror(), uv_dlopen() and uv_dlsym():
 //   This environment does not support loading libraries dynamically.
+// - uv_pid_t, uv_process_t::pid, uv_kill() and uv_os_getppid():
+//   Global process namespace cannot be accessed.
 // - uv_process_flags, uv_process_options_t, uv_stdio_container_t,
 //   uv_stdio_flags and uv_spawn():
 //   Launching unsandboxed processes is unsupported, as this would
 //   circumvent this environment's security framework. Use <program.h>'s
 //   program_spawn() instead.
-// - uv_process_t::pid and uv_kill():
-//   Global process namespace cannot be accessed.
 // - uv_tty_mode_t, uv_tty_set_mode() and uv_tty_get_winsize():
 //   Terminal attributes cannot be configured.
 // - uv_backend_fd():
@@ -254,6 +255,7 @@ UV_REQ_TYPE_MAP(_UV_STRUCT_TYPE)
   func(ENOTEMPTY, "directory not empty")                           \
   func(ENOTSOCK, "socket operation on non-socket")                 \
   func(ENOTSUP, "operation not supported on socket")               \
+  func(ENOTTY, "inappropriate ioctl for device") \
   func(ENXIO, "no such device or address")                         \
   func(EOF, "end of file")                                         \
   func(EPERM, "operation not permitted")                           \
@@ -319,6 +321,7 @@ typedef enum {
   UV_ENOTEMPTY = -55,
   UV_ENOTSOCK = -57,
   UV_ENOTSUP = -58,
+  UV_ENOTTY = -59,
   UV_ENXIO = -60,
   UV_EPERM = -63,
   UV_EPIPE = -64,
@@ -434,7 +437,7 @@ _UV_TAILQ_DECLARE_STRUCTURES(__uv_writing_streams);
 //
 
 #define UV_VERSION_MAJOR 1
-#define UV_VERSION_MINOR 15
+#define UV_VERSION_MINOR 16
 #define UV_VERSION_PATCH 0
 #define UV_VERSION_IS_RELEASE 0
 #define UV_VERSION_SUFFIX "cloudlibc"
@@ -1051,11 +1054,15 @@ union uv_any_handle {
   uv_timer_t timer;
 };
 
+#define UV_IF_NAMESIZE 33
+
 __BEGIN_DECLS
 uv_buf_t uv_buf_init(char *, size_t);
 int uv_getrusage(uv_rusage_t *);
 uv_handle_type uv_guess_handle(uv_file);
 uint64_t uv_hrtime(void);
+int uv_if_indextoiid(unsigned int, char *, size_t *);
+int uv_if_indextoname(unsigned int, char *, size_t *);
 int uv_inet_ntop(int, const void *, char *, size_t);
 int uv_inet_pton(int, const char *, void *);
 int uv_ip4_addr(const char *, int, struct sockaddr_in *);

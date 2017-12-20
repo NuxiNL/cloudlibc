@@ -50,6 +50,7 @@ static_assert(UV_ENOTDIR == -ENOTDIR, "Value mismatch");
 static_assert(UV_ENOTEMPTY == -ENOTEMPTY, "Value mismatch");
 static_assert(UV_ENOTSOCK == -ENOTSOCK, "Value mismatch");
 static_assert(UV_ENOTSUP == -ENOTSUP, "Value mismatch");
+static_assert(UV_ENOTTY == -ENOTTY, "Value mismatch");
 static_assert(UV_ENXIO == -ENXIO, "Value mismatch");
 static_assert(UV_EPERM == -EPERM, "Value mismatch");
 static_assert(UV_EPIPE == -EPIPE, "Value mismatch");

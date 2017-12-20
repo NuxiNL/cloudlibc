@@ -7,10 +7,10 @@
 
 TEST(uv_version_string, example) {
 #ifdef __CloudABI__
-  // This implementation should be compatible with libuv 1.15.0, but
+  // This implementation should be compatible with libuv 1.16.0, but
   // should be branded as such.
-  ASSERT_STREQ("1.15.0-cloudlibc", uv_version_string());
+  ASSERT_STREQ("1.16.0-cloudlibc", uv_version_string());
 #else
-  ASSERT_STREQ("1.15.0", uv_version_string());
+  ASSERT_STREQ("1.16.0", uv_version_string());
 #endif
 }

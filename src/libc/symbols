@@ -956,6 +956,8 @@ uv_hrtime
 uv_idle_init
 uv_idle_start
 uv_idle_stop
+uv_if_indextoiid
+uv_if_indextoname
 uv_inet_ntop
 uv_inet_pton
 uv_ip4_addr
