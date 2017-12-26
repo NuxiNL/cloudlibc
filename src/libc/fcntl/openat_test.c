@@ -84,8 +84,6 @@ TEST(openat, o_directory) {
   // Attempt to open them with O_DIRECTORY.
   ASSERT_EQ(-1, openat(fd_tmp, "file", O_RDONLY | O_DIRECTORY));
   ASSERT_EQ(ENOTDIR, errno);
-  ASSERT_EQ(-1, openat(fd_tmp, "dir", O_RDWR | O_DIRECTORY));
-  ASSERT_EQ(EISDIR, errno);
 
   // Directory cannot be opened for writing.
   ASSERT_EQ(-1, openat(fd_tmp, "dir", O_RDWR | O_DIRECTORY));
