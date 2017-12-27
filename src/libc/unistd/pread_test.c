@@ -40,3 +40,16 @@ TEST(pread, example) {
   // Close file.
   ASSERT_EQ(0, close(fd));
 }
+
+TEST(pread, eof) {
+  // Create file.
+  int fd = openat(fd_tmp, "Hello", O_CREAT | O_RDWR);
+  ASSERT_EQ(6, write(fd, "foobar", 6));
+
+  // Read from past the end of the file. This should return EOF (0).
+  char buf[2];
+  ASSERT_EQ(0, pread(fd, buf, sizeof(buf), 10));
+
+  // Close file.
+  ASSERT_EQ(0, close(fd));
+}

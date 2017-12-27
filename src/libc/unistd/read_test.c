@@ -49,20 +49,36 @@ static void *sleep_then_close(void *arg) {
 }
 
 TEST(read, eof) {
-  // Create pipe.
-  int fds[2];
-  ASSERT_EQ(0, pipe(fds));
+  {
+    // Create pipe.
+    int fds[2];
+    ASSERT_EQ(0, pipe(fds));
 
-  // Create a thread that will close one end.
-  pthread_t thread;
-  ASSERT_EQ(0,
-            pthread_create(&thread, NULL, sleep_then_close, (void *)&fds[0]));
+    // Create a thread that will close one end.
+    pthread_t thread;
+    ASSERT_EQ(0,
+              pthread_create(&thread, NULL, sleep_then_close, (void *)&fds[0]));
 
-  // Read from the other end. This should block until the close occurs.
-  char buf[2];
-  ASSERT_EQ(0, read(fds[1], buf, sizeof(buf)));
+    // Read from the other end. This should block until the close occurs.
+    char buf[2];
+    ASSERT_EQ(0, read(fds[1], buf, sizeof(buf)));
 
-  // Clean up.
-  ASSERT_EQ(0, pthread_join(thread, NULL));
-  ASSERT_EQ(0, close(fds[1]));
+    // Clean up.
+    ASSERT_EQ(0, pthread_join(thread, NULL));
+    ASSERT_EQ(0, close(fds[1]));
+  }
+
+  {
+    // Create file.
+    int fd = openat(fd_tmp, "Hello", O_CREAT | O_RDWR);
+    ASSERT_EQ(6, write(fd, "foobar", 6));
+
+    // Read from past the end of the file. This should return EOF (0).
+    ASSERT_EQ(10, lseek(fd, 10, SEEK_SET));
+    char buf[2];
+    ASSERT_EQ(0, read(fd, buf, sizeof(buf)));
+
+    // Close file.
+    ASSERT_EQ(0, close(fd));
+  }
 }
