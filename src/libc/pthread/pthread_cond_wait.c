@@ -28,7 +28,6 @@ int pthread_cond_wait(pthread_cond_t *restrict cond,
   };
   size_t triggered;
 
-  // Remove lock from lock list while blocking.
   cloudabi_event_t event;
   cloudabi_errno_t error =
       cloudabi_sys_poll(&subscription, &event, 1, &triggered);

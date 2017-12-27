@@ -40,7 +40,6 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
     return EINVAL;
   size_t triggered;
 
-  // Remove lock from lock list while blocking.
   cloudabi_event_t events[__arraycount(subscriptions)];
   cloudabi_errno_t error = cloudabi_sys_poll(
       subscriptions, events, __arraycount(subscriptions), &triggered);
