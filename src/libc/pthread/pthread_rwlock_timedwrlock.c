@@ -42,10 +42,9 @@ int pthread_rwlock_timedwrlock(pthread_rwlock_t *restrict rwlock,
   if (error != 0)
     __pthread_terminate(error, "Failed to acquire write lock");
   for (size_t i = 0; i < triggered; ++i) {
+    if (events[i].error != 0)
+      __pthread_terminate(events[i].error, "Failed to acquire write lock");
     if (events[i].type == CLOUDABI_EVENTTYPE_LOCK_WRLOCK) {
-      if (events[i].error != 0)
-        __pthread_terminate(events[i].error, "Failed to acquire write lock");
-
       // Lock acquired successfully.
       return 0;
     }

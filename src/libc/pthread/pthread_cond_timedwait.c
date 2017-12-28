@@ -47,12 +47,11 @@ int pthread_cond_timedwait(pthread_cond_t *restrict cond,
   if (error != 0)
     __pthread_terminate(error, "Failed to wait on condition variable");
   for (size_t i = 0; i < triggered; ++i) {
-    if (events[i].type == CLOUDABI_EVENTTYPE_CONDVAR) {
-      if (events[i].error != 0)
-        __pthread_terminate(events[i].error,
-                            "Failed to wait on condition variable");
+    if (events[i].error != 0)
+      __pthread_terminate(events[i].error,
+                          "Failed to wait on condition variable");
+    if (events[i].type == CLOUDABI_EVENTTYPE_CONDVAR)
       return 0;
-    }
   }
   return ETIMEDOUT;
 }

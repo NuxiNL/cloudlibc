@@ -42,10 +42,9 @@ int pthread_rwlock_timedrdlock(pthread_rwlock_t *restrict rwlock,
   if (error != 0)
     __pthread_terminate(error, "Failed to acquire read lock");
   for (size_t i = 0; i < triggered; ++i) {
+    if (events[i].error != 0)
+      __pthread_terminate(events[i].error, "Failed to acquire read lock");
     if (events[i].type == CLOUDABI_EVENTTYPE_LOCK_RDLOCK) {
-      if (events[i].error != 0)
-        __pthread_terminate(events[i].error, "Failed to acquire read lock");
-
       // Lock acquired successfully.
       ++__pthread_rdlocks;
       return 0;
