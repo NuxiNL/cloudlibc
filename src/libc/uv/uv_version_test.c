@@ -6,6 +6,6 @@
 #include <uv.h>
 
 TEST(uv_version, example) {
-  // This implementation should be compatible with libuv 1.16.0.
+  // This implementation should be compatible with libuv 1.18.0.
   ASSERT_EQ(1 << 16 | 18 << 8 | 0, uv_version());
 }

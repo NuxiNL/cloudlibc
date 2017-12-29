@@ -101,10 +101,12 @@ int pthread_create(pthread_t *restrict thread,
 
   // Now that the thread ID is known, we can initialize the lock object
   // used for joining.
-  cloudabi_lock_t expected = CLOUDABI_LOCK_BOGUS;
-  atomic_compare_exchange_strong_explicit(
-      &handle->join, &expected, tid | CLOUDABI_LOCK_WRLOCKED,
-      memory_order_acquire, memory_order_relaxed);
+  if (!detach) {
+    cloudabi_lock_t expected = CLOUDABI_LOCK_BOGUS;
+    atomic_compare_exchange_strong_explicit(
+        &handle->join, &expected, tid | CLOUDABI_LOCK_WRLOCKED,
+        memory_order_acquire, memory_order_relaxed);
+  }
 
   // Return the thread handle.
   *thread = handle;
