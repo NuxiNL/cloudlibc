@@ -15,7 +15,7 @@
 int pthread_join(pthread_t thread, void **value_ptr) {
   assert(thread != __pthread_self_object &&
          "Thread attempted to join with itself");
-  cloudabi_condvar_t old =
+  cloudabi_lock_t old =
       atomic_load_explicit(&thread->join, memory_order_acquire);
   if ((old & CLOUDABI_LOCK_WRLOCKED) != 0) {
     assert((old & CLOUDABI_LOCK_KERNEL_MANAGED) == 0 &&
