@@ -14,7 +14,7 @@ int pthread_cond_signal(pthread_cond_t *cond) {
     cloudabi_errno_t error =
         cloudabi_sys_condvar_signal(&cond->__waiters, cond->__pshared, 1);
     if (error != 0)
-      __pthread_terminate(error, "Failed to broadcast on condition variable");
+      __pthread_terminate(error, "Failed to signal on condition variable");
   }
   return 0;
 }
