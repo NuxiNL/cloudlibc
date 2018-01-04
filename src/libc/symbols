@@ -638,6 +638,7 @@ pthread_cond_destroy
 pthread_cond_init
 pthread_cond_signal
 pthread_cond_timedwait
+pthread_cond_timedwait_relative_np
 pthread_cond_wait
 pthread_condattr_destroy
 pthread_condattr_getclock

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -33,6 +33,9 @@
 //   can be used in combination with any type of lock.
 // - pthread_mutexattr_t and pthread_rwlockattr_t:
 //   All implemented using the same underlying type.
+// - pthread_cond_timedwait_relative_np():
+//   Identical to pthread_cond_timedwait(), except that it uses a
+//   relative timeout on the monotonic clock. Also present on macOS.
 // - pthread_mutex_lock_pair_np():
 //   Acquires two locks using a deadlock avoidance algorithm.
 //
@@ -209,6 +212,10 @@ int pthread_cond_signal(pthread_cond_t *);
 int pthread_cond_timedwait(pthread_cond_t *__restrict,
                            __pthread_lock_t *__restrict __lock,
                            const struct timespec *__restrict)
+    __requires_exclusive(*__lock);
+int pthread_cond_timedwait_relative_np(pthread_cond_t *__restrict,
+                                       __pthread_lock_t *__restrict __lock,
+                                       const struct timespec *__restrict)
     __requires_exclusive(*__lock);
 int pthread_cond_wait(pthread_cond_t *__restrict,
                       __pthread_lock_t *__restrict __lock)
