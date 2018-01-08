@@ -55,7 +55,7 @@ static void check_leaked_file_descriptors(const fd_set *used_file_descriptors) {
   for (int fd = 0; fd < FD_SETSIZE; ++fd) {
     bool should_exist = FD_ISSET(fd, used_file_descriptors);
     struct stat sb;
-    bool does_exist = fstat(fd, &sb) == 0;
+    bool does_exist = fstat(fd, &sb) == 0 || errno != EBADF;
     if (!should_exist && does_exist) {
       terminate = true;
       __testing_printf("File descriptor %d leaked by test\n", fd);
@@ -120,12 +120,16 @@ void testing_execute(int tmpdir, int logfile, unsigned int nthreads) {
   pthread_mutex_lock(&testing_lock);
   testing_logfile = logfile;
 
-  // Record which file descriptors are in use for leak checking.
+  // Record which file descriptors are in use for leak checking. It is
+  // questionable whether 'fstat(...) == 0 || errno != EBADF' exactly
+  // determines whether a file descriptor exists or not. That said,
+  // check_leaked_file_descriptors() uses the same logic, meaning this
+  // won't trigger erroneously.
   fd_set used_file_descriptors;
   FD_ZERO(&used_file_descriptors);
   for (int fd = 0; fd < FD_SETSIZE; ++fd) {
     struct stat sb;
-    if (fstat(fd, &sb) == 0)
+    if (fstat(fd, &sb) == 0 || errno != EBADF)
       FD_SET(fd, &used_file_descriptors);
   }
 
