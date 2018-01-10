@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -10,7 +10,6 @@
 #include <argdata_impl.h>
 #include <cloudabi_syscalls.h>
 #include <cloudabi_syscalls_info.h>
-#include <cloudabi_syscalls_struct.h>
 #include <program.h>
 #include <stdalign.h>
 #include <stdatomic.h>
@@ -20,7 +19,28 @@
 // Process-wide system call table. By default, it is filled with a
 // single function that just returns ENOSYS. The actual implementations
 // need to be provided by the vDSO.
-cloudabi_syscalls_t cloudabi_syscalls;
+static struct {
+#define wrapper(name)                                                         \
+  CLOUDABI_SYSCALL_RETURNS_##name(                                            \
+      cloudabi_errno_t, void) (*name)(CLOUDABI_SYSCALL_HAS_PARAMETERS_##name( \
+      CLOUDABI_SYSCALL_PARAMETERS_##name, void));
+  CLOUDABI_SYSCALL_NAMES(wrapper)
+#undef wrapper
+} syscall_table;
+
+// Wrapper functions for all of the individual system calls. These are
+// implementations of the functions provided by <cloudabi_syscalls.h>.
+// They are called by the rest of the C library or by pieces of code
+// that communicate directly with the runtime.
+#define wrapper(name)                                                \
+  CLOUDABI_SYSCALL_RETURNS_##name(cloudabi_errno_t, void)            \
+      cloudabi_sys_##name(CLOUDABI_SYSCALL_HAS_PARAMETERS_##name(    \
+          CLOUDABI_SYSCALL_PARAMETERS_##name, void)) {               \
+    CLOUDABI_SYSCALL_RETURNS_##name(return, )                        \
+        syscall_table.name(CLOUDABI_SYSCALL_PARAMETER_NAMES_##name); \
+    CLOUDABI_SYSCALL_RETURNS_##name(, for (;;);)                     \
+  }
+CLOUDABI_SYSCALL_NAMES(wrapper)
 
 // DSO handle. Not used, as we only support static linkage.
 void *__dso_handle = NULL;
@@ -112,7 +132,7 @@ static int fd_passthrough(void *arg, size_t fd) {
 // corresponding string table. It then extracts all globally visible
 // functions starting with "cloudabi_sys_" and patches those into the
 // global system call table.
-static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
+static void link_vdso(const ElfW(Ehdr) * ehdr) {
   // Extract the Dynamic Section of the vDSO.
   const char *base = (const char *)ehdr;
   const ElfW(Phdr) *phdr = (const ElfW(Phdr) *)(base + ehdr->e_phoff);
@@ -158,7 +178,7 @@ static void link_vdso(cloudabi_syscalls_t *syscalls, const ElfW(Ehdr) * ehdr) {
 #define entry(name) #name "\0"
         const char *names = CLOUDABI_SYSCALL_NAMES(entry);
 #undef entry
-        const void **syscall = (const void **)syscalls;
+        const void **syscall = (const void **)&syscall_table;
         while (*names != '\0') {
           if (strcmp(name + 13, names) == 0) {
             // Found a matching system call.
@@ -340,14 +360,14 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
 
   // Initialize the system call table with functions that return ENOSYS.
   typedef cloudabi_errno_t (*syscall_t)(void);
-  for (size_t i = 0; i < sizeof(cloudabi_syscalls) / sizeof(syscall_t); ++i) {
-    ((syscall_t *)&cloudabi_syscalls)[i] = default_syscall;
+  for (size_t i = 0; i < sizeof(syscall_table) / sizeof(syscall_t); ++i) {
+    ((syscall_t *)&syscall_table)[i] = default_syscall;
   }
 
   // Make it possible to invoke system calls by attaching the
   // implementations provided by the vDSO.
   if (at_sysinfo_ehdr != NULL)
-    link_vdso(&cloudabi_syscalls, at_sysinfo_ehdr);
+    link_vdso(at_sysinfo_ehdr);
 
 #if PIE_RELOCATOR
   // Terminate immediately if there was a relocation that we didn't
