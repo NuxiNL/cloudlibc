@@ -1,8 +1,9 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <argdata_impl.h>
+#include <common/crt.h>
+
 #include <program.h>
 #include <stdlib.h>
 #include <stdnoreturn.h>
@@ -14,13 +15,13 @@ int main(int, char **, char **);
 // that it can call into the C standard main() function.
 noreturn void program_main(const argdata_t *ad) {
   // Copy the argument data over to a writable null-terminated buffer.
-  char arg[ad->length + 1];
-  memcpy(arg, ad->buffer.buffer, ad->length);
-  arg[ad->length] = '\0';
+  char arg[__at_argdatalen + 1];
+  memcpy(arg, __at_argdata, __at_argdatalen);
+  arg[__at_argdatalen] = '\0';
 
   // Count the number of arguments.
   size_t argc = 0;
-  for (size_t i = 0; i <= ad->length; ++i)
+  for (size_t i = 0; i <= __at_argdatalen; ++i)
     if (arg[i] == '\0')
       ++argc;
 

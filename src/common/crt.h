@@ -29,6 +29,8 @@ extern unsigned long __stack_chk_guard;
 extern thread_local void *__safestack_unsafe_stack_ptr;
 
 // Values preserved from the auxiliary vector.
+extern const void *__at_argdata;      // Arguments passed to the process.
+extern size_t __at_argdatalen;        // Size of arguments.
 extern const void *__at_base;         // Process base address.
 extern uint32_t __at_ncpus;           // Number of CPUs.
 extern uint32_t __at_pagesz;          // Page size.

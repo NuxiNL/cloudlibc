@@ -52,6 +52,8 @@ static alignas(PTHREAD_UNSAFE_STACK_ALIGNMENT) char initial_unsafe_stack
     [PTHREAD_STACK_DEFAULT];
 
 // Values preserved from the auxiliary vector.
+const void *__at_argdata;
+size_t __at_argdatalen;
 const void *__at_base;
 uint32_t __at_ncpus;
 uint32_t __at_pagesz;
@@ -387,6 +389,8 @@ noreturn void _start(const cloudabi_auxv_t *auxv) {
   // some of the values from the auxiliary vector and program header.
   // Some of these values are returned by sysconf() and
   // dl_iterate_phdr(). Others are needed by pthread_create().
+  __at_argdata = at_argdata;
+  __at_argdatalen = at_argdatalen;
   __at_base = at_base;
   __at_ncpus = at_ncpus;
   __at_pagesz = at_pagesz;

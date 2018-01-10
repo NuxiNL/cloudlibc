@@ -611,6 +611,7 @@ powl
 pread
 preadv
 program_exec
+program_get_raw_argdata
 program_getpid
 program_main
 program_spawn

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -40,6 +40,7 @@ __BEGIN_DECLS
 int program_exec(int, const argdata_t *);
 const char *program_getpid(void);
 _Noreturn void program_main(const argdata_t *);
+void program_get_raw_argdata(const void **, __size_t *);
 int program_spawn(struct uv_loop_s *, struct uv_process_s *, int,
                   const argdata_t *,
                   void (*)(struct uv_process_s *, __int64_t, int));
