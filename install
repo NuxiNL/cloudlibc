@@ -13,6 +13,9 @@ done
 done
 install -m 444 contrib/argdata-0.5/src/argdata.h \
     "${DESTDIR}${PREFIX}/include/"
+mkdir -p "${DESTDIR}${PREFIX}/include/jemalloc"
+install -m 444 contrib/jemalloc-4.5.0/include/jemalloc/jemalloc.h \
+    "${DESTDIR}${PREFIX}/include/jemalloc/jemalloc.h"
 
 echo "=> Installing libraries"
 mkdir -p "${DESTDIR}${PREFIX}/lib"

@@ -232,6 +232,7 @@ ctanhf
 ctanhl
 ctanl
 ctime_r
+dallocx
 daylight
 dcgettext
 dcngettext
@@ -519,7 +520,15 @@ lroundf
 lroundl
 lsearch
 lseek
+mallctl
+mallctlbymib
+mallctlnametomib
 malloc
+malloc_conf
+malloc_message
+malloc_stats_print
+malloc_usable_size
+mallocx
 mblen
 mblen_l
 mbrlen
@@ -572,6 +581,7 @@ mtx_timedlock
 mtx_trylock
 mtx_unlock
 munmap
+nallocx
 nan
 nanf
 nanl
@@ -702,6 +712,7 @@ qsort
 qsort_r
 quick_exit
 raise
+rallocx
 rand
 random
 read
@@ -745,6 +756,7 @@ rintl
 round
 roundf
 roundl
+sallocx
 scalbln
 scalblnf
 scalblnl
@@ -753,6 +765,7 @@ scalbnf
 scalbnl
 scandirat
 sched_yield
+sdallocx
 seekdir
 select
 sem_destroy
@@ -1154,6 +1167,7 @@ wmemmove
 wmemset
 write
 writev
+xallocx
 y0
 y1
 yn
