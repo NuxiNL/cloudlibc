@@ -100,7 +100,7 @@ The source tree is structured as follows:
 
 **Note:** These instructions are only needed if you want to build
 cloudlibc manually, which is typically not needed. Please visit
-[Nuxi's company website](https://nuxi.nl/) for instructions on how to
+[CloudABI's web site](https://cloudabi.org/) for instructions on how to
 use CloudABI on your operating system of choice.
 
 cloudlibc may be built and installed by running the following command:
