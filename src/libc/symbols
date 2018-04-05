@@ -625,8 +625,6 @@ program_get_raw_argdata
 program_getpid
 program_main
 program_spawn
-program_spawn_deprecated
-program_wait_deprecated
 pselect
 psignal
 psignal_l

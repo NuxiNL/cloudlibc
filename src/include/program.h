@@ -46,22 +46,4 @@ int program_spawn(struct uv_loop_s *, struct uv_process_s *, int,
                   void (*)(struct uv_process_s *, __int64_t, int));
 __END_DECLS
 
-// TODO(ed): Remove the deprecated features below.
-
-#define CLD_KILLED 1
-#define CLD_EXITED 2
-
-#define WNOHANG 0x1
-
-typedef struct {
-  int si_signo;
-  int si_code;
-  int si_status;
-} siginfo_t;
-
-__BEGIN_DECLS
-int program_spawn_deprecated(int, const argdata_t *);
-int program_wait_deprecated(int, siginfo_t *, int);
-__END_DECLS
-
 #endif
