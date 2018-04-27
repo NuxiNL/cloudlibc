@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,8 +8,6 @@
 
 #include <stddef.h>
 #include <testing.h>
-
-#include <stdio.h>
 
 TEST(inet_aton_test, bad) {
   ASSERT_EQ(0, inet_aton("hello", NULL));
