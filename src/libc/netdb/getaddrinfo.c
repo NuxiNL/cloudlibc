@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <strings.h>
+#include <cloudlibc_interceptors.h>
 
 #include "netdb_impl.h"
 
@@ -78,7 +79,7 @@ static int inet6_pton(const char *nodename, struct in6_addr *addr,
   return 1;
 }
 
-int getaddrinfo(const char *restrict nodename, const char *restrict servname,
+int __cloudlibc_getaddrinfo(const char *restrict nodename, const char *restrict servname,
                 const struct addrinfo *restrict hints,
                 struct addrinfo **restrict res) {
   // Fall back to default hints if none are provided.
@@ -270,3 +271,5 @@ int getaddrinfo(const char *restrict nodename, const char *restrict servname,
   *res = &entries[0].ai;
   return 0;
 }
+
+__weak_reference(__cloudlibc_getaddrinfo, getaddrinfo);

@@ -6,13 +6,13 @@
 #include <string.h>
 #include <testing.h>
 
-TEST(strerror, null) {
+TEST(strerror_r, null) {
   errno = 1234;
   ASSERT_EQ(0, strerror_r(EINVAL, NULL, 0));
   ASSERT_EQ(1234, errno);
 }
 
-TEST(strerror, one) {
+TEST(strerror_r, one) {
   char buf = 'A';
   errno = 1234;
   ASSERT_EQ(0, strerror_r(EINVAL, &buf, 1));
@@ -20,7 +20,7 @@ TEST(strerror, one) {
   ASSERT_EQ('\0', buf);
 }
 
-TEST(strerror, partial) {
+TEST(strerror_r, partial) {
   char buf[12] = "AAAAAAAAAAAA";
   errno = 1234;
   ASSERT_EQ(0, strerror_r(EINVAL, buf, sizeof(buf)));
@@ -28,7 +28,7 @@ TEST(strerror, partial) {
   ASSERT_ARREQ("Invalid arg", buf, 12);
 }
 
-TEST(strerror, full) {
+TEST(strerror_r, full) {
   char buf[20] = "AAAAAAAAAAAAAAAAAAAA";
   errno = 1234;
   ASSERT_EQ(0, strerror_r(EINVAL, buf, sizeof(buf)));

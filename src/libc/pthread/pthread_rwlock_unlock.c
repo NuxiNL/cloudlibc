@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,8 +9,9 @@
 #include <cloudabi_syscalls.h>
 #include <pthread.h>
 #include <stdatomic.h>
+#include <cloudlibc_interceptors.h>
 
-int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
+int __cloudlibc_pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   _Atomic(cloudabi_lock_t) *state = &rwlock->__state;
   cloudabi_lock_t old = atomic_load_explicit(state, memory_order_relaxed);
   if ((old & CLOUDABI_LOCK_WRLOCKED) != 0) {
@@ -88,5 +89,8 @@ int pthread_rwlock_unlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   return 0;
 }
 
-__strong_reference(pthread_rwlock_unlock, pthread_mutex_unlock);
-__strong_reference(pthread_rwlock_unlock, pthread_spin_unlock);
+__strong_reference(__cloudlibc_pthread_rwlock_unlock, __cloudlibc_pthread_mutex_unlock);
+__strong_reference(__cloudlibc_pthread_rwlock_unlock, __cloudlibc_pthread_spin_unlock);
+__weak_reference(__cloudlibc_pthread_mutex_unlock, pthread_mutex_unlock);
+__weak_reference(__cloudlibc_pthread_rwlock_unlock, pthread_rwlock_unlock);
+__weak_reference(__cloudlibc_pthread_spin_unlock, pthread_spin_unlock);

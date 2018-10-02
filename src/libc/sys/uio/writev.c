@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,6 +8,7 @@
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <stddef.h>
+#include <cloudlibc_interceptors.h>
 
 static_assert(offsetof(struct iovec, iov_base) ==
                   offsetof(cloudabi_ciovec_t, buf),
@@ -24,7 +25,7 @@ static_assert(sizeof(((struct iovec *)0)->iov_len) ==
 static_assert(sizeof(struct iovec) == sizeof(cloudabi_ciovec_t),
               "Size mismatch");
 
-ssize_t writev(int fildes, const struct iovec *iov, int iovcnt) {
+ssize_t __cloudlibc_writev(int fildes, const struct iovec *iov, int iovcnt) {
   if (iovcnt < 0) {
     errno = EINVAL;
     return -1;
@@ -38,3 +39,5 @@ ssize_t writev(int fildes, const struct iovec *iov, int iovcnt) {
   }
   return bytes_written;
 }
+
+__weak_reference(__cloudlibc_writev, writev);

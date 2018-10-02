@@ -1,7 +1,8 @@
 #include <math.h>
 #include <stdint.h>
+#include <cloudlibc_interceptors.h>
 
-float frexpf(float x, int *e)
+float __cloudlibc_frexpf(float x, int *e)
 {
 	union { float f; uint32_t i; } y = { x };
 	int ee = y.i>>23 & 0xff;
@@ -21,3 +22,5 @@ float frexpf(float x, int *e)
 	y.i |= 0x3f000000ul;
 	return y.f;
 }
+
+__weak_reference(__cloudlibc_frexpf, frexpf);

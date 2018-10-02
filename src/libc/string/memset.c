@@ -1,13 +1,14 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <cloudlibc_interceptors.h>
 #include <limits.h>
 #include <string.h>
 
 #include "string_impl.h"
 
-void *memset(void *s, int c, size_t n) {
+void *__cloudlibc_memset(void *s, int c, size_t n) {
   char *sb = s;
   if (n >= LONG_STRING_SIZE) {
     // Set first bytes until buffer is aligned to unsigned long.
@@ -32,3 +33,5 @@ void *memset(void *s, int c, size_t n) {
     *sb++ = c;
   return s;
 }
+
+__weak_reference(__cloudlibc_memset, memset);

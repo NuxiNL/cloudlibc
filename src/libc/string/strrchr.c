@@ -1,10 +1,11 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
-char *(strrchr)(const char *s, int c) {
+char *__cloudlibc_strrchr(const char *s, int c) {
   char *last = NULL;
   for (;;) {
     if (*s == (char)c)
@@ -13,3 +14,5 @@ char *(strrchr)(const char *s, int c) {
       return last;
   }
 }
+
+__weak_reference(__cloudlibc_strrchr, strrchr);

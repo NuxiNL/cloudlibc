@@ -2923,3 +2923,25 @@ jemalloc_postfork_child(void)
 }
 
 /******************************************************************************/
+/* For Cloudlibc, define __cloudlibc_malloc as a strong alias to je_malloc, and
+ * define malloc as a weak alias to je_malloc. Same for other public functions.
+ */
+#include <_/cdefs.h>
+#include <cloudlibc_interceptors.h>
+__strong_reference(je_malloc, __cloudlibc_malloc);
+__weak_reference(__cloudlibc_malloc, malloc);
+
+__strong_reference(je_posix_memalign, __cloudlibc_posix_memalign);
+__weak_reference(__cloudlibc_posix_memalign, posix_memalign);
+
+__strong_reference(je_aligned_alloc, __cloudlibc_aligned_alloc);
+__weak_reference(__cloudlibc_aligned_alloc, aligned_alloc);
+
+__strong_reference(je_calloc, __cloudlibc_calloc);
+__weak_reference(__cloudlibc_calloc, calloc);
+
+__strong_reference(je_realloc, __cloudlibc_realloc);
+__weak_reference(__cloudlibc_realloc, realloc);
+
+__strong_reference(je_free, __cloudlibc_free);
+__weak_reference(__cloudlibc_free, free);

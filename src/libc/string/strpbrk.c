@@ -1,12 +1,13 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <common/byteset.h>
 
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
-char *(strpbrk)(const char *s1, const char *s2) {
+char *__cloudlibc_strpbrk(const char *s1, const char *s2) {
   // Construct span bitmask.
   byteset_t bs;
   byteemptyset(&bs);
@@ -19,3 +20,5 @@ char *(strpbrk)(const char *s1, const char *s2) {
     ++s1;
   return *s1 != '\0' ? (char *)s1 : NULL;
 }
+
+__weak_reference(__cloudlibc_strpbrk, strpbrk);

@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,8 +7,9 @@
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
-int getsockopt(int socket, int level, int option_name,
+int __cloudlibc_getsockopt(int socket, int level, int option_name,
                void *restrict option_value, size_t *restrict option_len) {
   // Only support SOL_SOCKET options for now.
   if (level != SOL_SOCKET) {
@@ -46,3 +47,5 @@ int getsockopt(int socket, int level, int option_name,
   *option_len = sizeof(int);
   return 0;
 }
+
+__weak_reference(__cloudlibc_getsockopt, getsockopt);

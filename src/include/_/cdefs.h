@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions
@@ -83,6 +83,8 @@
 
 #define __strong_reference(oldsym, newsym) \
   extern __typeof__(oldsym) newsym __attribute__((__alias__(#oldsym)))
+#define __weak_reference(oldsym, newsym) \
+  extern __typeof__(oldsym) newsym __attribute__((weak, __alias__(#oldsym)))
 
 // Convenience macros.
 
@@ -145,5 +147,12 @@
            const unsigned char *: (const type *)name(__VA_ARGS__), \
            const __wchar_t *: (const type *)name(__VA_ARGS__),     \
            default: name(__VA_ARGS__))
+
+// Address sanitizer support.
+#if __has_feature(address_sanitizer)
+#define __no_sanitizer __attribute__((no_sanitize("address")))
+#else
+#define __no_sanitizer
+#endif
 
 #endif

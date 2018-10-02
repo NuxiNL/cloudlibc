@@ -1,7 +1,8 @@
 #include <math.h>
 #include <stdint.h>
+#include <cloudlibc_interceptors.h>
 
-double frexp(double x, int *e)
+double __cloudlibc_frexp(double x, int *e)
 {
 	union { double d; uint64_t i; } y = { x };
 	int ee = y.i>>52 & 0x7ff;
@@ -21,3 +22,5 @@ double frexp(double x, int *e)
 	y.i |= 0x3fe0000000000000ull;
 	return y.d;
 }
+
+__weak_reference(__cloudlibc_frexp, frexp);

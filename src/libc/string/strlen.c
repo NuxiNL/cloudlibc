@@ -1,12 +1,13 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
 #include "string_impl.h"
 
-size_t strlen(const char *s) {
+size_t __cloudlibc_strlen(const char *s) {
   // Perform byte comparisons until the string is aligned to unsigned long.
   const char *eb = s;
   while (!is_long_aligned(eb)) {
@@ -26,3 +27,5 @@ size_t strlen(const char *s) {
     ++eb;
   return eb - s;
 }
+
+__weak_reference(__cloudlibc_strlen, strlen);

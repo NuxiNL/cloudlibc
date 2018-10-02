@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2017-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,10 +6,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
 #include "execinfo_impl.h"
 
-char **backtrace_symbols(void *const *buffer, size_t size) {
+char **__cloudlibc_backtrace_symbols(void *const *buffer, size_t size) {
   // Corner case: make this function work with an empty input list.
   if (size == 0)
     return malloc(1);
@@ -48,3 +49,5 @@ char **backtrace_symbols(void *const *buffer, size_t size) {
     strings[i] = strings[i - 1] + strlen(strings[i - 1]) + 1;
   return strings;
 }
+
+__weak_reference(__cloudlibc_backtrace_symbols, backtrace_symbols);

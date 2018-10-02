@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,11 +8,12 @@
 
 #include <assert.h>
 #include <cloudabi_syscalls.h>
+#include <cloudlibc_interceptors.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdlib.h>
 
-int pthread_join(pthread_t thread, void **value_ptr) {
+int __cloudlibc_pthread_join(pthread_t thread, void **value_ptr) {
   assert(thread != __pthread_self_object &&
          "Thread attempted to join with itself");
   cloudabi_lock_t old =
@@ -47,9 +48,16 @@ int pthread_join(pthread_t thread, void **value_ptr) {
 
   // Free the stack buffers associated with this thread. The safe stack
   // buffer also contains the thread's handle.
+  // For the (safe and unsafe) stacks, explicitly use cloudlibc's own malloc
+  // and free instead of the Address Sanitizer-intercepted ones. This solves an
+  // issue where Address Sanitizer seems to be confused about whether they are
+  // stack or heap allocations, causing the free interceptor to trigger an
+  // error.
   refcount_assert_exclusive(&thread->refcount);
   void *unsafe_stack = thread->unsafe_stack;
-  free(thread->safe_stack);
-  free(unsafe_stack);
+  __cloudlibc_free(thread->safe_stack);
+  __cloudlibc_free(unsafe_stack);
   return 0;
 }
+
+__weak_reference(__cloudlibc_pthread_join, pthread_join);

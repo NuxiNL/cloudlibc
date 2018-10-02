@@ -141,7 +141,7 @@ ldiv_t ldiv(long, long) __pure2;
 long long llabs(long long) __pure2;
 lldiv_t lldiv(long long, long long) __pure2;
 long lrand48(void);
-void *malloc(size_t);
+void *malloc(size_t) __malloc_like;
 int mblen(const char *, size_t);
 int mblen_l(const char *, size_t, __locale_t);
 size_t mbstowcs(wchar_t *__restrict, const char *__restrict, size_t);

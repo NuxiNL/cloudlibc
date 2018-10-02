@@ -182,7 +182,7 @@ static void apply_random_operations(FILE *stream) {
       case 8:
         // fgetws().
         if (npushbacks == 0) {
-          wchar_t readbuf[sizeof(contents)];
+          wchar_t readbuf[sizeof(contents) + 1];
           size_t readlen = arc4random_uniform(sizeof(readbuf) + 1);
           if (readlen == 0) {
             // Call fgets() with buffer size zero. This behaviour isn't

@@ -1,12 +1,13 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <unistd.h>
+#include <cloudlibc_interceptors.h>
 
-ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset) {
+ssize_t __cloudlibc_pread(int fildes, void *buf, size_t nbyte, off_t offset) {
   if (offset < 0) {
     errno = EINVAL;
     return -1;
@@ -29,3 +30,5 @@ ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset) {
   }
   return bytes_read;
 }
+
+__weak_reference(__cloudlibc_pread, pread);

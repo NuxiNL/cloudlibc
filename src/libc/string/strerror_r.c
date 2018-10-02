@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,8 +6,9 @@
 
 #include <locale.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
-int strerror_r(int errnum, char *strerrbuf, size_t buflen) {
+int __cloudlibc_strerror_r(int errnum, char *strerrbuf, size_t buflen) {
   // Fetch strings from the en_US locale directly.
   const struct lc_messages *messages = &__messages_en_us;
   size_t idx = errnum;
@@ -19,3 +20,5 @@ int strerror_r(int errnum, char *strerrbuf, size_t buflen) {
   }
   return 0;
 }
+
+__weak_reference(__cloudlibc_strerror_r, strerror_r);

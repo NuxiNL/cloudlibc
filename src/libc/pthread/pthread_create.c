@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,6 +8,7 @@
 #include <common/tls.h>
 
 #include <cloudabi_syscalls.h>
+#include <cloudlibc_interceptors.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdalign.h>
@@ -16,12 +17,12 @@
 #include <stdnoreturn.h>
 #include <string.h>
 
-static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
+static noreturn __no_sanitizer void thread_entry(cloudabi_tid_t tid, void *data) {
   // Set up TLS space.
   char tls_space[tls_size()];
   char *tls_start = tls_addr(tls_space);
-  memcpy(tls_start, __pt_tls_vaddr_abs, __pt_tls_filesz);
-  memset(tls_start + __pt_tls_filesz, '\0',
+  __cloudlibc_memcpy(tls_start, __pt_tls_vaddr_abs, __pt_tls_filesz);
+  __cloudlibc_memset(tls_start + __pt_tls_filesz, '\0',
          __pt_tls_memsz_aligned - __pt_tls_filesz);
   tls_replace(tls_space);
 
@@ -47,19 +48,24 @@ static noreturn void thread_entry(cloudabi_tid_t tid, void *data) {
   pthread_exit(start_routine(argument));
 }
 
-int pthread_create(pthread_t *restrict thread,
+int __cloudlibc_pthread_create(pthread_t *restrict thread,
                    const pthread_attr_t *restrict attr,
                    void *(*start_routine)(void *), void *restrict arg) {
+  // For the (safe and unsafe) stacks, explicitly use cloudlibc's own malloc
+  // and free instead of the Address Sanitizer-intercepted ones. This solves an
+  // issue where Address Sanitizer seems to be confused about whether they are
+  // stack or heap allocations, causing the free interceptor to trigger an
+  // error.
   size_t stacksize = attr != NULL ? attr->__stacksize : PTHREAD_STACK_DEFAULT;
   size_t safe_stacksize =
       stacksize + __pt_tls_memsz_aligned + sizeof(struct __pthread);
-  char *safe_stack = malloc(safe_stacksize);
+  char *safe_stack = __cloudlibc_malloc(safe_stacksize);
   if (safe_stack == NULL)
     return EAGAIN;
   size_t unsafe_stacksize = stacksize;
-  char *unsafe_stack = malloc(unsafe_stacksize);
+  char *unsafe_stack = __cloudlibc_malloc(unsafe_stacksize);
   if (unsafe_stack == NULL) {
-    free(safe_stack);
+    __cloudlibc_free(safe_stack);
     return EAGAIN;
   }
 
@@ -94,8 +100,8 @@ int pthread_create(pthread_t *restrict thread,
   cloudabi_errno_t error = cloudabi_sys_thread_create(&tdattr, &tid);
   if (error != 0) {
     refcount_release(&__pthread_num_threads);
-    free(safe_stack);
-    free(unsafe_stack);
+    __cloudlibc_free(safe_stack);
+    __cloudlibc_free(unsafe_stack);
     return error;
   }
 
@@ -112,3 +118,5 @@ int pthread_create(pthread_t *restrict thread,
   *thread = handle;
   return 0;
 }
+
+__weak_reference(__cloudlibc_pthread_create, pthread_create);

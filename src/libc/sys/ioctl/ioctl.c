@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -7,8 +7,9 @@
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <cloudlibc_interceptors.h>
 
-int ioctl(int fildes, int request, ...) {
+int __cloudlibc_ioctl(int fildes, int request, ...) {
   switch (request) {
     case FIONREAD: {
       // Poll the file descriptor to determine how many bytes can be read.
@@ -87,3 +88,5 @@ int ioctl(int fildes, int request, ...) {
       return -1;
   }
 }
+
+__weak_reference(__cloudlibc_ioctl, ioctl);

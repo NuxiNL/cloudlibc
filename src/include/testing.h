@@ -89,16 +89,38 @@ struct __test {
   _Bool __single_threaded;
 };
 
+#if 0
+#define TEST(module, name) \
+   static void __test_func_##module##_##name(int fd_tmp)
+#define TEST_SINGLE_THREADED(module, name) \
+   static void __test_func_##module##_##name(int fd_tmp)
+
+#define N_TEST(module, name)                                               \
+  static void __test_func_##module##_##name(int);                        \
+  static struct __test __test_obj_##module##_##name __section("__tests") \
+__no_sanitizer \
+      __used = {#module "::" #name, __test_func_##module##_##name, 0};   \
+  static void __test_func_##module##_##name(int fd_tmp)
+#define N_TEST_SINGLE_THREADED(module, name)                              \
+  static void __test_func_##module##_##name(int);                        \
+  static struct __test __test_obj_##module##_##name __section("__tests") \
+__no_sanitizer \
+      __used = {#module "::" #name, __test_func_##module##_##name, 1};   \
+  static void __test_func_##module##_##name(int fd_tmp)
+#else
 #define TEST(module, name)                                               \
   static void __test_func_##module##_##name(int);                        \
   static struct __test __test_obj_##module##_##name __section("__tests") \
-      __used = {#module "::" #name, __test_func_##module##_##name, 0};   \
+      __used __no_sanitizer = {#module "::" #name,                       \
+        __test_func_##module##_##name, 0};                               \
   static void __test_func_##module##_##name(int fd_tmp)
 #define TEST_SINGLE_THREADED(module, name)                               \
   static void __test_func_##module##_##name(int);                        \
   static struct __test __test_obj_##module##_##name __section("__tests") \
-      __used = {#module "::" #name, __test_func_##module##_##name, 1};   \
+      __used __no_sanitizer = {#module "::" #name,                       \
+        __test_func_##module##_##name, 1};                               \
   static void __test_func_##module##_##name(int fd_tmp)
+#endif
 
 // Test execution.
 //

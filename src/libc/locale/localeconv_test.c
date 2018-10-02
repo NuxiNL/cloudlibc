@@ -15,7 +15,7 @@ TEST(localeconv, c_standard) {
   ASSERT_STREQ("", lconv->grouping);
   ASSERT_STREQ("", lconv->mon_decimal_point);
   ASSERT_STREQ("", lconv->mon_thousands_sep);
-  ASSERT_EQ("", lconv->mon_grouping);
+  ASSERT_STREQ("", lconv->mon_grouping);
   ASSERT_STREQ("", lconv->positive_sign);
   ASSERT_STREQ("", lconv->negative_sign);
   ASSERT_STREQ("", lconv->currency_symbol);
@@ -48,7 +48,7 @@ TEST(localeconv, c_object) {
   ASSERT_STREQ("", lconv->grouping);
   ASSERT_STREQ("", lconv->mon_decimal_point);
   ASSERT_STREQ("", lconv->mon_thousands_sep);
-  ASSERT_EQ("", lconv->mon_grouping);
+  ASSERT_STREQ("", lconv->mon_grouping);
   ASSERT_STREQ("", lconv->positive_sign);
   ASSERT_STREQ("", lconv->negative_sign);
   ASSERT_STREQ("", lconv->currency_symbol);

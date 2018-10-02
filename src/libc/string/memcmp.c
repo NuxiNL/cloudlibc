@@ -1,12 +1,13 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
 #include "string_impl.h"
 
-int memcmp(const void *s1, const void *s2, size_t n) {
+int __cloudlibc_memcmp(const void *s1, const void *s2, size_t n) {
   const unsigned char *sb1 = (const unsigned char *)s1;
   const unsigned char *sb2 = (const unsigned char *)s2;
 
@@ -43,3 +44,5 @@ int memcmp(const void *s1, const void *s2, size_t n) {
   }
   return 0;
 }
+
+__weak_reference(__cloudlibc_memcmp, memcmp);

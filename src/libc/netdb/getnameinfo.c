@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <netdb.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
 #include "netdb_impl.h"
 
@@ -19,7 +20,7 @@ static_assert(NI_MAXHOST >= INET_ADDRSTRLEN,
 static_assert(NI_MAXHOST >= INET6_ADDRSTRLEN + 11,
               "NI_MAXHOST too small to fit an IPv6 address and scope ID");
 
-int getnameinfo(const struct sockaddr *restrict sa, size_t salen,
+int __cloudlibc_getnameinfo(const struct sockaddr *restrict sa, size_t salen,
                 char *restrict node, size_t nodelen, char *restrict service,
                 size_t servicelen, int flags) {
   // Validate flags.
@@ -113,3 +114,5 @@ int getnameinfo(const struct sockaddr *restrict sa, size_t salen,
   }
   return 0;
 }
+
+__weak_reference(__cloudlibc_getnameinfo, getnameinfo);

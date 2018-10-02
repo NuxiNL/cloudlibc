@@ -10,6 +10,13 @@
 /* #undef JEMALLOC_CPREFIX */
 
 /*
+ * Don't rename je_malloc to malloc. Instead, for Cloudlibc, jemalloc.c will
+ * define explicit weak alias symbols from malloc to je_malloc. This allows
+ * another allocator to override malloc() and its friends.
+ */
+#define JEMALLOC_NO_RENAME
+
+/*
  * JEMALLOC_PRIVATE_NAMESPACE is used as a prefix for all library-private APIs.
  * For shared libraries, symbol visibility mechanisms prevent these symbols
  * from being exported, but for static libraries, naming collisions are a real
