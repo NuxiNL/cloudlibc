@@ -1,11 +1,12 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <stdlib.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
-char *strdup(const char *s) {
+char *__cloudlibc_strdup(const char *s) {
   size_t len = strlen(s) + 1;
   char *copy = malloc(len);
   if (copy == NULL)
@@ -13,3 +14,5 @@ char *strdup(const char *s) {
   memcpy(copy, s, len);
   return copy;
 }
+
+__weak_reference(__cloudlibc_strdup, strdup);

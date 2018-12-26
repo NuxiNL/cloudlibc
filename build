@@ -4,6 +4,7 @@ set -e
 
 # Variables that can be provided externally.
 : ${CC:=x86_64-unknown-cloudabi-cc}
+: ${CXX:=x86_64-unknown-cloudabi-c++}
 : ${AR:=x86_64-unknown-cloudabi-ar}
 : ${CFLAGS:=-O3 -fomit-frame-pointer -g}
 : ${WARNFLAGS:=}
@@ -35,8 +36,9 @@ if [ "$1" != "fast" ]; then
     case "${srcfile}" in
     ${DOUBLE_CONVERSION}/*|${JEMALLOC}/*|${MUSL}/*) extraflags="" ;;
     src/crt/*) extraflags="${WARNFLAGS} -ffreestanding -fno-sanitize=safe-stack -fno-stack-protector" ;;
-    *_test.c) extraflags="${WARNFLAGS} -fno-builtin -O0" ;;
+    *_test.c) extraflags="${WARNFLAGS} -fno-builtin -O0 -fsanitize=address" ;;
     src/libc/pthread/pthread_create.c) extraflags="${WARNFLAGS} -fno-sanitize=safe-stack" ;;
+    src/libc/string/memset.c) extraflags="${WARNFLAGS} -fno-builtin-memset" ;;
     *) extraflags="${WARNFLAGS}" ;;
     esac
     case "${srcfile}" in
@@ -71,5 +73,5 @@ cp _obj/src_crt_crtbegin.o _obj/crtbegin.o
 cp _obj/src_crt_crtend.o _obj/crtend.o
 
 echo "=> Building unit tests"
-${CC} -Wl,--export-dynamic -L_obj -B_obj -o _obj/cloudlibc-unittests \
+${CXX} -Wl,--export-dynamic -L_obj -B_obj -o _obj/cloudlibc-unittests -fsanitize=address \
     $(find src -name "*_test.c" | sort | sed -e 's/\//_/g' -e 's/^/_obj\//' -e 's/\.c$/\.o/')

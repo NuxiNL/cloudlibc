@@ -9,18 +9,21 @@
 #include <testing.h>
 #include <time.h>
 #include <unistd.h>
+#include <argdata.h>
 
 TEST(dladdr, nonexistent) {
   ASSERT_FALSE(dladdr(NULL, NULL));
 }
 
 TEST(dladdr, global_function) {
+  // Note: the function mentioned below must not be interceptable, or its name
+  // may change to its non-interceptable variant.
   Dl_info info;
-  ASSERT_TRUE(dladdr(strlen, &info));
+  ASSERT_TRUE(dladdr(argdata_create_binary, &info));
   ASSERT_STREQ("unknown", info.dli_fname);
   ASSERT_EQ(0x0, (uintptr_t)info.dli_fbase % sysconf(_SC_PAGESIZE));
-  ASSERT_STREQ("strlen", info.dli_sname);
-  ASSERT_EQ(strlen, info.dli_saddr);
+  ASSERT_STREQ("argdata_create_binary", info.dli_sname);
+  ASSERT_EQ(argdata_create_binary, info.dli_saddr);
   ASSERT_LT(info.dli_fbase, info.dli_saddr);
 }
 

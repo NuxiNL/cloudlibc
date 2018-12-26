@@ -1,12 +1,13 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <unistd.h>
+#include <cloudlibc_interceptors.h>
 
-ssize_t read(int fildes, void *buf, size_t nbyte) {
+ssize_t __cloudlibc_read(int fildes, void *buf, size_t nbyte) {
   cloudabi_iovec_t iov = {.buf = buf, .buf_len = nbyte};
   size_t bytes_read;
   cloudabi_errno_t error = cloudabi_sys_fd_read(fildes, &iov, 1, &bytes_read);
@@ -16,3 +17,5 @@ ssize_t read(int fildes, void *buf, size_t nbyte) {
   }
   return bytes_read;
 }
+
+__weak_reference(__cloudlibc_read, read);

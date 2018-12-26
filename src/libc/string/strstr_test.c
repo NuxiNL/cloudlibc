@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,11 +6,8 @@
 #include <testing.h>
 
 TEST(strstr, examples) {
-  // If s2 points to a string with zero length, the function shall return s1.
-  const char *str = (const char *)0x42;
+  const char *str = "Hello world";
   ASSERT_EQ(str, strstr(str, ""));
-
-  str = "Hello world";
   ASSERT_EQ(str + 2, strstr(str, "ll"));
   ASSERT_EQ(str + 4, strstr(str, "o worl"));
   ASSERT_EQ(str + 6, strstr(str, "world"));

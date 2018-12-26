@@ -1,9 +1,10 @@
-// Copyright (c) 2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2017-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <execinfo.h>
 #include <stddef.h>
+#include <cloudlibc_interceptors.h>
 
 // Simple stack frame structure.
 struct frame {
@@ -15,7 +16,7 @@ struct frame {
 #define NEGATIVE_TOLERANCE 0
 #define POSITIVE_TOLERANCE (1 << 16)
 
-size_t backtrace(void **buffer, size_t size) {
+size_t __cloudlibc_backtrace(void **buffer, size_t size) {
   struct frame *f = __builtin_frame_address(0);
   for (size_t i = 0; i < size; ++i) {
     buffer[i] = f->return_address;
@@ -26,3 +27,5 @@ size_t backtrace(void **buffer, size_t size) {
   }
   return size;
 }
+
+__weak_reference(__cloudlibc_backtrace, backtrace);

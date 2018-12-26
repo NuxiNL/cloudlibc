@@ -1,5 +1,6 @@
 #define	JEMALLOC_TSD_C_
 #include "jemalloc/internal/jemalloc_internal.h"
+#include <cloudlibc_interceptors.h>
 
 /******************************************************************************/
 /* Data. */
@@ -42,8 +43,8 @@ __malloc_thread_cleanup(void)
 	bool pending[MALLOC_TSD_CLEANUPS_MAX], again;
 	unsigned i;
 
-	for (i = 0; i < ncleanups; i++)
-		pending[i] = true;
+	// TODO: the memsets in this function should Just Work(tm), but they don't
+	__cloudlibc_memset(pending, true, ncleanups);
 
 	do {
 		again = false;

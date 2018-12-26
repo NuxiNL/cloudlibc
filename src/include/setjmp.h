@@ -64,8 +64,8 @@ typedef jmp_buf sigjmp_buf;
 #define sigsetjmp(env, savemask) setjmp(env)
 
 __BEGIN_DECLS
-_Noreturn void longjmp(jmp_buf, int);
-_Noreturn void siglongjmp(sigjmp_buf, int);
+void longjmp(jmp_buf, int);
+void siglongjmp(sigjmp_buf, int);
 __END_DECLS
 
 #endif

@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,8 +6,9 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <cloudlibc_interceptors.h>
 
-int fflush(FILE *stream) {
+int __cloudlibc_fflush(FILE *stream) {
   flockfile(stream);
   bool result = fop_flush(stream);
   if (result) {
@@ -17,3 +18,5 @@ int fflush(FILE *stream) {
   funlockfile(stream);
   return result ? 0 : EOF;
 }
+
+__weak_reference(__cloudlibc_fflush, fflush);

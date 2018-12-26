@@ -1,12 +1,13 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <cloudlibc_interceptors.h>
 #include <string.h>
 
 #include "string_impl.h"
 
-int strncmp(const char *sb1, const char *sb2, size_t n) {
+int __cloudlibc_strncmp(const char *sb1, const char *sb2, size_t n) {
   // Special case: both strings start within the same byte of a long.
   // This allows us to compare multiple characters at a time.
   if (n >= LONG_STRING_SIZE && is_long_aligned_equally(sb1, sb2)) {
@@ -45,3 +46,5 @@ int strncmp(const char *sb1, const char *sb2, size_t n) {
   }
   return 0;
 }
+
+__weak_reference(__cloudlibc_strncmp, strncmp);

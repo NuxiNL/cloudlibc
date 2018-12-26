@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -12,6 +12,10 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <wctype.h>
+#include <cloudlibc_interceptors.h>
+
+#define INTERCEPTABLE1(x) __cloudlibc_ ## x
+#define INTERCEPTABLE(x) INTERCEPTABLE1(x)
 
 #if WIDE
 typedef wchar_t char_t;
@@ -20,9 +24,9 @@ typedef char char_t;
 #endif
 
 #if WIDE
-int_t NAME(const char_t *restrict str, char_t **restrict endptr, int base) {
+int_t INTERCEPTABLE(NAME)(const char_t *restrict str, char_t **restrict endptr, int base) {
 #else
-int_t NAME(const char_t *restrict str, char_t **restrict endptr, int base,
+int_t INTERCEPTABLE(NAME)(const char_t *restrict str, char_t **restrict endptr, int base,
            locale_t locale) {
 #endif
   const char_t *s = str;
@@ -49,3 +53,6 @@ int_t NAME(const char_t *restrict str, char_t **restrict endptr, int base,
     *endptr = (char_t *)(have_number ? s : str);
   return number;
 }
+
+#define __weak_reference2(x, y) __weak_reference(x, y)
+__weak_reference2(INTERCEPTABLE(NAME), NAME);

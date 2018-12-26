@@ -1,15 +1,16 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <stdatomic.h>
 #include <stdlib.h>
+#include <cloudlibc_interceptors.h>
 
 #include "stdlib_impl.h"
 
 int __cxa_atexit(void (*)(void *), void *, void *);
 
-int __cxa_atexit(void (*func)(void *), void *arg, void *dso_handle) {
+int __cloudlibc___cxa_atexit(void (*func)(void *), void *arg, void *dso_handle) {
   // Allocate new entry.
   struct atexit *entry = malloc(sizeof(*entry));
   if (entry == NULL)
@@ -24,3 +25,5 @@ int __cxa_atexit(void (*func)(void *), void *arg, void *dso_handle) {
     ;
   return 0;
 }
+
+__weak_reference(__cloudlibc___cxa_atexit, __cxa_atexit);

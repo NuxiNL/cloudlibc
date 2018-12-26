@@ -6,8 +6,9 @@
 #include <errno.h>
 #include <poll.h>
 #include <stdbool.h>
+#include <cloudlibc_interceptors.h>
 
-int poll(struct pollfd *fds, size_t nfds, int timeout) {
+int __cloudlibc_poll(struct pollfd *fds, size_t nfds, int timeout) {
   // Construct events for poll().
   size_t maxevents = 2 * nfds + 1;
   cloudabi_subscription_t subscriptions[maxevents];
@@ -109,3 +110,5 @@ int poll(struct pollfd *fds, size_t nfds, int timeout) {
   }
   return retval;
 }
+
+__weak_reference(__cloudlibc_poll, poll);

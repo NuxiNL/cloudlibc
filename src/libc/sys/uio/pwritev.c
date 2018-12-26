@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -6,9 +6,10 @@
 #include <sys/uio.h>
 
 #include <cloudabi_syscalls.h>
+#include <cloudlibc_interceptors.h>
 #include <errno.h>
 
-ssize_t pwritev(int fildes, const struct iovec *iov, int iovcnt, off_t offset) {
+ssize_t __cloudlibc_pwritev(int fildes, const struct iovec *iov, int iovcnt, off_t offset) {
   if (iovcnt < 0 || offset < 0) {
     errno = EINVAL;
     return -1;
@@ -22,3 +23,5 @@ ssize_t pwritev(int fildes, const struct iovec *iov, int iovcnt, off_t offset) {
   }
   return bytes_written;
 }
+
+__weak_reference(__cloudlibc_pwritev, pwritev);

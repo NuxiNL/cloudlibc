@@ -1,12 +1,13 @@
-// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
 #include "string_impl.h"
 
-void *memmove(void *s1, const void *s2, size_t n) {
+void *__cloudlibc_memmove(void *s1, const void *s2, size_t n) {
   unsigned char *sb1 = s1;
   const unsigned char *sb2 = s2;
   if (sb1 < sb2) {
@@ -64,7 +65,9 @@ void *memmove(void *s1, const void *s2, size_t n) {
   return s1;
 }
 
-__strong_reference(memmove, memcpy);
+__strong_reference(__cloudlibc_memmove, __cloudlibc_memcpy);
+__weak_reference(__cloudlibc_memmove, memmove);
+__weak_reference(__cloudlibc_memcpy, memcpy);
 
 #ifdef __arm__
 __strong_reference(memmove, __aeabi_memcpy);

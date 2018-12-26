@@ -1,11 +1,12 @@
-// Copyright (c) 2016 Nuxi, https://nuxi.nl/
+// Copyright (c) 2016-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <locale.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
-char *setlocale(int category, const char *locale) {
+char *__cloudlibc_setlocale(int category, const char *locale) {
   // This environment doesn't allow us to override the process global
   // locale. It is always set to "C". As there is a lot of code out
   // there that uses this function either to query the current locale or
@@ -15,3 +16,5 @@ char *setlocale(int category, const char *locale) {
              ? (char *)"C"
              : NULL;
 }
+
+__weak_reference(__cloudlibc_setlocale, setlocale);

@@ -18,7 +18,7 @@ int getsubopt(char **optionp, char *const *keylistp, char **valuep) {
   for (;;) {
     if (keylistp[key] == NULL)
       return -1;
-    if (memcmp(keylistp[key], *optionp, keylen) == 0 &&
+    if (strncmp(keylistp[key], *optionp, keylen) == 0 &&
         keylistp[key][keylen] == '\0')
       break;
     ++key;

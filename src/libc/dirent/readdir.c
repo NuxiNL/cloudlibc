@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
 #include "dirent_impl.h"
 
@@ -37,7 +38,7 @@ static_assert(DT_UNKNOWN == CLOUDABI_FILETYPE_UNKNOWN, "Value mismatch");
     }                                               \
   } while (0)
 
-struct dirent *readdir(DIR *dirp) {
+struct dirent *__cloudlibc_readdir(DIR *dirp) {
   for (;;) {
     // Extract the next dirent header.
     size_t buffer_left = dirp->buffer_used - dirp->buffer_processed;
@@ -100,3 +101,5 @@ struct dirent *readdir(DIR *dirp) {
     dirp->buffer_processed = 0;
   }
 }
+
+__weak_reference(__cloudlibc_readdir, readdir);

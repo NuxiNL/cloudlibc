@@ -1,12 +1,13 @@
 #include "libm.h"
+#include <cloudlibc_interceptors.h>
 
 #if LDBL_MANT_DIG == 53 && LDBL_MAX_EXP == 1024
-long double frexpl(long double x, int *e)
+long double __cloudlibc_frexpl(long double x, int *e)
 {
 	return frexp(x, e);
 }
 #elif (LDBL_MANT_DIG == 64 || LDBL_MANT_DIG == 113) && LDBL_MAX_EXP == 16384
-long double frexpl(long double x, int *e)
+long double __cloudlibc_frexpl(long double x, int *e)
 {
 	union ldshape u = {x};
 	int ee = u.i.se & 0x7fff;
@@ -27,3 +28,5 @@ long double frexpl(long double x, int *e)
 	return u.f;
 }
 #endif
+
+__weak_reference(__cloudlibc_frexpl, frexpl);

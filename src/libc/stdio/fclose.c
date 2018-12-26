@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,8 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <cloudlibc_interceptors.h>
 
-int fclose(FILE *stream) {
+int __cloudlibc_fclose(FILE *stream) {
   // Close underlying descriptor.
   bool result = fop_close(stream);
 
@@ -19,3 +20,5 @@ int fclose(FILE *stream) {
   free(stream);
   return result ? 0 : EOF;
 }
+
+__weak_reference(__cloudlibc_fclose, fclose);

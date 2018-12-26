@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2017 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -8,8 +8,9 @@
 #include <cloudabi_syscalls.h>
 #include <errno.h>
 #include <pthread.h>
+#include <cloudlibc_interceptors.h>
 
-int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
+int __cloudlibc_pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   // Attempt to acquire the lock in userspace.
   for (int i = 0; i < LOCK_RETRY_COUNT; ++i) {
     int error = pthread_rwlock_trywrlock(rwlock);
@@ -37,5 +38,8 @@ int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock) __no_lock_analysis {
   return 0;
 }
 
-__strong_reference(pthread_rwlock_wrlock, pthread_mutex_lock);
-__strong_reference(pthread_rwlock_wrlock, pthread_spin_lock);
+__strong_reference(__cloudlibc_pthread_rwlock_wrlock, __cloudlibc_pthread_mutex_lock);
+__strong_reference(__cloudlibc_pthread_rwlock_wrlock, __cloudlibc_pthread_spin_lock);
+__weak_reference(__cloudlibc_pthread_rwlock_wrlock, pthread_rwlock_wrlock);
+__weak_reference(__cloudlibc_pthread_mutex_lock, pthread_mutex_lock);
+__weak_reference(__cloudlibc_pthread_spin_lock, pthread_spin_lock);

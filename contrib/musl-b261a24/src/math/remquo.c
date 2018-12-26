@@ -1,7 +1,8 @@
 #include <math.h>
 #include <stdint.h>
+#include <cloudlibc_interceptors.h>
 
-double remquo(double x, double y, int *quo)
+double __cloudlibc_remquo(double x, double y, int *quo)
 {
 	union {double f; uint64_t i;} ux = {x}, uy = {y};
 	int ex = ux.i>>52 & 0x7ff;
@@ -80,3 +81,5 @@ end:
 	*quo = sx^sy ? -(int)q : (int)q;
 	return sx ? -x : x;
 }
+
+__weak_reference(__cloudlibc_remquo, remquo);

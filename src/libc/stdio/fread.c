@@ -1,4 +1,4 @@
-// Copyright (c) 2015 Nuxi, https://nuxi.nl/
+// Copyright (c) 2015-2018 Nuxi, https://nuxi.nl/
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
@@ -9,8 +9,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <cloudlibc_interceptors.h>
 
-size_t fread(void *restrict ptr, size_t size, size_t nitems,
+size_t __cloudlibc_fread(void *restrict ptr, size_t size, size_t nitems,
              FILE *restrict stream) {
   // Check for overflow of size * nitems.
   flockfile_orientation(stream, -1);
@@ -53,3 +54,5 @@ size_t fread(void *restrict ptr, size_t size, size_t nitems,
     fread_consume(stream, readbuflen);
   }
 }
+
+__weak_reference(__cloudlibc_fread, fread);

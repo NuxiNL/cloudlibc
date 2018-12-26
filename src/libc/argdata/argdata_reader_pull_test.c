@@ -39,7 +39,7 @@ TEST(argdata_reader_pull, ebadf) {
 TEST(argdata_reader_pull, emsgsize_data) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(12, write(fds[1], "\x00\x00\x00\x00\x00\x01\xe2\xb5", 12));
+  ASSERT_EQ(12, write(fds[1], "\x00\x00\x00\x00\x00\x01\xe2\xb5\x00\x00\x00\x00", 12));
 
   // Message body too large.
   argdata_reader_t *ar = argdata_reader_create(123572, 16);
