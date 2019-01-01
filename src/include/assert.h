@@ -54,5 +54,5 @@ static __inline void __assert_enabled(const char *__func, const char *__file,
 #define assert(expression) __assert_disabled()
 #else
 #define assert(expression) \
-  __assert_enabled(__func__, __FILE__, __LINE__, expression, #expression)
+  __assert_enabled(__func__, __FILE__, __LINE__, !!(expression), #expression)
 #endif
