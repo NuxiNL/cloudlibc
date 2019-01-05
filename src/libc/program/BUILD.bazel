@@ -1,0 +1,25 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "program",
+    srcs = [
+        "program_exec.c",
+        "program_get_raw_argdata.c",
+        "program_getpid.c",
+        "program_spawn.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = [
+        "//src/common",
+        "@org_cloudabi_argdata//:argdata",
+    ],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "program_getpid",
+    "program_spawn",
+]]

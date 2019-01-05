@@ -1,0 +1,22 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "select",
+    srcs = [
+        "FD_CLR.c",
+        "FD_COPY.c",
+        "FD_ISSET.c",
+        "FD_SET.c",
+        "FD_ZERO.c",
+        "pselect.c",
+        "select.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["//src/common"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in ["select"]]

@@ -1,0 +1,7 @@
+cc_library(
+    name = "common",
+    hdrs = glob(["*.h"]),
+    include_prefix = "common",
+    visibility = ["//:__subpackages__"],
+    deps = ["@org_cloudabi_cloudabi//headers:cloudabi_syscalls"],
+)

@@ -1,0 +1,36 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "search",
+    srcs = [
+        "hcreate_r.c",
+        "hdestroy_r.c",
+        "hsearch_r.c",
+        "insque.c",
+        "lfind.c",
+        "lsearch.c",
+        "remque.c",
+        "search_impl.h",
+        "tdelete.c",
+        "tdestroy.c",
+        "tfind.c",
+        "tsearch.c",
+        "twalk.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "hsearch_r",
+    "insque",
+    "lfind",
+    "lsearch",
+    "remque",
+    "tdestroy",
+    "tsearch",
+    "twalk",
+]]

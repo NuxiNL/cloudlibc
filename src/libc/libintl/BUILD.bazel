@@ -1,0 +1,27 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "libintl",
+    srcs = [
+        "dcgettext.c",
+        "dcngettext.c",
+        "dgettext.c",
+        "dngettext.c",
+        "gettext.c",
+        "ngettext.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "dcgettext",
+    "dcngettext",
+    "dgettext",
+    "dngettext",
+    "gettext",
+    "ngettext",
+]]

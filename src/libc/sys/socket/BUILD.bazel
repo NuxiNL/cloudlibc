@@ -1,0 +1,35 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "socket",
+    srcs = [
+        "CMSG_FIRSTHDR.c",
+        "CMSG_NXTHDR.c",
+        "getsockopt.c",
+        "recv.c",
+        "recvmsg.c",
+        "send.c",
+        "sendmsg.c",
+        "shutdown.c",
+        "socket_impl.h",
+        "socketpair.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["//src/common"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "CMSG_FIRSTHDR",
+    "CMSG_NXTHDR",
+    "getsockopt",
+    "recv",
+    "recvmsg",
+    "send",
+    "sendmsg",
+    "shutdown",
+    "socketpair",
+]]

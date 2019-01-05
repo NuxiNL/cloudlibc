@@ -1,0 +1,32 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "mqueue",
+    srcs = [
+        "mq_destroy.c",
+        "mq_getattr.c",
+        "mq_init.c",
+        "mq_receive.c",
+        "mq_send.c",
+        "mq_setattr.c",
+        "mq_timedreceive.c",
+        "mq_timedsend.c",
+        "mqueue_impl.h",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "mq_getattr",
+    "mq_init",
+    "mq_receive",
+    "mq_send",
+    "mq_sendreceive",
+    "mq_setattr",
+    "mq_timedreceive",
+    "mq_timedsend",
+]]

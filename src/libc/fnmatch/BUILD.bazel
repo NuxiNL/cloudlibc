@@ -1,0 +1,9 @@
+cc_library(
+    name = "fnmatch",
+    srcs = [
+        "fnmatch.c",
+        "fnmatch_l.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["//src/common"],
+)

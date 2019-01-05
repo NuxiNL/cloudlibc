@@ -1,0 +1,44 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "capsicum",
+    srcs = [
+        "CAP_ALL.c",
+        "CAP_NONE.c",
+        "cap_enter.c",
+        "cap_getmode.c",
+        "cap_rights_clear.c",
+        "cap_rights_contains.c",
+        "cap_rights_get.c",
+        "cap_rights_get_explicit.c",
+        "cap_rights_init.c",
+        "cap_rights_is_set.c",
+        "cap_rights_limit.c",
+        "cap_rights_limit_explicit.c",
+        "cap_rights_merge.c",
+        "cap_rights_remove.c",
+        "cap_rights_set.c",
+        "cap_sandboxed.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["@org_cloudabi_cloudabi//headers:cloudabi_syscalls"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "cap_enter",
+    "cap_getmode",
+    "cap_rights_clear",
+    "cap_rights_contains",
+    "cap_rights_get",
+    "cap_rights_init",
+    "cap_rights_is_set",
+    "cap_rights_limit",
+    "cap_rights_merge",
+    "cap_rights_remove",
+    "cap_rights_set",
+    "cap_sandboxed",
+]]

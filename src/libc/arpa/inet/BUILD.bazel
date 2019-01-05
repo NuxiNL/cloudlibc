@@ -1,0 +1,30 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "inet",
+    srcs = [
+        "htonl.c",
+        "htons.c",
+        "inet_aton.c",
+        "inet_ntop.c",
+        "inet_pton.c",
+        "ntohl.c",
+        "ntohs.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["//src/common"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "htonl",
+    "htons",
+    "inet_aton",
+    "inet_ntop",
+    "inet_pton",
+    "ntohl",
+    "ntohs",
+]]

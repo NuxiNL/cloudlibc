@@ -1,0 +1,14 @@
+cc_library(
+    name = "float10",
+    srcs = [
+        "f10dec.cc",
+        "f10enc_get_double.cc",
+        "f10enc_get_float.cc",
+        "f10enc_get_long_double.cc",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = [
+        "//src/common",
+        "@com_google_double_conversion//:double-conversion",
+    ],
+)

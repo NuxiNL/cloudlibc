@@ -1,0 +1,31 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "in",
+    srcs = [
+        "IN6_IS_ADDR_LINKLOCAL.c",
+        "IN6_IS_ADDR_LOOPBACK.c",
+        "IN6_IS_ADDR_MC_GLOBAL.c",
+        "IN6_IS_ADDR_MC_LINKLOCAL.c",
+        "IN6_IS_ADDR_MC_NODELOCAL.c",
+        "IN6_IS_ADDR_MC_ORGLOCAL.c",
+        "IN6_IS_ADDR_MC_SITELOCAL.c",
+        "IN6_IS_ADDR_MULTICAST.c",
+        "IN6_IS_ADDR_SITELOCAL.c",
+        "IN6_IS_ADDR_UNSPECIFIED.c",
+        "IN6_IS_ADDR_V4COMPAT.c",
+        "IN6_IS_ADDR_V4MAPPED.c",
+        "in6addr_any.c",
+        "in6addr_loopback.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "in6addr_any",
+    "in6addr_loopback",
+]]

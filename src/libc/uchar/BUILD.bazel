@@ -1,0 +1,28 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "uchar",
+    srcs = [
+        "c16rtomb.c",
+        "c16rtomb_l.c",
+        "c32rtomb.c",
+        "c32rtomb_l.c",
+        "mbrtoc16.c",
+        "mbrtoc16_l.c",
+        "mbrtoc32.c",
+        "mbrtoc32_l.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["//src/common"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "c16rtomb",
+    "c32rtomb",
+    "mbrtoc16",
+    "mbrtoc32",
+]]

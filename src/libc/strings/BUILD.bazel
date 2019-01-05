@@ -1,0 +1,28 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "strings",
+    srcs = [
+        "ffs.c",
+        "ffsl.c",
+        "ffsll.c",
+        "strcasecmp.c",
+        "strcasecmp_l.c",
+        "strncasecmp.c",
+        "strncasecmp_l.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["//src/common"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "ffs",
+    "ffsl",
+    "ffsll",
+    "strcasecmp",
+    "strncasecmp",
+]]

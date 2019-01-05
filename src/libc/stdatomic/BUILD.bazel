@@ -1,0 +1,30 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "stdatomic",
+    srcs = [
+        "atomic_compare_exchange.c",
+        "atomic_exchange.c",
+        "atomic_fallback_locks.c",
+        "atomic_flag_clear.c",
+        "atomic_flag_clear_explicit.c",
+        "atomic_flag_test_and_set.c",
+        "atomic_flag_test_and_set_explicit.c",
+        "atomic_load.c",
+        "atomic_signal_fence.c",
+        "atomic_store.c",
+        "atomic_thread_fence.c",
+        "stdatomic_impl.h",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "atomic_flag",
+    "atomic_is_lock_free",
+    "atomic_random",
+]]

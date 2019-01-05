@@ -1,0 +1,21 @@
+# TODO(ed): crtbegin.c and crtend.o should be linked as the first and
+# last object files, respectively.
+cc_library(
+    name = "crt",
+    srcs = [
+        "crt0.c",
+        "crtbegin.c",
+        "crtend.c",
+    ],
+    copts = [
+        "-ffreestanding",
+        "-fno-sanitize=safe-stack",
+        "-fno-stack-protector",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//src/common",
+        "@org_cloudabi_argdata//:argdata_impl",
+        "@org_cloudabi_cloudabi//headers:cloudabi_syscalls_info",
+    ],
+)

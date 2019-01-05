@@ -1,0 +1,6 @@
+cc_library(
+    name = "stack_chk",
+    srcs = ["stack_chk_fail.c"],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["@org_cloudabi_cloudabi//headers:cloudabi_syscalls"],
+)

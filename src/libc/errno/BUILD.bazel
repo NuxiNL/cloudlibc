@@ -1,0 +1,6 @@
+cc_library(
+    name = "errno",
+    srcs = ["errno.c"],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["@org_cloudabi_cloudabi//headers:cloudabi_types"],
+)

@@ -1,0 +1,24 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "uio",
+    srcs = [
+        "preadv.c",
+        "pwritev.c",
+        "readv.c",
+        "writev.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["@org_cloudabi_cloudabi//headers:cloudabi_syscalls"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "preadv",
+    "pwritev",
+    "readv",
+    "writev",
+]]

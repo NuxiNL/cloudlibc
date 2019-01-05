@@ -1,0 +1,27 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "inttypes",
+    srcs = [
+        "imaxabs.c",
+        "imaxdiv.c",
+        "strtoimax.c",
+        "strtoimax_l.c",
+        "strtoumax.c",
+        "strtoumax_l.c",
+        "wcstoimax.c",
+        "wcstoumax.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+    deps = ["//src/common"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "imaxabs",
+    "imaxdiv",
+    "printf_scanf",
+]]

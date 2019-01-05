@@ -1,0 +1,48 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
+cc_library(
+    name = "threads",
+    srcs = [
+        "call_once.c",
+        "cnd_broadcast.c",
+        "cnd_destroy.c",
+        "cnd_init.c",
+        "cnd_signal.c",
+        "cnd_timedwait.c",
+        "cnd_wait.c",
+        "mtx_destroy.c",
+        "mtx_init.c",
+        "mtx_lock.c",
+        "mtx_timedlock.c",
+        "mtx_trylock.c",
+        "mtx_unlock.c",
+        "thrd_create.c",
+        "thrd_detach.c",
+        "thrd_exit.c",
+        "thrd_join.c",
+        "thrd_yield.c",
+        "tss_create.c",
+        "tss_delete.c",
+        "tss_set.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+)
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "call_once",
+    "cnd_timedwait",
+    "cnd_wait",
+    "mtx_timedlock",
+    "mtx_trylock",
+    "thrd_detach",
+    "thrd_equal",
+    "thrd_join",
+    "thrd_sleep",
+    "thrd_yield",
+    "thread_local",
+    "tss_set",
+]]

@@ -1,0 +1,9 @@
+cc_library(
+    name = "aeabi",
+    srcs = [
+        "aeabi_impl.h",
+        "aeabi_unwind_cpp_pr0.c",
+        "aeabi_unwind_cpp_pr1.c",
+    ],
+    visibility = ["//src/libc:__pkg__"],
+)
