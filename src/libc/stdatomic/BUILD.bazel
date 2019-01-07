@@ -22,6 +22,9 @@ cc_library(
 [cc_test_cloudabi(
     name = test + "_test",
     srcs = [test + "_test.c"],
+    # Disable warnings about overly large atomics. Our unit tests should
+    # cover these cases regardless.
+    copts = ["-Wno-atomic-alignment"],
     deps = ["//src/libc/testing:testing_main"],
 ) for test in [
     "atomic_flag",

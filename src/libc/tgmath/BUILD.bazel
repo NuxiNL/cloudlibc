@@ -3,5 +3,7 @@ load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
 [cc_test_cloudabi(
     name = test + "_test",
     srcs = [test + "_test.c"],
+    # We explicitly want to test the behavior of fabs(int).
+    copts = ["-Wno-absolute-value"],
     deps = ["//src/libc/testing:testing_main"],
 ) for test in ["tgmath"]]
