@@ -1,9 +1,11 @@
 workspace(name = "org_cloudabi_cloudlibc")
 
-# TODO(ed): Use a toolchain stored in Git.
-local_repository(
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
     name = "org_cloudabi_bazel_toolchains_cloudabi",
-    path = "/home/ed/projects/bazel-toolchains-cloudabi",
+    commit = "4eb362f2e4d8a5e29ac4b6638ef9d4b9fd312b32",
+    remote = "https://github.com/NuxiNL/bazel-toolchains-cloudabi.git",
 )
 
 load("@org_cloudabi_bazel_toolchains_cloudabi//:toolchains.bzl", "toolchains_cloudabi_dependencies")
