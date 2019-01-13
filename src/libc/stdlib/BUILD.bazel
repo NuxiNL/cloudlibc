@@ -83,7 +83,6 @@ cc_library(
     "a64l",
     "abort",
     "abs",
-    "arc4random_buf",
     "arc4random_uniform",
     "at_quick_exit",
     "atexit",
@@ -124,3 +123,12 @@ cc_library(
     "wcstombs",
     "wctomb",
 ]]
+
+cc_test_cloudabi(
+    name = "arc4random_buf_test",
+    srcs = ["arc4random_buf_test.c"],
+    deps = [
+        "//src/common",
+        "//src/libc/testing:testing_main",
+    ],
+)
