@@ -6,9 +6,10 @@
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
 
 TEST(dladdr, nonexistent) {
   ASSERT_FALSE(dladdr(NULL, NULL));
@@ -16,11 +17,11 @@ TEST(dladdr, nonexistent) {
 
 TEST(dladdr, global_function) {
   Dl_info info;
-  ASSERT_TRUE(dladdr(strlen, &info));
+  ASSERT_TRUE(dladdr(reinterpret_cast<void *>(strlen), &info));
   ASSERT_STREQ("unknown", info.dli_fname);
   ASSERT_EQ(0x0, (uintptr_t)info.dli_fbase % sysconf(_SC_PAGESIZE));
   ASSERT_STREQ("strlen", info.dli_sname);
-  ASSERT_EQ(strlen, info.dli_saddr);
+  ASSERT_EQ(reinterpret_cast<void *>(strlen), info.dli_saddr);
   ASSERT_LT(info.dli_fbase, info.dli_saddr);
 }
 
@@ -31,14 +32,14 @@ TEST(dladdr, global_variable) {
   ASSERT_STREQ("unknown", info.dli_fname);
   ASSERT_EQ(0x0, (uintptr_t)info.dli_fbase % sysconf(_SC_PAGESIZE));
   ASSERT_STREQ("tzname", info.dli_sname);
-  ASSERT_EQ(tzname, info.dli_saddr);
+  ASSERT_EQ(static_cast<void *>(tzname), info.dli_saddr);
   ASSERT_LT(info.dli_fbase, info.dli_saddr);
 
   ASSERT_TRUE(dladdr(&tzname[1], &info));
   ASSERT_STREQ("unknown", info.dli_fname);
   ASSERT_EQ(0x0, (uintptr_t)info.dli_fbase % sysconf(_SC_PAGESIZE));
   ASSERT_STREQ("tzname", info.dli_sname);
-  ASSERT_EQ(tzname, info.dli_saddr);
+  ASSERT_EQ(static_cast<void *>(tzname), info.dli_saddr);
   ASSERT_LT(info.dli_fbase, info.dli_saddr);
 }
 

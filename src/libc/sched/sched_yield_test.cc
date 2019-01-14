@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <sched.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(sched_yield, example) {
   ASSERT_EQ(0, sched_yield());

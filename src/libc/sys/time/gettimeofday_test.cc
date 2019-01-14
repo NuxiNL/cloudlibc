@@ -4,8 +4,9 @@
 
 #include <sys/time.h>
 
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(gettimeofday, example) {
   struct timespec ts;

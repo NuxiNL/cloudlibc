@@ -10,8 +10,8 @@ cc_library(
     visibility = ["//src/libc:__pkg__"],
 )
 
-[cc_test_cloudabi(
-    name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
-) for test in ["math"]]
+cc_test_cloudabi(
+    name = "math_test",
+    srcs = ["math_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
+)

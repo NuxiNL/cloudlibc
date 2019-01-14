@@ -7,8 +7,8 @@ cc_library(
     deps = ["//src/common"],
 )
 
-[cc_test_cloudabi(
-    name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
-) for test in ["gettimeofday"]]
+cc_test_cloudabi(
+    name = "gettimeofday_test",
+    srcs = ["gettimeofday_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
+)

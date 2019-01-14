@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <math.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(math, presence) {
   // Test whether all functions in <math.h> are present.

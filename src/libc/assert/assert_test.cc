@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "gtest/gtest.h"
+
 #undef NDEBUG
 #include <assert.h>
-#include <testing.h>
 
 TEST(assert, enabled) {
   // Assert should accept any kind of scalar expression.
