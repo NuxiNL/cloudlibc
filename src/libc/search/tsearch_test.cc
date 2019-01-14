@@ -5,7 +5,8 @@
 #include <search.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(tsearch, null) {
   // NULL root pointer is also allowed.
@@ -21,9 +22,9 @@ static inline unsigned int tnode_assert(const posix_tnode *n) {
   unsigned int height_left = tnode_assert(n->__left);
   unsigned int height_right = tnode_assert(n->__right);
   int balance = (int)height_left - (int)height_right;
-  ASSERT_LE(-1, balance);
-  ASSERT_GE(1, balance);
-  ASSERT_EQ(balance, n->__balance);
+  EXPECT_LE(-1, balance);
+  EXPECT_GE(1, balance);
+  EXPECT_EQ(balance, n->__balance);
   return (height_left > height_right ? height_left : height_right) + 1;
 }
 

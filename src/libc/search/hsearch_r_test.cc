@@ -7,7 +7,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 #define NKEYS 1000
 #define KEYCHARS 4

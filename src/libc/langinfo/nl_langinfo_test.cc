@@ -4,7 +4,8 @@
 
 #include <langinfo.h>
 #include <locale.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(nl_langinfo, posix) {
   // Values that nl_langinfo() should return for the C locale.

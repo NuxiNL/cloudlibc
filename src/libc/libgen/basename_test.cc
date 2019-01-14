@@ -4,7 +4,8 @@
 
 #include <libgen.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(basename, null) {
   ASSERT_STREQ(".", basename(NULL));

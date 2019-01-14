@@ -6,11 +6,12 @@
 
 #include <search.h>
 #include <stdlib.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(twalk, empty) {
   // Empty tree. Callback should not be invoked.
-  void *tree = NULL;
+  posix_tnode *tree = nullptr;
   twalk(tree, (void (*)(const posix_tnode *, VISIT, int))42);
 }
 
@@ -47,7 +48,7 @@ static void traverse(const posix_tnode *node, VISIT visit, int level) {
   }
 }
 
-TEST_SINGLE_THREADED(twalk, example) {
+TEST(twalk, example) {
   // The numbers to insert into the tree.
   for (size_t i = 0; i < NELEMENTS; ++i)
     numbers[i] = i;

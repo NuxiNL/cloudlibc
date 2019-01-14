@@ -4,7 +4,8 @@
 
 #include <search.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 struct que {
   struct que *succ;

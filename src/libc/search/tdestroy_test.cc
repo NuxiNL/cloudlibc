@@ -5,14 +5,15 @@
 #include <search.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 static int compar(const void *a, const void *b) {
   return (char *)a - (char *)b;
 }
 
 static void destructor(void *keyp) {
-  bool *key = keyp;
+  bool *key = static_cast<bool *>(keyp);
   ASSERT_FALSE(*key);
   *key = true;
 }

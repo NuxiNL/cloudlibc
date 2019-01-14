@@ -4,7 +4,8 @@
 
 #include <search.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 static int compar(const void *a, const void *b) {
   return *(int *)b - *(int *)a;
