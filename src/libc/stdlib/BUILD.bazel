@@ -75,8 +75,8 @@ cc_library(
 
 [cc_test_cloudabi(
     name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
+    srcs = [test + "_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
 ) for test in [
     "MB_CUR_MAX_L",
     "_Exit",
@@ -126,9 +126,9 @@ cc_library(
 
 cc_test_cloudabi(
     name = "arc4random_buf_test",
-    srcs = ["arc4random_buf_test.c"],
+    srcs = ["arc4random_buf_test.cc"],
     deps = [
         "//src/common",
-        "//src/libc/testing:testing_main",
+        "@com_google_googletest//:gtest_main",
     ],
 )
