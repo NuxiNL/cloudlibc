@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <inttypes.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(imaxdiv, examples) {
   imaxdiv_t r = imaxdiv(-44, 7);

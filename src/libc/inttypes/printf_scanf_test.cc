@@ -5,7 +5,8 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(printf_scanf, examples) {
   char buf[11];

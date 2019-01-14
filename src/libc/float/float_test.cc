@@ -5,7 +5,8 @@
 #include <assert.h>
 #include <float.h>
 #include <math.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(float, mant_dig) {
   ASSERT_EQ(FLT_RADIX, scalbnf(FLT_EPSILON, FLT_MANT_DIG));
