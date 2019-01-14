@@ -95,7 +95,7 @@ The source tree is structured as follows:
 * [src/common/](src/common): Internally used data structures, subroutines, etc.
 * [src/crt/](src/crt): C program startup code.
 
-## Building and installing cloudlibc
+## Building cloudlibc
 
 cloudlibc uses [the Bazel build system](https://bazel.build/). A copy of
 cloudlibc can be built by installing Bazel and running the following
@@ -111,6 +111,14 @@ CloudABI executables (i.e., you're using FreeBSD). These tests can be
 executed by running the following command:
 
     bazel test //...
+
+## Installing cloudlibc
+
+The Bazel build rules provide no support for explicitly installing
+cloudlibc. Instead of that, it is possible to use Bazel's support for
+external repositories to use cloudlibc as part of your C/C++ project.
+Instructions for that can be found on
+[the Bazel Toolchains for CloudABI project page](https://github.com/NuxiNL/bazel-toolchains-cloudabi).
 
 ## Support
 
