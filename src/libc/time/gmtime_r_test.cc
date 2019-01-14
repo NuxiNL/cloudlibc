@@ -5,8 +5,9 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdint.h>
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(gmtime_r, toolow) {
   // Would overflow tm.tm_year below INT_MIN.

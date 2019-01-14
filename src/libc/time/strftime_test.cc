@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(strftime, null) {
   ASSERT_EQ(0, strftime(NULL, 0, "Foo", NULL));

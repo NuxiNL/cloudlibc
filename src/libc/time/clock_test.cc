@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(clock, example) {
   clock_t a = clock();

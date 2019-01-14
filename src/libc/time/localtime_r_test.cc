@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(localtime_r, recent) {
   // 2014-11-20T14:37:31Z. As there is no system-wide timezone available

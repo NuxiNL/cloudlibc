@@ -2,10 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <time.h>
 
-TEST(timezone, example) {
+#include "gtest/gtest.h"
+
+TEST(daylight, example) {
   // The global timezone in this environment is always UTC.
-  ASSERT_EQ(0, timezone);
+  ASSERT_EQ(0, daylight);
 }

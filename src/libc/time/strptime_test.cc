@@ -5,8 +5,9 @@
 #include <locale.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(strptime, examples) {
 #define TEST_STRPTIME(in, fmt, year, mon, wday, mday, hour, min, sec, nsec, \
@@ -63,40 +64,39 @@ TEST(strptime, examples) {
 }
 
 TEST(strptime, random) {
-#define TEST_RANDOM(fmt)                                      \
-  do {                                                        \
-    for (int i = 0; i < 100; ++i) {                           \
-      /* Pick a random timestamp. */                          \
-      int32_t r;                                              \
-      arc4random_buf(&r, sizeof(r));                          \
-      time_t t = r;                                           \
-      SCOPED_NOTE(t, {                                        \
-        /* Convert it to a string representation. */          \
-        struct tm tm_in;                                      \
-        ASSERT_EQ(&tm_in, gmtime_r(&t, &tm_in));              \
-        char str[64];                                         \
-                                                              \
-        /* Parse it back. */                                  \
-        size_t len = strftime(str, sizeof(str), fmt, &tm_in); \
-        ASSERT_LT(0, len);                                    \
-        struct tm tm_out;                                     \
-        ASSERT_EQ(str + len, strptime(str, fmt, &tm_out));    \
-                                                              \
-        /* Test for equality. */                              \
-        ASSERT_EQ(tm_in.tm_year, tm_out.tm_year);             \
-        ASSERT_EQ(tm_in.tm_yday, tm_out.tm_yday);             \
-        ASSERT_EQ(tm_in.tm_mon, tm_out.tm_mon);               \
-        ASSERT_EQ(tm_in.tm_mday, tm_out.tm_mday);             \
-        ASSERT_EQ(tm_in.tm_wday, tm_out.tm_wday);             \
-        ASSERT_EQ(tm_in.tm_hour, tm_out.tm_hour);             \
-        ASSERT_EQ(tm_in.tm_min, tm_out.tm_min);               \
-        ASSERT_EQ(tm_in.tm_sec, tm_out.tm_sec);               \
-        ASSERT_EQ(-1, tm_out.tm_isdst);                       \
-        ASSERT_EQ(0, tm_out.tm_gmtoff);                       \
-        ASSERT_EQ(NULL, tm_out.tm_zone);                      \
-        ASSERT_EQ(0, tm_out.tm_nsec);                         \
-      });                                                     \
-    }                                                         \
+#define TEST_RANDOM(fmt)                                    \
+  do {                                                      \
+    for (int i = 0; i < 100; ++i) {                         \
+      /* Pick a random timestamp. */                        \
+      int32_t r;                                            \
+      arc4random_buf(&r, sizeof(r));                        \
+      time_t t = r;                                         \
+      SCOPED_TRACE(t);                                      \
+      /* Convert it to a string representation. */          \
+      struct tm tm_in;                                      \
+      ASSERT_EQ(&tm_in, gmtime_r(&t, &tm_in));              \
+      char str[64];                                         \
+                                                            \
+      /* Parse it back. */                                  \
+      size_t len = strftime(str, sizeof(str), fmt, &tm_in); \
+      ASSERT_LT(0, len);                                    \
+      struct tm tm_out;                                     \
+      ASSERT_EQ(str + len, strptime(str, fmt, &tm_out));    \
+                                                            \
+      /* Test for equality. */                              \
+      ASSERT_EQ(tm_in.tm_year, tm_out.tm_year);             \
+      ASSERT_EQ(tm_in.tm_yday, tm_out.tm_yday);             \
+      ASSERT_EQ(tm_in.tm_mon, tm_out.tm_mon);               \
+      ASSERT_EQ(tm_in.tm_mday, tm_out.tm_mday);             \
+      ASSERT_EQ(tm_in.tm_wday, tm_out.tm_wday);             \
+      ASSERT_EQ(tm_in.tm_hour, tm_out.tm_hour);             \
+      ASSERT_EQ(tm_in.tm_min, tm_out.tm_min);               \
+      ASSERT_EQ(tm_in.tm_sec, tm_out.tm_sec);               \
+      ASSERT_EQ(-1, tm_out.tm_isdst);                       \
+      ASSERT_EQ(0, tm_out.tm_gmtoff);                       \
+      ASSERT_EQ(NULL, tm_out.tm_zone);                      \
+      ASSERT_EQ(0, tm_out.tm_nsec);                         \
+    }                                                       \
   } while (0)
   // Year, month, day of the month.
   TEST_RANDOM("%Y-%b-%d %H:%M:%S");

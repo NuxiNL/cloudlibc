@@ -4,8 +4,9 @@
 
 #include <locale.h>
 #include <stdbool.h>
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 struct testvector {
   time_t t;
@@ -19,44 +20,44 @@ struct testvector {
 static void test_locale(const char *locale, const struct testvector *vectors,
                         size_t vectors_count) {
   locale_t locobj = newlocale(LC_TIMEZONE_MASK, locale, 0);
-  ASSERT_NE(0, locobj);
+  ASSERT_NE((locale_t)0, locobj);
   for (size_t i = 0; i < vectors_count; ++i) {
     const struct testvector *vector = &vectors[i];
-    SCOPED_NOTE(vector->t, {
-      // Test localtime_l().
-      struct timespec ts = {.tv_sec = vector->t};
-      struct tm tm;
-      ASSERT_EQ(0, localtime_l(&ts, &tm, locobj));
-      ASSERT_EQ(vector->tm.tm_gmtoff, tm.tm_gmtoff);
-      ASSERT_EQ(vector->tm.tm_year, tm.tm_year);
-      ASSERT_EQ(vector->tm.tm_mon, tm.tm_mon);
-      ASSERT_EQ(vector->tm.tm_wday, tm.tm_wday);
-      ASSERT_EQ(vector->tm.tm_mday, tm.tm_mday);
-      ASSERT_EQ(vector->tm.tm_hour, tm.tm_hour);
-      ASSERT_EQ(vector->tm.tm_min, tm.tm_min);
-      ASSERT_EQ(vector->tm.tm_sec, tm.tm_sec);
-      ASSERT_EQ(vector->tm.tm_isdst, tm.tm_isdst);
-      ASSERT_STREQ(vector->tm.tm_zone, tm.tm_zone);
+    SCOPED_TRACE(vector->t);
 
-      // Test mktime_l() with tm_isdst >= 0.
-      ASSERT_EQ(0, mktime_l(&tm, &ts, locobj));
-      if (vector->consistency >= HINT) {
-        ASSERT_EQ(vector->t, ts.tv_sec);
-      } else {
-        ASSERT_NE(vector->t, ts.tv_sec);
-      }
-      ASSERT_EQ(0, ts.tv_nsec);
+    // Test localtime_l().
+    struct timespec ts = {.tv_sec = vector->t};
+    struct tm tm;
+    ASSERT_EQ(0, localtime_l(&ts, &tm, locobj));
+    ASSERT_EQ(vector->tm.tm_gmtoff, tm.tm_gmtoff);
+    ASSERT_EQ(vector->tm.tm_year, tm.tm_year);
+    ASSERT_EQ(vector->tm.tm_mon, tm.tm_mon);
+    ASSERT_EQ(vector->tm.tm_wday, tm.tm_wday);
+    ASSERT_EQ(vector->tm.tm_mday, tm.tm_mday);
+    ASSERT_EQ(vector->tm.tm_hour, tm.tm_hour);
+    ASSERT_EQ(vector->tm.tm_min, tm.tm_min);
+    ASSERT_EQ(vector->tm.tm_sec, tm.tm_sec);
+    ASSERT_EQ(vector->tm.tm_isdst, tm.tm_isdst);
+    ASSERT_STREQ(vector->tm.tm_zone, tm.tm_zone);
 
-      // Test mktime_l() with tm_isdst < 0.
-      tm.tm_isdst = -1;
-      ASSERT_EQ(0, mktime_l(&tm, &ts, locobj));
-      if (vector->consistency >= BIDI) {
-        ASSERT_EQ(vector->t, ts.tv_sec);
-      } else {
-        ASSERT_NE(vector->t, ts.tv_sec);
-      }
-      ASSERT_EQ(0, ts.tv_nsec);
-    });
+    // Test mktime_l() with tm_isdst >= 0.
+    ASSERT_EQ(0, mktime_l(&tm, &ts, locobj));
+    if (vector->consistency >= HINT) {
+      ASSERT_EQ(vector->t, ts.tv_sec);
+    } else {
+      ASSERT_NE(vector->t, ts.tv_sec);
+    }
+    ASSERT_EQ(0, ts.tv_nsec);
+
+    // Test mktime_l() with tm_isdst < 0.
+    tm.tm_isdst = -1;
+    ASSERT_EQ(0, mktime_l(&tm, &ts, locobj));
+    if (vector->consistency >= BIDI) {
+      ASSERT_EQ(vector->t, ts.tv_sec);
+    } else {
+      ASSERT_NE(vector->t, ts.tv_sec);
+    }
+    ASSERT_EQ(0, ts.tv_nsec);
   }
   freelocale(locobj);
 }

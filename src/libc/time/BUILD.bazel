@@ -39,8 +39,8 @@ cc_library(
 
 [cc_test_cloudabi(
     name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
+    srcs = [test + "_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
 ) for test in [
     "clock",
     "clock_getres",
