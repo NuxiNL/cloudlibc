@@ -35,7 +35,7 @@ attacker to compromise the process; not the entire system.
 As CloudABI is mostly legacy-free and only needs to implement the
 features that make sense in an environment that uses capability-based
 security, it is very small in comparison to other UNIX ABIs. At the time
-of writing, [CloudABI only has 58 system
+of writing, [CloudABI only has 49 system
 calls](https://github.com/NuxiNL/cloudabi/blob/master/cloudabi.txt).
 The number of types, datastructures and constants shared between
 kernelspace and userspace is very low when compared to existing
@@ -94,44 +94,23 @@ The source tree is structured as follows:
 * [src/libc/](src/libc): C library source files.
 * [src/common/](src/common): Internally used data structures, subroutines, etc.
 * [src/crt/](src/crt): C program startup code.
-* [contrib/](contrib): Contributed source code.
 
 ## Building and installing cloudlibc
 
-**Note:** These instructions are only needed if you want to build
-cloudlibc manually, which is typically not needed. Please visit
-[CloudABI's web site](https://cloudabi.org/) for instructions on how to
-use CloudABI on your operating system of choice.
+cloudlibc uses [the Bazel build system](https://bazel.build/). A copy of
+cloudlibc can be built by installing Bazel and running the following
+command:
 
-cloudlibc may be built and installed by running the following command:
-
-    ./build
-    sudo ./install
+    bazel build //...
 
 ## Testing cloudlibc
 
-cloudlibc ships with a large collection of unit tests. These unit tests
-can be built by running the build script used for development:
+Unit tests can be run through Bazel as well. Test execution currently
+assumes the system has native (non-emulated) support for running
+CloudABI executables (i.e., you're using FreeBSD). These tests can be
+executed by running the following command:
 
-    ./devel
-
-The resulting unit tests binary is called `_obj/unittest`. This binary
-can be executed using
-[cloudabi-run](https://github.com/NuxiNL/cloudabi-utils):
-
-
-```sh
-rm -Rf tmpdir
-mkdir tmpdir
-cloudabi-run _obj/unittest << EOF
-%TAG ! tag:nuxi.nl,2015:cloudabi/
----
-tmpdir: !file
-  path: tmpdir
-logfile: !fd stdout
-nthreads: !!int 8
-EOF
-```
+    bazel test //...
 
 ## Support
 
