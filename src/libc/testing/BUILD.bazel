@@ -1,18 +1,15 @@
 load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
 
 cc_library(
-    name = "testing",
+    name = "testing_main",
     srcs = [
         "failure.c",
+        "main_test.c",
         "testing_execute.c",
         "testing_impl.h",
     ],
-    visibility = ["//src/libc:__pkg__"],
-)
-
-cc_library(
-    name = "testing_main",
-    srcs = ["main_test.c"],
-    visibility = ["//visibility:public"],
+    hdrs = ["testing.h"],
+    includes = ["."],
+    visibility = ["//src/libc:__subpackages__"],
     deps = ["@org_cloudabi_argdata//:argdata"],
 )

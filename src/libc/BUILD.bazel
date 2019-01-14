@@ -56,7 +56,6 @@ cc_library(
         "//src/libc/sys/uio",
         "//src/libc/sys/utsname",
         "//src/libc/syslog",
-        "//src/libc/testing",
         "//src/libc/threads",
         "//src/libc/time",
         "//src/libc/uchar",

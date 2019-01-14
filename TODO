@@ -19,7 +19,7 @@ semaphore.h setjmp.h signal.h stdalign.h stdarg.h stdatomic.h stdbool.h
 stddef.h stdint.h stdlib.h stdnoreturn.h strings.h sys/capsicum.h
 sys/mman.h sys/resource.h sys/select.h sys/socket.h sys/stat.h
 sys/time.h sys/times.h sys/types.h sys/uio.h sys/un.h sys/utsname.h
-syslog.h tar.h testing.h tgmath.h threads.h time.h uchar.h wctype.h
+syslog.h tar.h tgmath.h threads.h time.h uchar.h wctype.h
 
 Will not be implemented:
 ------------------------
