@@ -13,15 +13,15 @@ cc_library(
 
 cc_test_cloudabi(
     name = "backtrace_test",
-    srcs = ["backtrace_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
+    srcs = ["backtrace_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
 )
 
 [cc_test_cloudabi(
     name = test + "_test",
-    srcs = [test + "_test.c"],
+    srcs = [test + "_test.cc"],
     linkopts = ["-Wl,--export-dynamic"],
-    deps = ["//src/libc/testing:testing_main"],
+    deps = ["@com_google_googletest//:gtest_main"],
 ) for test in [
     "backtrace_symbols",
     "backtrace_symbols_fd",

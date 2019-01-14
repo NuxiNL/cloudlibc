@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <execinfo.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(backtrace, example) {
   void *trace[10];

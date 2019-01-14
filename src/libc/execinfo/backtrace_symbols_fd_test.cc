@@ -4,15 +4,18 @@
 
 #include <execinfo.h>
 #include <stdio.h>
-#include <testing.h>
 #include <unistd.h>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 TEST(backtrace_symbols_fd, example) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
 
   // Let backtrace_symbols_fd() write its output into a pipe.
-  void *input[] = {NULL, lseek, (char *)lseek + 1};
+  void *input[] = {NULL, reinterpret_cast<void *>(lseek),
+                   reinterpret_cast<char *>(lseek) + 1};
   backtrace_symbols_fd(input, __arraycount(input), fds[1]);
   ASSERT_EQ(0, close(fds[1]));
 
@@ -26,5 +29,5 @@ TEST(backtrace_symbols_fd, example) {
   char actual[128];
   ASSERT_EQ(len, read(fds[0], actual, sizeof(actual)));
   ASSERT_EQ(0, close(fds[0]));
-  ASSERT_ARREQ(expected, actual, len);
+  ASSERT_THAT(actual, testing::StartsWith(expected));
 }

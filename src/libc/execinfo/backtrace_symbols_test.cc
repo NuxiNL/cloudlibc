@@ -5,7 +5,8 @@
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(backtrace_symbols, zero) {
   // This should return an empty list.
@@ -15,7 +16,8 @@ TEST(backtrace_symbols, zero) {
 }
 
 TEST(backtrace_symbols, example) {
-  void *input[] = {NULL, malloc, (char *)malloc + 1};
+  void *input[] = {NULL, reinterpret_cast<void *>(malloc),
+                   reinterpret_cast<char *>(malloc) + 1};
   char **result = backtrace_symbols(input, __arraycount(input));
   char buf[128];
   snprintf(buf, sizeof(buf), "%p", NULL);

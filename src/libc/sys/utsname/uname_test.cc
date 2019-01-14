@@ -4,7 +4,7 @@
 
 #include <sys/utsname.h>
 
-#include <testing.h>
+#include "gtest/gtest.h"
 
 TEST(uname, example) {
   struct utsname info;

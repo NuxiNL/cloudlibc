@@ -6,8 +6,8 @@ cc_library(
     visibility = ["//src/libc:__pkg__"],
 )
 
-[cc_test_cloudabi(
-    name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
-) for test in ["uname"]]
+cc_test_cloudabi(
+    name = "uname_test",
+    srcs = ["uname_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
+)
