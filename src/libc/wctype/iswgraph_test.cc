@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <locale.h>
-#include <testing.h>
 #include <wctype.h>
+
+#include "gtest/gtest.h"
 
 TEST(iswgraph, examples) {
   ASSERT_FALSE(iswgraph(WEOF));

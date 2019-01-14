@@ -4,7 +4,7 @@
 
 #include <net/if.h>
 
-#include <testing.h>
+#include "gtest/gtest.h"
 
 TEST(if_nametoindex, examples) {
   // Bad interface names.

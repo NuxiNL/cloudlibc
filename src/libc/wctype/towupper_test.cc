@@ -4,8 +4,9 @@
 
 #include <locale.h>
 #include <stddef.h>
-#include <testing.h>
 #include <wctype.h>
+
+#include "gtest/gtest.h"
 
 TEST(towupper, examples) {
   ASSERT_EQ(WEOF, towupper(WEOF));

@@ -5,7 +5,8 @@
 #include <net/if.h>
 
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(if_indextoname, examples) {
   // Interface 0 does not exist.

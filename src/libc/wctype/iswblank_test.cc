@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <wctype.h>
+
+#include "gtest/gtest.h"
 
 TEST(iswblank, examples) {
   ASSERT_FALSE(iswblank(WEOF));
