@@ -7,8 +7,9 @@ cc_library(
     deps = ["//src/common"],
 )
 
-[cc_test_cloudabi(
-    name = test + "_test",
-    srcs = [test + "_test.c"],
+cc_test_cloudabi(
+    name = "dladdr_test",
+    srcs = ["dladdr_test.c"],
+    linkopts = ["-Wl,--export-dynamic"],
     deps = ["//src/libc/testing:testing_main"],
-) for test in ["dladdr"]]
+)

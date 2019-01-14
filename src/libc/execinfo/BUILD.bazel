@@ -11,12 +11,18 @@ cc_library(
     visibility = ["//src/libc:__pkg__"],
 )
 
+cc_test_cloudabi(
+    name = "backtrace_test",
+    srcs = ["backtrace_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+)
+
 [cc_test_cloudabi(
     name = test + "_test",
     srcs = [test + "_test.c"],
+    linkopts = ["-Wl,--export-dynamic"],
     deps = ["//src/libc/testing:testing_main"],
 ) for test in [
-    "backtrace",
     "backtrace_symbols",
     "backtrace_symbols_fd",
 ]]
