@@ -4,6 +4,7 @@
 
 #include <common/float10.h>
 #include <common/locale.h>
+#include <common/numeric_grouping.h>
 
 #include <assert.h>
 #include <errno.h>

@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <locale.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(setlocale, good) {
   ASSERT_STREQ("C", setlocale(LC_ALL, NULL));

@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <common/locale.h>
+#include <common/numeric_grouping.h>
 
-#include <testing.h>
+#include "gtest/gtest.h"
 
 TEST(numeric_grouping, examples) {
 #define NG_TEST(groupingstr, instr, outstr)                                \
@@ -14,15 +14,14 @@ TEST(numeric_grouping, examples) {
               numeric_grouping_init(&ng, (const signed char *)groupingstr, \
                                     sizeof(instr) - 1));                   \
     for (size_t i = 0, j = 0; i < sizeof(instr) - 1; ++i, ++j) {           \
-      SCOPED_NOTE(i, {                                                     \
-        if (outstr[j] == ',') {                                            \
-          ASSERT_TRUE(numeric_grouping_step(&ng));                         \
-          ++j;                                                             \
-        } else {                                                           \
-          ASSERT_FALSE(numeric_grouping_step(&ng));                        \
-        }                                                                  \
-        ASSERT_EQ(outstr[j], instr[i]);                                    \
-      });                                                                  \
+      SCOPED_TRACE(i);                                                     \
+      if (outstr[j] == ',') {                                              \
+        ASSERT_TRUE(numeric_grouping_step(&ng));                           \
+        ++j;                                                               \
+      } else {                                                             \
+        ASSERT_FALSE(numeric_grouping_step(&ng));                          \
+      }                                                                    \
+      ASSERT_EQ(outstr[j], instr[i]);                                      \
     }                                                                      \
   } while (0)
   NG_TEST(NULL, "", "");

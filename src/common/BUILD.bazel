@@ -1,7 +1,18 @@
+load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
+
 cc_library(
     name = "common",
     hdrs = glob(["*.h"]),
     include_prefix = "common",
     visibility = ["//:__subpackages__"],
     deps = ["@org_cloudabi_cloudabi//headers:cloudabi_syscalls"],
+)
+
+cc_test_cloudabi(
+    name = "numeric_grouping_test",
+    srcs = ["numeric_grouping_test.cc"],
+    deps = [
+        ":common",
+        "@com_google_googletest//:gtest_main",
+    ],
 )

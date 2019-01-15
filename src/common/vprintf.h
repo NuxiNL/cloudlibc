@@ -6,6 +6,7 @@
 #include <common/float16.h>
 #include <common/locale.h>
 #include <common/mbstate.h>
+#include <common/numeric_grouping.h>
 #include <common/stdio.h>
 
 #include <assert.h>

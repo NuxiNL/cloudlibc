@@ -4,7 +4,8 @@
 
 #include <limits.h>
 #include <locale.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(localeconv, c_standard) {
   // Values that localeconv() should return for the C locale.

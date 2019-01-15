@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <locale.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(duplocale, example) {
   locale_t locale = duplocale(LC_GLOBAL_LOCALE);

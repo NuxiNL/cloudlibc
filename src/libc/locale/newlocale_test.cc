@@ -4,7 +4,8 @@
 
 #include <errno.h>
 #include <locale.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(newlocale, zero) {
   // Empty mask should yield the standard locale.
