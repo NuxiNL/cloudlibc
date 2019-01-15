@@ -4,7 +4,9 @@
 
 #include <errno.h>
 #include <iconv.h>
-#include <testing.h>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 TEST(iconv, example1) {
   iconv_t cd = iconv_open("ISO-8859-1", "UTF-8");
@@ -29,7 +31,7 @@ TEST(iconv, example1) {
   ASSERT_EQ(sizeof(in) - 7, inbytesleft);
   ASSERT_EQ(out + sizeof(out), outbuf);
   ASSERT_EQ(0, outbytesleft);
-  ASSERT_ARREQ("Kr\xf6ll", out, __arraycount(out));
+  ASSERT_THAT(out, testing::StartsWith("Kr\xf6ll"));
 
   outbuf = out;
   outbytesleft = sizeof(out);
@@ -39,7 +41,7 @@ TEST(iconv, example1) {
   ASSERT_EQ(sizeof(in) - 13, inbytesleft);
   ASSERT_EQ(out + sizeof(out), outbuf);
   ASSERT_EQ(0, outbytesleft);
-  ASSERT_ARREQ("er-M\xfc", out, __arraycount(out));
+  ASSERT_THAT(out, testing::StartsWith("er-M\xfc"));
 
   outbuf = out;
   outbytesleft = sizeof(out);
@@ -49,7 +51,7 @@ TEST(iconv, example1) {
   ASSERT_EQ(sizeof(in) - 18, inbytesleft);
   ASSERT_EQ(out + sizeof(out), outbuf);
   ASSERT_EQ(0, outbytesleft);
-  ASSERT_ARREQ("ller ", out, __arraycount(out));
+  ASSERT_THAT(out, testing::StartsWith("ller "));
 
   outbuf = out;
   outbytesleft = sizeof(out);
@@ -59,7 +61,7 @@ TEST(iconv, example1) {
   ASSERT_EQ(sizeof(in) - 23, inbytesleft);
   ASSERT_EQ(out + sizeof(out), outbuf);
   ASSERT_EQ(0, outbytesleft);
-  ASSERT_ARREQ("Museu", out, __arraycount(out));
+  ASSERT_THAT(out, testing::StartsWith("Museu"));
 
   outbuf = out;
   outbytesleft = sizeof(out);
@@ -68,7 +70,7 @@ TEST(iconv, example1) {
   ASSERT_EQ(0, inbytesleft);
   ASSERT_EQ(out + 1, outbuf);
   ASSERT_EQ(sizeof(out) - 1, outbytesleft);
-  ASSERT_ARREQ("m", out, 1);
+  ASSERT_THAT(out, testing::StartsWith("m"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
@@ -92,11 +94,10 @@ TEST(iconv, example2) {
   ASSERT_EQ(0, inbytesleft);
   ASSERT_EQ(out + sizeof(out), outbuf);
   ASSERT_EQ(0, outbytesleft);
-  ASSERT_ARREQ(
-      "The Netherlands: "
-      "\xa7\xaf\xa7\xda\xa7\xd5\xa7\xd6\xa7\xe2\xa7\xdd\xa7\xd1\xa7\xdf\xa7\xd5"
-      "\xa7\xed",
-      out, __arraycount(out));
+  ASSERT_THAT(out, testing::StartsWith("The Netherlands: "
+                                       "\xa7\xaf\xa7\xda\xa7\xd5\xa7\xd6\xa7"
+                                       "\xe2\xa7\xdd\xa7\xd1\xa7\xdf\xa7\xd5"
+                                       "\xa7\xed"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
@@ -122,7 +123,7 @@ TEST(iconv, example3) {
   ASSERT_EQ(0, inbytesleft);
   ASSERT_EQ(out + sizeof(out), outbuf);
   ASSERT_EQ(0, outbytesleft);
-  ASSERT_ARREQ("China: 中华人民共和国", out, __arraycount(out));
+  ASSERT_THAT(out, testing::StartsWith("China: 中华人民共和国"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
@@ -146,7 +147,7 @@ TEST(iconv, example4) {
   ASSERT_EQ(0, inbytesleft);
   ASSERT_EQ(out + sizeof(out), outbuf);
   ASSERT_EQ(0, outbytesleft);
-  ASSERT_ARREQ("Hello, world", out, __arraycount(out));
+  ASSERT_THAT(out, testing::StartsWith("Hello, world"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
@@ -172,7 +173,7 @@ TEST(iconv, bad_input) {
   ASSERT_EQ(sizeof(in) - 7, inbytesleft);
   ASSERT_EQ(out + 6, outbuf);
   ASSERT_EQ(sizeof(out) - 6, outbytesleft);
-  ASSERT_ARREQ("Broken", out, 6);
+  ASSERT_THAT(out, testing::StartsWith("Broken"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
@@ -198,7 +199,7 @@ TEST(iconv, bad_input_ignore) {
   ASSERT_EQ(0, inbytesleft);
   ASSERT_EQ(out + 12, outbuf);
   ASSERT_EQ(sizeof(out) - 12, outbytesleft);
-  ASSERT_ARREQ("Brokenstring", out, 12);
+  ASSERT_THAT(out, testing::StartsWith("Brokenstring"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
@@ -224,7 +225,7 @@ TEST(iconv, bad_output) {
   ASSERT_EQ(sizeof(in) - 6, inbytesleft);
   ASSERT_EQ(out + 5, outbuf);
   ASSERT_EQ(sizeof(out) - 5, outbytesleft);
-  ASSERT_ARREQ("Hello", out, 5);
+  ASSERT_THAT(out, testing::StartsWith("Hello"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
@@ -250,7 +251,7 @@ TEST(iconv, bad_output_ignore) {
   ASSERT_EQ(0, inbytesleft);
   ASSERT_EQ(out + 10, outbuf);
   ASSERT_EQ(sizeof(out) - 10, outbytesleft);
-  ASSERT_ARREQ("HelloWorld", out, 10);
+  ASSERT_THAT(out, testing::StartsWith("HelloWorld"));
 
   ASSERT_EQ(0, iconv_close(cd));
 }
