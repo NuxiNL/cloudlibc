@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <netdb.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(gai_strerror, success) {
   ASSERT_STREQ("Success", gai_strerror(0));

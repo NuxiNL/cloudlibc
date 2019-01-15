@@ -6,7 +6,9 @@
 #include <fcntl.h>
 #include <mqueue.h>
 #include <pthread.h>
-#include <testing.h>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 TEST(mq_send, bad) {
   mqd_t mqd;
@@ -31,13 +33,14 @@ TEST(mq_send, bad) {
 
 static void *pull_message(void *argument) {
   // Pull the first message from the message queue after a slight delay.
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0,
-                               &(struct timespec){.tv_nsec = 250000000}));
-  char buf[5];
+  struct timespec ts = {.tv_nsec = 250000000};
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+  char buf[6];
   unsigned int prio;
-  ASSERT_EQ(5, mq_receive(*(mqd_t *)argument, buf, sizeof(buf), &prio));
-  ASSERT_ARREQ("Hello", buf, sizeof(buf));
-  ASSERT_EQ(123, prio);
+  EXPECT_EQ(5, mq_receive(*(mqd_t *)argument, buf, sizeof(buf), &prio));
+  buf[5] = '\0';
+  EXPECT_THAT(buf, testing::ElementsAreArray("Hello"));
+  EXPECT_EQ(123, prio);
   return NULL;
 }
 
@@ -59,10 +62,11 @@ TEST(mq_send, blocking) {
   ASSERT_EQ(0, mq_send(mqd, "World", 5, 456));
 
   // The second message should be immediately readable.
-  char buf[5];
+  char buf[6];
   unsigned int prio;
   ASSERT_EQ(5, mq_receive(mqd, buf, sizeof(buf), &prio));
-  ASSERT_ARREQ("World", buf, sizeof(buf));
+  buf[5] = '\0';
+  ASSERT_THAT(buf, testing::ElementsAreArray("World"));
   ASSERT_EQ(456, prio);
 
   ASSERT_EQ(0, pthread_join(thread, NULL));

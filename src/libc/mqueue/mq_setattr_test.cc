@@ -6,7 +6,8 @@
 #include <fcntl.h>
 #include <mqueue.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(mq_setattr, bad) {
   mqd_t mqd;

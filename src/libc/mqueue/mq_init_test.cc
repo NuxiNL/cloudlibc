@@ -6,7 +6,8 @@
 #include <fcntl.h>
 #include <mqueue.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(mq_init, bad) {
   // Bad mq_flags. Only O_NONBLOCK can be passed in.

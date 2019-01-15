@@ -6,7 +6,8 @@
 
 #include <netdb.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(getservbyport, bad) {
   ASSERT_EQ(NULL, getservbyport(htons(80), "badproto"));

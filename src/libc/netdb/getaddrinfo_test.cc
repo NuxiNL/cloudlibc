@@ -8,7 +8,8 @@
 
 #include <netdb.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 // Macros for testing calls to getaddrinfo() that return entries.
 #define TEST_AI_BEGIN(nodename, servname, flags, family, socktype, protocol) \
@@ -64,9 +65,9 @@ TEST(getaddrinfo, bad) {
   // Nothing to resolve.
   TEST_AI_FAIL(NULL, NULL, 0, AF_UNSPEC, 0, 0, EAI_NONAME);
   // Bad flags.
-  TEST_AI_FAIL("127.0.0.1", "80", 0xdeadc0de, AF_UNSPEC, 0, 0, EAI_BADFLAGS);
+  TEST_AI_FAIL("127.0.0.1", "80", 0x1badc0de, AF_UNSPEC, 0, 0, EAI_BADFLAGS);
   // Bad address family.
-  TEST_AI_FAIL("127.0.0.1", "80", 0, 0xdeadc0de, 0, 0, EAI_FAMILY);
+  TEST_AI_FAIL("127.0.0.1", "80", 0, 0x1badc0de, 0, 0, EAI_FAMILY);
   // Unknown service name.
   TEST_AI_FAIL("127.0.0.1", "foobarbaz", 0, AF_UNSPEC, 0, 0, EAI_NONAME);
   TEST_AI_FAIL("127.0.0.1", "65536", 0, AF_UNSPEC, 0, 0, EAI_NONAME);
@@ -74,7 +75,7 @@ TEST(getaddrinfo, bad) {
   TEST_AI_FAIL(NULL, "who", AI_NUMERICSERV, AF_UNSPEC, SOCK_DGRAM, 0,
                EAI_NONAME);
   // Bad socket type.
-  TEST_AI_FAIL("127.0.0.1", "http", 0, AF_INET, 0xdeadc0de, 0, EAI_SOCKTYPE);
+  TEST_AI_FAIL("127.0.0.1", "http", 0, AF_INET, 0x1badc0de, 0, EAI_SOCKTYPE);
   // Bad node name.
   TEST_AI_FAIL("example.com", "80", 0, AF_UNSPEC, 0, 0, EAI_NONAME);
   TEST_AI_FAIL("10.0.0.256", NULL, 0, AF_UNSPEC, 0, 0, EAI_NONAME);

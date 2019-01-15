@@ -6,7 +6,9 @@
 #include <fcntl.h>
 #include <mqueue.h>
 #include <pthread.h>
-#include <testing.h>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 TEST(mq_timedreceive, bad) {
   mqd_t mqd;
@@ -19,28 +21,38 @@ TEST(mq_timedreceive, bad) {
 
   // Buffer is too small to fix the largest message.
   char buf[10];
-  ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf) - 1, NULL,
-                                &(struct timespec){}));
+  {
+    struct timespec ts = {};
+    ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf) - 1, NULL, &ts));
+  }
   ASSERT_EQ(EMSGSIZE, errno);
 
   // Queue is empty and non-blocking mode is enabled.
-  ASSERT_EQ(-1,
-            mq_timedreceive(mqd, buf, sizeof(buf), NULL, &(struct timespec){}));
+  {
+    struct timespec ts = {};
+    ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf), NULL, &ts));
+  }
   ASSERT_EQ(EAGAIN, errno);
 
   // If we turn of non-blocking mode, we should get ETIMEDOUT instead.
   attr.mq_flags = 0;
   ASSERT_EQ(0, mq_setattr(mqd, &attr, NULL));
-  ASSERT_EQ(-1,
-            mq_timedreceive(mqd, buf, sizeof(buf), NULL, &(struct timespec){}));
+  {
+    struct timespec ts = {};
+    ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf), NULL, &ts));
+  }
   ASSERT_EQ(ETIMEDOUT, errno);
 
   // Invalid value for abstime.
-  ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf), NULL,
-                                &(struct timespec){.tv_nsec = -1}));
+  {
+    struct timespec ts = {.tv_nsec = -1};
+    ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf), NULL, &ts));
+  }
   ASSERT_EQ(EINVAL, errno);
-  ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf), NULL,
-                                &(struct timespec){.tv_nsec = 1000000000}));
+  {
+    struct timespec ts = {.tv_nsec = 1000000000};
+    ASSERT_EQ(-1, mq_timedreceive(mqd, buf, sizeof(buf), NULL, &ts));
+  }
   ASSERT_EQ(EINVAL, errno);
 
   ASSERT_EQ(0, mq_destroy(mqd));
@@ -48,9 +60,9 @@ TEST(mq_timedreceive, bad) {
 
 static void *push_message(void *argument) {
   // Push a message into the message queue after a slight delay.
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0,
-                               &(struct timespec){.tv_nsec = 250000000}));
-  ASSERT_EQ(0, mq_send(*(mqd_t *)argument, "Hello", 5, 123));
+  struct timespec ts = {.tv_nsec = 250000000};
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+  EXPECT_EQ(0, mq_send(*(mqd_t *)argument, "Hello", 5, 123));
   return NULL;
 }
 
@@ -71,10 +83,11 @@ TEST(mq_timedreceive, blocking) {
   struct timespec abstime;
   ASSERT_EQ(0, clock_gettime(CLOCK_REALTIME, &abstime));
   ++abstime.tv_sec;
-  char buf[5];
+  char buf[6];
   unsigned int prio;
   ASSERT_EQ(5, mq_timedreceive(mqd, buf, sizeof(buf), &prio, &abstime));
-  ASSERT_ARREQ("Hello", buf, sizeof(buf));
+  buf[5] = '\0';
+  ASSERT_THAT(buf, testing::ElementsAreArray("Hello"));
   ASSERT_EQ(123, prio);
 
   ASSERT_EQ(0, pthread_join(thread, NULL));

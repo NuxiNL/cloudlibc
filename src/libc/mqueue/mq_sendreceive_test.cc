@@ -4,7 +4,8 @@
 
 #include <mqueue.h>
 #include <stdlib.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(mq_sendreceive, ordering) {
   // Create a large number of one-byte random messages.

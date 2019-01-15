@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <setjmp.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(sigsetjmp_siglongjmp, example) {
   sigjmp_buf jmp;

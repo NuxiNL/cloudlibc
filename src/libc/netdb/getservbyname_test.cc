@@ -6,7 +6,8 @@
 
 #include <netdb.h>
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(getservbyname, bad) {
   ASSERT_EQ(NULL, getservbyname("http", "badproto"));

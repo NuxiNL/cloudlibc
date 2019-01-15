@@ -4,7 +4,8 @@
 
 #include <fcntl.h>
 #include <mqueue.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(mq_getattr, example) {
   // Create new queue.

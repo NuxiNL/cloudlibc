@@ -7,8 +7,8 @@ cc_library(
     deps = ["@org_cloudabi_cloudabi//headers:cloudabi_syscalls"],
 )
 
-[cc_test_cloudabi(
-    name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
-) for test in ["ioctl"]]
+cc_test_cloudabi(
+    name = "ioctl_test",
+    srcs = ["ioctl_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
+)

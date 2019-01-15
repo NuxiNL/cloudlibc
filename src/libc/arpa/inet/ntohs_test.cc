@@ -4,12 +4,12 @@
 
 #include <arpa/inet.h>
 
-#include <testing.h>
+#include "gtest/gtest.h"
 
 TEST(ntohs, example) {
   union {
     uint32_t host;
-    char net[2];
-  } value = {.net = "\x13\x37"};
+    unsigned char net[2];
+  } value = {.net = {0x13, 0x37}};
   ASSERT_EQ(0x1337, ntohs(value.host));
 }

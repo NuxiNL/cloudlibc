@@ -4,7 +4,8 @@
 
 #include <arpa/inet.h>
 
-#include <testing.h>
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 TEST(htonl, example) {
   union {
@@ -12,5 +13,5 @@ TEST(htonl, example) {
     char net[4];
   } value;
   value.host = htonl(0xcafebabe);
-  ASSERT_ARREQ("\xca\xfe\xba\xbe", value.net, __arraycount(value.net));
+  ASSERT_THAT(value.net, testing::ElementsAreArray({0xca, 0xfe, 0xba, 0xbe}));
 }

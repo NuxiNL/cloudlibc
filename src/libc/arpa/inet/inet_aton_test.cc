@@ -7,7 +7,8 @@
 #include <arpa/inet.h>
 
 #include <stddef.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(inet_aton_test, bad) {
   ASSERT_EQ(0, inet_aton("hello", NULL));

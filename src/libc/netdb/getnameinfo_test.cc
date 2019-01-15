@@ -9,7 +9,8 @@
 #include <netdb.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(getnameinfo, bad) {
   // Bad flags value.

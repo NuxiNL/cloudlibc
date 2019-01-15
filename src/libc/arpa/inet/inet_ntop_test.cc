@@ -10,7 +10,8 @@
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(inet_ntop, inet_nospace) {
   uint8_t addr[4] = {0, 0, 0, 0};
