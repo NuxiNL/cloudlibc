@@ -4,7 +4,8 @@
 
 #include <libintl.h>
 #include <locale.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(dcgettext, example) {
   ASSERT_STREQ("Hello", dcgettext("appname", "Hello", LC_MESSAGES));

@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <libintl.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(ngettext, example) {
   ASSERT_STREQ("%d bottles of beer on the wall",

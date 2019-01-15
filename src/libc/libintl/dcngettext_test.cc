@@ -4,7 +4,8 @@
 
 #include <libintl.h>
 #include <locale.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(dcngettext, example) {
   ASSERT_STREQ("%d bottles of beer on the wall",
