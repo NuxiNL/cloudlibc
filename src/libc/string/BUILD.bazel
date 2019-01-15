@@ -50,11 +50,11 @@ cc_library(
 
 [cc_test_cloudabi(
     name = test + "_test",
-    srcs = [test + "_test.c"],
+    srcs = [test + "_test.cc"],
     # Disable warnings for zero-sized memset() calls. These need to be
     # tested, regardless of how silly those are.
     copts = ["-Wno-memset-transposed-args"],
-    deps = ["//src/libc/testing:testing_main"],
+    deps = ["@com_google_googletest//:gtest_main"],
 ) for test in [
     "memccpy",
     "memchr",
