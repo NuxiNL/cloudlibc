@@ -4,7 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "org_cloudabi_bazel_third_party",
-    commit = "ce78195c90ebe725a54c049ccaeee60422e1dc95",
+    commit = "91ca2167219c612a89334fa09ddf15fbdc5d0592",
     remote = "https://github.com/NuxiNL/bazel-third-party.git",
 )
 
