@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <common/arc4random.h>
+#include <common/spritz.h>
 
 #include "gtest/gtest.h"
 
-TEST(arc4random_buf, spritz) {
+TEST(spritz, test_vectors) {
   // There is no way to reliably test arc4random_buf(). At least test
   // that the underlying Spritz drip function returns values that
   // correspond to the test vectors.

@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <common/arc4random.h>
+#include <common/spritz.h>
 
 #include <cloudabi_syscalls.h>
 #include <stdint.h>

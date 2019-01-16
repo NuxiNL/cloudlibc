@@ -123,12 +123,3 @@ cc_library(
     "wcstombs",
     "wctomb",
 ]]
-
-cc_test_cloudabi(
-    name = "arc4random_buf_test",
-    srcs = ["arc4random_buf_test.cc"],
-    deps = [
-        "//src/common",
-        "@com_google_googletest//:gtest_main",
-    ],
-)

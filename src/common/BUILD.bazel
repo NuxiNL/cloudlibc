@@ -8,11 +8,14 @@ cc_library(
     deps = ["@org_cloudabi_cloudabi//headers:cloudabi_syscalls"],
 )
 
-cc_test_cloudabi(
-    name = "numeric_grouping_test",
-    srcs = ["numeric_grouping_test.cc"],
+[cc_test_cloudabi(
+    name = name + "_test",
+    srcs = [name + "_test.cc"],
     deps = [
         ":common",
         "@com_google_googletest//:gtest_main",
     ],
-)
+) for name in [
+    "numeric_grouping",
+    "spritz",
+]]

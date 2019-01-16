@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#ifndef COMMON_ARC4RANDOM_H
-#define COMMON_ARC4RANDOM_H
+#ifndef COMMON_SPRITZ_H
+#define COMMON_SPRITZ_H
 
 #include <stddef.h>
 #include <stdint.h>
