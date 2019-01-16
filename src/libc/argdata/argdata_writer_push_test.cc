@@ -7,8 +7,11 @@
 #include <argdata.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
 
 // TODO(ed): Add more tests!
 
@@ -22,6 +25,8 @@ TEST(argdata_writer_push, ebadf) {
 }
 
 TEST(argdata_writer_push, enotsock) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   int fd = openat(fd_tmp, "reg1", O_CREAT | O_WRONLY);
   ASSERT_LE(0, fd);
 
@@ -38,7 +43,7 @@ TEST(argdata_writer_push, enotsock) {
   ASSERT_EQ(0, close(fd));
 }
 
-TEST_SINGLE_THREADED(argdata_writer_push, epipe) {
+TEST(argdata_writer_push, epipe) {
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
   ASSERT_EQ(0, close(fds[0]));
@@ -82,13 +87,13 @@ TEST(argdata_writer_push, pipe) {
   // Extract messages in serialized form.
   char buf[28];
   ASSERT_EQ(27, read(fds[0], buf, sizeof(buf)));
-  ASSERT_ARREQ(
-      // Null.
-      "\x00\x00\x00\x00\x00\x00\x00\x00"
-      // True.
-      "\x00\x00\x00\x00\x00\x00\x00\x02\x02\x01"
-      // False.
-      "\x00\x00\x00\x00\x00\x00\x00\x01\x02",
-      buf, 27);
+  buf[27] = '\0';
+  ASSERT_THAT(buf, testing::ElementsAreArray(
+                       // Null.
+                       "\x00\x00\x00\x00\x00\x00\x00\x00"
+                       // True.
+                       "\x00\x00\x00\x00\x00\x00\x00\x02\x02\x01"
+                       // False.
+                       "\x00\x00\x00\x00\x00\x00\x00\x01\x02"));
   ASSERT_EQ(0, close(fds[0]));
 }

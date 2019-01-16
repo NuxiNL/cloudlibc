@@ -7,11 +7,16 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
+#include <iterator>
+
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
 
 TEST(poll, enosys) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // For now, not setting POLLRDNORM/POLLWRNORM is not supported. Each
   // entry is decomposed into separate read/write polls, meaning that if
   // none of these flags are provided, we would simply get stuck
@@ -31,7 +36,7 @@ TEST(poll, pipe) {
         {.fd = fds[1], .events = POLLWRNORM},
         {.fd = -123, .events = POLLRDNORM | POLLWRNORM},
     };
-    ASSERT_EQ(1, poll(pfds, __arraycount(pfds), -1));
+    ASSERT_EQ(1, poll(pfds, std::size(pfds), -1));
     ASSERT_EQ(0, pfds[0].revents);
     ASSERT_EQ(POLLWRNORM, pfds[1].revents);
     ASSERT_EQ(0, pfds[2].revents);
@@ -52,7 +57,7 @@ TEST(poll, pipe) {
         {.fd = fds[1], .events = POLLWRNORM},
         {.fd = -123, .events = POLLRDNORM},
     };
-    ASSERT_EQ(2, poll(pfds, __arraycount(pfds), -1));
+    ASSERT_EQ(2, poll(pfds, std::size(pfds), -1));
     ASSERT_EQ(POLLRDNORM, pfds[0].revents);
     ASSERT_EQ(POLLWRNORM, pfds[1].revents);
     ASSERT_EQ(0, pfds[2].revents);
@@ -69,7 +74,7 @@ TEST(poll, pipe) {
         {.fd = fds[0], .events = POLLRDNORM},
         {.fd = fds[1], .events = POLLWRNORM},
     };
-    ASSERT_EQ(1, poll(pfds, __arraycount(pfds), -1));
+    ASSERT_EQ(1, poll(pfds, std::size(pfds), -1));
     ASSERT_EQ(POLLRDNORM, pfds[0].revents);
     ASSERT_EQ(0, pfds[1].revents);
     ASSERT_EQ(0, close(fds[0]));
@@ -111,7 +116,7 @@ TEST(poll, socket) {
         {.fd = fds[0], .events = POLLRDNORM | POLLWRNORM},
         {.fd = fds[1], .events = POLLRDNORM | POLLWRNORM},
     };
-    ASSERT_EQ(2, poll(pfds, __arraycount(pfds), -1));
+    ASSERT_EQ(2, poll(pfds, std::size(pfds), -1));
     ASSERT_EQ(POLLWRNORM, pfds[0].revents);
     ASSERT_EQ(POLLWRNORM, pfds[1].revents);
   }
@@ -122,7 +127,7 @@ TEST(poll, socket) {
         {.fd = fds[0], .events = POLLRDNORM},
         {.fd = fds[1], .events = POLLRDNORM},
     };
-    ASSERT_EQ(0, poll(pfds, __arraycount(pfds), 0));
+    ASSERT_EQ(0, poll(pfds, std::size(pfds), 0));
     ASSERT_EQ(0, pfds[0].revents);
     ASSERT_EQ(0, pfds[1].revents);
   }
@@ -134,7 +139,7 @@ TEST(poll, socket) {
         {.fd = fds[0], .events = POLLRDNORM | POLLWRNORM},
         {.fd = fds[1], .events = POLLRDNORM | POLLWRNORM},
     };
-    ASSERT_EQ(2, poll(pfds, __arraycount(pfds), -1));
+    ASSERT_EQ(2, poll(pfds, std::size(pfds), -1));
     ASSERT_EQ(POLLRDNORM | POLLWRNORM, pfds[0].revents);
     ASSERT_EQ(POLLWRNORM, pfds[1].revents);
   }
@@ -150,7 +155,7 @@ TEST(poll, socket) {
         {.fd = fds[0], .events = POLLRDNORM | POLLWRNORM},
         {.fd = fds[1], .events = POLLRDNORM | POLLWRNORM},
     };
-    ASSERT_EQ(1, poll(pfds, __arraycount(pfds), -1));
+    ASSERT_EQ(1, poll(pfds, std::size(pfds), -1));
     ASSERT_EQ(POLLRDNORM | POLLWRNORM, pfds[0].revents);
     ASSERT_EQ(0, pfds[1].revents);
     ASSERT_EQ(0, close(fds[0]));
@@ -170,6 +175,8 @@ TEST(poll, socket) {
 }
 
 TEST(poll, file) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Regular file should always trigger read and write.
   int fd = openat(fd_tmp, "hello", O_RDWR | O_CREAT);
   ASSERT_LE(0, fd);
@@ -179,7 +186,7 @@ TEST(poll, file) {
   ASSERT_EQ(0, close(fd));
 }
 
-TEST_SINGLE_THREADED(poll, pollnval) {
+TEST(poll, pollnval) {
   // Create a bad file descriptor number.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));

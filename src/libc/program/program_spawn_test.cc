@@ -10,9 +10,11 @@
 #include <program.h>
 #include <signal.h>
 #include <stdbool.h>
-#include <testing.h>
 #include <unistd.h>
 #include <uv.h>
+
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
 
 static void unused_cb(uv_process_t *handle, int64_t exit_status,
                       int term_signal) {
@@ -21,6 +23,8 @@ static void unused_cb(uv_process_t *handle, int64_t exit_status,
 }
 
 TEST(program_spawn, eacces) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   uv_loop_t loop;
   ASSERT_EQ(0, uv_loop_init(&loop));
 
@@ -44,6 +48,8 @@ TEST(program_spawn, ebadf1) {
 }
 
 TEST(program_spawn, ebadf2) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   int executable = openat(fd_tmp, "Hello", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);
   uv_loop_t loop;
@@ -59,6 +65,8 @@ TEST(program_spawn, ebadf2) {
 }
 
 TEST(program_spawn, enoexec) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create an empty file.
   int executable = openat(fd_tmp, "Hello", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);
@@ -95,7 +103,7 @@ TEST(program_spawn, enoexec) {
 //     $ brandelf -f 17 tiny
 //     $ xxd --include tiny
 //
-static const char sigfpe_binary[] = {
+static const unsigned char sigfpe_binary[] = {
     0x7f, 0x45, 0x4c, 0x46, 0x02, 0x01, 0x01, 0x11, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x3e, 0x00, 0x01, 0x00, 0x00, 0x00,
     0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00,
@@ -141,6 +149,8 @@ static void close_cb(uv_handle_t *handle) {
 }
 
 TEST(program_spawn, sigfpe) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create our faulty executable.
   int executable = openat(fd_tmp, "Crash", O_CREAT | O_WRONLY);
   ASSERT_LE(0, executable);

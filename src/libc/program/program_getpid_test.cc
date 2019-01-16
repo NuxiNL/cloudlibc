@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <program.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(program_getpid, format) {
   // Validate the format of the resulting UUID. As we're generating

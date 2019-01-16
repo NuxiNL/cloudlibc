@@ -7,10 +7,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(openat, bad) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Invalid file descriptor type.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
@@ -27,6 +31,8 @@ TEST(openat, bad) {
 }
 
 TEST(openat, o_append) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create a small test file.
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT);
@@ -58,6 +64,8 @@ TEST(openat, o_append) {
 }
 
 TEST(openat, o_creat) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // File does not exist.
   ASSERT_EQ(-1, openat(fd_tmp, "test", O_WRONLY));
   ASSERT_EQ(ENOENT, errno);
@@ -72,6 +80,8 @@ TEST(openat, o_creat) {
 }
 
 TEST(openat, o_directory) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create a file, a fifo and a directory for testing.
   {
     int fd = openat(fd_tmp, "file", O_WRONLY | O_CREAT);
@@ -116,6 +126,8 @@ TEST(openat, o_directory) {
 }
 
 TEST(openat, o_excl) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Test file does not exist yet.
   {
     int fd = openat(fd_tmp, "test", O_WRONLY | O_CREAT | O_EXCL);
@@ -138,6 +150,8 @@ TEST(openat, o_excl) {
 }
 
 TEST(openat, o_trunc) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create a small test file.
   {
     int fd = openat(fd_tmp, "test", O_RDWR | O_CREAT);
@@ -179,6 +193,8 @@ TEST(openat, o_trunc) {
 }
 
 TEST(openat, o_nofollow) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create a symbolic link for testing.
   ASSERT_EQ(0, symlinkat("to", fd_tmp, "from"));
 

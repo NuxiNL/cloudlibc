@@ -6,8 +6,10 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
 
 TEST(posix_fallocate, bad) {
   ASSERT_EQ(EINVAL, posix_fallocate(123, -1, 10));
@@ -16,6 +18,8 @@ TEST(posix_fallocate, bad) {
 }
 
 TEST(posix_fallocate, example) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Open file and allocate space.
   int fd = openat(fd_tmp, "file", O_CREAT | O_RDWR);
   ASSERT_LE(0, fd);

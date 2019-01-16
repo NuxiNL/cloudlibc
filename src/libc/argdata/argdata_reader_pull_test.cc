@@ -8,8 +8,10 @@
 #include <argdata.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
 
 // TODO(ed): Add more tests!
 
@@ -104,6 +106,8 @@ TEST(argdata_reader_pull, pipe) {
 }
 
 TEST(argdata_reader_pull, socket_fd_passing) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   int fds[2];
   ASSERT_EQ(0, socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
 
