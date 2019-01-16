@@ -157,7 +157,7 @@ TEST(strptime, dutch) {
   const char input[] = "woensdag, 31 dec 2014";
   struct tm tm;
   locale_t locale = newlocale(LC_TIME_MASK, "nl_NL", 0);
-  ASSERT_EQ(input + __arraycount(input) - 1,
+  ASSERT_EQ(input + sizeof(input) - 1,
             strptime_l(input, "%a, %d %b %Y", &tm, locale));
   ASSERT_EQ(3, tm.tm_wday);
   ASSERT_EQ(31, tm.tm_mday);

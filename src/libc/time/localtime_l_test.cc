@@ -5,6 +5,7 @@
 #include <locale.h>
 #include <stdbool.h>
 #include <time.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -84,10 +85,10 @@ static void test_locale(const char *locale, const struct testvector *vectors,
       },                                                                    \
       consistency,                                                          \
   },
-#define TEST_END                                                   \
-  }                                                                \
-  ;                                                                \
-  test_locale(localename, testvectors, __arraycount(testvectors)); \
+#define TEST_END                                                \
+  }                                                             \
+  ;                                                             \
+  test_locale(localename, testvectors, std::size(testvectors)); \
   }
 
 TEST_BEGIN(accra, "Africa/Accra")

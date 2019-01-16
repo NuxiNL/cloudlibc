@@ -5,6 +5,7 @@
 #include <search.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -35,14 +36,14 @@ static int compar(const void *a, const void *b) {
 TEST(tsearch, random) {
   // Create 1000 possible keys.
   int keys[1000];
-  for (int i = 0; i < (int)__arraycount(keys); ++i)
+  for (int i = 0; i < (int)std::size(keys); ++i)
     keys[i] = i;
 
   // Apply random operations on a binary tree and check the results.
   posix_tnode *root = NULL;
-  bool present[__arraycount(keys)] = {};
+  bool present[std::size(keys)] = {};
   for (int i = 0; i < 10000; ++i) {
-    int key = arc4random_uniform(__arraycount(keys));
+    int key = arc4random_uniform(std::size(keys));
     switch (arc4random_uniform(3)) {
       case 0:  // tdelete().
         if (present[key]) {
@@ -72,7 +73,7 @@ TEST(tsearch, random) {
   }
 
   // Remove all entries from the tree.
-  for (int key = 0; key < (int)__arraycount(keys); ++key)
+  for (int key = 0; key < (int)std::size(keys); ++key)
     if (present[key])
       ASSERT_NE(NULL, tdelete(&key, &root, compar));
   ASSERT_EQ(NULL, root);

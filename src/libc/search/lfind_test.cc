@@ -4,6 +4,7 @@
 
 #include <search.h>
 #include <stddef.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -21,13 +22,13 @@ static int compar(const void *a, const void *b) {
 
 TEST(lfind, example) {
   int v[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  size_t nel = __arraycount(v);
+  size_t nel = std::size(v);
 
   for (int i = -nel; i < 2 * (int)nel; ++i) {
     if (i < 0 || i >= (int)nel)
       ASSERT_EQ(NULL, lfind(&i, v, &nel, sizeof(i), compar));
     else
       ASSERT_EQ(&v[i], lfind(&i, v, &nel, sizeof(i), compar));
-    ASSERT_EQ(__arraycount(v), nel);
+    ASSERT_EQ(std::size(v), nel);
   }
 }

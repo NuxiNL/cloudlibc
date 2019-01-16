@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <string.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -27,8 +28,8 @@ TEST(strverscmp, order) {
       "B007502280067.gbp.corp.com",
       "B007502357019.GBP.CORP.COM",
   };
-  for (size_t i = 0; i < __arraycount(strings); ++i) {
-    for (size_t j = 0; j < __arraycount(strings); ++j) {
+  for (size_t i = 0; i < std::size(strings); ++i) {
+    for (size_t j = 0; j < std::size(strings); ++j) {
       SCOPED_TRACE(i);
       SCOPED_TRACE(j);
       if (i < j)

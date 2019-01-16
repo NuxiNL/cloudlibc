@@ -5,6 +5,7 @@
 #include <execinfo.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -18,7 +19,7 @@ TEST(backtrace_symbols, zero) {
 TEST(backtrace_symbols, example) {
   void *input[] = {NULL, reinterpret_cast<void *>(malloc),
                    reinterpret_cast<char *>(malloc) + 1};
-  char **result = backtrace_symbols(input, __arraycount(input));
+  char **result = backtrace_symbols(input, std::size(input));
   char buf[128];
   snprintf(buf, sizeof(buf), "%p", NULL);
   ASSERT_STREQ(buf, result[0]);

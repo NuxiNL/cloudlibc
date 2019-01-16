@@ -4,6 +4,7 @@
 
 #include <search.h>
 #include <stddef.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -14,7 +15,7 @@ static int compar(const void *a, const void *b) {
 TEST(lsearch, example) {
   // Insert numbers into an array in sequential order.
   int v[10];
-  for (int i = 0; i < (int)__arraycount(v); ++i) {
+  for (int i = 0; i < (int)std::size(v); ++i) {
     // Number should not be present yet.
     size_t nel = i;
     ASSERT_EQ(NULL, lfind(&i, v, &nel, sizeof(int), compar));

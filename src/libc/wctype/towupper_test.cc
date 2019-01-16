@@ -5,6 +5,7 @@
 #include <locale.h>
 #include <stddef.h>
 #include <wctype.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -32,11 +33,11 @@ TEST(towupper, examples) {
 
 TEST(towupper, iso_8859_1) {
   wchar_t in[] = L"l'Haÿ-les-Roses";
-  wchar_t out[__arraycount(in)];
+  wchar_t out[std::size(in)];
 
   // Convert to upper case.
   locale_t locale = newlocale(LC_CTYPE_MASK, ".ISO-8859-1", 0);
-  for (size_t i = 0; i < __arraycount(in); ++i)
+  for (size_t i = 0; i < std::size(in); ++i)
     out[i] = towupper_l(in[i], locale);
   freelocale(locale);
 

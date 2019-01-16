@@ -5,6 +5,7 @@
 #include <execinfo.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <iterator>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -16,7 +17,7 @@ TEST(backtrace_symbols_fd, example) {
   // Let backtrace_symbols_fd() write its output into a pipe.
   void *input[] = {NULL, reinterpret_cast<void *>(lseek),
                    reinterpret_cast<char *>(lseek) + 1};
-  backtrace_symbols_fd(input, __arraycount(input), fds[1]);
+  backtrace_symbols_fd(input, std::size(input), fds[1]);
   ASSERT_EQ(0, close(fds[1]));
 
   // Read output from the pipe and compare it.
