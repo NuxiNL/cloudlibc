@@ -4,20 +4,23 @@
 
 #include <errno.h>
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 static void *success(void *arg) __no_lock_analysis {
   // Thread can properly acquire a read lock.
-  ASSERT_EQ(0, pthread_rwlock_rdlock(arg));
-  ASSERT_EQ(0, pthread_rwlock_rdlock(arg));
-  ASSERT_EQ(0, pthread_rwlock_timedrdlock(arg, &(struct timespec){}));
-  ASSERT_EQ(0, pthread_rwlock_unlock(arg));
-  ASSERT_EQ(0, pthread_rwlock_unlock(arg));
-  ASSERT_EQ(0, pthread_rwlock_unlock(arg));
+  auto rwlock = static_cast<pthread_rwlock_t *>(arg);
+  EXPECT_EQ(0, pthread_rwlock_rdlock(rwlock));
+  EXPECT_EQ(0, pthread_rwlock_rdlock(rwlock));
+  struct timespec ts = {};
+  EXPECT_EQ(0, pthread_rwlock_timedrdlock(rwlock, &ts));
+  EXPECT_EQ(0, pthread_rwlock_unlock(rwlock));
+  EXPECT_EQ(0, pthread_rwlock_unlock(rwlock));
+  EXPECT_EQ(0, pthread_rwlock_unlock(rwlock));
 
   // But it cannot acquire a write lock.
-  ASSERT_EQ(EBUSY, pthread_rwlock_trywrlock(arg));
-  ASSERT_EQ(ETIMEDOUT, pthread_rwlock_timedwrlock(arg, &(struct timespec){}));
+  EXPECT_EQ(EBUSY, pthread_rwlock_trywrlock(rwlock));
+  EXPECT_EQ(ETIMEDOUT, pthread_rwlock_timedwrlock(rwlock, &ts));
   return NULL;
 }
 
@@ -37,10 +40,12 @@ TEST(pthread_rwlock_rdlock, success) {
 
 static void *busy(void *arg) {
   // Thread cannot acquire the lock.
-  ASSERT_EQ(EBUSY, pthread_rwlock_tryrdlock(arg));
-  ASSERT_EQ(ETIMEDOUT, pthread_rwlock_timedrdlock(arg, &(struct timespec){}));
-  ASSERT_EQ(EBUSY, pthread_rwlock_trywrlock(arg));
-  ASSERT_EQ(ETIMEDOUT, pthread_rwlock_timedwrlock(arg, &(struct timespec){}));
+  auto rwlock = static_cast<pthread_rwlock_t *>(arg);
+  EXPECT_EQ(EBUSY, pthread_rwlock_tryrdlock(rwlock));
+  struct timespec ts = {};
+  EXPECT_EQ(ETIMEDOUT, pthread_rwlock_timedrdlock(rwlock, &ts));
+  EXPECT_EQ(EBUSY, pthread_rwlock_trywrlock(rwlock));
+  EXPECT_EQ(ETIMEDOUT, pthread_rwlock_timedwrlock(rwlock, &ts));
   return NULL;
 }
 

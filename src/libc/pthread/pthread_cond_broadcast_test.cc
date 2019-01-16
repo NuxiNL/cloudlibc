@@ -4,7 +4,8 @@
 
 #include <pthread.h>
 #include <stdbool.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_cond_broadcast, zero) {
   pthread_cond_t cond;
@@ -20,11 +21,11 @@ struct block {
 };
 
 static void *do_wait(void *arg) {
-  struct block *block = arg;
-  ASSERT_EQ(0, pthread_mutex_lock(&block->mutex));
+  auto block = static_cast<struct block *>(arg);
+  EXPECT_EQ(0, pthread_mutex_lock(&block->mutex));
   while (!block->okay)
-    ASSERT_EQ(0, pthread_cond_wait(&block->cond, &block->mutex));
-  ASSERT_EQ(0, pthread_mutex_unlock(&block->mutex));
+    EXPECT_EQ(0, pthread_cond_wait(&block->cond, &block->mutex));
+  EXPECT_EQ(0, pthread_mutex_unlock(&block->mutex));
   return NULL;
 }
 

@@ -8,16 +8,18 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+
 // Keeps a mutex contended for a brief amount of time.
 static void *do_block(void *arg) {
-  pthread_mutex_lock(arg);
+  auto mutex = static_cast<pthread_mutex_t *>(arg);
+  pthread_mutex_lock(mutex);
   struct timespec ts = {.tv_sec = 1};
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
-  pthread_mutex_unlock(arg);
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+  pthread_mutex_unlock(mutex);
   return NULL;
 }
 

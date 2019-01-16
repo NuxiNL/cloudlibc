@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 static pthread_once_t noblock_once = PTHREAD_ONCE_INIT;
 static int noblock_count = 0;
@@ -25,14 +26,14 @@ static int block_count;
 
 static void block_increment(void) {
   // Wait a bit to let all the other threads block on the once object.
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0,
-                               &(struct timespec){.tv_nsec = 100000000}));
+  struct timespec ts = {.tv_nsec = 100000000};
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
   ++block_count;
 }
 
 static void *block_thread(void *arg) {
   pthread_once(&block_once, block_increment);
-  ASSERT_EQ(1, block_count);
+  EXPECT_EQ(1, block_count);
   return NULL;
 }
 

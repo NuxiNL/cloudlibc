@@ -7,10 +7,11 @@
 #include <errno.h>
 #include <pthread.h>
 #include <signal.h>
-#include <stdatomic.h>
 #include <stdlib.h>
-#include <testing.h>
 #include <unistd.h>
+#include <atomic>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_barrier, bad) {
   // Zero count is invalid.
@@ -31,19 +32,19 @@ TEST(pthread_barrier, single) {
 
 struct data {
   pthread_barrier_t barrier;
-  atomic_uint serial_threads;
+  std::atomic<unsigned int> serial_threads;
 };
 
 static void *do_wait(void *arg) {
-  struct data *data = arg;
+  auto data = static_cast<struct data *>(arg);
 
   // Wait on the barrier a hundred times. Register every time we return
   // PTHREAD_BARRIER_SERIAL_THREAD.
   for (int i = 0; i < 100; ++i) {
     int ret = pthread_barrier_wait(&data->barrier);
-    ASSERT_TRUE(ret == 0 || ret == PTHREAD_BARRIER_SERIAL_THREAD);
+    EXPECT_TRUE(ret == 0 || ret == PTHREAD_BARRIER_SERIAL_THREAD);
     if (ret == PTHREAD_BARRIER_SERIAL_THREAD)
-      atomic_fetch_add_explicit(&data->serial_threads, 1, memory_order_relaxed);
+      data->serial_threads.fetch_add(1, std::memory_order_relaxed);
   }
   return NULL;
 }
@@ -56,14 +57,14 @@ TEST(pthread_barrier, private) {
   pthread_t threads[10];
   ASSERT_EQ(0,
             pthread_barrier_init(&data.barrier, NULL, __arraycount(threads)));
-  atomic_init(&data.serial_threads, 0);
+  std::atomic_init(&data.serial_threads, 0U);
 
   for (size_t i = 0; i < __arraycount(threads); ++i)
     ASSERT_EQ(0, pthread_create(&threads[i], NULL, do_wait, &data));
   for (size_t i = 0; i < __arraycount(threads); ++i)
     ASSERT_EQ(0, pthread_join(threads[i], NULL));
 
-  ASSERT_EQ(100, atomic_load(&data.serial_threads));
+  ASSERT_EQ(100, data.serial_threads.load());
   ASSERT_EQ(0, pthread_barrier_destroy(&data.barrier));
 }
 

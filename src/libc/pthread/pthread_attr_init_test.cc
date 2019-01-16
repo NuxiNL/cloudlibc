@@ -4,7 +4,8 @@
 
 #include <limits.h>
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_attr_init, defaults) {
   pthread_attr_t attr;

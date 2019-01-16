@@ -5,7 +5,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_attr_setstacksize, einval) {
   // Stack smaller than PTHREAD_STACK_MIN.

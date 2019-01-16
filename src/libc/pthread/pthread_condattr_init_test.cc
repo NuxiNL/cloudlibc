@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <pthread.h>
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_condattr_init, defaults) {
   pthread_condattr_t attr;

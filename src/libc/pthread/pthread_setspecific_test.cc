@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 struct params {
   pthread_key_t tss;
@@ -15,16 +16,16 @@ static void dtor_setval(void *ptr) {
 }
 
 static void *do_dtor(void *arg) {
-  struct params *params = arg;
-  ASSERT_EQ(NULL, pthread_getspecific(params->tss));
+  auto params = static_cast<struct params *>(arg);
+  EXPECT_EQ(NULL, pthread_getspecific(params->tss));
 
   // Set a bogus value.
-  ASSERT_EQ(0, pthread_setspecific(params->tss, (void *)1));
-  ASSERT_EQ((void *)1, pthread_getspecific(params->tss));
+  EXPECT_EQ(0, pthread_setspecific(params->tss, (void *)1));
+  EXPECT_EQ((void *)1, pthread_getspecific(params->tss));
 
   // Point to an integer that will be set on teardown.
-  ASSERT_EQ(0, pthread_setspecific(params->tss, &params->val));
-  ASSERT_EQ(&params->val, pthread_getspecific(params->tss));
+  EXPECT_EQ(0, pthread_setspecific(params->tss, &params->val));
+  EXPECT_EQ(&params->val, pthread_getspecific(params->tss));
   return NULL;
 }
 
@@ -42,16 +43,16 @@ TEST(pthread_setspecific, dtor) {
 }
 
 static void *do_clear(void *arg) {
-  struct params *params = arg;
-  ASSERT_EQ(NULL, pthread_getspecific(params->tss));
+  auto params = static_cast<struct params *>(arg);
+  EXPECT_EQ(NULL, pthread_getspecific(params->tss));
 
   // Set a bogus value.
-  ASSERT_EQ(0, pthread_setspecific(params->tss, (void *)1));
-  ASSERT_EQ((void *)1, pthread_getspecific(params->tss));
+  EXPECT_EQ(0, pthread_setspecific(params->tss, (void *)1));
+  EXPECT_EQ((void *)1, pthread_getspecific(params->tss));
 
   // Clear the value again so the destructor should not be called.
-  ASSERT_EQ(0, pthread_setspecific(params->tss, NULL));
-  ASSERT_EQ(NULL, pthread_getspecific(params->tss));
+  EXPECT_EQ(0, pthread_setspecific(params->tss, NULL));
+  EXPECT_EQ(NULL, pthread_getspecific(params->tss));
   return NULL;
 }
 
@@ -69,15 +70,15 @@ TEST(pthread_setspecific, clear) {
 }
 
 static void *do_delete(void *arg) {
-  struct params *params = arg;
-  ASSERT_EQ(NULL, pthread_getspecific(params->tss));
+  auto params = static_cast<struct params *>(arg);
+  EXPECT_EQ(NULL, pthread_getspecific(params->tss));
 
   // Set a bogus value.
-  ASSERT_EQ(0, pthread_setspecific(params->tss, (void *)1));
-  ASSERT_EQ((void *)1, pthread_getspecific(params->tss));
+  EXPECT_EQ(0, pthread_setspecific(params->tss, (void *)1));
+  EXPECT_EQ((void *)1, pthread_getspecific(params->tss));
 
   // Delete the key so the destructor should not be called.
-  ASSERT_EQ(0, pthread_key_delete(params->tss));
+  EXPECT_EQ(0, pthread_key_delete(params->tss));
   return NULL;
 }
 

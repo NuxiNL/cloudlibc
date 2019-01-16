@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_mutex_lock_pair_np, example) __no_lock_analysis {
   pthread_mutex_t mutex1;

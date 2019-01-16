@@ -7,16 +7,18 @@
 #include <errno.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+
 // Keeps a rwlock contended for a brief amount of time.
 static void *do_block(void *arg) {
-  pthread_rwlock_wrlock(arg);
+  auto rwlock = static_cast<pthread_rwlock_t *>(arg);
+  pthread_rwlock_wrlock(rwlock);
   struct timespec ts = {.tv_sec = 1};
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
-  pthread_rwlock_unlock(arg);
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+  pthread_rwlock_unlock(rwlock);
   return NULL;
 }
 

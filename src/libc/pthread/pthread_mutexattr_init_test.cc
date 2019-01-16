@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_mutexattr_init, defaults) {
   pthread_mutexattr_t attr;

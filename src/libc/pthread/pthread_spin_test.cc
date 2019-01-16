@@ -7,16 +7,18 @@
 #include <errno.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+
 // Keeps a spinlock contended for a brief amount of time.
 static void *do_block(void *arg) {
-  pthread_spin_lock(arg);
+  auto spin = static_cast<pthread_spinlock_t *>(arg);
+  pthread_spin_lock(spin);
   struct timespec ts = {.tv_sec = 1};
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
-  pthread_spin_unlock(arg);
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+  pthread_spin_unlock(spin);
   return NULL;
 }
 

@@ -5,8 +5,9 @@
 #include <errno.h>
 #include <pthread.h>
 #include <stdbool.h>
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_condattr_setclock, timedout) {
   pthread_mutex_t mutex;
@@ -37,20 +38,20 @@ struct block {
 static void *do_timedwait(void *arg) {
   // We must receive the signal within one second.
   struct timespec ts;
-  ASSERT_EQ(0, clock_gettime(CLOCK_MONOTONIC, &ts));
+  EXPECT_EQ(0, clock_gettime(CLOCK_MONOTONIC, &ts));
   ++ts.tv_sec;
 
-  struct block *block = arg;
-  ASSERT_EQ(0, pthread_mutex_lock(&block->mutex));
+  auto block = static_cast<struct block *>(arg);
+  EXPECT_EQ(0, pthread_mutex_lock(&block->mutex));
   while (!block->okay)
-    ASSERT_EQ(0, pthread_cond_timedwait(&block->cond, &block->mutex, &ts));
-  ASSERT_EQ(0, pthread_mutex_unlock(&block->mutex));
+    EXPECT_EQ(0, pthread_cond_timedwait(&block->cond, &block->mutex, &ts));
+  EXPECT_EQ(0, pthread_mutex_unlock(&block->mutex));
   return NULL;
 }
 
 static void do_sleep(void) {
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000L};
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
 }
 
 TEST(pthread_condattr_setclock, signalled) {

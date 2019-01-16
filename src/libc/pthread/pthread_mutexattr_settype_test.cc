@@ -4,7 +4,8 @@
 
 #include <errno.h>
 #include <pthread.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(pthread_mutexattr_settype, bad) {
   pthread_mutexattr_t attr;
