@@ -5,10 +5,14 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(seekdir, example) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create some example files.
   for (int i = 0; i < 100; ++i) {
     char filename[8];

@@ -8,34 +8,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(scandirat, bad) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Bad directory file descriptor.
-  ASSERT_EQ(-1, scandirat(-123, "hello", (void *)42, (void *)42, (void *)42));
+  ASSERT_EQ(-1, scandirat(-123, "hello", nullptr, nullptr, nullptr));
   ASSERT_EQ(EBADF, errno);
 
   // Attempts to escape the directory.
-  ASSERT_EQ(-1, scandirat(fd_tmp, "/foo", (void *)42, (void *)42, (void *)42));
+  ASSERT_EQ(-1, scandirat(fd_tmp, "/foo", nullptr, nullptr, nullptr));
   ASSERT_EQ(ENOTCAPABLE, errno);
-  ASSERT_EQ(-1, scandirat(fd_tmp, "../a", (void *)42, (void *)42, (void *)42));
+  ASSERT_EQ(-1, scandirat(fd_tmp, "../a", nullptr, nullptr, nullptr));
   ASSERT_EQ(ENOTCAPABLE, errno);
 
   // Empty pathname string.
-  ASSERT_EQ(-1, scandirat(fd_tmp, "", (void *)42, (void *)42, (void *)42));
+  ASSERT_EQ(-1, scandirat(fd_tmp, "", nullptr, nullptr, nullptr));
   ASSERT_EQ(ENOENT, errno);
 
   // Calling scandirat() on a non-directory file descriptor.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
-  ASSERT_EQ(-1, scandirat(fds[0], "hello", (void *)42, (void *)42, (void *)42));
+  ASSERT_EQ(-1, scandirat(fds[0], "hello", nullptr, nullptr, nullptr));
   ASSERT_EQ(ENOTDIR, errno);
   ASSERT_EQ(0, close(fds[0]));
   ASSERT_EQ(0, close(fds[1]));
 }
 
 TEST(scandirat, empty) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Fetch directory listing of the temporary directory of the test.
   struct dirent **namelist;
   ASSERT_EQ(2, scandirat(fd_tmp, ".", &namelist, NULL, alphasort));
@@ -58,6 +64,8 @@ static int sel_even(const struct dirent *de) {
 }
 
 TEST(scandirat, even_files) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create some example files.
   for (int i = 0; i < 1000; ++i) {
     char filename[8];

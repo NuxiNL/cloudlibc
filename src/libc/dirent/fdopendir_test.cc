@@ -7,8 +7,10 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
-#include <testing.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
 
 TEST(fdopendir, bad) {
   // Invalid file descriptor.
@@ -39,6 +41,8 @@ static void test_dotdot(const struct dirent *de) {
 }
 
 TEST(fdopendir, empty) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   DIR *dirp = fdopendir(fd_tmp);
   ASSERT_NE(NULL, dirp);
 

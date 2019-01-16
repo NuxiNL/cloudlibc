@@ -5,10 +5,14 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(rewinddir, example) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // This should already load the first two entries in the directory.
   DIR *dirp = fdopendir(fd_tmp);
 

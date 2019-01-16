@@ -7,10 +7,14 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(opendirat, bad) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(NULL, opendirat(-123, "example"));
   ASSERT_EQ(EBADF, errno);
 
@@ -26,6 +30,8 @@ TEST(opendirat, bad) {
 }
 
 TEST(opendirat, example) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(0, mkdirat(fd_tmp, "dir"));
 
   DIR *dirp = opendirat(fd_tmp, "dir");

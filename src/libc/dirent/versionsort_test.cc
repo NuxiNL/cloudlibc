@@ -6,11 +6,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 static struct dirent *create_dirent(const char *name) {
   size_t len = strlen(name) + 1;
-  struct dirent *de = malloc(offsetof(struct dirent, d_name) + len);
+  auto de = static_cast<struct dirent *>(
+      malloc(offsetof(struct dirent, d_name) + len));
   memcpy(de->d_name, name, len);
   return de;
 }
