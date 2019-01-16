@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <atomic>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -56,12 +57,12 @@ TEST(pthread_barrier, private) {
   struct data data;
   pthread_t threads[10];
   ASSERT_EQ(0,
-            pthread_barrier_init(&data.barrier, NULL, __arraycount(threads)));
+            pthread_barrier_init(&data.barrier, NULL, std::size(threads)));
   std::atomic_init(&data.serial_threads, 0U);
 
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(0, pthread_create(&threads[i], NULL, do_wait, &data));
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(0, pthread_join(threads[i], NULL));
 
   ASSERT_EQ(100, data.serial_threads.load());
@@ -78,11 +79,11 @@ TEST(pthread_barrier, shared) {
   pthread_barrierattr_t attr;
   ASSERT_EQ(0, pthread_barrierattr_init(&attr));
   ASSERT_EQ(0, pthread_barrierattr_setpshared(&attr, PTHREAD_PROCESS_SHARED));
-  ASSERT_EQ(0, pthread_barrier_init(&data->barrier, &attr, __arraycount(fds)));
+  ASSERT_EQ(0, pthread_barrier_init(&data->barrier, &attr, std::size(fds)));
   ASSERT_EQ(0, pthread_barrierattr_destroy(&attr));
   atomic_init(&data->serial_threads, 0);
 
-  for (size_t i = 0; i < __arraycount(fds); ++i) {
+  for (size_t i = 0; i < std::size(fds); ++i) {
     int ret = pdfork(&fds[i]);
     if (ret == 0) {
       do_wait(data);
@@ -90,7 +91,7 @@ TEST(pthread_barrier, shared) {
     }
     ASSERT_LT(0, ret);
   }
-  for (size_t i = 0; i < __arraycount(fds); ++i) {
+  for (size_t i = 0; i < std::size(fds); ++i) {
     siginfo_t si;
     ASSERT_EQ(0, pdwait(fds[i], &si, 0));
     ASSERT_EQ(0, close(fds[i]));

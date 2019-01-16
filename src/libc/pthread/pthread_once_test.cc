@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <pthread.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -41,12 +42,12 @@ TEST(pthread_once, block) {
   pthread_t handles[10];
 
   // Spawn a number of threads to set the value.
-  for (size_t i = 0; i < __arraycount(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     ASSERT_EQ(0, pthread_create(&handles[i], NULL, block_thread, NULL));
   }
 
   // Wait for all the threads to finish.
-  for (size_t i = 0; i < __arraycount(handles); ++i) {
+  for (size_t i = 0; i < std::size(handles); ++i) {
     ASSERT_EQ(0, pthread_join(handles[i], NULL));
   }
 

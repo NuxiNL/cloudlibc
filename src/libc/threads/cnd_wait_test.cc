@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include <threads.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -31,7 +32,7 @@ TEST(cnd_wait, signal) {
 
   // Spawn a number of threads that will block on the condition variable.
   thrd_t threads[10];
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(thrd_success, thrd_create(&threads[i], thread_block, &block));
   struct timespec ts = {.tv_nsec = 100000000};
   ASSERT_EQ(0, thrd_sleep(&ts));
@@ -40,10 +41,10 @@ TEST(cnd_wait, signal) {
   ASSERT_EQ(thrd_success, mtx_lock(&block.mutex));
   block.triggered = true;
   ASSERT_EQ(thrd_success, mtx_unlock(&block.mutex));
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(thrd_success, cnd_signal(&block.cond));
 
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(thrd_success, thrd_join(threads[i], NULL));
   mtx_destroy(&block.mutex);
   cnd_destroy(&block.cond);
@@ -57,7 +58,7 @@ TEST(cnd_wait, broadcast) {
 
   // Spawn a number of threads that will block on the condition variable.
   thrd_t threads[10];
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(thrd_success, thrd_create(&threads[i], thread_block, &block));
   struct timespec ts = {.tv_nsec = 100000000};
   ASSERT_EQ(0, thrd_sleep(&ts));
@@ -68,7 +69,7 @@ TEST(cnd_wait, broadcast) {
   ASSERT_EQ(thrd_success, cnd_broadcast(&block.cond));
   ASSERT_EQ(thrd_success, mtx_unlock(&block.mutex));
 
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(thrd_success, thrd_join(threads[i], NULL));
   mtx_destroy(&block.mutex);
   cnd_destroy(&block.cond);

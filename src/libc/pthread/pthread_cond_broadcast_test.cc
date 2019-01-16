@@ -4,6 +4,7 @@
 
 #include <pthread.h>
 #include <stdbool.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 
@@ -42,7 +43,7 @@ TEST(pthread_cond_broadcast, multiple_locked) {
   block.okay = false;
 
   pthread_t threads[10];
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(0, pthread_create(&threads[i], NULL, do_wait, &block));
   do_sleep();
 
@@ -52,7 +53,7 @@ TEST(pthread_cond_broadcast, multiple_locked) {
   ASSERT_EQ(0, pthread_cond_broadcast(&block.cond));
   ASSERT_EQ(0, pthread_mutex_unlock(&block.mutex));
 
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(0, pthread_join(threads[i], NULL));
 
   ASSERT_EQ(0, pthread_mutex_destroy(&block.mutex));
@@ -67,7 +68,7 @@ TEST(pthread_cond_broadcast, multiple_unlocked) {
   block.okay = false;
 
   pthread_t threads[10];
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(0, pthread_create(&threads[i], NULL, do_wait, &block));
   do_sleep();
 
@@ -77,7 +78,7 @@ TEST(pthread_cond_broadcast, multiple_unlocked) {
   ASSERT_EQ(0, pthread_mutex_unlock(&block.mutex));
   ASSERT_EQ(0, pthread_cond_broadcast(&block.cond));
 
-  for (size_t i = 0; i < __arraycount(threads); ++i)
+  for (size_t i = 0; i < std::size(threads); ++i)
     ASSERT_EQ(0, pthread_join(threads[i], NULL));
 
   ASSERT_EQ(0, pthread_mutex_destroy(&block.mutex));
