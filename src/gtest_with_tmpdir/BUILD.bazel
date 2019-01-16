@@ -1,0 +1,10 @@
+cc_library(
+    name = "gtest_with_tmpdir",
+    srcs = ["gtest_with_tmpdir.cc"],
+    hdrs = ["gtest_with_tmpdir.h"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@com_google_googletest//:gtest",
+        "@org_cloudabi_argdata//:argdata",
+    ],
+)
