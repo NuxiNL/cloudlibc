@@ -2,15 +2,22 @@ load("@org_cloudabi_bazel_toolchains_cloudabi//:cc.bzl", "cc_test_cloudabi")
 
 [cc_test_cloudabi(
     name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
+    srcs = [test + "_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
 ) for test in [
     "argdata_create_fd",
     "argdata_create_float",
     "argdata_create_int",
     "argdata_create_timestamp",
     "argdata_print_yaml",
-    "argdata_reader_pull",
     "argdata_serialize",
+]]
+
+[cc_test_cloudabi(
+    name = test + "_test",
+    srcs = [test + "_test.c"],
+    deps = ["//src/libc/testing:testing_main"],
+) for test in [
+    "argdata_reader_pull",
     "argdata_writer_push",
 ]]

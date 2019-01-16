@@ -6,7 +6,8 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(argdata_create_fd, bad) {
   // Bad file descriptors.

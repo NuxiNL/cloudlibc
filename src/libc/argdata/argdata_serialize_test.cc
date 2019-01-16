@@ -7,41 +7,48 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <testing.h>
 #include <time.h>
+#include <iterator>
+#include <string>
+#include <vector>
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 static int fd_passthrough(void *arg, size_t fd) {
   return fd > INT_MAX ? -1 : fd;
 }
 
-#define TEST_OBJECT(obj, out, nfds, ...)                                 \
-  do {                                                                   \
-    /* Compute size of resulting code. */                                \
-    size_t datalen;                                                      \
-    size_t fdslen;                                                       \
-    argdata_serialized_length(obj, &datalen, &fdslen);                   \
-    ASSERT_EQ(sizeof(out) - 1, datalen);                                 \
-    ASSERT_EQ(nfds, fdslen);                                             \
-                                                                         \
-    /* Generate code and compare. */                                     \
-    char data[sizeof(out) - 1];                                          \
-    int fds[nfds];                                                       \
-    int efds[] = {__VA_ARGS__};                                          \
-    ASSERT_EQ(__arraycount(efds), argdata_serialize(obj, data, fds));    \
-    ASSERT_ARREQ(out, data, sizeof(data));                               \
-    ASSERT_ARREQ(efds, fds, __arraycount(efds));                         \
-                                                                         \
-    /* Generating twice should not output different code. */             \
-    argdata_t *ad2 =                                                     \
-        argdata_from_buffer(out, sizeof(out) - 1, fd_passthrough, NULL); \
-    argdata_serialized_length(ad2, &datalen, &fdslen);                   \
-    ASSERT_EQ(sizeof(out) - 1, datalen);                                 \
-    ASSERT_EQ(nfds, fdslen);                                             \
-    ASSERT_EQ(__arraycount(efds), argdata_serialize(ad2, data, fds));    \
-    argdata_free(ad2);                                                   \
-    ASSERT_ARREQ(out, data, sizeof(data));                               \
-    for (size_t i = 0; i < __arraycount(efds); ++i)                      \
-      ASSERT_EQ(i, fds[i]);                                              \
+#define TEST_OBJECT(obj, out, nfds, ...)                                       \
+  do {                                                                         \
+    std::string edata(out, sizeof(out) - 1);                                   \
+    std::vector<int> efds({__VA_ARGS__});                                      \
+                                                                               \
+    /* Compute size of resulting code. */                                      \
+    size_t datalen;                                                            \
+    size_t fdslen;                                                             \
+    argdata_serialized_length(obj, &datalen, &fdslen);                         \
+    ASSERT_EQ(edata.size(), datalen);                                          \
+    ASSERT_EQ(nfds, fdslen);                                                   \
+                                                                               \
+    /* Generate code and compare. */                                           \
+    std::string data(edata.size(), '\0');                                      \
+    std::vector<int> fds(efds.size());                                         \
+    ASSERT_EQ(efds.size(), argdata_serialize(obj, data.data(), fds.data()));   \
+    ASSERT_EQ(edata, data);                                                    \
+    ASSERT_EQ(efds, fds);                                                      \
+                                                                               \
+    /* Generating twice should not output different code. */                   \
+    argdata_t *ad2 =                                                           \
+        argdata_from_buffer(edata.data(), edata.size(), fd_passthrough, NULL); \
+    argdata_serialized_length(ad2, &datalen, &fdslen);                         \
+    ASSERT_EQ(edata.size(), datalen);                                          \
+    ASSERT_EQ(nfds, fdslen);                                                   \
+    ASSERT_EQ(efds.size(), argdata_serialize(ad2, data.data(), fds.data()));   \
+    argdata_free(ad2);                                                         \
+    ASSERT_THAT(edata, data);                                                  \
+    for (size_t i = 0; i < efds.size(); ++i)                                   \
+      ASSERT_EQ(i, fds[i]);                                                    \
   } while (0)
 
 TEST(argdata_serialize, buffer) {
@@ -226,7 +233,7 @@ TEST(argdata_serialize, map) {
   {
     const argdata_t *keys[] = {&argdata_true, &argdata_false, &argdata_null};
     const argdata_t *values[] = {&argdata_null, &argdata_true, &argdata_false};
-    argdata_t *ad = argdata_create_map(keys, values, __arraycount(keys));
+    argdata_t *ad = argdata_create_map(keys, values, std::size(keys));
     TEST_OBJECT(ad, "\x06\x82\x02\x01\x80\x81\x02\x82\x02\x01\x80\x81\x02", 0);
     argdata_free(ad);
   }
@@ -245,7 +252,7 @@ TEST(argdata_serialize, seq) {
 
   {
     const argdata_t *entries[] = {&argdata_false, &argdata_null, &argdata_true};
-    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    argdata_t *ad = argdata_create_seq(entries, std::size(entries));
     TEST_OBJECT(ad, "\x07\x81\x02\x80\x82\x02\x01", 0);
     argdata_free(ad);
   }
@@ -255,7 +262,7 @@ TEST(argdata_serialize, seq) {
         "This is a quite long string whose length is exactly 125 bytes long. "
         "This way its length can be encoded in seven bits of data.");
     const argdata_t *entries[] = {&argdata_null, str, &argdata_null};
-    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    argdata_t *ad = argdata_create_seq(entries, std::size(entries));
     TEST_OBJECT(ad,
                 "\x07\x80\xff\x08This is a quite long string whose length is "
                 "exactly 125 bytes long. This way its length can be encoded in "
@@ -270,7 +277,7 @@ TEST(argdata_serialize, seq) {
         "This is a very long string whose length is exactly 126 bytes long. "
         "This way its length can't be encoded in seven bits of data.");
     const argdata_t *entries[] = {&argdata_null, str, &argdata_null};
-    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    argdata_t *ad = argdata_create_seq(entries, std::size(entries));
     TEST_OBJECT(
         ad,
         "\x07\x80\x01\x80\x08This is a very long string whose length is "

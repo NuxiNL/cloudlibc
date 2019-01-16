@@ -5,7 +5,8 @@
 #include <argdata.h>
 #include <stdlib.h>
 #include <string.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(argdata_create_float, example) {
   for (size_t i = 0; i < 1000; ++i) {

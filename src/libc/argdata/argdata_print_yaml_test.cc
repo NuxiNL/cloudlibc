@@ -7,7 +7,9 @@
 #include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <testing.h>
+#include <iterator>
+
+#include "gtest/gtest.h"
 
 #define TEST_OBJECT(obj, out)                         \
   do {                                                \
@@ -20,10 +22,11 @@
     ASSERT_EQ(0, fclose(fp));                         \
                                                       \
     /* Compare against expected output. */            \
-    ASSERT_ARREQ(                                     \
+    outbuf[sizeof(outbuf) - 1] = '\0';                \
+    ASSERT_STREQ(                                     \
         "%TAG ! tag:nuxi.nl,2015:cloudabi/\n"         \
         "---\n" out "\n",                             \
-        outbuf, sizeof(outbuf) - 1);                  \
+        outbuf);                                      \
   } while (0)
 
 static int fd_passthrough(void *arg, size_t fd) {
@@ -283,7 +286,7 @@ TEST(argdata_print_yaml, map) {
   {
     const argdata_t *keys[] = {&argdata_true, &argdata_false, &argdata_null};
     const argdata_t *values[] = {&argdata_null, &argdata_true, &argdata_false};
-    argdata_t *ad = argdata_create_map(keys, values, __arraycount(keys));
+    argdata_t *ad = argdata_create_map(keys, values, std::size(keys));
     TEST_OBJECT(ad,
                 "!!map {\n"
                 "  ? !!bool \"true\"\n"
@@ -310,7 +313,7 @@ TEST(argdata_print_yaml, seq) {
 
   {
     const argdata_t *entries[] = {&argdata_false, &argdata_null, &argdata_true};
-    argdata_t *ad = argdata_create_seq(entries, __arraycount(entries));
+    argdata_t *ad = argdata_create_seq(entries, std::size(entries));
     TEST_OBJECT(ad,
                 "!!seq [\n"
                 "  !!bool \"false\",\n"

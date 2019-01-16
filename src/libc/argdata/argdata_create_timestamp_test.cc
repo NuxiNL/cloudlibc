@@ -5,8 +5,9 @@
 #include <argdata.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <testing.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(argdata_create_timestamp, bad) {
   // Nanoseconds out of bounds.

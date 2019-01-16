@@ -6,7 +6,8 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(argdata_create_int, unsigned) {
   for (size_t i = 0; i < 1000; ++i) {
