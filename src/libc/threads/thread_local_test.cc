@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <threads.h>
+
+#include "gtest/gtest.h"
 
 extern thread_local int tlsvar_i;
 thread_local int tlsvar_i = 0x4d653c57;
@@ -12,8 +13,8 @@ thread_local int tlsvar_j = 0;
 
 static int validate(void *arg) {
   // Validate that thread local variables have proper initial values.
-  ASSERT_EQ(0x4d653c57, tlsvar_i);
-  ASSERT_EQ(0, tlsvar_j);
+  EXPECT_EQ(0x4d653c57, tlsvar_i);
+  EXPECT_EQ(0, tlsvar_j);
   return 0;
 }
 

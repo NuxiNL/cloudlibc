@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <threads.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 TEST(cnd_timedwait, timedout) {
   mtx_t mtx;
@@ -28,10 +29,10 @@ struct block {
 };
 
 static int do_wakeup(void *arg) {
-  struct block *block = arg;
-  ASSERT_EQ(thrd_success, mtx_lock(&block->mutex));
-  ASSERT_EQ(thrd_success, cnd_signal(&block->cond));
-  ASSERT_EQ(thrd_success, mtx_unlock(&block->mutex));
+  auto block = static_cast<struct block *>(arg);
+  EXPECT_EQ(thrd_success, mtx_lock(&block->mutex));
+  EXPECT_EQ(thrd_success, cnd_signal(&block->cond));
+  EXPECT_EQ(thrd_success, mtx_unlock(&block->mutex));
   return 0;
 }
 

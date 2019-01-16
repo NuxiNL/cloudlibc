@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <threads.h>
+
+#include "gtest/gtest.h"
 
 TEST(thrd_equal, equal) {
   ASSERT_TRUE(thrd_equal(thrd_current(), thrd_current()));

@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <threads.h>
 #include <time.h>
+
+#include "gtest/gtest.h"
 
 static void do_sleep(void) {
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000L};
@@ -12,7 +13,7 @@ static void do_sleep(void) {
 }
 
 static int do_alive(void *arg) {
-  ASSERT_EQ((void *)42, arg);
+  EXPECT_EQ((void *)42, arg);
   do_sleep();
   return 1337;
 }
@@ -26,7 +27,7 @@ TEST(thrd_detach, alive) {
 }
 
 static int do_dead(void *arg) {
-  ASSERT_EQ((void *)9000, arg);
+  EXPECT_EQ((void *)9000, arg);
   return 82588;
 }
 

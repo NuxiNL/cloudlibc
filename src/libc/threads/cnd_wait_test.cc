@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <stdbool.h>
-#include <testing.h>
 #include <threads.h>
+
+#include "gtest/gtest.h"
 
 struct block {
   mtx_t mutex;
@@ -14,11 +15,11 @@ struct block {
 
 static int thread_block(void *arg) {
   // Block execution until triggered has been set to true.
-  struct block *block = arg;
-  ASSERT_EQ(thrd_success, mtx_lock(&block->mutex));
+  auto block = static_cast<struct block *>(arg);
+  EXPECT_EQ(thrd_success, mtx_lock(&block->mutex));
   while (!block->triggered)
-    ASSERT_EQ(thrd_success, cnd_wait(&block->cond, &block->mutex));
-  ASSERT_EQ(thrd_success, mtx_unlock(&block->mutex));
+    EXPECT_EQ(thrd_success, cnd_wait(&block->cond, &block->mutex));
+  EXPECT_EQ(thrd_success, mtx_unlock(&block->mutex));
   return 0;
 }
 
@@ -32,7 +33,8 @@ TEST(cnd_wait, signal) {
   thrd_t threads[10];
   for (size_t i = 0; i < __arraycount(threads); ++i)
     ASSERT_EQ(thrd_success, thrd_create(&threads[i], thread_block, &block));
-  ASSERT_EQ(0, thrd_sleep(&(struct timespec){.tv_nsec = 100000000}));
+  struct timespec ts = {.tv_nsec = 100000000};
+  ASSERT_EQ(0, thrd_sleep(&ts));
 
   // Wake up the threads one by one.
   ASSERT_EQ(thrd_success, mtx_lock(&block.mutex));
@@ -57,7 +59,8 @@ TEST(cnd_wait, broadcast) {
   thrd_t threads[10];
   for (size_t i = 0; i < __arraycount(threads); ++i)
     ASSERT_EQ(thrd_success, thrd_create(&threads[i], thread_block, &block));
-  ASSERT_EQ(0, thrd_sleep(&(struct timespec){.tv_nsec = 100000000}));
+  struct timespec ts = {.tv_nsec = 100000000};
+  ASSERT_EQ(0, thrd_sleep(&ts));
 
   // Wake up the threads in one go.
   ASSERT_EQ(thrd_success, mtx_lock(&block.mutex));

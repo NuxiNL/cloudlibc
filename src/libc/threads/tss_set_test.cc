@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <threads.h>
+
+#include "gtest/gtest.h"
 
 struct params {
   tss_t tss;
@@ -15,16 +16,16 @@ static void dtor_setval(void *ptr) {
 }
 
 static int do_dtor(void *arg) {
-  struct params *params = arg;
-  ASSERT_EQ(NULL, tss_get(params->tss));
+  auto params = static_cast<struct params *>(arg);
+  EXPECT_EQ(NULL, tss_get(params->tss));
 
   // Set a bogus value.
-  ASSERT_EQ(thrd_success, tss_set(params->tss, (void *)1));
-  ASSERT_EQ((void *)1, tss_get(params->tss));
+  EXPECT_EQ(thrd_success, tss_set(params->tss, (void *)1));
+  EXPECT_EQ((void *)1, tss_get(params->tss));
 
   // Point to an integer that will be set on teardown.
-  ASSERT_EQ(thrd_success, tss_set(params->tss, &params->val));
-  ASSERT_EQ(&params->val, tss_get(params->tss));
+  EXPECT_EQ(thrd_success, tss_set(params->tss, &params->val));
+  EXPECT_EQ(&params->val, tss_get(params->tss));
   return 0;
 }
 
@@ -42,16 +43,16 @@ TEST(tss_set, dtor) {
 }
 
 static int do_clear(void *arg) {
-  struct params *params = arg;
-  ASSERT_EQ(NULL, tss_get(params->tss));
+  auto params = static_cast<struct params *>(arg);
+  EXPECT_EQ(NULL, tss_get(params->tss));
 
   // Set a bogus value.
-  ASSERT_EQ(thrd_success, tss_set(params->tss, (void *)1));
-  ASSERT_EQ((void *)1, tss_get(params->tss));
+  EXPECT_EQ(thrd_success, tss_set(params->tss, (void *)1));
+  EXPECT_EQ((void *)1, tss_get(params->tss));
 
   // Clear the value again so the destructor should not be called.
-  ASSERT_EQ(thrd_success, tss_set(params->tss, NULL));
-  ASSERT_EQ(NULL, tss_get(params->tss));
+  EXPECT_EQ(thrd_success, tss_set(params->tss, NULL));
+  EXPECT_EQ(NULL, tss_get(params->tss));
   return 0;
 }
 
@@ -69,12 +70,12 @@ TEST(tss_set, clear) {
 }
 
 static int do_delete(void *arg) {
-  struct params *params = arg;
-  ASSERT_EQ(NULL, tss_get(params->tss));
+  auto params = static_cast<struct params *>(arg);
+  EXPECT_EQ(NULL, tss_get(params->tss));
 
   // Set a bogus value.
-  ASSERT_EQ(thrd_success, tss_set(params->tss, (void *)1));
-  ASSERT_EQ((void *)1, tss_get(params->tss));
+  EXPECT_EQ(thrd_success, tss_set(params->tss, (void *)1));
+  EXPECT_EQ((void *)1, tss_get(params->tss));
 
   // Delete the key so the destructor should not be called.
   tss_delete(params->tss);

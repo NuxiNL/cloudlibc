@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <threads.h>
+
+#include "gtest/gtest.h"
 
 TEST(mtx_trylock, plain) __no_lock_analysis {
   mtx_t mtx;
@@ -30,7 +31,8 @@ TEST(mtx_trylock, recursive) __no_lock_analysis {
 }
 
 static int busy(void *arg) {
-  ASSERT_EQ(thrd_busy, mtx_trylock(arg));
+  auto mtx = static_cast<mtx_t *>(arg);
+  EXPECT_EQ(thrd_busy, mtx_trylock(mtx));
   return 0;
 }
 

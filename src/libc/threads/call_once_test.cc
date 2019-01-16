@@ -2,8 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <threads.h>
+
+#include "gtest/gtest.h"
 
 static int called = 0;
 
