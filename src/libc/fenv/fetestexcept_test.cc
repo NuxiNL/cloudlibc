@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <fenv.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 // TODO(ed): In addition to using feraiseexcept(), we should actually
 // trigger the exceptions. Unfortunately, both Clang and GCC don't

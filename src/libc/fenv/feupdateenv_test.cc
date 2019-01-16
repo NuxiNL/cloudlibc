@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <fenv.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 TEST(feupdateenv, example) {
   // Come up with a rounding mode and exception state.

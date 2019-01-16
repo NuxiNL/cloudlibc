@@ -4,7 +4,8 @@
 
 #include <fenv.h>
 #include <float.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 // TODO(ed): Re-enable this test on aarch64 and arm once Clang's
 // __builtin_flt_rounds() is fixed.

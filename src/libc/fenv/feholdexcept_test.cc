@@ -3,7 +3,8 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <fenv.h>
-#include <testing.h>
+
+#include "gtest/gtest.h"
 
 // TODO(ed): We should also test non-stop mode. Unfortunately, both
 // Clang and GCC don't support FENV_ACCESS.
