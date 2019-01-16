@@ -15,8 +15,8 @@ cc_library(
     deps = ["//src/common"],
 )
 
-[cc_test_cloudabi(
-    name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
-) for test in ["select"]]
+cc_test_cloudabi(
+    name = "select_test",
+    srcs = ["select_test.cc"],
+    deps = ["//src/gtest_with_tmpdir"],
+)
