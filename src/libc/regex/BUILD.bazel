@@ -27,8 +27,8 @@ cc_library(
     deps = ["//src/common"],
 )
 
-[cc_test_cloudabi(
-    name = test + "_test",
-    srcs = [test + "_test.c"],
-    deps = ["//src/libc/testing:testing_main"],
-) for test in ["regerror"]]
+cc_test_cloudabi(
+    name = "regerror_test",
+    srcs = ["regerror_test.cc"],
+    deps = ["@com_google_googletest//:gtest_main"],
+)
