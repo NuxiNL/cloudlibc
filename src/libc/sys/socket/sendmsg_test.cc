@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <iterator>
 
 #include "gtest/gtest.h"
 #include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
@@ -78,7 +79,7 @@ TEST(sendmsg, example) {
     alignas(struct cmsghdr) char control[CMSG_SPACE(2 * sizeof(int))];
     struct msghdr message = {
         .msg_iov = iov,
-        .msg_iovlen = __arraycount(iov),
+        .msg_iovlen = std::size(iov),
         .msg_control = control,
         .msg_controllen = sizeof(control),
         .msg_flags = 0x1badc0de,
@@ -112,7 +113,7 @@ TEST(sendmsg, example) {
         {.iov_base = strings[2], .iov_len = sizeof(strings[2]) - 1}};
     struct msghdr message = {
         .msg_iov = iov,
-        .msg_iovlen = __arraycount(iov),
+        .msg_iovlen = std::size(iov),
     };
 
     ASSERT_EQ(12, recvmsg(fds[1], &message, 0));
