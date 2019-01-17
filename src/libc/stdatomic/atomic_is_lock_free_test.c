@@ -2,13 +2,17 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <assert.h>
+#include <program.h>
 #include <stdatomic.h>
 #include <stdbool.h>
-#include <testing.h>
+#include <stdlib.h>
 #include <uchar.h>
 #include <wchar.h>
 
-TEST(atomic_is_lock_free, constants) {
+#define ASSERT_TRUE(a) assert(a)
+
+void program_main(const argdata_t *ad) {
 #define TEST_CONSTANT(constant, type)                                         \
   do {                                                                        \
     type t;                                                                   \
@@ -26,4 +30,6 @@ TEST(atomic_is_lock_free, constants) {
   TEST_CONSTANT(ATOMIC_LLONG_LOCK_FREE, long long);
   TEST_CONSTANT(ATOMIC_POINTER_LOCK_FREE, void *);
 #undef TEST_CONSTANT
+
+  exit(0);
 }

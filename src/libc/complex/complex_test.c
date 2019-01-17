@@ -2,10 +2,14 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <assert.h>
 #include <complex.h>
-#include <testing.h>
+#include <program.h>
+#include <stdlib.h>
 
-TEST(complex, presence) {
+#define ASSERT_EQ(a, b) assert((a) == (b))
+
+void program_main(const argdata_t *ad) {
   // Test whether all functions in <complex.h> are present.
   ASSERT_EQ(0.0, cabs(CMPLX(0.0, 0.0)));
   ASSERT_EQ(0.0f, cabsf(CMPLXF(0.0f, 0.0f)));
@@ -75,4 +79,6 @@ TEST(complex, presence) {
   ASSERT_EQ(CMPLXF(0.0f, 0.0f), ctanhf(CMPLXF(0.0f, 0.0f)));
   ASSERT_EQ(CMPLXL(0.0L, 0.0L), ctanhl(CMPLXL(0.0L, 0.0L)));
   ASSERT_EQ(CMPLXL(0.0L, 0.0L), ctanl(CMPLXL(0.0L, 0.0L)));
+
+  exit(0);
 }

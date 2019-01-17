@@ -25,7 +25,6 @@ cc_library(
     # Disable warnings about overly large atomics. Our unit tests should
     # cover these cases regardless.
     copts = ["-Wno-atomic-alignment"],
-    deps = ["//src/libc/testing:testing_main"],
 ) for test in [
     "atomic_flag",
     "atomic_is_lock_free",

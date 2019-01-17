@@ -2,13 +2,17 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include <assert.h>
 #include <complex.h>
+#include <program.h>
 #include <stdatomic.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <testing.h>
+
+#define ASSERT_EQ(a, b) assert((a) == (b))
+#define ASSERT_TRUE(a) assert(a)
 
 // Test the logical behaviour of operations on atomic integer types.
 // These tests make no attempt to actually test whether the functions
@@ -103,57 +107,61 @@
     }                                                  \
   }
 
-TEST(atomic_random, integer_types) {
-  TEST_TYPE(int8_t, INTEGER_TESTS);
-  TEST_TYPE(uint8_t, INTEGER_TESTS);
-  TEST_TYPE(int16_t, INTEGER_TESTS);
-  TEST_TYPE(uint16_t, INTEGER_TESTS);
-  TEST_TYPE(int32_t, INTEGER_TESTS);
-  TEST_TYPE(uint32_t, INTEGER_TESTS);
-  TEST_TYPE(int64_t, INTEGER_TESTS);
-  TEST_TYPE(uint64_t, INTEGER_TESTS);
-}
+void program_main(const argdata_t *ad) {
+  {
+    TEST_TYPE(int8_t, INTEGER_TESTS);
+    TEST_TYPE(uint8_t, INTEGER_TESTS);
+    TEST_TYPE(int16_t, INTEGER_TESTS);
+    TEST_TYPE(uint16_t, INTEGER_TESTS);
+    TEST_TYPE(int32_t, INTEGER_TESTS);
+    TEST_TYPE(uint32_t, INTEGER_TESTS);
+    TEST_TYPE(int64_t, INTEGER_TESTS);
+    TEST_TYPE(uint64_t, INTEGER_TESTS);
+  }
 
-TEST(atomic_random, float_types) {
-  TEST_TYPE(float, COMMON_TESTS);
-  TEST_TYPE(double, COMMON_TESTS);
+  {
+    TEST_TYPE(float, COMMON_TESTS);
+    TEST_TYPE(double, COMMON_TESTS);
 #if 0  // TODO(ed): Clang bug: wrong intrinsics functions.
   TEST_TYPE(long double, COMMON_TESTS);
 #endif
-}
+  }
 
-TEST(atomic_random, complex_types) {
-  TEST_TYPE(float complex, COMMON_TESTS);
+  {
+    TEST_TYPE(float complex, COMMON_TESTS);
 #if 0  // TODO(ed): Clang bug: wrong intrinsics functions.
   TEST_TYPE(double complex, COMMON_TESTS);
 #endif
 #if 0  // TODO(ed): Clang bug: causes Clang to crash.
   TEST_TYPE(long double complex, COMMON_TESTS);
 #endif
-}
+  }
 
-TEST(atomic_random, structure_types) {
-  struct somestruct {
-    char data[48];
-  };
+  {
+    struct somestruct {
+      char data[48];
+    };
 
-  TEST_TYPE(struct somestruct, COMMON_TESTS);
-}
+    TEST_TYPE(struct somestruct, COMMON_TESTS);
+  }
 
-TEST(atomic_random, pointer_types) {
-  struct somestruct {
-    char data[48];
-  };
+  {
+    struct somestruct {
+      char data[48];
+    };
 
-  TEST_TYPE(int8_t *, POINTER_TESTS);
-  TEST_TYPE(int16_t *, POINTER_TESTS);
-  TEST_TYPE(int32_t *, POINTER_TESTS);
-  TEST_TYPE(int64_t *, POINTER_TESTS);
-  TEST_TYPE(float *, POINTER_TESTS);
-  TEST_TYPE(double *, POINTER_TESTS);
-  TEST_TYPE(long double *, POINTER_TESTS);
-  TEST_TYPE(float complex *, POINTER_TESTS);
-  TEST_TYPE(double complex *, POINTER_TESTS);
-  TEST_TYPE(long double complex *, POINTER_TESTS);
-  TEST_TYPE(struct somestruct *, POINTER_TESTS);
+    TEST_TYPE(int8_t *, POINTER_TESTS);
+    TEST_TYPE(int16_t *, POINTER_TESTS);
+    TEST_TYPE(int32_t *, POINTER_TESTS);
+    TEST_TYPE(int64_t *, POINTER_TESTS);
+    TEST_TYPE(float *, POINTER_TESTS);
+    TEST_TYPE(double *, POINTER_TESTS);
+    TEST_TYPE(long double *, POINTER_TESTS);
+    TEST_TYPE(float complex *, POINTER_TESTS);
+    TEST_TYPE(double complex *, POINTER_TESTS);
+    TEST_TYPE(long double complex *, POINTER_TESTS);
+    TEST_TYPE(struct somestruct *, POINTER_TESTS);
+  }
+
+  exit(0);
 }
