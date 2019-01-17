@@ -4,7 +4,6 @@
 
 #include <sys/socket.h>
 
-#include <stdalign.h>
 #include <stddef.h>
 
 #include "gtest/gtest.h"
