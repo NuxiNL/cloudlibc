@@ -4,10 +4,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(lseek, bad) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(-1, lseek(-1, 0, SEEK_SET));
   ASSERT_EQ(EBADF, errno);
 
@@ -23,6 +27,8 @@ TEST(lseek, bad) {
 }
 
 TEST(lseek, example) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create example file.
   int fd = openat(fd_tmp, "file", O_CREAT | O_RDWR);
   ASSERT_LE(0, fd);

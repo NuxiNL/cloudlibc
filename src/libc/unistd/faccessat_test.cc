@@ -7,10 +7,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(faccessat, eacces) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   cap_rights_t r;
   ASSERT_EQ(0, cap_rights_get(fd_tmp, &r));
   cap_rights_clear(&r, CAP_WRITE);
@@ -28,6 +32,8 @@ TEST(faccessat, ebadf) {
 }
 
 TEST(faccessat, einval) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(-1, faccessat(fd_tmp, ".", 0xdeadc0de, 0));
   ASSERT_EQ(EINVAL, errno);
   ASSERT_EQ(-1, faccessat(fd_tmp, ".", R_OK, 0xdeadc0de));
@@ -35,11 +41,15 @@ TEST(faccessat, einval) {
 }
 
 TEST(faccessat, eloop) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(0, symlinkat("hello", fd_tmp, "hello"));
   ASSERT_EQ(-1, faccessat(fd_tmp, "hello", F_OK, AT_EACCESS));
 }
 
 TEST(faccessat, enoent) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(-1, faccessat(fd_tmp, "hello", R_OK, 0));
   ASSERT_EQ(ENOENT, errno);
 }
@@ -54,5 +64,7 @@ TEST(faccessat, enotdir) {
 }
 
 TEST(faccessat, ok) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(0, faccessat(fd_tmp, ".", R_OK | X_OK, 0));
 }

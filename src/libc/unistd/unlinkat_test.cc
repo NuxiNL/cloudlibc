@@ -6,10 +6,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(unlinkat, examples) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(-1, unlinkat(fd_tmp, "nonexistent", 0));
   ASSERT_EQ(ENOENT, errno);
   ASSERT_EQ(-1, unlinkat(fd_tmp, "nonexistent", AT_REMOVEDIR));
@@ -33,6 +37,8 @@ TEST(unlinkat, examples) {
 }
 
 TEST(unlinkat, symlinks_directory) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // A symlink to a directory is not a directory.
   ASSERT_EQ(0, mkdirat(fd_tmp, "dir"));
   ASSERT_EQ(0, symlinkat("dir", fd_tmp, "symlink"));
@@ -49,6 +55,8 @@ TEST(unlinkat, symlinks_directory) {
 }
 
 TEST(unlinkat, symlinks_reg) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // The trailing slash should only be usable on symlinks to
   // directories. On symlinks to non-directories, we should always
   // return ENOTDIR.

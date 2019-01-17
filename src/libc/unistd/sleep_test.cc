@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
-#include <time.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
 
 TEST(sleep, example) {
   // We should sleep at least 1 second.

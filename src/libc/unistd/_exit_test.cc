@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <signal.h>
-#include <testing.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
 
 #if 0  // TODO(ed): How to test this without forking?
 TEST(_exit, example) {

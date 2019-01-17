@@ -2,9 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
 
 TEST(usleep, example) {
   // POSIX usleep() only allows threads to sleep up to one second. Most

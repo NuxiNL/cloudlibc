@@ -5,11 +5,15 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(read, bad) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Bad file descriptor.
   char b;
   ASSERT_EQ(-1, read(0xdeadc0de, &b, 1));
@@ -31,7 +35,8 @@ TEST(read, example) {
   ASSERT_EQ(5, write(fds[1], "Hello", 5));
   char buf[6];
   ASSERT_EQ(5, read(fds[0], buf, sizeof(buf)));
-  ASSERT_ARREQ("Hello", buf, 5);
+  buf[5] = '\0';
+  ASSERT_STREQ("Hello", buf);
 
   // Close pipe.
   ASSERT_EQ(0, close(fds[0]));
@@ -41,14 +46,16 @@ TEST(read, example) {
 static void *sleep_then_close(void *arg) {
   // Sleep for a moment to let the read() settle.
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000L};
-  ASSERT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
+  EXPECT_EQ(0, clock_nanosleep(CLOCK_MONOTONIC, 0, &ts));
 
   // Close the given file handle.
-  ASSERT_EQ(0, close(*(int *)arg));
+  EXPECT_EQ(0, close(*(int *)arg));
   return NULL;
 }
 
 TEST(read, eof) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   {
     // Create pipe.
     int fds[2];

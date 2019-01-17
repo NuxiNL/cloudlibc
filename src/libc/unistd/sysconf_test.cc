@@ -4,9 +4,10 @@
 
 #include <errno.h>
 #include <limits.h>
-#include <testing.h>
 #include <time.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
 
 TEST(sysconf, posix) {
   errno = 0;

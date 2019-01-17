@@ -7,10 +7,11 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
-TEST_SINGLE_THREADED(pipe, readwrite) {
+#include "gtest/gtest.h"
+
+TEST(pipe, readwrite) {
   // Create pipe.
   int fds[2];
   ASSERT_EQ(0, pipe(fds));
@@ -28,7 +29,8 @@ TEST_SINGLE_THREADED(pipe, readwrite) {
   // Extract data again.
   char buf[6];
   ASSERT_EQ(5, read(fds[0], buf, sizeof(buf)));
-  ASSERT_ARREQ("Hello", buf, 5);
+  buf[5] = '\0';
+  ASSERT_STREQ("Hello", buf);
 
   // Close read end. Write should return EPIPE, but a signal should not
   // be delivered.

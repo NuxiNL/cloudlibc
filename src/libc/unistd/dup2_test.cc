@@ -6,10 +6,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
-TEST_SINGLE_THREADED(dup2, bad) {
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
+TEST(dup2, bad) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Source file descriptor is invalid.
   ASSERT_EQ(-1, dup2(-1, fd_tmp));
   ASSERT_EQ(EBADF, errno);
@@ -30,6 +34,8 @@ TEST_SINGLE_THREADED(dup2, bad) {
 }
 
 TEST(dup2, good) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create two files for testing.
   int fd1 = openat(fd_tmp, "file1", O_CREAT | O_EXCL | O_WRONLY);
   ASSERT_LE(0, fd1);

@@ -6,10 +6,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(ftruncate, example) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   int fd = openat(fd_tmp, "example", O_RDWR | O_CREAT | O_EXCL);
   ASSERT_LE(0, fd);
 

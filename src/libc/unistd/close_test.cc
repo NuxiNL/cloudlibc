@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include <errno.h>
-#include <testing.h>
 #include <unistd.h>
+
+#include "gtest/gtest.h"
 
 TEST(close, bad) {
   ASSERT_EQ(-1, close(-123));

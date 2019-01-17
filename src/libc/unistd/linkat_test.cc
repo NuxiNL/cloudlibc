@@ -6,16 +6,22 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(linkat, directory) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   ASSERT_EQ(0, mkdirat(fd_tmp, "subdir1"));
   ASSERT_EQ(-1, linkat(fd_tmp, "subdir1", fd_tmp, "subdir2", 0));
   ASSERT_EQ(EPERM, errno);
 }
 
 TEST(linkat, reg) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   int fd = openat(fd_tmp, "reg1", O_CREAT | O_WRONLY);
   ASSERT_LE(0, fd);
   ASSERT_EQ(0, close(fd));
@@ -31,6 +37,8 @@ TEST(linkat, reg) {
 }
 
 TEST(linkat, symlink) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Test the AT_SYMLINK_FOLLOW flag.
   ASSERT_EQ(0, symlinkat("nonexistent", fd_tmp, "symlink1"));
   ASSERT_EQ(-1,

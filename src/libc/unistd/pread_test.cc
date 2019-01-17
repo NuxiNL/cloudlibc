@@ -4,10 +4,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <testing.h>
 #include <unistd.h>
 
+#include "gtest/gtest.h"
+#include "src/gtest_with_tmpdir/gtest_with_tmpdir.h"
+
 TEST(pread, bad) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Invalid file descriptor.
   char b;
   ASSERT_EQ(-1, pread(0xdeadc0de, &b, 1, 123));
@@ -27,6 +31,8 @@ TEST(pread, bad) {
 }
 
 TEST(pread, example) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create file for testing.
   int fd = openat(fd_tmp, "test", O_CREAT | O_EXCL | O_RDWR);
   ASSERT_LE(0, fd);
@@ -35,13 +41,16 @@ TEST(pread, example) {
   ASSERT_EQ(12, write(fd, "Hello, world", 12));
   char buf[6];
   ASSERT_EQ(5, pread(fd, buf, sizeof(buf), 7));
-  ASSERT_ARREQ("world", buf, 5);
+  buf[5] = '\0';
+  ASSERT_STREQ("world", buf);
 
   // Close file.
   ASSERT_EQ(0, close(fd));
 }
 
 TEST(pread, eof) {
+  int fd_tmp = gtest_with_tmpdir::CreateTemporaryDirectory();
+
   // Create file.
   int fd = openat(fd_tmp, "Hello", O_CREAT | O_RDWR);
   ASSERT_EQ(6, write(fd, "foobar", 6));
