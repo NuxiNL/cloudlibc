@@ -7,6 +7,6 @@
 
 void uv_update_time(uv_loop_t *loop) {
   cloudabi_timestamp_t ts;
-  cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_MONOTONIC, 1000000, &ts);
+  (void)cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_MONOTONIC, 1000000, &ts);
   loop->__now = ts / 1000000;
 }

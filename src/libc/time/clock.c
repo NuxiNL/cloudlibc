@@ -13,6 +13,6 @@ static_assert(CLOCKS_PER_SEC == NSEC_PER_SEC,
 
 clock_t clock(void) {
   cloudabi_timestamp_t ts = 0;
-  cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_PROCESS_CPUTIME_ID, 0, &ts);
+  (void)cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_PROCESS_CPUTIME_ID, 0, &ts);
   return ts;
 }

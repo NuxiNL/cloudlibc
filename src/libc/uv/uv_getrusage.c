@@ -8,8 +8,8 @@
 
 int uv_getrusage(uv_rusage_t *rusage) {
   cloudabi_timestamp_t usertime = 0;
-  cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_PROCESS_CPUTIME_ID, 1000,
-                              &usertime);
+  (void)cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_PROCESS_CPUTIME_ID, 1000,
+                                    &usertime);
   *rusage = (uv_rusage_t){
       .ru_utime.tv_sec = usertime / 1000000000,
       .ru_utime.tv_usec = (usertime % 1000000000) / 1000,
