@@ -92,7 +92,7 @@ static const char *inet_ntop_inet6(const struct in6_addr *restrict src,
 }
 
 const char *inet_ntop(int af, const void *restrict src, char *restrict dst,
-                      size_t size) {
+                      socklen_t size) {
   switch (af) {
     case AF_INET:
       return inet_ntop_inet(src, dst, size);
