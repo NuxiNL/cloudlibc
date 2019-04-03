@@ -7,6 +7,6 @@
 
 uint64_t uv_hrtime(void) {
   cloudabi_timestamp_t ts;
-  cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_MONOTONIC, 1, &ts);
+  (void)cloudabi_sys_clock_time_get(CLOUDABI_CLOCK_MONOTONIC, 1, &ts);
   return ts;
 }
