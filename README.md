@@ -1,3 +1,15 @@
+# NOTE: This project is unmaintained
+
+CloudABI is no longer being maintained. It was an awesome experiment,
+but it never got enough traction to be sustainable. If you like the idea
+behind CloudABI, please consider looking into the
+[WebAssembly System Interface (WASI)](https://wasi.dev). WASI's design
+has been inspired by CloudABI.
+
+The author of CloudABI (Ed Schouten) would like to thank all of the
+people who contributed to this project. Let's hope CloudABI lives on in
+spirit and influences the way software is designed in the future!
+
 # Introducing Nuxi CloudABI
 
 Nuxi CloudABI is an
